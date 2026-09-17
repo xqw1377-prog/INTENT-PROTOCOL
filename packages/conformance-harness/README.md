@@ -132,6 +132,30 @@ If object shapes changed again, fixtures may need re-syncing — by design,
 shape drift is itself a reportable protocol event, not something the harness
 silently absorbs.
 
+## CI machine evidence (GitHub Actions, read-only)
+
+`.github/workflows/conformance-evidence.yml` implements the Commander order on
+PR #3: gate runs no longer accept locally self-reported results.
+
+- **Trigger:** manual `workflow_dispatch` with an exact 40-hex `target_sha`
+  (Builder A commit, must be pushed to origin). The harness revision (the
+  branch/commit the workflow runs on) and the SUT SHA are pinned separately.
+- **Pipeline:** capture from the git object database at the target SHA
+  (refuses local-only/movable SHAs) → full conformance → report validator →
+  Job Summary (target SHA, harness SHA, Node version, target/harness lockfile
+  SHA-256, zod recorded vs runtime, report counts, FAIL list) → evidence
+  artifact uploaded on PASS and FAIL alike.
+- **Honest failure:** `npm run conformance` exits with vitest's code (the old
+  `;`-chained script swallowed FAIL exit codes — fixed via
+  `scripts/run-conformance.mjs`); the workflow defers the non-zero exit until
+  after artifact upload, so evidence exists AND the job fails.
+- **Permissions:** `contents: read` only. The workflow writes no source, PRs,
+  issues, releases, packages or deployments.
+
+Note: `workflow_dispatch` appears in the Actions UI once this file is on the
+default branch (i.e., after PR #3 merges); until then it can be dispatched by
+API/gh against this branch ref.
+
 ## Freeze blockers
 
 The Commander has ruled that the following UNKNOWNs are S0 protocol semantics

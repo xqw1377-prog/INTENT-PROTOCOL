@@ -1,8 +1,8 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-17T15:13:34.045Z
+- Generated: 2026-09-17T15:42:35.602Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
-- Checks: **140 PASS / 5 FAIL / 32 UNKNOWN** (177 total)
+- Checks: **141 PASS / 5 FAIL / 32 UNKNOWN** (178 total)
 - Gate status: **NOT_READY** — no freeze declared; freeze authority: Commander.
 
 ## Area rollup
@@ -24,7 +24,7 @@
 | C-13 | **FAIL** | 48 | 2 | 3 |
 | C-14 | **UNKNOWN** | 2 | 0 | 9 |
 | C-15 | **UNKNOWN** | 3 | 0 | 6 |
-| SUT-LOAD | **UNKNOWN** | 4 | 0 | 1 |
+| SUT-LOAD | **UNKNOWN** | 5 | 0 | 1 |
 
 ## FAIL findings
 
