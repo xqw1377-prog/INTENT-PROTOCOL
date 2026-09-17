@@ -4,12 +4,14 @@
  * Frozen rules — changing any of these is a protocol-breaking change:
  *  1. Object keys are sorted by UTF-16 code unit order (RFC 8785 / JCS compatible).
  *  2. Keys whose value is `undefined` are omitted; `null` is preserved.
- *  3. Strings are NFC-normalized before serialization and escaped per JSON.stringify
+ *  3. String VALUES are NFC-normalized before escaping per JSON.stringify
  *     (only `"`, `\` and control chars are escaped; control chars use lowercase `\uXXXX`).
+ *     Keys are compared in raw UTF-16 order and emitted verbatim.
  *  4. Numbers MUST be safe integers (|n| <= 2^53-1). Floats, NaN, Infinity and -0 are rejected;
  *     monetary and decimal values MUST be carried as strings (see `Decimal`).
- *  5. Arrays preserve order.
- *  6. No whitespace.
+ *  5. Keys are NOT NFC-normalized (normalization could merge distinct keys); only values are.
+ *  6. Arrays preserve order.
+ *  7. No whitespace.
  */
 
 export type JsonPrimitive = string | number | boolean | null;
@@ -38,8 +40,9 @@ function serialize(value: unknown, path: string): string {
     case "boolean":
       return value ? "true" : "false";
     case "number":
+      if (Object.is(value, -0)) throw new CanonicalizationError("-0 is not allowed (0/-0 ambiguity)", path);
       if (!Number.isSafeInteger(value)) throw new CanonicalizationError("number must be a safe integer", path);
-      return String(value === 0 ? 0 : value);
+      return String(value);
     case "bigint":
       throw new CanonicalizationError("bigint not allowed; encode as string", path);
     case "undefined":
@@ -59,7 +62,11 @@ function serialize(value: unknown, path: string): string {
   const keys = Object.keys(obj)
     .filter((k) => obj[k] !== undefined)
     .sort(compareUtf16);
-  const parts = keys.map((k) => `${JSON.stringify(k.normalize("NFC"))}:${serialize(obj[k], path ? `${path}.${k}` : k)}`);
+  // Two distinct spellings may normalize to the same NFC key — that would make the
+  // canonical form ambiguous, so reject rather than pick a winner.
+  // Keys are NOT NFC-normalized: normalizing keys could collapse two distinct
+  // keys into one (ambiguous output). Only string *values* are normalized.
+  const parts = keys.map((k) => `${JSON.stringify(k)}:${serialize(obj[k], path ? `${path}.${k}` : k)}`);
   return `{${parts.join(",")}}`;
 }
 

@@ -1,0 +1,1299 @@
+{
+  "$doc": "S0 golden vectors. Regenerate with scripts/generate-golden.mjs. Any digest change here is a protocol-breaking change.",
+  "valid": [
+    {
+      "name": "intent-contract-v1",
+      "schema_version": "intent.v1",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "canonical": "{\"budget\":{\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"execution_cap\":\"2000.00\",\"total\":\"20000.00\"},\"constraints\":[{\"constraint_id\":\"c1\",\"kind\":\"FORBIDDEN_ACTION\",\"statement\":\"never touch merchant payment keys\"}],\"created_at\":\"2026-09-17T00:00:00.000Z\",\"deadline\":\"2026-10-17T00:00:00.000Z\",\"goal\":{\"domain\":\"software-delivery\",\"statement\":\"Launch a restaurant menu diagnosis agent\",\"target_state\":\"30 real merchants onboarded with diagnosis reports\"},\"intent_id\":\"00000000-0000-4000-8000-000000000001\",\"owner_subject\":\"user:alice\",\"schema_version\":\"intent.v1\",\"settlement_policy_ref\":{\"hash\":\"sha256:00000000000000000000000000000000000000000000000000000000000000a1\",\"uri\":\"policy://milestone-escrow/v1\"},\"success_criteria\":[{\"assertion\":\"required test suite passes 30/30 after target commit\",\"criterion_id\":\"crit-tests\",\"evidence_requirements\":[{\"kind\":\"ci-run\",\"min_level\":\"E2\",\"required\":true,\"source\":\"github-actions\"}],\"kind\":\"MACHINE\",\"schema_version\":\"criterion.v1\",\"threshold\":{\"passed\":30,\"total\":30},\"verifier_ref\":\"verifier:ci-verifier@1\"}],\"verification_policy_ref\":{\"hash\":\"sha256:00000000000000000000000000000000000000000000000000000000000000a0\",\"uri\":\"policy://software-delivery/v1\"},\"version\":1}",
+      "content_hash": "sha256:e8c7fb6eb25cd958a832f069a54d99425de1a321c06ba953b9d94bd0bce6885b"
+    },
+    {
+      "name": "criterion-v1",
+      "schema_version": "criterion.v1",
+      "input": {
+        "schema_version": "criterion.v1",
+        "criterion_id": "crit-tests",
+        "kind": "MACHINE",
+        "assertion": "required test suite passes 30/30 after target commit",
+        "verifier_ref": "verifier:ci-verifier@1",
+        "evidence_requirements": [
+          {
+            "kind": "ci-run",
+            "min_level": "E2",
+            "source": "github-actions",
+            "required": true
+          }
+        ],
+        "threshold": {
+          "passed": 30,
+          "total": 30
+        }
+      },
+      "canonical": "{\"assertion\":\"required test suite passes 30/30 after target commit\",\"criterion_id\":\"crit-tests\",\"evidence_requirements\":[{\"kind\":\"ci-run\",\"min_level\":\"E2\",\"required\":true,\"source\":\"github-actions\"}],\"kind\":\"MACHINE\",\"schema_version\":\"criterion.v1\",\"threshold\":{\"passed\":30,\"total\":30},\"verifier_ref\":\"verifier:ci-verifier@1\"}",
+      "content_hash": "sha256:11601dc75786d1a906bc47132f3757362e4c9363e1ebf0873d007f183f3bbbfe"
+    },
+    {
+      "name": "evidence-artifact-v1",
+      "schema_version": "artifact.v1",
+      "input": {
+        "schema_version": "artifact.v1",
+        "artifact_id": "00000000-0000-4000-8000-000000000008",
+        "kind": "ci-run-log",
+        "level": "E2",
+        "source": "ci:github-actions",
+        "subject": "commit:deadbeef",
+        "captured_at": "2026-09-17T00:00:00.000Z",
+        "payload_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000b1",
+        "locator": "cas://sha256/0000000000000",
+        "privacy_class": "INTERNAL"
+      },
+      "canonical": "{\"artifact_id\":\"00000000-0000-4000-8000-000000000008\",\"captured_at\":\"2026-09-17T00:00:00.000Z\",\"kind\":\"ci-run-log\",\"level\":\"E2\",\"locator\":\"cas://sha256/0000000000000\",\"payload_hash\":\"sha256:00000000000000000000000000000000000000000000000000000000000000b1\",\"privacy_class\":\"INTERNAL\",\"schema_version\":\"artifact.v1\",\"source\":\"ci:github-actions\",\"subject\":\"commit:deadbeef\"}",
+      "content_hash": "sha256:7c3293802c5c453438a21b72c22b111eeca5f42c3916089e4c7a16564c369e0d"
+    },
+    {
+      "name": "evidence-bundle-v1-sealed",
+      "schema_version": "bundle.v1",
+      "input": {
+        "schema_version": "bundle.v1",
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "milestone_revision": 1,
+        "run_ids": [
+          "00000000-0000-4000-8000-000000000009"
+        ],
+        "artifact_hashes": [
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b1",
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b2",
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b3"
+        ],
+        "merkle_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
+        "submitter": "agent:executor_01",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
+        "sealed_at": "2026-09-17T00:00:00.000Z",
+        "state": "SEALED"
+      },
+      "canonical": "{\"artifact_hashes\":[\"sha256:00000000000000000000000000000000000000000000000000000000000000b1\",\"sha256:00000000000000000000000000000000000000000000000000000000000000b2\",\"sha256:00000000000000000000000000000000000000000000000000000000000000b3\"],\"bundle_id\":\"00000000-0000-4000-8000-000000000003\",\"merkle_root\":\"sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"milestone_revision\":1,\"policy_hash\":\"sha256:00000000000000000000000000000000000000000000000000000000000000a0\",\"run_ids\":[\"00000000-0000-4000-8000-000000000009\"],\"schema_version\":\"bundle.v1\",\"sealed_at\":\"2026-09-17T00:00:00.000Z\",\"state\":\"SEALED\",\"submitter\":\"agent:executor_01\"}",
+      "content_hash": "sha256:65a5fb18f0b9d8b6bd72a4956a10288d631648a8c6502d3ccbfd8f0b8f1373a4"
+    },
+    {
+      "name": "verification-decision-v1",
+      "schema_version": "decision.v1",
+      "input": {
+        "schema_version": "decision.v1",
+        "decision_id": "00000000-0000-4000-8000-000000000004",
+        "verifier_id": "verifier:ci-verifier@1",
+        "verifier_digest": "sha256:00000000000000000000000000000000000000000000000000000000000000c0",
+        "intent_hash": "sha256:e8c7fb6eb25cd958a832f069a54d99425de1a321c06ba953b9d94bd0bce6885b",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "milestone_revision": 1,
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
+        "proof_binding": "sha256:8977c69bcc3f47af5db89a2411639d2ba8f62b4745431eceeef2bc80bd477055",
+        "result": "VALID",
+        "reason_codes": [
+          "TESTS_PASS",
+          "DEPLOY_REACHABLE"
+        ],
+        "replay_digest": "sha256:a135800a1cb297a5a8ef88cb4e52908c37007abaac8abc886572f6651d3e79b3",
+        "decided_at": "2026-09-17T00:00:00.000Z"
+      },
+      "canonical": "{\"bundle_id\":\"00000000-0000-4000-8000-000000000003\",\"decided_at\":\"2026-09-17T00:00:00.000Z\",\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"evidence_root\":\"sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc\",\"intent_hash\":\"sha256:e8c7fb6eb25cd958a832f069a54d99425de1a321c06ba953b9d94bd0bce6885b\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"milestone_revision\":1,\"policy_hash\":\"sha256:00000000000000000000000000000000000000000000000000000000000000a0\",\"proof_binding\":\"sha256:8977c69bcc3f47af5db89a2411639d2ba8f62b4745431eceeef2bc80bd477055\",\"reason_codes\":[\"TESTS_PASS\",\"DEPLOY_REACHABLE\"],\"replay_digest\":\"sha256:a135800a1cb297a5a8ef88cb4e52908c37007abaac8abc886572f6651d3e79b3\",\"result\":\"VALID\",\"schema_version\":\"decision.v1\",\"verifier_digest\":\"sha256:00000000000000000000000000000000000000000000000000000000000000c0\",\"verifier_id\":\"verifier:ci-verifier@1\"}",
+      "content_hash": "sha256:78b80a6ce142b67f4ba15ae6398d50d98c41cc949d5864e95b22cc1c0c23dc62"
+    },
+    {
+      "name": "settlement-instruction-v1",
+      "schema_version": "settlement.v1",
+      "input": {
+        "schema_version": "settlement.v1",
+        "settlement_id": "00000000-0000-4000-8000-000000000005",
+        "escrow_ref": "escrow:0xabc123",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "decision_id": "00000000-0000-4000-8000-000000000004",
+        "proof_binding": "sha256:8977c69bcc3f47af5db89a2411639d2ba8f62b4745431eceeef2bc80bd477055",
+        "nonce": "0",
+        "outputs": [
+          {
+            "recipient": "agent:executor_01",
+            "asset": {
+              "network": "evm:8453",
+              "asset": "0xUSDC",
+              "decimals": 6
+            },
+            "amount": "1500.00",
+            "reason": "milestone-1 completion"
+          },
+          {
+            "recipient": "org:platform",
+            "asset": {
+              "network": "evm:8453",
+              "asset": "0xUSDC",
+              "decimals": 6
+            },
+            "amount": "150.00",
+            "reason": "settlement fee 10%"
+          }
+        ],
+        "total_amount": "1650.00",
+        "expires_at": "2026-11-01T00:00:00.000Z"
+      },
+      "canonical": "{\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"escrow_ref\":\"escrow:0xabc123\",\"expires_at\":\"2026-11-01T00:00:00.000Z\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"nonce\":\"0\",\"outputs\":[{\"amount\":\"1500.00\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"milestone-1 completion\",\"recipient\":\"agent:executor_01\"},{\"amount\":\"150.00\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"settlement fee 10%\",\"recipient\":\"org:platform\"}],\"proof_binding\":\"sha256:8977c69bcc3f47af5db89a2411639d2ba8f62b4745431eceeef2bc80bd477055\",\"schema_version\":\"settlement.v1\",\"settlement_id\":\"00000000-0000-4000-8000-000000000005\",\"total_amount\":\"1650.00\"}",
+      "content_hash": "sha256:b4572d522f892d7b6dcfc874388797a9f4d095628df11e13ad092cc632d86a1e"
+    }
+  ],
+  "derived": {
+    "bundle_merkle_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
+    "decision_proof_binding": "sha256:8977c69bcc3f47af5db89a2411639d2ba8f62b4745431eceeef2bc80bd477055",
+    "settlement_key": "sha256:5593e7ef7882ec5c1e034889546447094ab8cb8aa3ddeaba3bc9667c2a85cb42"
+  },
+  "equivalence": [
+    {
+      "name": "key-ordering",
+      "expect": "same digest",
+      "a": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "b": {
+        "created_at": "2026-09-17T00:00:00.000Z",
+        "settlement_policy_ref": {
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1",
+          "uri": "policy://milestone-escrow/v1"
+        },
+        "verification_policy_ref": {
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
+          "uri": "policy://software-delivery/v1"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "budget": {
+          "execution_cap": "2000.00",
+          "total": "20000.00",
+          "asset": {
+            "decimals": 6,
+            "asset": "0xUSDC",
+            "network": "evm:8453"
+          }
+        },
+        "constraints": [
+          {
+            "statement": "never touch merchant payment keys",
+            "kind": "FORBIDDEN_ACTION",
+            "constraint_id": "c1"
+          }
+        ],
+        "success_criteria": [
+          {
+            "threshold": {
+              "total": 30,
+              "passed": 30
+            },
+            "evidence_requirements": [
+              {
+                "required": true,
+                "source": "github-actions",
+                "min_level": "E2",
+                "kind": "ci-run"
+              }
+            ],
+            "verifier_ref": "verifier:ci-verifier@1",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "kind": "MACHINE",
+            "criterion_id": "crit-tests",
+            "schema_version": "criterion.v1"
+          }
+        ],
+        "goal": {
+          "domain": "software-delivery",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "statement": "Launch a restaurant menu diagnosis agent"
+        },
+        "owner_subject": "user:alice",
+        "version": 1,
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "schema_version": "intent.v1"
+      }
+    },
+    {
+      "name": "unicode-nfc-vs-nfd",
+      "expect": "same digest",
+      "a": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "café",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "b": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "café",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      }
+    },
+    {
+      "name": "numeric-1.0-vs-1",
+      "expect": "same canonical bytes",
+      "a": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "b": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      }
+    }
+  ],
+  "negative": [
+    {
+      "name": "unsupported-schema-version",
+      "input": {
+        "schema_version": "intent.v2",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "null-for-optional-field",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": null,
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "missing-required-field",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "unknown-field",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z",
+        "surprise": 1
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "non-integer-number",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1.5,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "duplicate-artifact-hash",
+      "input": {
+        "schema_version": "bundle.v1",
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "milestone_revision": 1,
+        "run_ids": [
+          "00000000-0000-4000-8000-000000000009"
+        ],
+        "artifact_hashes": [
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b1",
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b1"
+        ],
+        "merkle_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
+        "submitter": "agent:executor_01",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
+        "sealed_at": "2026-09-17T00:00:00.000Z",
+        "state": "SEALED"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "sealed-bundle-without-merkle-root",
+      "input": {
+        "schema_version": "bundle.v1",
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "milestone_revision": 1,
+        "run_ids": [
+          "00000000-0000-4000-8000-000000000009"
+        ],
+        "artifact_hashes": [
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b1",
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b2",
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b3"
+        ],
+        "submitter": "agent:executor_01",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
+        "sealed_at": "2026-09-17T00:00:00.000Z",
+        "state": "SEALED"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "v1-with-parent-hash",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z",
+        "parent_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000099"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "v2-without-change-reason",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 2,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z",
+        "parent_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000099"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "tampered-content-hash",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z",
+        "content_hash": "sha256:000000000000000000000000000000000000000000000000000000000000dead"
+      },
+      "expect": "hash_mismatch"
+    },
+    {
+      "name": "tampered-merkle-root",
+      "input": {
+        "schema_version": "bundle.v1",
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "milestone_revision": 1,
+        "run_ids": [
+          "00000000-0000-4000-8000-000000000009"
+        ],
+        "artifact_hashes": [
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b1",
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b2",
+          "sha256:00000000000000000000000000000000000000000000000000000000000000b3"
+        ],
+        "merkle_root": "sha256:000000000000000000000000000000000000000000000000000000000000dead",
+        "submitter": "agent:executor_01",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
+        "sealed_at": "2026-09-17T00:00:00.000Z",
+        "state": "SEALED"
+      },
+      "expect": "merkle_mismatch"
+    },
+    {
+      "name": "tampered-proof-binding",
+      "input": {
+        "schema_version": "decision.v1",
+        "decision_id": "00000000-0000-4000-8000-000000000004",
+        "verifier_id": "verifier:ci-verifier@1",
+        "verifier_digest": "sha256:00000000000000000000000000000000000000000000000000000000000000c0",
+        "intent_hash": "sha256:e8c7fb6eb25cd958a832f069a54d99425de1a321c06ba953b9d94bd0bce6885b",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "milestone_revision": 1,
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
+        "proof_binding": "sha256:000000000000000000000000000000000000000000000000000000000000dead",
+        "result": "VALID",
+        "reason_codes": [
+          "TESTS_PASS",
+          "DEPLOY_REACHABLE"
+        ],
+        "replay_digest": "sha256:a135800a1cb297a5a8ef88cb4e52908c37007abaac8abc886572f6651d3e79b3",
+        "decided_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "binding_mismatch"
+    }
+  ],
+  "semantic_change": [
+    {
+      "name": "changed-criterion-changes-intent-digest",
+      "base": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "mutated": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 29/30",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000.00",
+          "execution_cap": "2000.00"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "different digest"
+    },
+    {
+      "name": "tampered-evidence-root-changes-proof-binding",
+      "base": {
+        "intent_hash": "sha256:e8c7fb6eb25cd958a832f069a54d99425de1a321c06ba953b9d94bd0bce6885b",
+        "milestone_revision": 1,
+        "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+      },
+      "mutated": {
+        "intent_hash": "sha256:e8c7fb6eb25cd958a832f069a54d99425de1a321c06ba953b9d94bd0bce6885b",
+        "milestone_revision": 1,
+        "evidence_root": "sha256:000000000000000000000000000000000000000000000000000000000000beef",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+      },
+      "expect": "different digest"
+    }
+  ]
+}

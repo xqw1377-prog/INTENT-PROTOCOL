@@ -18,7 +18,7 @@ import {
 import { DecisionResult, EvidenceBundleState } from "./states.js";
 
 const Json: z.ZodType<unknown> = z.lazy(() =>
-  z.union([z.string(), z.number().int(), z.boolean(), z.null(), z.array(Json), z.record(Json)]),
+  z.union([z.string(), z.number().refine(Number.isSafeInteger, "must be a safe integer"), z.boolean(), z.null(), z.array(Json), z.record(Json)]),
 );
 
 // ---------------------------------------------------------------- CriterionV1
@@ -102,8 +102,12 @@ export const EvidenceArtifactSchema = z.object({
   /** What it is about, e.g. "commit:abc123", "url:https://...". */
   subject: z.string().min(1),
   captured_at: TimestampSchema,
-  /** Hash of the raw artifact bytes in the CAS; never embeds RESTRICTED content. */
-  content_hash: HashSchema,
+  /**
+   * Hash of the raw artifact bytes in the CAS; never embeds RESTRICTED content.
+   * Named payload_hash (not content_hash) because content_hash is the object self-digest
+   * convention — see OPEN-QUESTIONS OQ-2.
+   */
+  payload_hash: HashSchema,
   locator: z.string().min(1),
   privacy_class: PrivacyClass,
   signature: SignatureSchema.optional(),

@@ -3,11 +3,12 @@
  * generated digests are stable across runs and machines (G0 evidence).
  */
 import {
-  Domain, hashObject, hashBytes, merkleRoot, proofBinding, settlementKey,
+  Domain, hashObject, hashBytes, merkleRoot, proofBinding,
 } from "../dist/index.js";
 
 const T = "2026-09-17T00:00:00.000Z";
-export const H = (n) => "sha256:" + n.toString(16).padStart(2, "0").repeat(32); // deterministic fake hashes for refs
+/** Deterministic fake hash for reference fields: sha256:<hex of n, zero-padded to 64>. */
+export const H = (n) => "sha256:" + n.toString(16).padStart(64, "0");
 export const U = (s) => `00000000-0000-4000-8000-${s.padStart(12, "0")}`;
 
 export const POLICY_REF = { uri: "policy://software-delivery/v1", hash: H(0xa0) };
@@ -59,7 +60,7 @@ export function artifact(id, subject, contentHash) {
     source: "ci:github-actions",
     subject,
     captured_at: T,
-    content_hash: contentHash,
+    payload_hash: contentHash,
     locator: "cas://sha256/" + contentHash.slice(7, 20),
     privacy_class: "INTERNAL",
   };
@@ -130,12 +131,3 @@ export function settlement(overrides = {}) {
     ...overrides,
   };
 }
-
-export const SCHEMAS = {
-  "intent.v1": "IntentContractSchema",
-  "criterion.v1": "CriterionSchema",
-  "artifact.v1": "EvidenceArtifactSchema",
-  "bundle.v1": "EvidenceBundleSchema",
-  "decision.v1": "VerificationDecisionSchema",
-  "settlement.v1": "SettlementInstructionSchema",
-};
