@@ -152,9 +152,9 @@ PR #3: gate runs no longer accept locally self-reported results.
 - **Permissions:** `contents: read` only. The workflow writes no source, PRs,
   issues, releases, packages or deployments.
 
-Note: `workflow_dispatch` appears in the Actions UI once this file is on the
-default branch (i.e., after PR #3 merges); until then it can be dispatched by
-API/gh against this branch ref.
+Formal entry point policy (Commander order): this workflow is the gate
+Actions entry ONLY once it exists on the DEFAULT branch. Per-branch
+dispatching is NOT a substitute and must not be treated as gate evidence.
 
 ## Freeze blockers
 

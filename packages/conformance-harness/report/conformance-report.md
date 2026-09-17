@@ -1,8 +1,8 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-17T15:42:35.602Z
+- Generated: 2026-09-17T15:59:34.306Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
-- Checks: **141 PASS / 5 FAIL / 32 UNKNOWN** (178 total)
+- Checks: **141 PASS / 5 FAIL / 33 UNKNOWN** (179 total)
 - Gate status: **NOT_READY** — no freeze declared; freeze authority: Commander.
 
 ## Area rollup
@@ -20,7 +20,7 @@
 | C-09 | **UNKNOWN** | 7 | 0 | 2 |
 | C-10 | **FAIL** | 7 | 1 | 1 |
 | C-11 | **UNKNOWN** | 6 | 0 | 2 |
-| C-12 | **UNKNOWN** | 5 | 0 | 2 |
+| C-12 | **UNKNOWN** | 5 | 0 | 3 |
 | C-13 | **FAIL** | 48 | 2 | 3 |
 | C-14 | **UNKNOWN** | 2 | 0 | 9 |
 | C-15 | **UNKNOWN** | 3 | 0 | 6 |
@@ -63,6 +63,7 @@
 - **C-14-03**: Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?
 - **C-14-04**: Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?
 - **C-15-04**: Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must a SEALED bundle's merkle_root be verified against artifact_hashes at seal time?
+- **C-12-08**: Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1.
 
 ## UNKNOWN (never auto-PASS)
 
@@ -80,7 +81,8 @@
 - **C-11-06** (gap_documented): gap_documented: No canonical decimal form: '-0', '0.00', '1.10' are all accepted; the same economic value has multiple hashes across implementations.
 - **C-12-06** (gap_documented): gap_documented: A decision may reference an OPEN (unsealed) bundle; nothing in the delivered layer binds decision validity to bundle state.
 - **C-12-07** (gap_documented): gap_documented: Same bundle_id with a different artifact set is representable; no uniqueness/append-only constraint exists in the schema layer.
-- **C-13-02c** (gap_documented): gap_documented: SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid.
+- **C-12-08** (gap_documented): gap_documented: proof_binding is computed over (intent_hash, milestone_revision, evidence_root, policy_hash) ONLY; the binding function does not accept milestone_id. Two different milestones sharing those four values therefore share ONE proof binding: an old proof is replayable across proof targets. Demonstrated as a machine-reproducible collision by C-12-08.
+- **C-13-02c** (gap_documented): gap_documented: SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid. Commander ruling OQ-5 (2026-09-17): SubjectRef V1 is accepted as a shape but '@' must be REMOVED; once Builder A lands it, this check must flip to assert rejection.
 - **C-13-09b** (gap_documented): gap_documented: UUID schema accepts any RFC version and uppercase; intent ids are not pinned to a single version/canonical form.
 - **C-13-12** (blocked): blocked: Run manifest / grant / edge NodeRef / dispute reference validation cannot be tested: objects absent from the delivered S0 snapshot.
 - **C-14-02** (gap_documented): gap_documented: decision.intent_hash can be fabricated; no delivered API binds a decision to an existing Intent object.
@@ -156,6 +158,10 @@ user:alice@evil is now a valid principal. Visual spoofing of email-like principa
 ### AS-14 [medium] Economic invariants absent from every delivered layer
 total_amount != sum(outputs) parses; outputs are not bounded by any escrow notion; u64 nonce has no monotonicity. The A5/A7 principles (proof before payment, idempotent effects) currently rest entirely on undelivered engines.
 - Grounded by: C-11-05, C-11-07
+
+### AS-15 [high] proof_binding does not bind milestone_id (R9): cross-milestone proof replay
+proof_binding = H(intent_hash || milestone_revision || evidence_root || policy_hash) has no milestone_id in the preimage, and the delivered proofBinding() API cannot even receive one. Two distinct milestones sharing revision/intent/policy/evidence-root therefore share a single binding: a VALID decision for milestone A is a structurally valid proof for milestone B. Commander ruling R9 requires binding milestone_id in V1.
+- Grounded by: C-12-08
 
 ## Statement
 

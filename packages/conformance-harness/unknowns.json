@@ -81,7 +81,7 @@
     },
     "C-13-02c": {
       "kind": "gap_documented",
-      "rationale": "SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid.",
+      "rationale": "SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid. Commander ruling OQ-5 (2026-09-17): SubjectRef V1 is accepted as a shape but '@' must be REMOVED; once Builder A lands it, this check must flip to assert rejection.",
       "blocked_by": "uncoordinated live edit"
     },
     "C-13-09b": {
@@ -176,6 +176,12 @@
       "kind": "blocked",
       "rationale": "G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists (@intent/intent-core absent).",
       "blocked_by": "undelivered"
+    },
+    "C-12-08": {
+      "kind": "gap_documented",
+      "rationale": "proof_binding is computed over (intent_hash, milestone_revision, evidence_root, policy_hash) ONLY; the binding function does not accept milestone_id. Two different milestones sharing those four values therefore share ONE proof binding: an old proof is replayable across proof targets. Demonstrated as a machine-reproducible collision by C-12-08.",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1."
     }
   }
 }

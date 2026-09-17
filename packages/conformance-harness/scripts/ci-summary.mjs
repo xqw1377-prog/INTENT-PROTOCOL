@@ -39,6 +39,7 @@ L.push("|---|---|");
 L.push(`| Builder A target SHA (SUT) | \`${targetSha}\` |`);
 L.push(`| Builder B harness SHA | \`${harnessSha}\` |`);
 L.push(`| Node | \`${process.version}\` |`);
+L.push(`| ICU / Unicode runtime | ICU \`${process.versions.icu ?? "n/a"}\`, V8 \`${process.versions.v8 ?? "n/a"}\` (NFC normalization data source) |`);
 L.push(`| Target lockfile (package-lock.json @ target SHA) | \`${targetLock}\` |`);
 L.push(`| Harness lockfile (package-lock.json @ harness SHA) | \`${harnessLock}\` |`);
 L.push(`| zod (recorded) | \`${capture?.zod_version ?? "n/a"}\` (source: \`${capture?.zod_version_source ?? "n/a"}\`) |`);
