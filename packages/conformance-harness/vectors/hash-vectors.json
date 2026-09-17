@@ -1,0 +1,20 @@
+{
+  "$comment": "Domain-separated hash vectors. Payloads are hashed under several (domain, schema_version) pairs. expected_ref values are computed by the harness's INDEPENDENT reference implementation at generation time and pinned here; the runner recomputes them live from the reference (guarding against vector staleness) and requires the SUT to agree on every row.",
+  "domains": [
+    "intent-protocol/v1/intent",
+    "intent-protocol/v1/milestone",
+    "intent-protocol/v1/verification-decision",
+    "intent-protocol/v1/settlement-instruction",
+    "intent-protocol/v1/evidence-bundle"
+  ],
+  "versions": ["intent.v1", "milestone.v1", "decision.v1", "settlement.v1", "bundle.v1"],
+  "payloads": [
+    { "id": "P-EMPTY", "value": {} },
+    { "id": "P-FLAT", "value": { "b": 2, "a": 1 } },
+    { "id": "P-NESTED", "value": { "z": { "y": [1, 2, 3], "x": null }, "a": "nfc-é" } },
+    { "id": "P-INT-KEYS", "value": { "10": "b", "2": "a" } },
+    { "id": "P-UNICODE", "value": { "key_😀": "value_é", "𐀀": 1, "￿": 2 } },
+    { "id": "P-NEG", "value": { "n": -9007199254740991 } },
+    { "id": "P-ARR", "value": [true, null, "x", 0] }
+  ]
+}

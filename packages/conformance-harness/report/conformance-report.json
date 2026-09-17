@@ -1,0 +1,2779 @@
+{
+  "report_id": "p0-s0-conformance-2026-09-17T14-34-50-366Z",
+  "generated_at": "2026-09-17T14:34:50.367Z",
+  "harness": {
+    "name": "@intent/conformance-harness",
+    "builder": "Builder B (Independent Verifier)",
+    "independence": "Reference canonicalizer/hasher/merkle written from the written protocol rules only (ADR-005, arch doc §6.1); zero imports from the SUT in src/reference. The SUT is loaded exclusively via src/sut.ts from a frozen snapshot.",
+    "reproduce_all": "cd packages/conformance-harness && npm run conformance"
+  },
+  "sut": {
+    "package": "@intent/protocol-schema",
+    "capture": {
+      "captured_at": "2026-09-17T14:25:58.822Z",
+      "source_git_head": "d2ddb961c4aa287a6aa0c56eebfdcbeebd143296",
+      "source_dir": "packages/protocol-schema/src",
+      "zod_version": "3.25.76",
+      "files": [
+        {
+          "file": "packages/protocol-schema/src/canonical.ts",
+          "sha256": "ac18d0ede9911f2f9b07b4ec392e6930322e8f8a7ab4eda1332c39fd843180c6",
+          "bytes": 2709
+        },
+        {
+          "file": "packages/protocol-schema/src/hash.ts",
+          "sha256": "6906b26324d957bde11d50636e6fdc6811da3dfe54085c79fb4f5006ea36bcba",
+          "bytes": 4188
+        },
+        {
+          "file": "packages/protocol-schema/src/index.ts",
+          "sha256": "0853552387640304923d1113a51160544e9b99701735d8435d6f8840abc3f6cb",
+          "bytes": 180
+        },
+        {
+          "file": "packages/protocol-schema/src/merkle.ts",
+          "sha256": "028a0413a8f57f4758c213e6394b6cf3bba25cbba4541903d49ae232e40fa262",
+          "bytes": 2999
+        },
+        {
+          "file": "packages/protocol-schema/src/objects.ts",
+          "sha256": "98deea2dc38a0b2b14bdbae3b214cef3d53f05e5a346726e5b17ec006b12eb84",
+          "bytes": 9352
+        },
+        {
+          "file": "packages/protocol-schema/src/primitives.ts",
+          "sha256": "53ccfbd30c4bc82a8bb561950c3a434ea0c63ac4af713e58e2285d17c5866d0f",
+          "bytes": 2777
+        },
+        {
+          "file": "packages/protocol-schema/src/states.ts",
+          "sha256": "b7fbde8f52bdd192f66af0778aee7df39f80290070b44388cfdc2613034bb4a7",
+          "bytes": 729
+        }
+      ],
+      "note": "Verbatim copy of Builder A's protocol-schema source at capture time. The harness imports ONLY this snapshot; the live tree is never loaded by tests."
+    },
+    "snapshot_files": [
+      {
+        "file": "packages/protocol-schema/src/canonical.ts",
+        "sha256": "ac18d0ede9911f2f9b07b4ec392e6930322e8f8a7ab4eda1332c39fd843180c6",
+        "bytes": 2709
+      },
+      {
+        "file": "packages/protocol-schema/src/hash.ts",
+        "sha256": "6906b26324d957bde11d50636e6fdc6811da3dfe54085c79fb4f5006ea36bcba",
+        "bytes": 4188
+      },
+      {
+        "file": "packages/protocol-schema/src/index.ts",
+        "sha256": "0853552387640304923d1113a51160544e9b99701735d8435d6f8840abc3f6cb",
+        "bytes": 180
+      },
+      {
+        "file": "packages/protocol-schema/src/merkle.ts",
+        "sha256": "028a0413a8f57f4758c213e6394b6cf3bba25cbba4541903d49ae232e40fa262",
+        "bytes": 2999
+      },
+      {
+        "file": "packages/protocol-schema/src/objects.ts",
+        "sha256": "98deea2dc38a0b2b14bdbae3b214cef3d53f05e5a346726e5b17ec006b12eb84",
+        "bytes": 9352
+      },
+      {
+        "file": "packages/protocol-schema/src/primitives.ts",
+        "sha256": "53ccfbd30c4bc82a8bb561950c3a434ea0c63ac4af713e58e2285d17c5866d0f",
+        "bytes": 2777
+      },
+      {
+        "file": "packages/protocol-schema/src/states.ts",
+        "sha256": "b7fbde8f52bdd192f66af0778aee7df39f80290070b44388cfdc2613034bb4a7",
+        "bytes": 729
+      }
+    ]
+  },
+  "provenance": {
+    "git_head": "d2ddb961c4aa287a6aa0c56eebfdcbeebd143296",
+    "vector_files": [
+      {
+        "file": "packages/conformance-harness/vectors/canonical-vectors.json",
+        "sha256": "d80f1b6eecc18bafc2d1147fe077486d93a6ee22d7470658507813b6db9cc197"
+      },
+      {
+        "file": "packages/conformance-harness/vectors/hash-vectors.json",
+        "sha256": "ae4b3624296fa4f01cd3acda2b433c8f5bd8d4c79b4af4f2325b7d309a1305b9"
+      }
+    ],
+    "unknowns_manifest": "6d0a72b23f8bd74b0b63e1f1d7427e4cb868a727f28cfca42333ee28fb23b336",
+    "attack_surfaces_manifest": "0bc1f369c9d4f64391918fa181ab72d84b5f32a7bad8eaebc409bacd617c6c24"
+  },
+  "summary": {
+    "total_checks": 177,
+    "counts": {
+      "PASS": 140,
+      "FAIL": 5,
+      "UNKNOWN": 32
+    },
+    "areas": [
+      {
+        "area": "C-01",
+        "total": 10,
+        "PASS": 9,
+        "FAIL": 1,
+        "UNKNOWN": 0,
+        "verdict": "FAIL"
+      },
+      {
+        "area": "C-02",
+        "total": 9,
+        "PASS": 9,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "verdict": "PASS"
+      },
+      {
+        "area": "C-03",
+        "total": 6,
+        "PASS": 6,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "verdict": "PASS"
+      },
+      {
+        "area": "C-04",
+        "total": 10,
+        "PASS": 10,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "verdict": "PASS"
+      },
+      {
+        "area": "C-05",
+        "total": 8,
+        "PASS": 7,
+        "FAIL": 1,
+        "UNKNOWN": 0,
+        "verdict": "FAIL"
+      },
+      {
+        "area": "C-06",
+        "total": 5,
+        "PASS": 5,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "verdict": "PASS"
+      },
+      {
+        "area": "C-07",
+        "total": 7,
+        "PASS": 3,
+        "FAIL": 0,
+        "UNKNOWN": 4,
+        "verdict": "UNKNOWN"
+      },
+      {
+        "area": "C-08",
+        "total": 11,
+        "PASS": 9,
+        "FAIL": 0,
+        "UNKNOWN": 2,
+        "verdict": "UNKNOWN"
+      },
+      {
+        "area": "C-09",
+        "total": 9,
+        "PASS": 7,
+        "FAIL": 0,
+        "UNKNOWN": 2,
+        "verdict": "UNKNOWN"
+      },
+      {
+        "area": "C-10",
+        "total": 9,
+        "PASS": 7,
+        "FAIL": 1,
+        "UNKNOWN": 1,
+        "verdict": "FAIL"
+      },
+      {
+        "area": "C-11",
+        "total": 8,
+        "PASS": 6,
+        "FAIL": 0,
+        "UNKNOWN": 2,
+        "verdict": "UNKNOWN"
+      },
+      {
+        "area": "C-12",
+        "total": 7,
+        "PASS": 5,
+        "FAIL": 0,
+        "UNKNOWN": 2,
+        "verdict": "UNKNOWN"
+      },
+      {
+        "area": "C-13",
+        "total": 53,
+        "PASS": 48,
+        "FAIL": 2,
+        "UNKNOWN": 3,
+        "verdict": "FAIL"
+      },
+      {
+        "area": "C-14",
+        "total": 11,
+        "PASS": 2,
+        "FAIL": 0,
+        "UNKNOWN": 9,
+        "verdict": "UNKNOWN"
+      },
+      {
+        "area": "C-15",
+        "total": 9,
+        "PASS": 3,
+        "FAIL": 0,
+        "UNKNOWN": 6,
+        "verdict": "UNKNOWN"
+      },
+      {
+        "area": "SUT-LOAD",
+        "total": 5,
+        "PASS": 4,
+        "FAIL": 0,
+        "UNKNOWN": 1,
+        "verdict": "UNKNOWN"
+      }
+    ],
+    "gate_status": "NOT_READY",
+    "freeze_declaration": "NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. Four FAIL findings and every UNKNOWN entry must be dispositioned first."
+  },
+  "results": [
+    {
+      "check_id": "SUT-LOAD-00",
+      "status": "PASS",
+      "area": "SUT loadability",
+      "title": "[SUT-LOAD-00] snapshot capture.json exists and pins 7 source files",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
+        "test_title": "[SUT-LOAD-00] snapshot capture.json exists and pins 7 source files",
+        "runner_status": "passed",
+        "duration_ms": 1.1345409999999845
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-00\""
+    },
+    {
+      "check_id": "SUT-LOAD-01",
+      "status": "PASS",
+      "area": "SUT loadability",
+      "title": "[SUT-LOAD-01] snapshot modules export the documented API",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
+        "test_title": "[SUT-LOAD-01] snapshot modules export the documented API",
+        "runner_status": "passed",
+        "duration_ms": 0.26004199999999855
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-01\""
+    },
+    {
+      "check_id": "SUT-LOAD-02",
+      "status": "PASS",
+      "area": "SUT loadability",
+      "title": "[SUT-LOAD-02] sha256 empty-string known answer (NIST)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
+        "test_title": "[SUT-LOAD-02] sha256 empty-string known answer (NIST)",
+        "runner_status": "passed",
+        "duration_ms": 0.23541600000001495
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-02\""
+    },
+    {
+      "check_id": "SUT-LOAD-03",
+      "status": "PASS",
+      "area": "SUT loadability",
+      "title": "[SUT-LOAD-03] sha256 'abc' known answer (NIST FIPS 180-2)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
+        "test_title": "[SUT-LOAD-03] sha256 'abc' known answer (NIST FIPS 180-2)",
+        "runner_status": "passed",
+        "duration_ms": 0.05304100000000744
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-03\""
+    },
+    {
+      "check_id": "PKG-ENTRY-01",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: Live package barrel/@intent/protocol-schema entry import was not evaluated against the frozen snapshot: Builder A edited the live tree twice during verification (missing events.js -> fixed; Milestone/Plan/Run/Grant/Edge/Dispute objects removed; artifact content_hash renamed payload_hash; SubjectRef charset widened). Re-run scripts/capture-sut.mjs to pin a newer SUT.",
+      "area": "SUT loadability",
+      "title": "[PKG-ENTRY-01][GAP] live package barrel + `@intent/protocol-schema` import: NOT evaluated against the frozen snapshot — Builder A edits the live tree concurrently (drift observed twice during verification); re-run scripts/capture-sut.mjs and add an entry-point suite once the SUT stabilizes",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
+        "test_title": "[PKG-ENTRY-01][GAP] live package barrel + `@intent/protocol-schema` import: NOT evaluated against the frozen snapshot — Builder A edits the live tree concurrently (drift observed twice during verification); re-run scripts/capture-sut.mjs and add an entry-point suite once the SUT stabilizes",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"PKG-ENTRY-01\""
+    },
+    {
+      "check_id": "C-01-01",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-01] repeated serialization of the same value is byte-identical (100x)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-01] repeated serialization of the same value is byte-identical (100x)",
+        "runner_status": "passed",
+        "duration_ms": 4.611582999999996
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-01\""
+    },
+    {
+      "check_id": "C-01-02",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-02] independent fresh instances (JSON round-trip) serialize identically",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-02] independent fresh instances (JSON round-trip) serialize identically",
+        "runner_status": "passed",
+        "duration_ms": 0.6423330000000078
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-02\""
+    },
+    {
+      "check_id": "C-01-03",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-03] SUT agrees with independent reference on every canonical vector",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-03] SUT agrees with independent reference on every canonical vector",
+        "runner_status": "passed",
+        "duration_ms": 1.758375000000001
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-03\""
+    },
+    {
+      "check_id": "C-01-04",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-04] canonical form is round-trip idempotent (parse(serialize(x)) reserializes to itself)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-04] canonical form is round-trip idempotent (parse(serialize(x)) reserializes to itself)",
+        "runner_status": "passed",
+        "duration_ms": 0.6053749999999809
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-04\""
+    },
+    {
+      "check_id": "C-01-05",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-05] arrays preserve order (never sorted)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-05] arrays preserve order (never sorted)",
+        "runner_status": "passed",
+        "duration_ms": 0.5965000000000487
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-05\""
+    },
+    {
+      "check_id": "C-01-06",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-06] floats / NaN / Infinity / beyond-safe integers are rejected",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-06] floats / NaN / Infinity / beyond-safe integers are rejected",
+        "runner_status": "passed",
+        "duration_ms": 3.110749999999996
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-06\""
+    },
+    {
+      "check_id": "C-01-07",
+      "status": "FAIL",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-07] FAIL: spec rule 4 says -0 is rejected; the SUT accepts it and silently maps it to 0 (0/-0 hash ambiguity)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-07] FAIL: spec rule 4 says -0 is rejected; the SUT accepts it and silently maps it to 0 (0/-0 hash ambiguity)",
+        "runner_status": "failed",
+        "duration_ms": 4.5887500000000045,
+        "failure_messages": [
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/INTENT PROTOCOL/packages/conformance-harness/test/01-canonical-determinism.test.ts:56:43\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-07\""
+    },
+    {
+      "check_id": "C-01-08",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-08] undefined values: omitted in objects, rejected in arrays",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-08] undefined values: omitted in objects, rejected in arrays",
+        "runner_status": "passed",
+        "duration_ms": 0.2108339999999771
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-08\""
+    },
+    {
+      "check_id": "C-01-09",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-09] non-plain objects (Date/Map/Set/TypedArray/bigint/symbol) rejected",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-09] non-plain objects (Date/Map/Set/TypedArray/bigint/symbol) rejected",
+        "runner_status": "passed",
+        "duration_ms": 0.3282080000000178
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-09\""
+    },
+    {
+      "check_id": "C-01-10",
+      "status": "PASS",
+      "area": "[C-01] canonical serialization determinism",
+      "title": "[C-01-10] lone surrogates are escaped (JSON.stringify semantics) and agree with reference",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
+        "test_title": "[C-01-10] lone surrogates are escaped (JSON.stringify semantics) and agree with reference",
+        "runner_status": "passed",
+        "duration_ms": 0.1270420000000172
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-10\""
+    },
+    {
+      "check_id": "C-02-01",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-01] hashObject is deterministic across repetitions (50x per vector cell)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-01] hashObject is deterministic across repetitions (50x per vector cell)",
+        "runner_status": "passed",
+        "duration_ms": 4.24512500000003
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-01\""
+    },
+    {
+      "check_id": "C-02-02",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-02] SUT hashObject agrees with independent reference on every (domain, version, payload) cell",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-02] SUT hashObject agrees with independent reference on every (domain, version, payload) cell",
+        "runner_status": "passed",
+        "duration_ms": 7.82816600000001
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-02\""
+    },
+    {
+      "check_id": "C-02-03",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-03] domain separation: same payload+version under different domains yields different hashes",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-03] domain separation: same payload+version under different domains yields different hashes",
+        "runner_status": "passed",
+        "duration_ms": 0.11483399999997346
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-03\""
+    },
+    {
+      "check_id": "C-02-04",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-04] version separation: same payload+domain under different versions yields different hashes",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-04] version separation: same payload+domain under different versions yields different hashes",
+        "runner_status": "passed",
+        "duration_ms": 0.07270899999997482
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-04\""
+    },
+    {
+      "check_id": "C-02-05",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-05] hash format: sha256: + 64 lowercase hex; roundtrip fromHash/toHash; malformed rejected",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-05] hash format: sha256: + 64 lowercase hex; roundtrip fromHash/toHash; malformed rejected",
+        "runner_status": "passed",
+        "duration_ms": 0.4857499999999959
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-05\""
+    },
+    {
+      "check_id": "C-02-06",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-06] hash_input layout is exactly domain||0x00||version||0x00||canonical",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-06] hash_input layout is exactly domain||0x00||version||0x00||canonical",
+        "runner_status": "passed",
+        "duration_ms": 0.07954200000000355
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-06\""
+    },
+    {
+      "check_id": "C-02-07",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-07] u32be/u64be agree with reference on boundary values and reject out-of-range",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-07] u32be/u64be agree with reference on boundary values and reject out-of-range",
+        "runner_status": "passed",
+        "duration_ms": 0.34474999999997635
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-07\""
+    },
+    {
+      "check_id": "C-02-08",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-08] proofBinding: SUT === independent reference; sensitive to every component",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-08] proofBinding: SUT === independent reference; sensitive to every component",
+        "runner_status": "passed",
+        "duration_ms": 0.4364590000000135
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-08\""
+    },
+    {
+      "check_id": "C-02-09",
+      "status": "PASS",
+      "area": "[C-02] hash determinism",
+      "title": "[C-02-09] settlementKey: SUT === independent reference; idempotent, differs per nonce/escrow",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
+        "test_title": "[C-02-09] settlementKey: SUT === independent reference; idempotent, differs per nonce/escrow",
+        "runner_status": "passed",
+        "duration_ms": 0.32220899999998664
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-09\""
+    },
+    {
+      "check_id": "C-03-01",
+      "status": "PASS",
+      "area": "[C-03] property-order mutation",
+      "title": "[C-03-01] all 24 insertion orders of a 4-key object yield identical canonical text",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
+        "test_title": "[C-03-01] all 24 insertion orders of a 4-key object yield identical canonical text",
+        "runner_status": "passed",
+        "duration_ms": 6.489125000000001
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-01\""
+    },
+    {
+      "check_id": "C-03-02",
+      "status": "PASS",
+      "area": "[C-03] property-order mutation",
+      "title": "[C-03-02] deep key-order shuffles of a full Intent yield identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
+        "test_title": "[C-03-02] deep key-order shuffles of a full Intent yield identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 7.669500000000028
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-02\""
+    },
+    {
+      "check_id": "C-03-03",
+      "status": "PASS",
+      "area": "[C-03] property-order mutation",
+      "title": "[C-03-03] raw JSON text with reordered keys yields identical canonical text",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
+        "test_title": "[C-03-03] raw JSON text with reordered keys yields identical canonical text",
+        "runner_status": "passed",
+        "duration_ms": 0.08395799999999554
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-03\""
+    },
+    {
+      "check_id": "C-03-04",
+      "status": "PASS",
+      "area": "[C-03] property-order mutation",
+      "title": "[C-03-04] integer-like keys sort as strings (UTF-16), not numerically",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
+        "test_title": "[C-03-04] integer-like keys sort as strings (UTF-16), not numerically",
+        "runner_status": "passed",
+        "duration_ms": 0.04537499999997863
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-04\""
+    },
+    {
+      "check_id": "C-03-05",
+      "status": "PASS",
+      "area": "[C-03] property-order mutation",
+      "title": "[C-03-05] guard: reordering an ARRAY (success_criteria) must change the hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
+        "test_title": "[C-03-05] guard: reordering an ARRAY (success_criteria) must change the hash",
+        "runner_status": "passed",
+        "duration_ms": 8.968958000000043
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-05\""
+    },
+    {
+      "check_id": "C-03-06",
+      "status": "PASS",
+      "area": "[C-03] property-order mutation",
+      "title": "[C-03-06] schema parse result is order-insensitive (zod object key order irrelevant)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
+        "test_title": "[C-03-06] schema parse result is order-insensitive (zod object key order irrelevant)",
+        "runner_status": "passed",
+        "duration_ms": 2.4307909999999993
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-06\""
+    },
+    {
+      "check_id": "C-04-01",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-01] whitespace variant 'pretty-2' yields identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-01] whitespace variant 'pretty-2' yields identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 4.735042000000021
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
+    },
+    {
+      "check_id": "C-04-01#1",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-01] whitespace variant 'pretty-4' yields identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-01] whitespace variant 'pretty-4' yields identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 0.6893750000000409
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
+    },
+    {
+      "check_id": "C-04-01#2",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-01] whitespace variant 'tabs' yields identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-01] whitespace variant 'tabs' yields identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 0.4178330000000301
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
+    },
+    {
+      "check_id": "C-04-01#3",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-01] whitespace variant 'crlf-lines' yields identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-01] whitespace variant 'crlf-lines' yields identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 0.42183299999999235
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
+    },
+    {
+      "check_id": "C-04-01#4",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-01] whitespace variant 'trailing-newline' yields identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-01] whitespace variant 'trailing-newline' yields identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 0.4907089999999812
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
+    },
+    {
+      "check_id": "C-04-01#5",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-01] whitespace variant 'leading-space' yields identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-01] whitespace variant 'leading-space' yields identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 0.3709999999999809
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
+    },
+    {
+      "check_id": "C-04-01#6",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-01] whitespace variant 'repretty' yields identical content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-01] whitespace variant 'repretty' yields identical content_hash",
+        "runner_status": "passed",
+        "duration_ms": 3.0595840000000294
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
+    },
+    {
+      "check_id": "C-04-02",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-02] whitespace INSIDE string values is significant and changes the hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-02] whitespace INSIDE string values is significant and changes the hash",
+        "runner_status": "passed",
+        "duration_ms": 2.713458000000003
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-02\""
+    },
+    {
+      "check_id": "C-04-03",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-03] canonical output itself contains no non-string whitespace",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-03] canonical output itself contains no non-string whitespace",
+        "runner_status": "passed",
+        "duration_ms": 1.5888749999999732
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-03\""
+    },
+    {
+      "check_id": "C-04-04",
+      "status": "PASS",
+      "area": "[C-04] whitespace mutation",
+      "title": "[C-04-04] tab/newline inside string survives into canonical as \\u0009 / \\u000a escapes",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
+        "test_title": "[C-04-04] tab/newline inside string survives into canonical as \\u0009 / \\u000a escapes",
+        "runner_status": "passed",
+        "duration_ms": 0.086166999999989
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-04\""
+    },
+    {
+      "check_id": "C-05-01",
+      "status": "PASS",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-01] value-level NFC/NFD equivalence: canonically equivalent strings hash identically",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-01] value-level NFC/NFD equivalence: canonically equivalent strings hash identically",
+        "runner_status": "passed",
+        "duration_ms": 1.1399579999999787
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-01\""
+    },
+    {
+      "check_id": "C-05-02",
+      "status": "PASS",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-02] key-level NFC/NFD equivalence",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-02] key-level NFC/NFD equivalence",
+        "runner_status": "passed",
+        "duration_ms": 0.2243750000000091
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-02\""
+    },
+    {
+      "check_id": "C-05-03",
+      "status": "PASS",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-03] only NFC (not NFKC/NFKD) is applied: compatibility-distinct forms stay distinct",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-03] only NFC (not NFKC/NFKD) is applied: compatibility-distinct forms stay distinct",
+        "runner_status": "passed",
+        "duration_ms": 0.3706250000000182
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-03\""
+    },
+    {
+      "check_id": "C-05-04",
+      "status": "PASS",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-04] key sorting is UTF-16 code-unit order, not code-point order",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-04] key sorting is UTF-16 code-unit order, not code-point order",
+        "runner_status": "passed",
+        "duration_ms": 0.2110829999999737
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-04\""
+    },
+    {
+      "check_id": "C-05-05",
+      "status": "FAIL",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-05] an object holding BOTH the NFC and NFD spelling of one key must not produce ambiguous canonical JSON",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-05] an object holding BOTH the NFC and NFD spelling of one key must not produce ambiguous canonical JSON",
+        "runner_status": "failed",
+        "duration_ms": 8.559207999999956,
+        "failure_messages": [
+          "AssertionError: canonical text has duplicate keys: {\"é\":2,\"é\":1}: expected 1 to be 2 // Object.is equality\n    at /Users/xinquanwang/INTENT PROTOCOL/packages/conformance-harness/test/05-unicode-normalization.test.ts:63:87\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at runSuite (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-05\""
+    },
+    {
+      "check_id": "C-05-06",
+      "status": "PASS",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-06] lone surrogates: escaped consistently, agree with reference (cross-implementation hazard documented)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-06] lone surrogates: escaped consistently, agree with reference (cross-implementation hazard documented)",
+        "runner_status": "passed",
+        "duration_ms": 0.12970800000005056
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-06\""
+    },
+    {
+      "check_id": "C-05-07",
+      "status": "PASS",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-07] U+2028/U+2029 are emitted raw — valid JSON, agrees with reference; recorded as cross-language hazard",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-07] U+2028/U+2029 are emitted raw — valid JSON, agrees with reference; recorded as cross-language hazard",
+        "runner_status": "passed",
+        "duration_ms": 0.07629199999996672
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-07\""
+    },
+    {
+      "check_id": "C-05-08",
+      "status": "PASS",
+      "area": "[C-05] unicode normalization",
+      "title": "[C-05-08] normalization happens at canonicalization, not before: NFD input value canonicalizes to the NFC form",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
+        "test_title": "[C-05-08] normalization happens at canonicalization, not before: NFD input value canonicalizes to the NFC form",
+        "runner_status": "passed",
+        "duration_ms": 0.048749999999984084
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-08\""
+    },
+    {
+      "check_id": "C-06-01",
+      "status": "PASS",
+      "area": "[C-06] missing vs null",
+      "title": "[C-06-01] canonical: null is preserved, undefined is omitted, and the two differ in hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
+        "test_title": "[C-06-01] canonical: null is preserved, undefined is omitted, and the two differ in hash",
+        "runner_status": "passed",
+        "duration_ms": 1.844791999999984
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-01\""
+    },
+    {
+      "check_id": "C-06-02",
+      "status": "PASS",
+      "area": "[C-06] missing vs null",
+      "title": "[C-06-02] canonical: null in arrays is preserved, undefined in arrays is rejected",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
+        "test_title": "[C-06-02] canonical: null in arrays is preserved, undefined in arrays is rejected",
+        "runner_status": "passed",
+        "duration_ms": 2.7946249999999964
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-02\""
+    },
+    {
+      "check_id": "C-06-03",
+      "status": "PASS",
+      "area": "[C-06] missing vs null",
+      "title": "[C-06-03] schema: optional fields accept absence but reject explicit null",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
+        "test_title": "[C-06-03] schema: optional fields accept absence but reject explicit null",
+        "runner_status": "passed",
+        "duration_ms": 3.695707999999968
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-03\""
+    },
+    {
+      "check_id": "C-06-04",
+      "status": "PASS",
+      "area": "[C-06] missing vs null",
+      "title": "[C-06-04] schema: required fields reject null and absence",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
+        "test_title": "[C-06-04] schema: required fields reject null and absence",
+        "runner_status": "passed",
+        "duration_ms": 17.447791999999993
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-04\""
+    },
+    {
+      "check_id": "C-06-05",
+      "status": "PASS",
+      "area": "[C-06] missing vs null",
+      "title": "[C-06-05] nested: budget.total=null and criteria[0]=null are rejected",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
+        "test_title": "[C-06-05] nested: budget.total=null and criteria[0]=null are rejected",
+        "runner_status": "passed",
+        "duration_ms": 0.3747500000000059
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-05\""
+    },
+    {
+      "check_id": "C-07-01",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: No uniqueness constraint on criterion_id: two same-id criteria with different assertions are both schema-valid and mutually ambiguous for any verifier resolving criteria by id.",
+      "area": "[C-07] duplicate identifiers",
+      "title": "[C-07-01][GAP] schema accepts duplicate criterion_id with different content (no uniqueness constraint)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
+        "test_title": "[C-07-01][GAP] schema accepts duplicate criterion_id with different content (no uniqueness constraint)",
+        "runner_status": "passed",
+        "duration_ms": 4.656416999999976
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-01\""
+    },
+    {
+      "check_id": "C-07-02",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: No uniqueness constraint on constraint_id.",
+      "area": "[C-07] duplicate identifiers",
+      "title": "[C-07-02][GAP] schema accepts duplicate constraint_id with different content",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
+        "test_title": "[C-07-02][GAP] schema accepts duplicate constraint_id with different content",
+        "runner_status": "passed",
+        "duration_ms": 0.8959169999999972
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-02\""
+    },
+    {
+      "check_id": "C-07-03",
+      "status": "PASS",
+      "area": "[C-07] duplicate identifiers",
+      "title": "[C-07-03] SEALED bundle rejects duplicate artifact hashes (delivered superRefine)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
+        "test_title": "[C-07-03] SEALED bundle rejects duplicate artifact hashes (delivered superRefine)",
+        "runner_status": "passed",
+        "duration_ms": 0.2428340000000162
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-03\""
+    },
+    {
+      "check_id": "C-07-04",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: Duplicate artifact hashes/run ids accepted while a bundle is OPEN; the delivered superRefine only guards SEALED.",
+      "area": "[C-07] duplicate identifiers",
+      "title": "[C-07-04][GAP] OPEN bundle still accepts duplicate artifact hashes and duplicate run_ids (guard only covers SEALED)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
+        "test_title": "[C-07-04][GAP] OPEN bundle still accepts duplicate artifact hashes and duplicate run_ids (guard only covers SEALED)",
+        "runner_status": "passed",
+        "duration_ms": 0.13116700000000492
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-04\""
+    },
+    {
+      "check_id": "C-07-05",
+      "status": "PASS",
+      "area": "[C-07] duplicate identifiers",
+      "title": "[C-07-05] merkle root de-duplicates by design: [X] and [X,X] share one root (set semantics)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
+        "test_title": "[C-07-05] merkle root de-duplicates by design: [X] and [X,X] share one root (set semantics)",
+        "runner_status": "passed",
+        "duration_ms": 0.1495830000000069
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-05\""
+    },
+    {
+      "check_id": "C-07-06",
+      "status": "PASS",
+      "area": "[C-07] duplicate identifiers",
+      "title": "[C-07-06] duplicate ids do NOT hide mutation: same-id different-content criteria change the intent hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
+        "test_title": "[C-07-06] duplicate ids do NOT hide mutation: same-id different-content criteria change the intent hash",
+        "runner_status": "passed",
+        "duration_ms": 0.9280830000000151
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-06\""
+    },
+    {
+      "check_id": "C-07-07",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: Duplicate keys in raw JSON text collapse last-wins at JS parse time before canonicalization; two byte-different evidence texts can share one hash.",
+      "area": "[C-07] duplicate identifiers",
+      "title": "[C-07-07][GAP] duplicate keys in raw JSON text collapse last-wins BEFORE canonicalization (JS parse semantics)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
+        "test_title": "[C-07-07][GAP] duplicate keys in raw JSON text collapse last-wins BEFORE canonicalization (JS parse semantics)",
+        "runner_status": "passed",
+        "duration_ms": 0.05404200000000969
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-07\""
+    },
+    {
+      "check_id": "C-08-01",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-01] IntentContract rejects an unknown top-level field",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-01] IntentContract rejects an unknown top-level field",
+        "runner_status": "passed",
+        "duration_ms": 3.5777499999999804
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
+    },
+    {
+      "check_id": "C-08-01#1",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-01] EvidenceArtifact rejects an unknown top-level field",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-01] EvidenceArtifact rejects an unknown top-level field",
+        "runner_status": "passed",
+        "duration_ms": 0.21562499999998863
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
+    },
+    {
+      "check_id": "C-08-01#2",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-01] EvidenceBundle rejects an unknown top-level field",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-01] EvidenceBundle rejects an unknown top-level field",
+        "runner_status": "passed",
+        "duration_ms": 0.16995900000000574
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
+    },
+    {
+      "check_id": "C-08-01#3",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-01] VerificationDecision rejects an unknown top-level field",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-01] VerificationDecision rejects an unknown top-level field",
+        "runner_status": "passed",
+        "duration_ms": 1.1088330000000042
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
+    },
+    {
+      "check_id": "C-08-01#4",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-01] SettlementInstruction rejects an unknown top-level field",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-01] SettlementInstruction rejects an unknown top-level field",
+        "runner_status": "passed",
+        "duration_ms": 0.3317910000000097
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
+    },
+    {
+      "check_id": "C-08-01#5",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-01] Criterion rejects an unknown top-level field",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-01] Criterion rejects an unknown top-level field",
+        "runner_status": "passed",
+        "duration_ms": 0.28154100000000426
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
+    },
+    {
+      "check_id": "C-08-02",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-02] nested unknown fields are rejected (goal/criterion/budget/output/signature/evidence-rule/hashref)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-02] nested unknown fields are rejected (goal/criterion/budget/output/signature/evidence-rule/hashref)",
+        "runner_status": "passed",
+        "duration_ms": 1.158333999999968
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-02\""
+    },
+    {
+      "check_id": "C-08-03",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-03] unsupported schema_version literals are rejected for every delivered object kind",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-03] unsupported schema_version literals are rejected for every delivered object kind",
+        "runner_status": "passed",
+        "duration_ms": 4.814750000000004
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-03\""
+    },
+    {
+      "check_id": "C-08-04",
+      "status": "PASS",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-04] missing schema_version is rejected",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-04] missing schema_version is rejected",
+        "runner_status": "passed",
+        "duration_ms": 0.33420800000004647
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-04\""
+    },
+    {
+      "check_id": "C-08-05",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: Criterion.threshold is open-ended JSON by design; arbitrary nested semantics are representable inside a frozen criterion.",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-05][GAP] Criterion.threshold is open-ended JSON: arbitrary nested unknown semantics are accepted by design",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-05][GAP] Criterion.threshold is open-ended JSON: arbitrary nested unknown semantics are accepted by design",
+        "runner_status": "passed",
+        "duration_ms": 0.25354099999998425
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-05\""
+    },
+    {
+      "check_id": "C-08-06",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: Unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase cannot be tested: objects documented in arch doc §6 are absent from the delivered S0 snapshot.",
+      "area": "[C-08] unknown fields / unsupported version",
+      "title": "[C-08-06][GAP] unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase (objects documented in arch doc §6 but NOT delivered in the S0 snapshot)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
+        "test_title": "[C-08-06][GAP] unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase (objects documented in arch doc §6 but NOT delivered in the S0 snapshot)",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-06\""
+    },
+    {
+      "check_id": "C-09-01",
+      "status": "PASS",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-01] flipping one byte of raw artifact bytes changes the content hash (SUT and reference agree)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-01] flipping one byte of raw artifact bytes changes the content hash (SUT and reference agree)",
+        "runner_status": "passed",
+        "duration_ms": 1.0130419999999845
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-01\""
+    },
+    {
+      "check_id": "C-09-02",
+      "status": "PASS",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-02] swapping one artifact hash in a sealed bundle breaks the declared merkle root",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-02] swapping one artifact hash in a sealed bundle breaks the declared merkle root",
+        "runner_status": "passed",
+        "duration_ms": 0.6333750000000009
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-02\""
+    },
+    {
+      "check_id": "C-09-03",
+      "status": "PASS",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-03] merkle root is deterministic under input reordering and duplication",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-03] merkle root is deterministic under input reordering and duplication",
+        "runner_status": "passed",
+        "duration_ms": 0.8112910000000113
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-03\""
+    },
+    {
+      "check_id": "C-09-04",
+      "status": "PASS",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-04] valid merkle proof verifies under SUT and reference; tampered sibling or root fails",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-04] valid merkle proof verifies under SUT and reference; tampered sibling or root fails",
+        "runner_status": "passed",
+        "duration_ms": 0.37283399999998323
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-04\""
+    },
+    {
+      "check_id": "C-09-05",
+      "status": "PASS",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-05] proof for a leaf not in the bundle is rejected",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-05] proof for a leaf not in the bundle is rejected",
+        "runner_status": "passed",
+        "duration_ms": 0.31433300000000486
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-05\""
+    },
+    {
+      "check_id": "C-09-06",
+      "status": "PASS",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-06] empty evidence bundle has no root",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-06] empty evidence bundle has no root",
+        "runner_status": "passed",
+        "duration_ms": 0.10545799999999872
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-06\""
+    },
+    {
+      "check_id": "C-09-07",
+      "status": "PASS",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-07] tampering artifact METADATA (subject/locator/captured_at) changes the artifact content_hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-07] tampering artifact METADATA (subject/locator/captured_at) changes the artifact content_hash",
+        "runner_status": "passed",
+        "duration_ms": 1.130207999999982
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-07\""
+    },
+    {
+      "check_id": "C-09-08",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: EvidenceArtifact carries no self content_hash field; a received artifact cannot prove its own metadata integrity the way a sealed Intent can (payload_hash covers CAS bytes only).",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-08][GAP] EvidenceArtifact has no self-declared content_hash field — metadata tampering cannot be caught by comparing a declared digest (only by re-hashing the object)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-08][GAP] EvidenceArtifact has no self-declared content_hash field — metadata tampering cannot be caught by comparing a declared digest (only by re-hashing the object)",
+        "runner_status": "passed",
+        "duration_ms": 0.367416999999989
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-08\""
+    },
+    {
+      "check_id": "C-09-09",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: payload_hash is format-checked only; the (bytes, hash) binding is enforced by CAS-side recomputation outside the delivered layer.",
+      "area": "[C-09] evidence tampering",
+      "title": "[C-09-09][GAP] artifact.payload_hash is only FORMAT-checked by the schema; (bytes, hash) binding needs CAS recomputation outside the delivered layer",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
+        "test_title": "[C-09-09][GAP] artifact.payload_hash is only FORMAT-checked by the schema; (bytes, hash) binding needs CAS recomputation outside the delivered layer",
+        "runner_status": "passed",
+        "duration_ms": 0.21404200000000628
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-09\""
+    },
+    {
+      "check_id": "C-10-00",
+      "status": "PASS",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-00] control: baseline hash agrees with the independent reference",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-00] control: baseline hash agrees with the independent reference",
+        "runner_status": "passed",
+        "duration_ms": 8.994290999999976
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-00\""
+    },
+    {
+      "check_id": "C-10-01",
+      "status": "PASS",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-01] mutating a criterion assertion changes the hash; stale declared content_hash is rejected by seal()",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-01] mutating a criterion assertion changes the hash; stale declared content_hash is rejected by seal()",
+        "runner_status": "passed",
+        "duration_ms": 3.5055419999999913
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-01\""
+    },
+    {
+      "check_id": "C-10-02",
+      "status": "PASS",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-02] mutating threshold value changes the hash; number vs string threshold are distinct",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-02] mutating threshold value changes the hash; number vs string threshold are distinct",
+        "runner_status": "passed",
+        "duration_ms": 1.0609999999999786
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-02\""
+    },
+    {
+      "check_id": "C-10-03",
+      "status": "FAIL",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-03] FAIL: schema admits thresholds that canonicalization rejects (2^53 is integer but not safe) — schema-valid object cannot be sealed",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-03] FAIL: schema admits thresholds that canonicalization rejects (2^53 is integer but not safe) — schema-valid object cannot be sealed",
+        "runner_status": "failed",
+        "duration_ms": 5.284915999999953,
+        "failure_messages": [
+          "AssertionError: expected [Function] to not throw an error but 'CanonicalizationError: number must be…' was thrown\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/INTENT PROTOCOL/packages/conformance-harness/test/10-criterion-mutation.test.ts:48:42\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-03\""
+    },
+    {
+      "check_id": "C-10-04",
+      "status": "PASS",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-04] reordering criteria changes the hash (array order is semantic)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-04] reordering criteria changes the hash (array order is semantic)",
+        "runner_status": "passed",
+        "duration_ms": 0.6867499999999609
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-04\""
+    },
+    {
+      "check_id": "C-10-05",
+      "status": "PASS",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-05] removing or adding a criterion changes the hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-05] removing or adding a criterion changes the hash",
+        "runner_status": "passed",
+        "duration_ms": 11.551582999999994
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-05\""
+    },
+    {
+      "check_id": "C-10-06",
+      "status": "PASS",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-06] criterion evidence_requirements mutation (required true->false) changes the hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-06] criterion evidence_requirements mutation (required true->false) changes the hash",
+        "runner_status": "passed",
+        "duration_ms": 1.6116670000000113
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-06\""
+    },
+    {
+      "check_id": "C-10-07",
+      "status": "PASS",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-07] mutating criterion kind MACHINE->HUMAN changes the hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-07] mutating criterion kind MACHINE->HUMAN changes the hash",
+        "runner_status": "passed",
+        "duration_ms": 2.421333000000004
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-07\""
+    },
+    {
+      "check_id": "C-10-08",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: Milestone acceptance-criteria immutability cannot be tested: Milestone object absent from the delivered S0 snapshot.",
+      "area": "[C-10] criterion mutation",
+      "title": "[C-10-08][GAP] Milestone acceptance-criteria immutability (Milestone object documented in arch doc §6 but NOT delivered in the S0 snapshot)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
+        "test_title": "[C-10-08][GAP] Milestone acceptance-criteria immutability (Milestone object documented in arch doc §6 but NOT delivered in the S0 snapshot)",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-08\""
+    },
+    {
+      "check_id": "C-11-00",
+      "status": "PASS",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-00] control: baseline settlement hash agrees with independent reference",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-00] control: baseline settlement hash agrees with independent reference",
+        "runner_status": "passed",
+        "duration_ms": 1.9183749999999975
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-00\""
+    },
+    {
+      "check_id": "C-11-01",
+      "status": "PASS",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-01] amount / recipient / reason / outputs mutations change the hash; seal() rejects stale declared hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-01] amount / recipient / reason / outputs mutations change the hash; seal() rejects stale declared hash",
+        "runner_status": "passed",
+        "duration_ms": 1.516999999999996
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-01\""
+    },
+    {
+      "check_id": "C-11-02",
+      "status": "PASS",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-02] nonce mutation changes the hash (replay separation)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-02] nonce mutation changes the hash (replay separation)",
+        "runner_status": "passed",
+        "duration_ms": 0.16429200000001742
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-02\""
+    },
+    {
+      "check_id": "C-11-03",
+      "status": "PASS",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-03] proof_binding inside the decision equals proofBinding(inputs) — SUT and reference agree",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-03] proof_binding inside the decision equals proofBinding(inputs) — SUT and reference agree",
+        "runner_status": "passed",
+        "duration_ms": 0.4766249999999843
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-03\""
+    },
+    {
+      "check_id": "C-11-04",
+      "status": "PASS",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-04] tampering milestone_revision invalidates a declared proof_binding (detectable by recompute)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-04] tampering milestone_revision invalidates a declared proof_binding (detectable by recompute)",
+        "runner_status": "passed",
+        "duration_ms": 0.09466599999998948
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-04\""
+    },
+    {
+      "check_id": "C-11-05",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: Economic invariant total_amount == sum(outputs.amount) is not enforced anywhere in the delivered layer.",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-05][GAP] economic invariant total_amount == sum(outputs.amount) is NOT enforced by the schema",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-05][GAP] economic invariant total_amount == sum(outputs.amount) is NOT enforced by the schema",
+        "runner_status": "passed",
+        "duration_ms": 0.10108400000001438
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-05\""
+    },
+    {
+      "check_id": "C-11-06",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: No canonical decimal form: '-0', '0.00', '1.10' are all accepted; the same economic value has multiple hashes across implementations.",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-06][GAP] non-canonical decimal strings that pass the regex ('-0', '0.00', '1.10') are accepted",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-06][GAP] non-canonical decimal strings that pass the regex ('-0', '0.00', '1.10') are accepted",
+        "runner_status": "passed",
+        "duration_ms": 0.26350000000002183
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-06\""
+    },
+    {
+      "check_id": "C-11-07",
+      "status": "PASS",
+      "area": "[C-11] settlement mutation",
+      "title": "[C-11-07] settlementKey idempotency and separation (double-spend key)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
+        "test_title": "[C-11-07] settlementKey idempotency and separation (double-spend key)",
+        "runner_status": "passed",
+        "duration_ms": 0.22937500000000455
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-07\""
+    },
+    {
+      "check_id": "C-12-01",
+      "status": "PASS",
+      "area": "[C-12] replay of the same bundle",
+      "title": "[C-12-01] identical decision inputs reproduce the identical proof_binding (idempotent, 10x)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
+        "test_title": "[C-12-01] identical decision inputs reproduce the identical proof_binding (idempotent, 10x)",
+        "runner_status": "passed",
+        "duration_ms": 2.5462920000000224
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-01\""
+    },
+    {
+      "check_id": "C-12-02",
+      "status": "PASS",
+      "area": "[C-12] replay of the same bundle",
+      "title": "[C-12-02] same evidence replayed at a LATER milestone revision yields a different binding (stale proof rejected)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
+        "test_title": "[C-12-02] same evidence replayed at a LATER milestone revision yields a different binding (stale proof rejected)",
+        "runner_status": "passed",
+        "duration_ms": 0.6974999999999909
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-02\""
+    },
+    {
+      "check_id": "C-12-03",
+      "status": "PASS",
+      "area": "[C-12] replay of the same bundle",
+      "title": "[C-12-03] same evidence under a different policy hash yields a different binding",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
+        "test_title": "[C-12-03] same evidence under a different policy hash yields a different binding",
+        "runner_status": "passed",
+        "duration_ms": 0.11266699999998764
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-03\""
+    },
+    {
+      "check_id": "C-12-04",
+      "status": "PASS",
+      "area": "[C-12] replay of the same bundle",
+      "title": "[C-12-04] amended intent (version 2) hashes differently from version 1 — old proofs cannot target the new version",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
+        "test_title": "[C-12-04] amended intent (version 2) hashes differently from version 1 — old proofs cannot target the new version",
+        "runner_status": "passed",
+        "duration_ms": 3.5370829999999955
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-04\""
+    },
+    {
+      "check_id": "C-12-05",
+      "status": "PASS",
+      "area": "[C-12] replay of the same bundle",
+      "title": "[C-12-05] settlement double-spend key: same (binding, escrow, nonce) -> same key; retried with new nonce -> new key",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
+        "test_title": "[C-12-05] settlement double-spend key: same (binding, escrow, nonce) -> same key; retried with new nonce -> new key",
+        "runner_status": "passed",
+        "duration_ms": 0.1292500000000132
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-05\""
+    },
+    {
+      "check_id": "C-12-06",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: A decision may reference an OPEN (unsealed) bundle; nothing in the delivered layer binds decision validity to bundle state.",
+      "area": "[C-12] replay of the same bundle",
+      "title": "[C-12-06][GAP] a decision may reference a bundle that is OPEN (unsealed) — no cross-check in the schema layer",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
+        "test_title": "[C-12-06][GAP] a decision may reference a bundle that is OPEN (unsealed) — no cross-check in the schema layer",
+        "runner_status": "passed",
+        "duration_ms": 0.17449999999999477
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-06\""
+    },
+    {
+      "check_id": "C-12-07",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: Same bundle_id with a different artifact set is representable; no uniqueness/append-only constraint exists in the schema layer.",
+      "area": "[C-12] replay of the same bundle",
+      "title": "[C-12-07][GAP] the same bundle_id with a DIFFERENT artifact set is representable — no uniqueness/append-only constraint in schema",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
+        "test_title": "[C-12-07][GAP] the same bundle_id with a DIFFERENT artifact set is representable — no uniqueness/append-only constraint in schema",
+        "runner_status": "passed",
+        "duration_ms": 0.18320900000000506
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-07\""
+    },
+    {
+      "check_id": "C-13-01",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: uppercase hex",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: uppercase hex",
+        "runner_status": "passed",
+        "duration_ms": 5.001333999999986
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#1",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: 63 chars",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: 63 chars",
+        "runner_status": "passed",
+        "duration_ms": 4.3467919999999935
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#2",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: 65 chars",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: 65 chars",
+        "runner_status": "passed",
+        "duration_ms": 0.47412499999995816
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#3",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: no prefix",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: no prefix",
+        "runner_status": "passed",
+        "duration_ms": 0.2915840000000003
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#4",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: 0x prefix",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: 0x prefix",
+        "runner_status": "passed",
+        "duration_ms": 0.3222499999999968
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#5",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: sha384",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: sha384",
+        "runner_status": "passed",
+        "duration_ms": 0.27812499999998863
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#6",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: empty",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: empty",
+        "runner_status": "passed",
+        "duration_ms": 0.26041699999996126
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#7",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: trailing newline",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: trailing newline",
+        "runner_status": "passed",
+        "duration_ms": 0.24900000000002365
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-01#8",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-01] hash field rejects malformed value: internal spaces",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-01] hash field rejects malformed value: internal spaces",
+        "runner_status": "passed",
+        "duration_ms": 0.5411660000000325
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
+    },
+    {
+      "check_id": "C-13-02",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02] SubjectRef rejects: no colon",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02] SubjectRef rejects: no colon",
+        "runner_status": "passed",
+        "duration_ms": 1.4856659999999806
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
+    },
+    {
+      "check_id": "C-13-02#1",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02] SubjectRef rejects: empty id",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02] SubjectRef rejects: empty id",
+        "runner_status": "passed",
+        "duration_ms": 0.3715410000000361
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
+    },
+    {
+      "check_id": "C-13-02#2",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02] SubjectRef rejects: unknown kind",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02] SubjectRef rejects: unknown kind",
+        "runner_status": "passed",
+        "duration_ms": 5.336750000000052
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
+    },
+    {
+      "check_id": "C-13-02#3",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02] SubjectRef rejects: id too long (129)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02] SubjectRef rejects: id too long (129)",
+        "runner_status": "passed",
+        "duration_ms": 0.5511250000000132
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
+    },
+    {
+      "check_id": "C-13-02#4",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02] SubjectRef rejects: space in id",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02] SubjectRef rejects: space in id",
+        "runner_status": "passed",
+        "duration_ms": 0.4060000000000059
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
+    },
+    {
+      "check_id": "C-13-02#5",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02] SubjectRef rejects: slash in id",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02] SubjectRef rejects: slash in id",
+        "runner_status": "passed",
+        "duration_ms": 0.2420839999999771
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
+    },
+    {
+      "check_id": "C-13-02#6",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02] SubjectRef rejects: colon-injection",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02] SubjectRef rejects: colon-injection",
+        "runner_status": "passed",
+        "duration_ms": 0.2449579999999969
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
+    },
+    {
+      "check_id": "C-13-02c",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid.",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02c][GAP] SubjectRef charset was widened to include '@' mid-verification (drift) — lookalike principal ids are accepted",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02c][GAP] SubjectRef charset was widened to include '@' mid-verification (drift) — lookalike principal ids are accepted",
+        "runner_status": "passed",
+        "duration_ms": 0.25033299999995506
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02c\""
+    },
+    {
+      "check_id": "C-13-02b",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-02b] SubjectRef accepts boundary id length 128 and all documented kinds",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-02b] SubjectRef accepts boundary id length 128 and all documented kinds",
+        "runner_status": "passed",
+        "duration_ms": 1.5547090000000026
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02b\""
+    },
+    {
+      "check_id": "C-13-03",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-03] HashRef rejects empty uri and malformed hash",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-03] HashRef rejects empty uri and malformed hash",
+        "runner_status": "passed",
+        "duration_ms": 0.4887499999999818
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-03\""
+    },
+    {
+      "check_id": "C-13-04",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-04] Timestamp rejects: no milliseconds",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-04] Timestamp rejects: no milliseconds",
+        "runner_status": "passed",
+        "duration_ms": 0.25591700000001083
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
+    },
+    {
+      "check_id": "C-13-04#1",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-04] Timestamp rejects: offset timezone",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-04] Timestamp rejects: offset timezone",
+        "runner_status": "passed",
+        "duration_ms": 0.22754100000003064
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
+    },
+    {
+      "check_id": "C-13-04#2",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-04] Timestamp rejects: lowercase z",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-04] Timestamp rejects: lowercase z",
+        "runner_status": "passed",
+        "duration_ms": 0.23029199999996308
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
+    },
+    {
+      "check_id": "C-13-04#3",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-04] Timestamp rejects: date only",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-04] Timestamp rejects: date only",
+        "runner_status": "passed",
+        "duration_ms": 2.4931660000000306
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
+    },
+    {
+      "check_id": "C-13-04#4",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-04] Timestamp rejects: space separator",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-04] Timestamp rejects: space separator",
+        "runner_status": "passed",
+        "duration_ms": 0.3202079999999796
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
+    },
+    {
+      "check_id": "C-13-05",
+      "status": "FAIL",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-05] FAIL: Timestamp regex accepts calendrically impossible RFC 3339 strings (month 13, day 45, hour 99)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-05] FAIL: Timestamp regex accepts calendrically impossible RFC 3339 strings (month 13, day 45, hour 99)",
+        "runner_status": "failed",
+        "duration_ms": 5.026207999999997,
+        "failure_messages": [
+          "AssertionError: 2026-13-01T00:00:00.000Z: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/INTENT PROTOCOL/packages/conformance-harness/test/13-malformed-references.test.ts:70:89\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-05\""
+    },
+    {
+      "check_id": "C-13-06",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: exponent",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: exponent",
+        "runner_status": "passed",
+        "duration_ms": 0.41995900000000574
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#1",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: leading zero",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: leading zero",
+        "runner_status": "passed",
+        "duration_ms": 0.26070800000002237
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#2",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: bare dot",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: bare dot",
+        "runner_status": "passed",
+        "duration_ms": 0.23395900000002712
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#3",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: trailing dot",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: trailing dot",
+        "runner_status": "passed",
+        "duration_ms": 0.2822500000000332
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#4",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: explicit plus",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: explicit plus",
+        "runner_status": "passed",
+        "duration_ms": 0.22570799999999736
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#5",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: empty",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: empty",
+        "runner_status": "passed",
+        "duration_ms": 0.23654099999998834
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#6",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: thousands separator",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: thousands separator",
+        "runner_status": "passed",
+        "duration_ms": 0.22795899999999847
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#7",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: NaN",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: NaN",
+        "runner_status": "passed",
+        "duration_ms": 0.22466700000001083
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-06#8",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-06] Decimal rejects: comma decimal",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-06] Decimal rejects: comma decimal",
+        "runner_status": "passed",
+        "duration_ms": 0.2524160000000393
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
+    },
+    {
+      "check_id": "C-13-07",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-07] U64-as-string rejects: negative",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-07] U64-as-string rejects: negative",
+        "runner_status": "passed",
+        "duration_ms": 0.18466699999999037
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
+    },
+    {
+      "check_id": "C-13-07#1",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-07] U64-as-string rejects: exponent",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-07] U64-as-string rejects: exponent",
+        "runner_status": "passed",
+        "duration_ms": 0.09950000000003456
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
+    },
+    {
+      "check_id": "C-13-07#2",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-07] U64-as-string rejects: hex",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-07] U64-as-string rejects: hex",
+        "runner_status": "passed",
+        "duration_ms": 0.0570409999999697
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
+    },
+    {
+      "check_id": "C-13-07#3",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-07] U64-as-string rejects: empty",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-07] U64-as-string rejects: empty",
+        "runner_status": "passed",
+        "duration_ms": 0.06745899999998528
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
+    },
+    {
+      "check_id": "C-13-07#4",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-07] U64-as-string rejects: leading space",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-07] U64-as-string rejects: leading space",
+        "runner_status": "passed",
+        "duration_ms": 0.06612499999999955
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
+    },
+    {
+      "check_id": "C-13-07#5",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-07] U64-as-string rejects: explicit plus",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-07] U64-as-string rejects: explicit plus",
+        "runner_status": "passed",
+        "duration_ms": 0.06299999999998818
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
+    },
+    {
+      "check_id": "C-13-07b",
+      "status": "FAIL",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-07b] FAIL: U64-as-string regex has no upper bound — 2^64 is accepted by the schema but rejected by u64be() at hashing time",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-07b] FAIL: U64-as-string regex has no upper bound — 2^64 is accepted by the schema but rejected by u64be() at hashing time",
+        "runner_status": "failed",
+        "duration_ms": 0.47350000000000136,
+        "failure_messages": [
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/INTENT PROTOCOL/packages/conformance-harness/test/13-malformed-references.test.ts:105:107\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/INTENT%20PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07b\""
+    },
+    {
+      "check_id": "C-13-08",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-08] U32 number rejects: negative",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-08] U32 number rejects: negative",
+        "runner_status": "passed",
+        "duration_ms": 1.6478329999999914
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
+    },
+    {
+      "check_id": "C-13-08#1",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-08] U32 number rejects: float",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-08] U32 number rejects: float",
+        "runner_status": "passed",
+        "duration_ms": 3.168083000000024
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
+    },
+    {
+      "check_id": "C-13-08#2",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-08] U32 number rejects: u32 overflow",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-08] U32 number rejects: u32 overflow",
+        "runner_status": "passed",
+        "duration_ms": 3.6304999999999836
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
+    },
+    {
+      "check_id": "C-13-08#3",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-08] U32 number rejects: NaN",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-08] U32 number rejects: NaN",
+        "runner_status": "passed",
+        "duration_ms": 0.8268329999999651
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
+    },
+    {
+      "check_id": "C-13-09",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-09] UUID rejects: not a uuid",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-09] UUID rejects: not a uuid",
+        "runner_status": "passed",
+        "duration_ms": 0.83887500000003
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
+    },
+    {
+      "check_id": "C-13-09#1",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-09] UUID rejects: braced",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-09] UUID rejects: braced",
+        "runner_status": "passed",
+        "duration_ms": 11.160500000000013
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
+    },
+    {
+      "check_id": "C-13-09#2",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-09] UUID rejects: empty",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-09] UUID rejects: empty",
+        "runner_status": "passed",
+        "duration_ms": 0.27170800000004647
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
+    },
+    {
+      "check_id": "C-13-09#3",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-09] UUID rejects: g hex digit",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-09] UUID rejects: g hex digit",
+        "runner_status": "passed",
+        "duration_ms": 0.15750000000002728
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
+    },
+    {
+      "check_id": "C-13-09b",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: UUID schema accepts any RFC version and uppercase; intent ids are not pinned to a single version/canonical form.",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-09b][GAP] UUID schema accepts any RFC version and uppercase (not pinned to v4)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-09b][GAP] UUID schema accepts any RFC version and uppercase (not pinned to v4)",
+        "runner_status": "passed",
+        "duration_ms": 0.2919579999999655
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09b\""
+    },
+    {
+      "check_id": "C-13-10",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-10] decision/bundle malformed cross-fields: non-uuid bundle_id, bad evidence_root, negative revision",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-10] decision/bundle malformed cross-fields: non-uuid bundle_id, bad evidence_root, negative revision",
+        "runner_status": "passed",
+        "duration_ms": 2.5933750000000373
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-10\""
+    },
+    {
+      "check_id": "C-13-11",
+      "status": "PASS",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-11] escrow_ref and decision reason_codes entries must be non-empty; settlement needs >=1 output",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-11] escrow_ref and decision reason_codes entries must be non-empty; settlement needs >=1 output",
+        "runner_status": "passed",
+        "duration_ms": 0.5812500000000114
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-11\""
+    },
+    {
+      "check_id": "C-13-12",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: Run manifest / grant / edge NodeRef / dispute reference validation cannot be tested: objects absent from the delivered S0 snapshot.",
+      "area": "[C-13] malformed references",
+      "title": "[C-13-12][GAP] ExecutionRun output_manifest / CapabilityGrant / ContributionEdge NodeRef / DisputeCase reference validation (objects NOT delivered in the S0 snapshot)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
+        "test_title": "[C-13-12][GAP] ExecutionRun output_manifest / CapabilityGrant / ContributionEdge NodeRef / DisputeCase reference validation (objects NOT delivered in the S0 snapshot)",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-12\""
+    },
+    {
+      "check_id": "C-14-01",
+      "status": "PASS",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-01] delivered checker: merkle proof binds a bundle's artifacts to its root (tamper = detect)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-01] delivered checker: merkle proof binds a bundle's artifacts to its root (tamper = detect)",
+        "runner_status": "passed",
+        "duration_ms": 1.0073749999999961
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-01\""
+    },
+    {
+      "check_id": "C-14-02",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: decision.intent_hash can be fabricated; no delivered API binds a decision to an existing Intent object.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-02][GAP] decision.intent_hash may be a fabricated hash bound to no Intent object",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-02][GAP] decision.intent_hash may be a fabricated hash bound to no Intent object",
+        "runner_status": "passed",
+        "duration_ms": 2.4907079999999837
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-02\""
+    },
+    {
+      "check_id": "C-14-03",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: decision.evidence_root need not equal merkleRoot(bundle.artifact_hashes); the contradiction is representable.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-03][GAP] decision.evidence_root is not required to equal merkleRoot(bundle.artifact_hashes)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-03][GAP] decision.evidence_root is not required to equal merkleRoot(bundle.artifact_hashes)",
+        "runner_status": "passed",
+        "duration_ms": 0.9260000000000161
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-03\""
+    },
+    {
+      "check_id": "C-14-04",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: Settlement may reference a dangling decision_id and arbitrary proof_binding.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-04][GAP] settlement may reference a dangling decision_id and an arbitrary proof_binding",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-04][GAP] settlement may reference a dangling decision_id and an arbitrary proof_binding",
+        "runner_status": "passed",
+        "duration_ms": 0.25941600000001586
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-04\""
+    },
+    {
+      "check_id": "C-14-05",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: decision.milestone_id / bundle.milestone_id can dangle; no Milestone object is delivered at all.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-05][GAP] decision.milestone_id / bundle.milestone_id may dangle (no Milestone object delivered at all)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-05][GAP] decision.milestone_id / bundle.milestone_id may dangle (no Milestone object delivered at all)",
+        "runner_status": "passed",
+        "duration_ms": 1.7443750000000193
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-05\""
+    },
+    {
+      "check_id": "C-14-06",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: bundle.run_ids can reference nonexistent runs.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-06][GAP] bundle.run_ids may reference runs that do not exist (no ExecutionRun object delivered)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-06][GAP] bundle.run_ids may reference runs that do not exist (no ExecutionRun object delivered)",
+        "runner_status": "passed",
+        "duration_ms": 0.2814999999999941
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-06\""
+    },
+    {
+      "check_id": "C-14-07",
+      "status": "PASS",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-07] intent chain integrity IS locally checkable: parent_hash of v2 must equal hash of v1",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-07] intent chain integrity IS locally checkable: parent_hash of v2 must equal hash of v1",
+        "runner_status": "passed",
+        "duration_ms": 4.295458000000025
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-07\""
+    },
+    {
+      "check_id": "C-14-08",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: verification/settlement policy refs are content-addressed but no policy object schema ships to bind them.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-08][GAP] verification_policy_ref / settlement_policy_ref are content-addressed refs with no retrievable policy object in the delivered layer",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-08][GAP] verification_policy_ref / settlement_policy_ref are content-addressed refs with no retrievable policy object in the delivered layer",
+        "runner_status": "passed",
+        "duration_ms": 0.2893749999999784
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-08\""
+    },
+    {
+      "check_id": "C-14-09",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: ContributionEdge.evidence_ref existence unenforceable: Edge object absent from the delivered S0 snapshot.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-09][GAP] ContributionEdge.evidence_ref existence (§11 'edges without evidence are not recorded') — Edge object NOT delivered in the S0 snapshot",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-09][GAP] ContributionEdge.evidence_ref existence (§11 'edges without evidence are not recorded') — Edge object NOT delivered in the S0 snapshot",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-09\""
+    },
+    {
+      "check_id": "C-14-10",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: DisputeCase.challenged_decision existence unenforceable: DisputeCase object absent.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-10][GAP] DisputeCase.challenged_decision existence — DisputeCase object NOT delivered in the S0 snapshot",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-10][GAP] DisputeCase.challenged_decision existence — DisputeCase object NOT delivered in the S0 snapshot",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-10\""
+    },
+    {
+      "check_id": "C-14-11",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: ExecutionRun.grants existence/scope unenforceable: Run/Grant objects absent.",
+      "area": "[C-14] cross-object referential integrity",
+      "title": "[C-14-11][GAP] ExecutionRun.grants existence/scope check — ExecutionRun/CapabilityGrant objects NOT delivered in the S0 snapshot",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
+        "test_title": "[C-14-11][GAP] ExecutionRun.grants existence/scope check — ExecutionRun/CapabilityGrant objects NOT delivered in the S0 snapshot",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-11\""
+    },
+    {
+      "check_id": "C-15-01",
+      "status": "PASS",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-01] out-of-enum state literals are rejected (bundle 'CLOSED'/'VALID', decision result 'MAYBE')",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-01] out-of-enum state literals are rejected (bundle 'CLOSED'/'VALID', decision result 'MAYBE')",
+        "runner_status": "passed",
+        "duration_ms": 3.1185000000000116
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-01\""
+    },
+    {
+      "check_id": "C-15-02",
+      "status": "PASS",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-02] delivered bundle invariant: SEALED requires merkle_root + sealed_at + >=1 artifact + no duplicates",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-02] delivered bundle invariant: SEALED requires merkle_root + sealed_at + >=1 artifact + no duplicates",
+        "runner_status": "passed",
+        "duration_ms": 0.4269170000000031
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-02\""
+    },
+    {
+      "check_id": "C-15-03",
+      "status": "PASS",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-03] OPEN bundle carries no seal requirements (forward seam OPEN->SEALED is the only frozen transition)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-03] OPEN bundle carries no seal requirements (forward seam OPEN->SEALED is the only frozen transition)",
+        "runner_status": "passed",
+        "duration_ms": 0.19575000000000387
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-03\""
+    },
+    {
+      "check_id": "C-15-04",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: A SEALED bundle may declare a merkle_root that does not match its artifact_hashes; only external recomputation detects the lie.",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-04][GAP] sealing transition consistency: a SEALED bundle may declare a merkle_root that does NOT match its artifact set (schema accepts; only external recomputation catches it)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-04][GAP] sealing transition consistency: a SEALED bundle may declare a merkle_root that does NOT match its artifact set (schema accepts; only external recomputation catches it)",
+        "runner_status": "passed",
+        "duration_ms": 0.6147089999999764
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-04\""
+    },
+    {
+      "check_id": "C-15-05",
+      "status": "UNKNOWN",
+      "unknown_kind": "gap_documented",
+      "rationale": "gap_documented: Delivered EvidenceBundleState has 2 of the 7 states documented in arch doc §7; VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED are absent.",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-05][GAP] delivered EvidenceBundleState has only 2 of the 7 states documented in arch doc §7 (VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED absent)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-05][GAP] delivered EvidenceBundleState has only 2 of the 7 states documented in arch doc §7 (VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED absent)",
+        "runner_status": "passed",
+        "duration_ms": 0.0993750000000091
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-05\""
+    },
+    {
+      "check_id": "C-15-06",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: Milestone state machine (arch doc §7) not delivered.",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-06][GAP] Milestone state machine PLANNED->EXECUTING->SUBMITTED->VERIFIED/DISPUTED/FAILED (arch doc §7) — no object, no enum, no engine delivered",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-06][GAP] Milestone state machine PLANNED->EXECUTING->SUBMITTED->VERIFIED/DISPUTED/FAILED (arch doc §7) — no object, no enum, no engine delivered",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-06\""
+    },
+    {
+      "check_id": "C-15-07",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: Settlement state machine (arch doc §7) not delivered; SettlementInstruction has no state field in S0.",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-07][GAP] Settlement state machine LOCKED->ELIGIBLE->...->RELEASED/REFUNDED (arch doc §7) — SettlementInstruction carries no state field at all in S0",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-07][GAP] Settlement state machine LOCKED->ELIGIBLE->...->RELEASED/REFUNDED (arch doc §7) — SettlementInstruction carries no state field at all in S0",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-07\""
+    },
+    {
+      "check_id": "C-15-08",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: Intent state machine (arch doc §7) not delivered.",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-08][GAP] Intent state machine DRAFT->FROZEN->ACTIVE->... (arch doc §7) — not delivered",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-08][GAP] Intent state machine DRAFT->FROZEN->ACTIVE->... (arch doc §7) — not delivered",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-08\""
+    },
+    {
+      "check_id": "C-15-09",
+      "status": "UNKNOWN",
+      "unknown_kind": "blocked",
+      "rationale": "blocked: G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists (@intent/intent-core absent).",
+      "area": "[C-15] invalid state transitions",
+      "title": "[C-15-09][GAP] G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists in the delivered snapshot (@intent/intent-core absent)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
+        "test_title": "[C-15-09][GAP] G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists in the delivered snapshot (@intent/intent-core absent)",
+        "runner_status": "todo",
+        "duration_ms": null
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-09\""
+    }
+  ],
+  "attack_surfaces": [
+    {
+      "id": "AS-01",
+      "title": "NFC key-collision produces duplicate-key canonical JSON",
+      "severity": "high",
+      "detail": "canonicalize({NFC 'é': 1, NFD 'e'+U+0301: 2}) emits '{\"é\":1,\"é\":2}' — invalid, ambiguous canonical text. A second implementation (or JSON.parse) collapses the keys, so the same canonical bytes can be re-read as a different object than the one that was hashed. The independent reference rejects this case.",
+      "evidence": [
+        "C-05-05"
+      ]
+    },
+    {
+      "id": "AS-02",
+      "title": "-0 silently canonicalizes to 0 against the frozen spec text",
+      "severity": "medium",
+      "detail": "Spec header rule 4 says -0 is rejected; the implementation maps -0 -> 0. Two distinct JS values share one canonical form; a strict cross-language implementation following the written rule will refuse objects the TS implementation accepts (and hash differently on any value it does emit).",
+      "evidence": [
+        "C-01-07"
+      ]
+    },
+    {
+      "id": "AS-03",
+      "title": "Schema admits values the canonicalizer rejects (unhashable-but-valid objects)",
+      "severity": "high",
+      "detail": "Criterion.threshold uses z.number().int() (accepts 2^53, 1e308) while canonicalization requires safe integers; U64-as-string regex accepts 2^64 while u64be() throws. A schema-valid Intent/Settlement can exist that can never be sealed — parsers in other languages will disagree about whether the object is acceptable at all.",
+      "evidence": [
+        "C-10-03",
+        "C-13-07b"
+      ]
+    },
+    {
+      "id": "AS-04",
+      "title": "Timestamp format is shape-checked, not calendrically validated",
+      "severity": "medium",
+      "detail": "'2026-13-45T99:99:99.999Z' passes TimestampSchema despite being invalid RFC 3339. Cross-language timestamp parsers (strict RFC 3339) will reject objects the TS layer accepted, splitting the hash universe.",
+      "evidence": [
+        "C-13-05"
+      ]
+    },
+    {
+      "id": "AS-05",
+      "title": "No canonical decimal form",
+      "severity": "medium",
+      "detail": "Amounts like '1.0' / '1.00' / '1' / '-0' are distinct canonical strings for the same economic value. Any component that normalizes decimals before hashing (or after) will disagree with one that does not. Settlement amounts are the highest-value instance.",
+      "evidence": [
+        "C-11-06"
+      ]
+    },
+    {
+      "id": "AS-06",
+      "title": "Duplicate-key raw JSON collapses last-wins before canonicalization",
+      "severity": "medium",
+      "detail": "'{\"a\":1,\"a\":2}' and '{\"a\":2}' hash identically. Byte-level audit of evidence text diverges from hash-level identity; a malicious producer can include decoy keys that vanish in the hash.",
+      "evidence": [
+        "C-07-07"
+      ]
+    },
+    {
+      "id": "AS-07",
+      "title": "Identifier uniqueness is unenforced (criterion_id, constraint_id, bundle_id reuse)",
+      "severity": "medium",
+      "detail": "Same-id different-content criteria are representable; the same bundle_id can seal two different artifact sets. Downstream resolution by id becomes attacker-choosable.",
+      "evidence": [
+        "C-07-01",
+        "C-07-02",
+        "C-12-07"
+      ]
+    },
+    {
+      "id": "AS-08",
+      "title": "Cross-object references are free-floating",
+      "severity": "high",
+      "detail": "decisions bind fabricated intent_hash/evidence_root; settlements bind dangling decision_id; bundles bind nonexistent runs. Nothing in the delivered layer enforces the §15.1 north-star chain (Receipt -> Settlement -> Decision -> Bundle -> Run -> Intent). The proof_binding construction is sound, but its INPUTS are unauthenticated at this layer.",
+      "evidence": [
+        "C-14-02",
+        "C-14-03",
+        "C-14-04",
+        "C-14-05",
+        "C-14-06",
+        "C-12-06"
+      ]
+    },
+    {
+      "id": "AS-09",
+      "title": "SEALED bundle state does not imply a correct merkle_root",
+      "severity": "high",
+      "detail": "The bundle invariant checks presence, not consistency: a SEALED bundle with a fabricated merkle_root parses. Detection requires every consumer to recompute merkleRoot(artifact_hashes) — cheap, but currently nothing mandates it.",
+      "evidence": [
+        "C-15-04",
+        "C-09-02"
+      ]
+    },
+    {
+      "id": "AS-10",
+      "title": "Domain/version separation relies on 0x00 exclusion, not length prefixing",
+      "severity": "low",
+      "detail": "hash_input = domain||0x00||version||0x00||canonical is injective only because (a) domain/version literals are frozen and 0x00-free and (b) canonical JSON escapes control characters. Any future domain string containing U+0000, or a non-JSON-escaping canonicalizer, breaks the separation. A length-prefixed design would not depend on both invariants.",
+      "evidence": [
+        "C-02-06"
+      ]
+    },
+    {
+      "id": "AS-11",
+      "title": "Unicode strategy diverges from RFC 8785/JCS while claiming compatibility",
+      "severity": "low",
+      "detail": "The spec header claims 'RFC 8785 / JCS compatible', but JCS does NOT normalize strings, while this protocol NFC-normalizes keys and values. A strict JCS implementation produces different canonical bytes (and different hashes) for any string not already in NFC. Additionally, lone surrogates and U+2028/2029 pass through as JSON-legal but JS-source-illegal text — a hazard for eval-adjacent consumers and some non-JS JSON libraries.",
+      "evidence": [
+        "C-05-01",
+        "C-05-06",
+        "C-05-07"
+      ]
+    },
+    {
+      "id": "AS-12",
+      "title": "Delivered scope is a moving subset of the documented protocol",
+      "severity": "high",
+      "detail": "Arch doc §6/§7 document 10+ object kinds and 6 state machines; the delivered snapshot contains 6 object kinds, a 2-state bundle lifecycle, and no transition engine, and it changed shape twice while this verification was running (events.js removed; Milestone/Plan/Run/Grant/Edge/Dispute dropped; content_hash renamed payload_hash; SubjectRef charset widened). Until Builder A declares a frozen revision, any conformance verdict is point-in-time only — which is why this harness pins a snapshot.",
+      "evidence": [
+        "C-08-06",
+        "C-13-12",
+        "C-14-09",
+        "C-15-05",
+        "C-15-06",
+        "C-15-07",
+        "C-15-08",
+        "C-15-09",
+        "PKG-ENTRY-01"
+      ]
+    },
+    {
+      "id": "AS-13",
+      "title": "SubjectRef charset widened to include '@' without protocol review",
+      "severity": "low",
+      "detail": "user:alice@evil is now a valid principal. Visual spoofing of email-like principal ids becomes representable in signed objects.",
+      "evidence": [
+        "C-13-02c"
+      ]
+    },
+    {
+      "id": "AS-14",
+      "title": "Economic invariants absent from every delivered layer",
+      "severity": "medium",
+      "detail": "total_amount != sum(outputs) parses; outputs are not bounded by any escrow notion; u64 nonce has no monotonicity. The A5/A7 principles (proof before payment, idempotent effects) currently rest entirely on undelivered engines.",
+      "evidence": [
+        "C-11-05",
+        "C-11-07"
+      ]
+    }
+  ]
+}

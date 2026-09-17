@@ -1,0 +1,212 @@
+{
+  "$comment": "Canonical serialization vectors. `expected` values are hand-verified golden anchors for BOTH the independent reference and the SUT (RFC 8785-style rules as amended by ADR-005: UTF-16 key sort, NFC, safe integers only, no whitespace). Inputs must be JSON-expressible; JS-only values (-0, undefined, holes) are covered inline in test/01 and test/06. Non-ASCII is written with explicit \\uXXXX escapes to make the normalization form unambiguous.",
+  "vectors": [
+    {
+      "id": "V-EMPTY-OBJ",
+      "desc": "empty object",
+      "input": {},
+      "expected": "{}"
+    },
+    {
+      "id": "V-SINGLE",
+      "desc": "single key",
+      "input": {
+        "a": 1
+      },
+      "expected": "{\"a\":1}"
+    },
+    {
+      "id": "V-SORT-2",
+      "desc": "two keys sorted",
+      "input": {
+        "b": 2,
+        "a": 1
+      },
+      "expected": "{\"a\":1,\"b\":2}"
+    },
+    {
+      "id": "V-NULL",
+      "desc": "null preserved",
+      "input": {
+        "a": null
+      },
+      "expected": "{\"a\":null}"
+    },
+    {
+      "id": "V-ARR-ORDER",
+      "desc": "array order preserved",
+      "input": [
+        3,
+        1,
+        2
+      ],
+      "expected": "[3,1,2]"
+    },
+    {
+      "id": "V-ARR-MIXED",
+      "desc": "array of primitives",
+      "input": [
+        true,
+        false,
+        null,
+        0,
+        -42
+      ],
+      "expected": "[true,false,null,0,-42]"
+    },
+    {
+      "id": "V-NESTED",
+      "desc": "nested object+array",
+      "input": {
+        "z": {
+          "y": 2,
+          "x": 1
+        },
+        "a": [
+          true,
+          false,
+          null
+        ]
+      },
+      "expected": "{\"a\":[true,false,null],\"z\":{\"x\":1,\"y\":2}}"
+    },
+    {
+      "id": "V-INT-KEYS",
+      "desc": "integer-like keys sort lexicographically (UTF-16), not numerically",
+      "input": {
+        "2": "a",
+        "10": "b"
+      },
+      "expected": "{\"10\":\"b\",\"2\":\"a\"}"
+    },
+    {
+      "id": "V-ESC-QUOTE",
+      "desc": "quote escaping",
+      "input": {
+        "k": "x\"y"
+      },
+      "expected": "{\"k\":\"x\\\"y\"}"
+    },
+    {
+      "id": "V-ESC-BACKSLASH",
+      "desc": "backslash escaping",
+      "input": {
+        "k": "x\\y"
+      },
+      "expected": "{\"k\":\"x\\\\y\"}"
+    },
+    {
+      "id": "V-ESC-CTRL",
+      "desc": "C0 control (BEL 0x07) as lowercase \\u0007",
+      "input": {
+        "k": "a\u0007b"
+      },
+      "expected": "{\"k\":\"a\\u0007b\"}"
+    },
+    {
+      "id": "V-ESC-DEL",
+      "desc": "DEL (0x7f) is NOT escaped (JSON.stringify semantics escape only < 0x20)",
+      "input": {
+        "k": "a\u007fb"
+      },
+      "expected": "{\"k\":\"a\u007fb\"}"
+    },
+    {
+      "id": "V-NFC-VALUE",
+      "desc": "NFD value (e + U+0301) is NFC-composed on output",
+      "input": {
+        "name": "cafe\u0301"
+      },
+      "expected": "{\"name\":\"caf\u00e9\"}"
+    },
+    {
+      "id": "V-NFC-KEY",
+      "desc": "NFD key (e + U+0301) is NFC-composed on output",
+      "input": {
+        "e\u0301": 1
+      },
+      "expected": "{\"\u00e9\":1}"
+    },
+    {
+      "id": "V-UTF16-SORT",
+      "desc": "UTF-16 code-unit order: astral U+10000 (lead surrogate 0xD800) sorts BEFORE U+FFFF",
+      "input": {
+        "\uffff": 1,
+        "\ud800\udc00": 0
+      },
+      "expected": "{\"\ud800\udc00\":0,\"\uffff\":1}"
+    },
+    {
+      "id": "V-UTF16-SORT-2",
+      "desc": "astral U+20000 (lead 0xD840) sorts before U+E000",
+      "input": {
+        "\ue000": 1,
+        "\ud840\udc00": 0
+      },
+      "expected": "{\"\ud840\udc00\":0,\"\ue000\":1}"
+    },
+    {
+      "id": "V-EMOJI",
+      "desc": "astral char untouched by NFC",
+      "input": {
+        "m": "\ud83d\ude00"
+      },
+      "expected": "{\"m\":\"\ud83d\ude00\"}"
+    },
+    {
+      "id": "V-NFKC-DISTINCT",
+      "desc": "fullwidth A (U+FF21) is NOT NFKC-folded (NFC only)",
+      "input": {
+        "k": "\uff21"
+      },
+      "expected": "{\"k\":\"\uff21\"}"
+    },
+    {
+      "id": "V-BOOL",
+      "desc": "booleans",
+      "input": {
+        "t": true,
+        "f": false
+      },
+      "expected": "{\"f\":false,\"t\":true}"
+    },
+    {
+      "id": "V-DEEP",
+      "desc": "deep nesting determinism",
+      "input": {
+        "a": {
+          "b": {
+            "c": {
+              "d": {
+                "e": [
+                  1,
+                  {
+                    "f": "g"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "expected": "{\"a\":{\"b\":{\"c\":{\"d\":{\"e\":[1,{\"f\":\"g\"}]}}}}}"
+    },
+    {
+      "id": "V-EMPTY-ARR",
+      "desc": "empty array",
+      "input": {
+        "a": []
+      },
+      "expected": "{\"a\":[]}"
+    },
+    {
+      "id": "V-NUM-STR-DISTINCT",
+      "desc": "number 5 and string \"5\" serialize distinctly",
+      "input": {
+        "n": 5,
+        "s": "5"
+      },
+      "expected": "{\"n\":5,\"s\":\"5\"}"
+    }
+  ]
+}
