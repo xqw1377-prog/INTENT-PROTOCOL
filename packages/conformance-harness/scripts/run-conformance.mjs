@@ -10,11 +10,16 @@
  * report is still produced as evidence.
  */
 import { spawnSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import * as path from "node:path";
 
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const vitestBin = path.resolve(pkgDir, "../../node_modules/.bin/vitest");
+
+// CI purges report/ before the run; the output directory must exist for
+// vitest's --outputFile regardless of whether vitest recreates it itself.
+mkdirSync(path.join(pkgDir, "report"), { recursive: true });
 
 const vitest = spawnSync(
   vitestBin,

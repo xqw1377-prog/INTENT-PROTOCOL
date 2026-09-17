@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { ARTIFACT_HASHES, fakeHash, POLICY_HASH, validDecision, validIntent } from "../src/lib/fixtures.js";
-import { refProofBinding } from "../src/reference/hash.js";
 import { sut, sealWith, contentHashOf } from "../src/sut.js";
 
 const { IntentContractSchema, VerificationDecisionSchema, EvidenceBundleSchema } = sut.objects;
@@ -74,20 +73,4 @@ describe("[C-12] replay of the same bundle", () => {
     expect(b1.merkle_root).not.toBe(b2.merkle_root);
   });
 
-  test("[C-12-08][GAP] R9: proof_binding does not bind milestone_id — two DIFFERENT milestones sharing (intent_hash, revision, evidence_root, policy_hash) share ONE binding", () => {
-    // Commander ruling R9 (PROOF TARGET BINDING): a proof must prove that the
-    // result belongs to THIS specific milestone. The delivered proofBinding()
-    // does not even accept milestone_id, so the collision below is structural.
-    // This test DEMONSTRATES the collision against the current snapshot; once
-    // R9 lands (binding includes milestone_id) this check must FAIL and be
-    // flipped to assert separation.
-    const binding = proofBinding(inputs);
-    expect(binding).toBe(refProofBinding(inputs)); // implementation matches the spec as written — the spec itself is the gap
-    const m1 = "aaaaaaaa-0000-4000-8000-000000000001";
-    const m2 = "aaaaaaaa-0000-4000-8000-000000000002";
-    const d1 = VerificationDecisionSchema.parse(validDecision({ ...inputs, milestone_id: m1, proof_binding: binding }));
-    const d2 = VerificationDecisionSchema.parse(validDecision({ ...inputs, milestone_id: m2, proof_binding: binding }));
-    expect(d1.milestone_id).not.toBe(d2.milestone_id); // genuinely different proof targets
-    expect(d1.proof_binding).toBe(d2.proof_binding); // ...yet one shared binding: cross-milestone replay boundary confirmed
-  });
 });

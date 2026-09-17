@@ -1,5 +1,5 @@
 {
-  "$comment": "Rationale manifest for every check recorded as UNKNOWN (never auto-PASS). Two flavors: gap_documented = behavior demonstrated and recorded, but the written protocol does not require the stronger property (or the enforcing layer is undelivered); blocked = cannot be executed because the enforcing component was not delivered in the S0 snapshot. freeze_blocking=true marks UNKNOWNs the Commander has ruled must be dispositioned before G1 Freeze (not deferrable).",
+  "$comment": "Rationale manifest for every check recorded as UNKNOWN (never auto-PASS). Two flavors: gap_documented = behavior demonstrated and recorded, but the written protocol does not require the stronger property (or the enforcing layer is undelivered); blocked = cannot be executed because the enforcing component was not delivered in the S0 snapshot. freeze_blocking=true marks UNKNOWNs the Commander has ruled must be dispositioned before G1 Freeze (not deferrable). kind=spec_asserted marks Commander-ruled normative assertions (test/16): the gate FAILs while the rule is missing; these are never UNKNOWN.",
   "unknowns": {
     "PKG-ENTRY-01": {
       "kind": "blocked",
@@ -177,11 +177,53 @@
       "rationale": "G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists (@intent/intent-core absent).",
       "blocked_by": "undelivered"
     },
-    "C-12-08": {
-      "kind": "gap_documented",
-      "rationale": "proof_binding is computed over (intent_hash, milestone_revision, evidence_root, policy_hash) ONLY; the binding function does not accept milestone_id. Two different milestones sharing those four values therefore share ONE proof binding: an old proof is replayable across proof targets. Demonstrated as a machine-reproducible collision by C-12-08.",
+    "S-R9": {
+      "kind": "spec_asserted",
+      "rationale": "R9 (PROOF TARGET BINDING): proof_binding must bind milestone_id. Supersedes gap-demonstration C-12-08; the normative assertion [S-R9] in test/16 now FAILs any SUT whose binding does not separate proof targets. Blocker stays OPEN until Builder A lands R9 and the gate run passes.",
       "freeze_blocking": true,
       "commander_ruling": "Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1."
+    },
+    "S-SUBJ": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "OQ-5: SubjectRef V1 accepted as a shape but '@' must be removed (lookalike principal ids). [S-SUBJ] FAILs any SUT still accepting '@'.",
+      "commander_ruling": "Commander OQ-5 disposition, 2026-09-17/18: remove '@' from SubjectRef id charset in V1."
+    },
+    "S-UUID": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "UUIDs must be canonical (lowercase v4) so object identity is byte-stable across implementations. [S-UUID] FAILs any SUT accepting non-canonical UUIDs.",
+      "commander_ruling": "Commander R-series, 2026-09-18: non-canonical UUID -> FAIL."
+    },
+    "S-RT": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "A sealed object must survive JSON text round-trip and remain seal-valid (declared content_hash matches recomputation). [S-RT] enforces it end-to-end.",
+      "commander_ruling": "Commander R-series, 2026-09-18: sealed round-trip not holding -> FAIL."
+    },
+    "S-ASSET": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "One SettlementInstruction carries exactly one asset; mixed-asset outputs are a settlement-semantic error. [S-ASSET] FAILs any SUT accepting mixed assets.",
+      "commander_ruling": "Commander R-series, 2026-09-18: multiple assets in one Settlement -> FAIL."
+    },
+    "S-SCALE": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "Output amount scale (decimal places) must not exceed the referenced asset's decimals. [S-SCALE] FAILs over-precision amounts.",
+      "commander_ruling": "Commander R-series, 2026-09-18: amount scale beyond asset.decimals -> FAIL."
+    },
+    "S-BUDGET": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "Budget execution_cap must not exceed total. [S-BUDGET] FAILs inverted budgets.",
+      "commander_ruling": "Commander R-series, 2026-09-18: budget cap > total -> FAIL."
+    },
+    "S-SURR": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "IPC-JSON-1 (OQ-1 canonical profile name) must reject lone surrogates: they are not valid Unicode scalar text and split cross-language canonicalizers. [S-SURR] FAILs any canonicalizer accepting them. NOTE: harness reference canonicalizer must be updated in the same commit once this rule is verified in the SUT.",
+      "commander_ruling": "Commander R-series, 2026-09-18: lone surrogate entering IPC-JSON-1 -> FAIL."
     }
   }
 }

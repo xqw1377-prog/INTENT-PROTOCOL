@@ -1,8 +1,8 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-17T15:59:34.306Z
+- Generated: 2026-09-17T16:18:23.516Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
-- Checks: **141 PASS / 5 FAIL / 33 UNKNOWN** (179 total)
+- Checks: **141 PASS / 12 FAIL / 30 UNKNOWN** (183 total)
 - Gate status: **NOT_READY** — no freeze declared; freeze authority: Commander.
 
 ## Area rollup
@@ -13,17 +13,18 @@
 | C-02 | **PASS** | 9 | 0 | 0 |
 | C-03 | **PASS** | 6 | 0 | 0 |
 | C-04 | **PASS** | 10 | 0 | 0 |
-| C-05 | **FAIL** | 7 | 1 | 0 |
+| C-05 | **FAIL** | 6 | 1 | 0 |
 | C-06 | **PASS** | 5 | 0 | 0 |
 | C-07 | **UNKNOWN** | 3 | 0 | 4 |
 | C-08 | **UNKNOWN** | 9 | 0 | 2 |
 | C-09 | **UNKNOWN** | 7 | 0 | 2 |
 | C-10 | **FAIL** | 7 | 1 | 1 |
 | C-11 | **UNKNOWN** | 6 | 0 | 2 |
-| C-12 | **UNKNOWN** | 5 | 0 | 3 |
-| C-13 | **FAIL** | 48 | 2 | 3 |
+| C-12 | **UNKNOWN** | 5 | 0 | 2 |
+| C-13 | **FAIL** | 48 | 2 | 1 |
 | C-14 | **UNKNOWN** | 2 | 0 | 9 |
 | C-15 | **UNKNOWN** | 3 | 0 | 6 |
+| SPEC-ASSERTIONS | **FAIL** | 1 | 7 | 0 |
 | SUT-LOAD | **UNKNOWN** | 5 | 0 | 1 |
 
 ## FAIL findings
@@ -53,6 +54,41 @@
 - Message: `AssertionError: expected [Function] to throw an error`
 - Reproduce: `npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t "C-13-07b"`
 
+### S-R9 — [S-R9] proof binding MUST separate different milestone_ids (all other inputs equal)
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected 'sha256:1fda76ffdb01f7100cc35afbf65240…' not to be 'sha256:1fda76ffdb01f7100cc35afbf65240…' // Object.is equality`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-R9"`
+
+### S-UUID — [S-UUID] non-canonical UUIDs (v1-shaped, uppercase) MUST be rejected
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-UUID"`
+
+### S-ASSET — [S-ASSET] a SettlementInstruction MUST NOT mix multiple assets across outputs
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-ASSET"`
+
+### S-SCALE — [S-SCALE] output amount scale MUST NOT exceed asset.decimals
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-SCALE"`
+
+### S-BUDGET — [S-BUDGET] execution_cap MUST NOT exceed budget total
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-BUDGET"`
+
+### S-SURR — [S-SURR] lone surrogates MUST be rejected by the canonical form (IPC-JSON-1)
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-SURR"`
+
+### S-SUBJ — [S-SUBJ] SubjectRef MUST reject '@' (ruling OQ-5)
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-SUBJ"`
+
 ## Freeze blockers (Commander-ruled: must be dispositioned before G1)
 
 - **C-07-01**: Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must criterion_id be unique within success_criteria?
@@ -63,7 +99,14 @@
 - **C-14-03**: Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?
 - **C-14-04**: Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?
 - **C-15-04**: Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must a SEALED bundle's merkle_root be verified against artifact_hashes at seal time?
-- **C-12-08**: Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1.
+- **S-R9**: Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1.
+- **S-SUBJ**: Commander OQ-5 disposition, 2026-09-17/18: remove '@' from SubjectRef id charset in V1.
+- **S-UUID**: Commander R-series, 2026-09-18: non-canonical UUID -> FAIL.
+- **S-RT**: Commander R-series, 2026-09-18: sealed round-trip not holding -> FAIL.
+- **S-ASSET**: Commander R-series, 2026-09-18: multiple assets in one Settlement -> FAIL.
+- **S-SCALE**: Commander R-series, 2026-09-18: amount scale beyond asset.decimals -> FAIL.
+- **S-BUDGET**: Commander R-series, 2026-09-18: budget cap > total -> FAIL.
+- **S-SURR**: Commander R-series, 2026-09-18: lone surrogate entering IPC-JSON-1 -> FAIL.
 
 ## UNKNOWN (never auto-PASS)
 
@@ -81,9 +124,6 @@
 - **C-11-06** (gap_documented): gap_documented: No canonical decimal form: '-0', '0.00', '1.10' are all accepted; the same economic value has multiple hashes across implementations.
 - **C-12-06** (gap_documented): gap_documented: A decision may reference an OPEN (unsealed) bundle; nothing in the delivered layer binds decision validity to bundle state.
 - **C-12-07** (gap_documented): gap_documented: Same bundle_id with a different artifact set is representable; no uniqueness/append-only constraint exists in the schema layer.
-- **C-12-08** (gap_documented): gap_documented: proof_binding is computed over (intent_hash, milestone_revision, evidence_root, policy_hash) ONLY; the binding function does not accept milestone_id. Two different milestones sharing those four values therefore share ONE proof binding: an old proof is replayable across proof targets. Demonstrated as a machine-reproducible collision by C-12-08.
-- **C-13-02c** (gap_documented): gap_documented: SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid. Commander ruling OQ-5 (2026-09-17): SubjectRef V1 is accepted as a shape but '@' must be REMOVED; once Builder A lands it, this check must flip to assert rejection.
-- **C-13-09b** (gap_documented): gap_documented: UUID schema accepts any RFC version and uppercase; intent ids are not pinned to a single version/canonical form.
 - **C-13-12** (blocked): blocked: Run manifest / grant / edge NodeRef / dispute reference validation cannot be tested: objects absent from the delivered S0 snapshot.
 - **C-14-02** (gap_documented): gap_documented: decision.intent_hash can be fabricated; no delivered API binds a decision to an existing Intent object.
 - **C-14-03** (gap_documented): gap_documented: decision.evidence_root need not equal merkleRoot(bundle.artifact_hashes); the contradiction is representable.

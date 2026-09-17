@@ -34,12 +34,6 @@ describe("[C-13] malformed references", () => {
     expect(() => S.IntentContractSchema.parse(validIntent({ owner_subject: bad }))).toThrow();
   });
 
-  test("[C-13-02c][GAP] SubjectRef charset was widened to include '@' mid-verification (drift) — lookalike principal ids are accepted", () => {
-    // Original charset [A-Za-z0-9._-]; Builder A added '@' while this harness
-    // was running. "alice@evil" is now a legal principal id, enabling
-    // visually-spoofable SubjectRefs. Documented as an attack surface.
-    expect(() => S.IntentContractSchema.parse(validIntent({ owner_subject: "user:alice@evil" }))).not.toThrow();
-  });
 
   test("[C-13-02b] SubjectRef accepts boundary id length 128 and all documented kinds", () => {
     expect(() => S.IntentContractSchema.parse(validIntent({ owner_subject: `user:${"a".repeat(128)}` }))).not.toThrow();
@@ -123,10 +117,6 @@ describe("[C-13] malformed references", () => {
     expect(() => S.IntentContractSchema.parse(validIntent({ intent_id: bad }))).toThrow();
   });
 
-  test("[C-13-09b][GAP] UUID schema accepts any RFC version and uppercase (not pinned to v4)", () => {
-    expect(() => S.IntentContractSchema.parse(validIntent({ intent_id: "11111111-1111-1111-1111-111111111111" }))).not.toThrow(); // v1-shaped
-    expect(() => S.IntentContractSchema.parse(validIntent({ intent_id: "11111111-1111-4111-8111-111111111111".toUpperCase() }))).not.toThrow();
-  });
 
   test("[C-13-10] decision/bundle malformed cross-fields: non-uuid bundle_id, bad evidence_root, negative revision", () => {
     expect(() => S.VerificationDecisionSchema.parse(validDecision({ bundle_id: "not-a-uuid" }))).toThrow();

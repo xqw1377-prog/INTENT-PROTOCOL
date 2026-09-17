@@ -89,7 +89,7 @@ for (const r of results) counts[r.status]++;
 const areas = new Map();
 for (const r of results) {
   const m = r.check_id.match(/^(C-\d+)/);
-  const area = m ? m[1] : (r.check_id.startsWith("SUT") || r.check_id.startsWith("PKG") ? "SUT-LOAD" : "OTHER");
+  const area = m ? m[1] : (r.check_id.startsWith("S-") ? "SPEC-ASSERTIONS" : (r.check_id.startsWith("SUT") || r.check_id.startsWith("PKG") ? "SUT-LOAD" : "OTHER"));
   if (!areas.has(area)) areas.set(area, { area, total: 0, PASS: 0, FAIL: 0, UNKNOWN: 0 });
   const a = areas.get(area);
   if (!a) continue;

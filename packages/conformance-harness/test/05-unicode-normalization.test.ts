@@ -63,11 +63,6 @@ describe("[C-05] unicode normalization", () => {
     expect(Object.keys(reparsed).length, `canonical text has duplicate keys: ${out}`).toBe(2);
   });
 
-  test("[C-05-06] lone surrogates: escaped consistently, agree with reference (cross-implementation hazard documented)", () => {
-    const v = { s: "x\uDFFFy" };
-    expect(canonicalize(v)).toBe(refCanonicalize(v));
-    expect(JSON.parse(canonicalize(v)).s).toBe("x\uDFFFy");
-  });
 
   test("[C-05-07] U+2028/U+2029 are emitted raw — valid JSON, agrees with reference; recorded as cross-language hazard", () => {
     const v = { s: "a\u2028b\u2029c" };
