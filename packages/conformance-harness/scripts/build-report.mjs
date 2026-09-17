@@ -98,6 +98,10 @@ for (const r of results) {
 }
 for (const a of areas.values()) a.verdict = a.FAIL > 0 ? "FAIL" : a.UNKNOWN > 0 ? "UNKNOWN" : "PASS";
 
+const freezeBlockers = Object.entries(unknowns)
+  .filter(([, u]) => u.freeze_blocking)
+  .map(([id, u]) => ({ check_id: id, ruling: u.commander_ruling, rationale: u.rationale, status: "OPEN" }));
+
 const vectorFiles = readdirSync(path.join(pkgRoot, "vectors")).map((f) => ({
   file: `packages/conformance-harness/vectors/${f}`,
   sha256: sha256File(path.join(pkgRoot, "vectors", f)),
@@ -127,6 +131,7 @@ const report = {
     total_checks: results.length,
     counts,
     areas: [...areas.values()].sort((x, y) => x.area.localeCompare(y.area)),
+    freeze_blockers: freezeBlockers,
     gate_status: "NOT_READY",
     freeze_declaration: "NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. Four FAIL findings and every UNKNOWN entry must be dispositioned first.",
   },
@@ -161,6 +166,10 @@ for (const r of results.filter((x) => x.status === "FAIL")) {
   md.push(`- Reproduce: \`${r.reproduce}\``);
   md.push("");
 }
+md.push("## Freeze blockers (Commander-ruled: must be dispositioned before G1)");
+md.push("");
+for (const fb of freezeBlockers) md.push(`- **${fb.check_id}**: ${esc(fb.ruling)}`);
+md.push("");
 md.push("## UNKNOWN (never auto-PASS)");
 md.push("");
 for (const r of results.filter((x) => x.status === "UNKNOWN")) {

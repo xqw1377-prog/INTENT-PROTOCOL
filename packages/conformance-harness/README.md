@@ -102,8 +102,41 @@ signal, not a harness defect.
 
 ## Re-verifying a newer SUT
 
-1. `npm run capture:sut` (replaces the snapshot, records new digests).
-2. `npm run conformance`.
-3. Review: fixtures may need re-syncing if object shapes changed again — by
-   design, shape drift is itself a reportable protocol event, not something
-   the harness silently absorbs.
+**Commander discipline (2026-09-17, post-drift ruling): every independent
+verification must bind to a commit that is pushed to the remote and therefore
+immovable. No more "I edit locally while you verify".**
+
+```bash
+cd packages/conformance-harness
+node scripts/capture-sut.mjs --sha <pushed-commit>   # REQUIRED for gate evidence
+npm run conformance
+python3 scripts/validate-report.py
+```
+
+`--sha` mode resolves the commit, refuses to run if it is not reachable from
+any remote ref, extracts `protocol-schema/src` from the git object database
+(not the live worktree), and records `pinned_sha` + `remote_refs_containing`
+in `capture.json`. Legacy worktree capture is retained for point-in-time
+diagnostics only and marks itself as not-gate-evidence.
+
+If object shapes changed again, fixtures may need re-syncing — by design,
+shape drift is itself a reportable protocol event, not something the harness
+silently absorbs.
+
+## Freeze blockers
+
+The Commander has ruled that the following UNKNOWNs are S0 protocol semantics
+and must be dispositioned BEFORE G1 Freeze (they cannot be deferred to a later
+layer); they are flagged `freeze_blocking: true` in `unknowns.json` and
+surfaced as `summary.freeze_blockers` in every report:
+
+- uniqueness of `criterion_id` and `constraint_id` (C-07-01, C-07-02)
+- the canonical decimal form (C-11-06)
+- whether a SEALED bundle must verify its `merkle_root` at seal time (C-15-04)
+- which layer owns `total_amount == sum(outputs.amount)` (C-11-05)
+- which layer owns Decision/Settlement cross-object binding (C-14-02/03/04)
+
+Full remediation flow (Devin fixes → re-capture at the same pushed SHA →
+re-run all conformance → Commander reviews diff / golden vectors / independent
+report / UNKNOWN disposition → G1 PASS/REJECT): the harness side is exactly
+the two commands above.

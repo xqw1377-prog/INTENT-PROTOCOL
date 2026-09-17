@@ -1,6 +1,6 @@
 {
-  "report_id": "p0-s0-conformance-2026-09-17T14-34-50-366Z",
-  "generated_at": "2026-09-17T14:34:50.367Z",
+  "report_id": "p0-s0-conformance-2026-09-17T14-50-38-987Z",
+  "generated_at": "2026-09-17T14:50:38.988Z",
   "harness": {
     "name": "@intent/conformance-harness",
     "builder": "Builder B (Independent Verifier)",
@@ -92,7 +92,7 @@
     ]
   },
   "provenance": {
-    "git_head": "d2ddb961c4aa287a6aa0c56eebfdcbeebd143296",
+    "git_head": "8da054bf0ab4cc99895edcc45fe79b1d8b051455",
     "vector_files": [
       {
         "file": "packages/conformance-harness/vectors/canonical-vectors.json",
@@ -103,7 +103,7 @@
         "sha256": "ae4b3624296fa4f01cd3acda2b433c8f5bd8d4c79b4af4f2325b7d309a1305b9"
       }
     ],
-    "unknowns_manifest": "6d0a72b23f8bd74b0b63e1f1d7427e4cb868a727f28cfca42333ee28fb23b336",
+    "unknowns_manifest": "c661697d6e338a41e854d2044e6be721e38b63242da481248cb48486f797fe95",
     "attack_surfaces_manifest": "0bc1f369c9d4f64391918fa181ab72d84b5f32a7bad8eaebc409bacd617c6c24"
   },
   "summary": {
@@ -241,6 +241,56 @@
         "FAIL": 0,
         "UNKNOWN": 1,
         "verdict": "UNKNOWN"
+      }
+    ],
+    "freeze_blockers": [
+      {
+        "check_id": "C-07-01",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must criterion_id be unique within success_criteria?",
+        "rationale": "No uniqueness constraint on criterion_id: two same-id criteria with different assertions are both schema-valid and mutually ambiguous for any verifier resolving criteria by id.",
+        "status": "OPEN"
+      },
+      {
+        "check_id": "C-07-02",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must constraint_id be unique within constraints?",
+        "rationale": "No uniqueness constraint on constraint_id.",
+        "status": "OPEN"
+      },
+      {
+        "check_id": "C-11-05",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns the total_amount == sum(outputs.amount) invariant (schema, policy, or settlement engine)?",
+        "rationale": "Economic invariant total_amount == sum(outputs.amount) is not enforced anywhere in the delivered layer.",
+        "status": "OPEN"
+      },
+      {
+        "check_id": "C-11-06",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: what IS the canonical decimal form (and how are '-0'/'0.00'/'1.10' normalized)?",
+        "rationale": "No canonical decimal form: '-0', '0.00', '1.10' are all accepted; the same economic value has multiple hashes across implementations.",
+        "status": "OPEN"
+      },
+      {
+        "check_id": "C-14-02",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?",
+        "rationale": "decision.intent_hash can be fabricated; no delivered API binds a decision to an existing Intent object.",
+        "status": "OPEN"
+      },
+      {
+        "check_id": "C-14-03",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?",
+        "rationale": "decision.evidence_root need not equal merkleRoot(bundle.artifact_hashes); the contradiction is representable.",
+        "status": "OPEN"
+      },
+      {
+        "check_id": "C-14-04",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?",
+        "rationale": "Settlement may reference a dangling decision_id and arbitrary proof_binding.",
+        "status": "OPEN"
+      },
+      {
+        "check_id": "C-15-04",
+        "ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must a SEALED bundle's merkle_root be verified against artifact_hashes at seal time?",
+        "rationale": "A SEALED bundle may declare a merkle_root that does not match its artifact_hashes; only external recomputation detects the lie.",
+        "status": "OPEN"
       }
     ],
     "gate_status": "NOT_READY",

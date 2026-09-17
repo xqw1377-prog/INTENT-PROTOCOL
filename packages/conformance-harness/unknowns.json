@@ -1,37 +1,181 @@
 {
-  "$comment": "Rationale manifest for every check recorded as UNKNOWN (never auto-PASS). Two flavors: gap_documented = behavior demonstrated and recorded, but the written protocol does not require the stronger property (or the enforcing layer is undelivered); blocked = cannot be executed because the enforcing component was not delivered in the S0 snapshot.",
+  "$comment": "Rationale manifest for every check recorded as UNKNOWN (never auto-PASS). Two flavors: gap_documented = behavior demonstrated and recorded, but the written protocol does not require the stronger property (or the enforcing layer is undelivered); blocked = cannot be executed because the enforcing component was not delivered in the S0 snapshot. freeze_blocking=true marks UNKNOWNs the Commander has ruled must be dispositioned before G1 Freeze (not deferrable).",
   "unknowns": {
-    "PKG-ENTRY-01": { "kind": "blocked", "rationale": "Live package barrel/@intent/protocol-schema entry import was not evaluated against the frozen snapshot: Builder A edited the live tree twice during verification (missing events.js -> fixed; Milestone/Plan/Run/Grant/Edge/Dispute objects removed; artifact content_hash renamed payload_hash; SubjectRef charset widened). Re-run scripts/capture-sut.mjs to pin a newer SUT.", "blocked_by": "SUT churn" },
-    "C-07-01": { "kind": "gap_documented", "rationale": "No uniqueness constraint on criterion_id: two same-id criteria with different assertions are both schema-valid and mutually ambiguous for any verifier resolving criteria by id.", "blocked_by": "spec silent" },
-    "C-07-02": { "kind": "gap_documented", "rationale": "No uniqueness constraint on constraint_id.", "blocked_by": "spec silent" },
-    "C-07-04": { "kind": "gap_documented", "rationale": "Duplicate artifact hashes/run ids accepted while a bundle is OPEN; the delivered superRefine only guards SEALED.", "blocked_by": "spec silent" },
-    "C-07-07": { "kind": "gap_documented", "rationale": "Duplicate keys in raw JSON text collapse last-wins at JS parse time before canonicalization; two byte-different evidence texts can share one hash.", "blocked_by": "JS parse semantics" },
-    "C-08-05": { "kind": "gap_documented", "rationale": "Criterion.threshold is open-ended JSON by design; arbitrary nested semantics are representable inside a frozen criterion.", "blocked_by": "design choice" },
-    "C-08-06": { "kind": "blocked", "rationale": "Unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase cannot be tested: objects documented in arch doc §6 are absent from the delivered S0 snapshot.", "blocked_by": "undelivered objects" },
-    "C-09-08": { "kind": "gap_documented", "rationale": "EvidenceArtifact carries no self content_hash field; a received artifact cannot prove its own metadata integrity the way a sealed Intent can (payload_hash covers CAS bytes only).", "blocked_by": "schema design" },
-    "C-09-09": { "kind": "gap_documented", "rationale": "payload_hash is format-checked only; the (bytes, hash) binding is enforced by CAS-side recomputation outside the delivered layer.", "blocked_by": "CAS layer undelivered" },
-    "C-10-08": { "kind": "blocked", "rationale": "Milestone acceptance-criteria immutability cannot be tested: Milestone object absent from the delivered S0 snapshot.", "blocked_by": "undelivered object" },
-    "C-11-05": { "kind": "gap_documented", "rationale": "Economic invariant total_amount == sum(outputs.amount) is not enforced anywhere in the delivered layer.", "blocked_by": "policy/settlement engine undelivered" },
-    "C-11-06": { "kind": "gap_documented", "rationale": "No canonical decimal form: '-0', '0.00', '1.10' are all accepted; the same economic value has multiple hashes across implementations.", "blocked_by": "spec silent" },
-    "C-12-06": { "kind": "gap_documented", "rationale": "A decision may reference an OPEN (unsealed) bundle; nothing in the delivered layer binds decision validity to bundle state.", "blocked_by": "verification engine undelivered" },
-    "C-12-07": { "kind": "gap_documented", "rationale": "Same bundle_id with a different artifact set is representable; no uniqueness/append-only constraint exists in the schema layer.", "blocked_by": "ledger/service layer undelivered" },
-    "C-13-02c": { "kind": "gap_documented", "rationale": "SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid.", "blocked_by": "uncoordinated live edit" },
-    "C-13-09b": { "kind": "gap_documented", "rationale": "UUID schema accepts any RFC version and uppercase; intent ids are not pinned to a single version/canonical form.", "blocked_by": "spec silent" },
-    "C-13-12": { "kind": "blocked", "rationale": "Run manifest / grant / edge NodeRef / dispute reference validation cannot be tested: objects absent from the delivered S0 snapshot.", "blocked_by": "undelivered objects" },
-    "C-14-02": { "kind": "gap_documented", "rationale": "decision.intent_hash can be fabricated; no delivered API binds a decision to an existing Intent object.", "blocked_by": "referential-integrity layer undelivered" },
-    "C-14-03": { "kind": "gap_documented", "rationale": "decision.evidence_root need not equal merkleRoot(bundle.artifact_hashes); the contradiction is representable.", "blocked_by": "verification engine undelivered" },
-    "C-14-04": { "kind": "gap_documented", "rationale": "Settlement may reference a dangling decision_id and arbitrary proof_binding.", "blocked_by": "settlement gate undelivered" },
-    "C-14-05": { "kind": "gap_documented", "rationale": "decision.milestone_id / bundle.milestone_id can dangle; no Milestone object is delivered at all.", "blocked_by": "undelivered object" },
-    "C-14-06": { "kind": "gap_documented", "rationale": "bundle.run_ids can reference nonexistent runs.", "blocked_by": "undelivered object" },
-    "C-14-08": { "kind": "gap_documented", "rationale": "verification/settlement policy refs are content-addressed but no policy object schema ships to bind them.", "blocked_by": "policy layer undelivered" },
-    "C-14-09": { "kind": "blocked", "rationale": "ContributionEdge.evidence_ref existence unenforceable: Edge object absent from the delivered S0 snapshot.", "blocked_by": "undelivered object" },
-    "C-14-10": { "kind": "blocked", "rationale": "DisputeCase.challenged_decision existence unenforceable: DisputeCase object absent.", "blocked_by": "undelivered object" },
-    "C-14-11": { "kind": "blocked", "rationale": "ExecutionRun.grants existence/scope unenforceable: Run/Grant objects absent.", "blocked_by": "undelivered objects" },
-    "C-15-04": { "kind": "gap_documented", "rationale": "A SEALED bundle may declare a merkle_root that does not match its artifact_hashes; only external recomputation detects the lie.", "blocked_by": "seal workflow undelivered" },
-    "C-15-05": { "kind": "gap_documented", "rationale": "Delivered EvidenceBundleState has 2 of the 7 states documented in arch doc §7; VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED are absent.", "blocked_by": "doc/impl drift" },
-    "C-15-06": { "kind": "blocked", "rationale": "Milestone state machine (arch doc §7) not delivered.", "blocked_by": "undelivered" },
-    "C-15-07": { "kind": "blocked", "rationale": "Settlement state machine (arch doc §7) not delivered; SettlementInstruction has no state field in S0.", "blocked_by": "undelivered" },
-    "C-15-08": { "kind": "blocked", "rationale": "Intent state machine (arch doc §7) not delivered.", "blocked_by": "undelivered" },
-    "C-15-09": { "kind": "blocked", "rationale": "G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists (@intent/intent-core absent).", "blocked_by": "undelivered" }
+    "PKG-ENTRY-01": {
+      "kind": "blocked",
+      "rationale": "Live package barrel/@intent/protocol-schema entry import was not evaluated against the frozen snapshot: Builder A edited the live tree twice during verification (missing events.js -> fixed; Milestone/Plan/Run/Grant/Edge/Dispute objects removed; artifact content_hash renamed payload_hash; SubjectRef charset widened). Re-run scripts/capture-sut.mjs to pin a newer SUT.",
+      "blocked_by": "SUT churn"
+    },
+    "C-07-01": {
+      "kind": "gap_documented",
+      "rationale": "No uniqueness constraint on criterion_id: two same-id criteria with different assertions are both schema-valid and mutually ambiguous for any verifier resolving criteria by id.",
+      "blocked_by": "spec silent",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must criterion_id be unique within success_criteria?"
+    },
+    "C-07-02": {
+      "kind": "gap_documented",
+      "rationale": "No uniqueness constraint on constraint_id.",
+      "blocked_by": "spec silent",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must constraint_id be unique within constraints?"
+    },
+    "C-07-04": {
+      "kind": "gap_documented",
+      "rationale": "Duplicate artifact hashes/run ids accepted while a bundle is OPEN; the delivered superRefine only guards SEALED.",
+      "blocked_by": "spec silent"
+    },
+    "C-07-07": {
+      "kind": "gap_documented",
+      "rationale": "Duplicate keys in raw JSON text collapse last-wins at JS parse time before canonicalization; two byte-different evidence texts can share one hash.",
+      "blocked_by": "JS parse semantics"
+    },
+    "C-08-05": {
+      "kind": "gap_documented",
+      "rationale": "Criterion.threshold is open-ended JSON by design; arbitrary nested semantics are representable inside a frozen criterion.",
+      "blocked_by": "design choice"
+    },
+    "C-08-06": {
+      "kind": "blocked",
+      "rationale": "Unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase cannot be tested: objects documented in arch doc §6 are absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered objects"
+    },
+    "C-09-08": {
+      "kind": "gap_documented",
+      "rationale": "EvidenceArtifact carries no self content_hash field; a received artifact cannot prove its own metadata integrity the way a sealed Intent can (payload_hash covers CAS bytes only).",
+      "blocked_by": "schema design"
+    },
+    "C-09-09": {
+      "kind": "gap_documented",
+      "rationale": "payload_hash is format-checked only; the (bytes, hash) binding is enforced by CAS-side recomputation outside the delivered layer.",
+      "blocked_by": "CAS layer undelivered"
+    },
+    "C-10-08": {
+      "kind": "blocked",
+      "rationale": "Milestone acceptance-criteria immutability cannot be tested: Milestone object absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered object"
+    },
+    "C-11-05": {
+      "kind": "gap_documented",
+      "rationale": "Economic invariant total_amount == sum(outputs.amount) is not enforced anywhere in the delivered layer.",
+      "blocked_by": "policy/settlement engine undelivered",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns the total_amount == sum(outputs.amount) invariant (schema, policy, or settlement engine)?"
+    },
+    "C-11-06": {
+      "kind": "gap_documented",
+      "rationale": "No canonical decimal form: '-0', '0.00', '1.10' are all accepted; the same economic value has multiple hashes across implementations.",
+      "blocked_by": "spec silent",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: what IS the canonical decimal form (and how are '-0'/'0.00'/'1.10' normalized)?"
+    },
+    "C-12-06": {
+      "kind": "gap_documented",
+      "rationale": "A decision may reference an OPEN (unsealed) bundle; nothing in the delivered layer binds decision validity to bundle state.",
+      "blocked_by": "verification engine undelivered"
+    },
+    "C-12-07": {
+      "kind": "gap_documented",
+      "rationale": "Same bundle_id with a different artifact set is representable; no uniqueness/append-only constraint exists in the schema layer.",
+      "blocked_by": "ledger/service layer undelivered"
+    },
+    "C-13-02c": {
+      "kind": "gap_documented",
+      "rationale": "SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid.",
+      "blocked_by": "uncoordinated live edit"
+    },
+    "C-13-09b": {
+      "kind": "gap_documented",
+      "rationale": "UUID schema accepts any RFC version and uppercase; intent ids are not pinned to a single version/canonical form.",
+      "blocked_by": "spec silent"
+    },
+    "C-13-12": {
+      "kind": "blocked",
+      "rationale": "Run manifest / grant / edge NodeRef / dispute reference validation cannot be tested: objects absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered objects"
+    },
+    "C-14-02": {
+      "kind": "gap_documented",
+      "rationale": "decision.intent_hash can be fabricated; no delivered API binds a decision to an existing Intent object.",
+      "blocked_by": "referential-integrity layer undelivered",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?"
+    },
+    "C-14-03": {
+      "kind": "gap_documented",
+      "rationale": "decision.evidence_root need not equal merkleRoot(bundle.artifact_hashes); the contradiction is representable.",
+      "blocked_by": "verification engine undelivered",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?"
+    },
+    "C-14-04": {
+      "kind": "gap_documented",
+      "rationale": "Settlement may reference a dangling decision_id and arbitrary proof_binding.",
+      "blocked_by": "settlement gate undelivered",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: which layer owns Decision/Settlement cross-object binding (schema-time, verification-engine, or ledger)?"
+    },
+    "C-14-05": {
+      "kind": "gap_documented",
+      "rationale": "decision.milestone_id / bundle.milestone_id can dangle; no Milestone object is delivered at all.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-06": {
+      "kind": "gap_documented",
+      "rationale": "bundle.run_ids can reference nonexistent runs.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-08": {
+      "kind": "gap_documented",
+      "rationale": "verification/settlement policy refs are content-addressed but no policy object schema ships to bind them.",
+      "blocked_by": "policy layer undelivered"
+    },
+    "C-14-09": {
+      "kind": "blocked",
+      "rationale": "ContributionEdge.evidence_ref existence unenforceable: Edge object absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-10": {
+      "kind": "blocked",
+      "rationale": "DisputeCase.challenged_decision existence unenforceable: DisputeCase object absent.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-11": {
+      "kind": "blocked",
+      "rationale": "ExecutionRun.grants existence/scope unenforceable: Run/Grant objects absent.",
+      "blocked_by": "undelivered objects"
+    },
+    "C-15-04": {
+      "kind": "gap_documented",
+      "rationale": "A SEALED bundle may declare a merkle_root that does not match its artifact_hashes; only external recomputation detects the lie.",
+      "blocked_by": "seal workflow undelivered",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling 2026-09-17 (Issue #1 disposition): must be decided before G1 Freeze; cannot be deferred to a later layer. Question: must a SEALED bundle's merkle_root be verified against artifact_hashes at seal time?"
+    },
+    "C-15-05": {
+      "kind": "gap_documented",
+      "rationale": "Delivered EvidenceBundleState has 2 of the 7 states documented in arch doc §7; VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED are absent.",
+      "blocked_by": "doc/impl drift"
+    },
+    "C-15-06": {
+      "kind": "blocked",
+      "rationale": "Milestone state machine (arch doc §7) not delivered.",
+      "blocked_by": "undelivered"
+    },
+    "C-15-07": {
+      "kind": "blocked",
+      "rationale": "Settlement state machine (arch doc §7) not delivered; SettlementInstruction has no state field in S0.",
+      "blocked_by": "undelivered"
+    },
+    "C-15-08": {
+      "kind": "blocked",
+      "rationale": "Intent state machine (arch doc §7) not delivered.",
+      "blocked_by": "undelivered"
+    },
+    "C-15-09": {
+      "kind": "blocked",
+      "rationale": "G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists (@intent/intent-core absent).",
+      "blocked_by": "undelivered"
+    }
   }
 }

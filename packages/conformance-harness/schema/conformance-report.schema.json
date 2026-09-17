@@ -107,7 +107,8 @@
         "counts",
         "areas",
         "gate_status",
-        "freeze_declaration"
+        "freeze_declaration",
+        "freeze_blockers"
       ],
       "additionalProperties": false,
       "properties": {
@@ -186,6 +187,38 @@
         },
         "freeze_declaration": {
           "type": "string"
+        },
+        "freeze_blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "check_id",
+              "ruling",
+              "rationale",
+              "status"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "check_id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Za-z0-9-]*$"
+              },
+              "ruling": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "OPEN",
+                  "DISPOSITIONED"
+                ]
+              }
+            }
+          }
         }
       }
     },
@@ -399,4 +432,4 @@
       }
     }
   }
-}\n
+}

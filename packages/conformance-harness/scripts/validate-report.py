@@ -70,6 +70,16 @@ for r in report.get("results", []):
     if not r.get("reproduce"):
         err(f"{cid}: missing reproduce command")
 
+fb = s.get("freeze_blockers", [])
+unknowns_src = json.loads((here / "../unknowns.json").read_text(encoding="utf-8"))["unknowns"]
+expected_fb = {k for k, v in unknowns_src.items() if v.get("freeze_blocking")}
+got_fb = {x.get("check_id") for x in fb}
+if expected_fb != got_fb:
+    err(f"summary.freeze_blockers mismatch: expected {sorted(expected_fb)}, got {sorted(got_fb)}")
+for x in fb:
+    if not x.get("ruling") or not x.get("rationale"):
+        err(f"freeze blocker {x.get('check_id')}: missing ruling/rationale")
+
 if s.get("counts", {}).get("PASS") != pass_count or s.get("counts", {}).get("FAIL") != fail_count or s.get("counts", {}).get("UNKNOWN") != unknown_count:
     err(f"summary.counts mismatch: declared {s.get('counts')} vs actual P{pass_count}/F{fail_count}/U{unknown_count}")
 
