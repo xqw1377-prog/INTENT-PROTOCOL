@@ -1,6 +1,6 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-17T14:50:38.988Z
+- Generated: 2026-09-17T15:13:34.045Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
 - Checks: **140 PASS / 5 FAIL / 32 UNKNOWN** (177 total)
 - Gate status: **NOT_READY** — no freeze declared; freeze authority: Commander.

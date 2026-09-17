@@ -133,7 +133,7 @@ const report = {
     areas: [...areas.values()].sort((x, y) => x.area.localeCompare(y.area)),
     freeze_blockers: freezeBlockers,
     gate_status: "NOT_READY",
-    freeze_declaration: "NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. Four FAIL findings and every UNKNOWN entry must be dispositioned first.",
+    freeze_declaration: `NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. ${counts.FAIL} FAIL findings, ${counts.UNKNOWN} UNKNOWN entries and ${freezeBlockers.length} freeze blockers (Commander-ruled) must be dispositioned first.`,
   },
   results,
   attack_surfaces: attackSurfaces,

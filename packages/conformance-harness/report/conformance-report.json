@@ -1,6 +1,6 @@
 {
-  "report_id": "p0-s0-conformance-2026-09-17T14-50-38-987Z",
-  "generated_at": "2026-09-17T14:50:38.988Z",
+  "report_id": "p0-s0-conformance-2026-09-17T15-13-34-044Z",
+  "generated_at": "2026-09-17T15:13:34.045Z",
   "harness": {
     "name": "@intent/conformance-harness",
     "builder": "Builder B (Independent Verifier)",
@@ -92,7 +92,7 @@
     ]
   },
   "provenance": {
-    "git_head": "8da054bf0ab4cc99895edcc45fe79b1d8b051455",
+    "git_head": "6dcb492a036cf92ad394862f71d46eec0445e96d",
     "vector_files": [
       {
         "file": "packages/conformance-harness/vectors/canonical-vectors.json",
@@ -294,7 +294,7 @@
       }
     ],
     "gate_status": "NOT_READY",
-    "freeze_declaration": "NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. Four FAIL findings and every UNKNOWN entry must be dispositioned first."
+    "freeze_declaration": "NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. 5 FAIL findings, 32 UNKNOWN entries and 8 freeze blockers (Commander-ruled) must be dispositioned first."
   },
   "results": [
     {

@@ -428,6 +428,37 @@
         },
         "note": {
           "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "git-sha",
+            "worktree"
+          ]
+        },
+        "pinned_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "remote_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "remote_refs_containing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "zod_version_source": {
+          "enum": [
+            "pinned-lockfile",
+            "live-node_modules"
+          ]
+        },
+        "warning": {
+          "type": "string"
         }
       }
     }

@@ -103,8 +103,17 @@ signal, not a harness defect.
 ## Re-verifying a newer SUT
 
 **Commander discipline (2026-09-17, post-drift ruling): every independent
-verification must bind to a commit that is pushed to the remote and therefore
-immovable. No more "I edit locally while you verify".**
+verification must bind to a commit SHA that is pushed to the remote. Once
+pushed, the SHA itself is immutable — branch refs may move, which is why the
+anchor is `pinned_sha` (recorded in `capture.json` together with
+`remote_url`), while `remote_refs_containing` is corroboration, not the
+anchor. No more "I edit locally while you verify".**
+
+Gate evidence additionally requires the dependency to be pinned with the
+source: `--sha` mode reads the zod version from the **same commit's
+package-lock.json** (`zod_version_source: "pinned-lockfile"`), never from live
+`node_modules`, and check `SUT-LOAD-04` fails the run if the zod actually
+loaded at test time differs from the recorded one.
 
 ```bash
 cd packages/conformance-harness

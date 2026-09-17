@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { sut } from "../src/sut.js";
 
 /**
@@ -12,6 +13,19 @@ describe("SUT loadability", () => {
     const capture = JSON.parse(readFileSync(new URL("../sut-snapshot/capture.json", import.meta.url), "utf8"));
     expect(capture.files.length).toBe(7);
     expect(capture.source_git_head).toMatch(/^[0-9a-f]{40}$/);
+  });
+
+  test("[SUT-LOAD-04] dependency pinning: runtime zod version must equal the capture's recorded version; gate captures must read it from the pinned lockfile, not live node_modules", () => {
+    const capture = JSON.parse(readFileSync(new URL("../sut-snapshot/capture.json", import.meta.url), "utf8"));
+    const mode = capture.mode ?? "worktree";
+    const source = capture.zod_version_source ?? (mode === "git-sha" ? null : "live-node_modules");
+    if (mode === "git-sha") {
+      // Gate evidence: pinned source must be paired with the pinned dependency.
+      expect(source, "gate capture must record zod from the pinned lockfile").toBe("pinned-lockfile");
+      expect(capture.pinned_sha).toMatch(/^[0-9a-f]{40}$/);
+    }
+    const runtimeZod = createRequire(import.meta.url)("zod/package.json").version;
+    expect(runtimeZod, `runtime zod ${runtimeZod} != recorded ${capture.zod_version} (dependency drift)`).toBe(capture.zod_version);
   });
 
   test("[SUT-LOAD-01] snapshot modules export the documented API", () => {
