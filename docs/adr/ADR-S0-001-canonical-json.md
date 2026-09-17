@@ -12,7 +12,7 @@
 2. `undefined` fields omitted; explicit `null` preserved and distinguishable from absent.
 3. Strings **NFC-normalized** before escaping (escape set identical to `JSON.stringify`).
 4. Numbers restricted to **safe integers** (`|n| ≤ 2^53-1`); `-0`, floats, NaN, Infinity rejected. Monetary values MUST be `Decimal` strings.
-5. **Keys are not NFC-normalized** — only values are. Normalizing keys could collapse two distinct keys into one, making the canonical form ambiguous.
+5. **Keys must already be NFC** — a non-NFC key is *rejected*, never normalized (Commander ruling 2026-09-17, supersedes the earlier "verbatim keys" choice). This prevents both normalize-merge collisions and visually-equivalent NFC/NFD keys becoming two different field identities. Only string *values* are NFC-normalized.
 6. Arrays keep order; no whitespace anywhere.
 
 ## Rationale

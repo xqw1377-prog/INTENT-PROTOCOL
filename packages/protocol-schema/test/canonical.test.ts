@@ -25,12 +25,12 @@ describe("canonical JSON rules", () => {
     expect(canonicalize("x😀y")).toBe('"x😀y"');
   });
 
-  test("keys are NOT normalized: NFC/NFD spellings stay distinct", () => {
+  test("keys must already be NFC: non-NFC key rejected, NFC key verbatim", () => {
     const obj: Record<string, number> = {};
-    obj["\u00e9"] = 1; // NFC key
-    obj["e\u0301"] = 2; // NFD key — distinct own property
-    const out = canonicalize(obj);
-    expect(Object.keys(JSON.parse(out)).length).toBe(2);
+    obj["\u00e9"] = 1; // NFC key — ok
+    obj["e\u0301"] = 2; // NFD key — rejected, not normalized, not merged
+    expect(() => canonicalize(obj)).toThrow(CanonicalizationError);
+    expect(canonicalize({ "\u00e9": 1 })).toBe('{"\u00e9":1}');
     // Values still normalize: same text either spelling → same canonical bytes
     expect(canonicalize({ k: "café" })).toBe(canonicalize({ k: "café" }));
   });

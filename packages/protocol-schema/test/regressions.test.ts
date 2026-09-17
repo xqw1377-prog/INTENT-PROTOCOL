@@ -42,3 +42,39 @@ describe("schema admits only sealable values", () => {
     expect(() => canonicalize({ n: -0 })).toThrow(/-0/);
   });
 });
+
+describe("Commander rulings 2026-09-17 (remediation)", () => {
+  test("keys must already be NFC — non-NFC key rejected, never normalized/merged", () => {
+    expect(() => canonicalize({ "é": 1 })).toThrow(/NFC/);
+    // an NFC key + an NFD key for the same glyph: reject rather than merge
+    expect(() => canonicalize({ "é": 1, "é": 2 })).toThrow(/NFC/);
+    expect(canonicalize({ "é": 1 })).toBe('{"é":1}');
+  });
+
+  test("Decimal is non-negative canonical form", () => {
+    for (const bad of ["1.10", "1.0", "-0", "00", "01", ".5", "1.", "-1", "0.0", "10.50"]) {
+      expect(() => IntentContractSchema.parse({ ...validIntent, budget: { ...validIntent.budget, total: bad } }), bad).toThrow();
+    }
+    for (const ok of ["1.1", "0.01", "10", "0", "20000", "0.00001"]) {
+      expect(() => IntentContractSchema.parse({ ...validIntent, budget: { ...validIntent.budget, total: ok } }), ok).not.toThrow();
+    }
+  });
+
+  test("criterion_id / constraint_id unique within an intent", () => {
+    const crit = validIntent.success_criteria[0];
+    expect(() => IntentContractSchema.parse({ ...validIntent, success_criteria: [crit, { ...crit, assertion: "different" }] })).toThrow(/criterion_id/);
+    expect(() => IntentContractSchema.parse({ ...validIntent, constraints: [
+      { constraint_id: "c1", kind: "SCOPE", statement: "a" },
+      { constraint_id: "c1", kind: "TIME", statement: "b" },
+    ] })).toThrow(/constraint_id/);
+  });
+
+  test("decimalSum is exact (BigInt, no floats)", async () => {
+    const { decimalSum } = await import("../src/index.js");
+    expect(decimalSum(["0.1", "0.02"])).toBe("0.12");
+    expect(decimalSum(["1.1", "0.09", "10"])).toBe("11.19");
+    expect(decimalSum(["0.0000001", "0.0000002"])).toBe("0.0000003");
+    expect(decimalSum(["1.999", "0.001"])).toBe("2");
+    expect(decimalSum(["0"])).toBe("0");
+  });
+});

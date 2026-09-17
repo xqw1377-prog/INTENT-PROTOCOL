@@ -42,7 +42,7 @@ export function intent(overrides = {}) {
     constraints: [
       { constraint_id: "c1", kind: "FORBIDDEN_ACTION", statement: "never touch merchant payment keys" },
     ],
-    budget: { asset: ASSET, total: "20000.00", execution_cap: "2000.00" },
+    budget: { asset: ASSET, total: "20000", execution_cap: "2000" },
     deadline: "2026-10-17T00:00:00.000Z",
     verification_policy_ref: POLICY_REF,
     settlement_policy_ref: SETTLEMENT_REF,
@@ -123,10 +123,10 @@ export function settlement(overrides = {}) {
     proof_binding: d.proof_binding,
     nonce: "0",
     outputs: [
-      { recipient: "agent:executor_01", asset: ASSET, amount: "1500.00", reason: "milestone-1 completion" },
-      { recipient: "org:platform", asset: ASSET, amount: "150.00", reason: "settlement fee 10%" },
+      { recipient: "agent:executor_01", asset: ASSET, amount: "1500", reason: "milestone-1 completion" },
+      { recipient: "org:platform", asset: ASSET, amount: "150", reason: "settlement fee 10%" },
     ],
-    total_amount: "1650.00",
+    total_amount: "1650",
     expires_at: "2026-11-01T00:00:00.000Z",
     ...overrides,
   };

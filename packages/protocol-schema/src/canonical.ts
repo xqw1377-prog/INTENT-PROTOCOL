@@ -9,7 +9,8 @@
  *     Keys are compared in raw UTF-16 order and emitted verbatim.
  *  4. Numbers MUST be safe integers (|n| <= 2^53-1). Floats, NaN, Infinity and -0 are rejected;
  *     monetary and decimal values MUST be carried as strings (see `Decimal`).
- *  5. Keys are NOT NFC-normalized (normalization could merge distinct keys); only values are.
+ *  5. Keys must already be NFC: a key whose NFC normalization differs from itself is REJECTED
+ *     (never normalized, never merged). Values are NFC-normalized.
  *  6. Arrays preserve order.
  *  7. No whitespace.
  */
@@ -64,8 +65,11 @@ function serialize(value: unknown, path: string): string {
     .sort(compareUtf16);
   // Two distinct spellings may normalize to the same NFC key — that would make the
   // canonical form ambiguous, so reject rather than pick a winner.
-  // Keys are NOT NFC-normalized: normalizing keys could collapse two distinct
-  // keys into one (ambiguous output). Only string *values* are normalized.
+  // Keys must already be NFC — a non-NFC key would collide-or-split field
+  // identity, so reject it rather than normalize (Commander ruling).
+  for (const k of keys) {
+    if (k.normalize("NFC") !== k) throw new CanonicalizationError("object key is not NFC-normalized", path);
+  }
   const parts = keys.map((k) => `${JSON.stringify(k)}:${serialize(obj[k], path ? `${path}.${k}` : k)}`);
   return `{${parts.join(",")}}`;
 }

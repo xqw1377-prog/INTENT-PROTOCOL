@@ -17,11 +17,12 @@ P0-S0 Schema Freeze for Intent Protocol: the six canonical protocol objects, det
 
 ## Rules (frozen — see docs/adr)
 
-- `canonicalize()`: UTF-16 key sort, NFC strings, integers only, no whitespace (ADR-S0-001).
+- `canonicalize()`: UTF-16 key sort, NFC-required keys (non-NFC keys rejected), NFC-normalized values, integers only, `-0` rejected, no whitespace (ADR-S0-001/004).
 - `hashObject(domain, schema_version, payload)` = `SHA256(domain || 0x00 || version || 0x00 || canonical)` (ADR-S0-002).
 - `proof_binding` binds decision → frozen intent + revision + evidence root + policy (anti replay).
 - `settlement_key` binds instruction → proof_binding + escrow + nonce (anti double spend).
 - `seal()` validates, computes `content_hash`, and rejects a declared-but-wrong digest.
+- Schema-level economic consistency (Commander rulings, ADR-S0-004): canonical non-negative Decimals; `criterion_id`/`constraint_id` uniqueness; SEALED `merkle_root` must recompute; settlement `total_amount` must equal exact `decimalSum(outputs)`; decision `proof_binding` must recompute.
 
 ## Golden vectors
 

@@ -65,6 +65,13 @@ const vectors = {
     entry("evidence-bundle-v1-sealed", "bundle.v1", bundle),
     entry("verification-decision-v1", "decision.v1", dec),
     entry("settlement-instruction-v1", "settlement.v1", stl),
+    entry("settlement-fractional-decimal", "settlement.v1", F.settlement({
+      outputs: [
+        { recipient: "agent:executor_01", asset: F.ASSET, amount: "0.01", reason: "a" },
+        { recipient: "org:platform", asset: F.ASSET, amount: "0.02", reason: "b" },
+      ],
+      total_amount: "0.03",
+    })),
   ],
   derived: {
     bundle_merkle_root: bundle.merkle_root,
@@ -83,6 +90,16 @@ const vectors = {
     { name: "unknown-field", input: { ...F.intent(), surprise: 1 }, expect: "schema_parse_error" },
     { name: "non-integer-number", input: F.intent({ version: 1.5 }), expect: "schema_parse_error" },
     { name: "duplicate-artifact-hash", input: F.bundle({ artifact_hashes: [F.H(0xb1), F.H(0xb1)] }), expect: "schema_parse_error" },
+    { name: "duplicate-criterion-id", input: F.intent({ success_criteria: [F.criterion("dup"), F.criterion("dup", "different assertion")] }), expect: "schema_parse_error" },
+    { name: "duplicate-constraint-id", input: F.intent({ constraints: [
+      { constraint_id: "c1", kind: "SCOPE", statement: "a" },
+      { constraint_id: "c1", kind: "TIME", statement: "b" },
+    ] }), expect: "schema_parse_error" },
+    { name: "non-canonical-decimal", input: F.settlement({ total_amount: "1650.00" }), expect: "schema_parse_error" },
+    { name: "settlement-total-mismatch", input: F.settlement({ total_amount: "1600" }), expect: "schema_parse_error" },
+    { name: "bundle-merkle-mismatch", input: F.bundle({ artifact_hashes: [F.H(0xb1), F.H(0xcc)] }), expect: "schema_parse_error" },
+    { name: "decision-binding-mismatch", input: F.decision({ milestone_revision: 2 }), expect: "schema_parse_error" },
+    { name: "non-nfc-object-key", raw: { "\u00e9": 1, "e\u0301": 2 }, expect: "canonical_error" },
     { name: "sealed-bundle-without-merkle-root", input: F.bundle({ merkle_root: undefined }), expect: "schema_parse_error" },
     { name: "v1-with-parent-hash", input: F.intent({ parent_hash: F.H(0x99) }), expect: "schema_parse_error" },
     { name: "v2-without-change-reason", input: F.intent({ version: 2, parent_hash: F.H(0x99) }), expect: "schema_parse_error" },

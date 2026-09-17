@@ -86,6 +86,10 @@ describe("golden vectors — equivalence (same semantics → same digest)", () =
 describe("golden vectors — negative", () => {
   for (const v of GOLDEN.negative) {
     test(`${v.name} → ${v.expect}`, () => {
+      if (v.expect === "canonical_error") {
+        expect(() => canonicalize(v.raw)).toThrow();
+        return;
+      }
       switch (v.expect) {
         case "schema_parse_error": {
           const schema = SEAL_SCHEMA[v.input.schema_version];
