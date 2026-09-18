@@ -219,6 +219,24 @@
       "freeze_blocking": true,
       "rationale": "IPC-JSON-1 R3: object keys must ALREADY be in Normalization Form C; non-NFC keys are rejected, never silently normalized (silent normalization created duplicate-key ambiguity).",
       "commander_ruling": "Commander OQ-1 / IPC-JSON-1 freeze, 2026-09-18: canonical profile named IPC-JSON-1; keys must already be NFC."
+    },
+    "S-MS": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "MilestoneV1 is G1 trust primitive #3 (docs/TRUST-CHAIN.md): the SUT must export the object as a delivered hashable primitive with seal round-trip idempotence and wrong-hash rejection.",
+      "commander_ruling": "Commander Issue #2 extension order + docs/GATES.md (8 trust primitives), 2026-09-18."
+    },
+    "S-RCPT": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "OutcomeReceiptV1 is G1 trust primitive #7 and must carry the ruled minimal binding set (receipt identity, schema version, intent commitment, milestone id+revision, evidence_root, policy hash, deterministic accepted decision set, accepted result, issued_at) and be hashable. Receipt formation/aggregation logic is S1; the wire/hash object is frozen in G1.",
+      "commander_ruling": "docs/TRUST-CHAIN.md 'OutcomeReceiptV1' (COMMANDER-RULED / G1 NORMATIVE), commit 51ae290."
+    },
+    "S-GATE": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "Settlement authority boundary: SettlementInstructionV1 must be authorized from an accepted OutcomeReceipt (bind an outcome-receipt reference). A VerificationDecision or proof_binding is a verifier assertion and MUST NOT directly authorize settlement; decision-only authorization must be unrepresentable.",
+      "commander_ruling": "docs/TRUST-CHAIN.md 'SettlementInstructionV1' + 'Decision -> Settlement direct authority = FORBIDDEN', commit 51ae290."
     }
   }
 }

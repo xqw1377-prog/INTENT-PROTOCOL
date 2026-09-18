@@ -1,9 +1,9 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-18T04:04:07.828Z
+- Generated: 2026-09-18T04:12:49.042Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
-- Checks: **141 PASS / 19 FAIL / 25 UNKNOWN** (185 total)
-- Gate status: **NOT_READY** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 19 FAIL findings, 25 UNKNOWN entries; freeze blockers: 13 OPEN / 0 DISPOSITIONED.
+- Checks: **141 PASS / 22 FAIL / 25 UNKNOWN** (188 total)
+- Gate status: **NOT_READY** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 22 FAIL findings, 25 UNKNOWN entries; freeze blockers: 16 OPEN / 0 DISPOSITIONED.
 
 ## Area rollup
 
@@ -24,7 +24,7 @@
 | C-13 | **FAIL** | 48 | 2 | 1 |
 | C-14 | **UNKNOWN** | 2 | 0 | 9 |
 | C-15 | **UNKNOWN** | 3 | 0 | 5 |
-| SPEC-ASSERTIONS | **FAIL** | 3 | 14 | 0 |
+| SPEC-ASSERTIONS | **FAIL** | 3 | 17 | 0 |
 | SUT-LOAD | **UNKNOWN** | 5 | 0 | 1 |
 
 ## FAIL findings
@@ -124,6 +124,21 @@
 - Message: `AssertionError: expected [Function] to throw an error`
 - Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-SUM"`
 
+### S-MS — [S-MS] MilestoneV1 is a delivered hashable G1 primitive: seal round-trip idempotent, wrong hash rejected
+- Evidence: `packages/conformance-harness/test/17-trust-chain-spec.test.ts`
+- Message: `AssertionError: MilestoneV1 schema must be exported by the SUT (G1 trust primitive #3): expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-spec.test.ts -t "S-MS"`
+
+### S-RCPT — [S-RCPT] OutcomeReceiptV1 is delivered, carries the ruled minimal binding set, and is hashable
+- Evidence: `packages/conformance-harness/test/17-trust-chain-spec.test.ts`
+- Message: `AssertionError: OutcomeReceiptV1 schema must be exported by the SUT (G1 trust primitive #7): expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-spec.test.ts -t "S-RCPT"`
+
+### S-GATE — [S-GATE] settlement is RECEIPT-gated: binds an outcome-receipt reference; decision-only authorization must be rejected
+- Evidence: `packages/conformance-harness/test/17-trust-chain-spec.test.ts`
+- Message: `AssertionError: SettlementInstructionV1 must bind outcome_receipt_hash (TRUST-CHAIN: settlement authority boundary): expected false to be true // Object.is equality`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-spec.test.ts -t "S-GATE"`
+
 ## Freeze blockers (evidence-driven; must be DISPOSITIONED before G1)
 
 - **S-R9** [OPEN]: Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1. (evidence: S-R9)
@@ -139,6 +154,9 @@
 - **S-DEC** [OPEN]: Commander R-series + PR #3 round 5: canonical decimal is executable spec. (evidence: S-DEC)
 - **S-SUM** [OPEN]: Commander R-series + PR #3 round 5: settlement sum invariant is executable spec. (evidence: S-SUM)
 - **S-KEYNFC** [OPEN]: Commander OQ-1 / IPC-JSON-1 freeze, 2026-09-18: canonical profile named IPC-JSON-1; keys must already be NFC. (evidence: S-KEYNFC)
+- **S-MS** [OPEN]: Commander Issue #2 extension order + docs/GATES.md (8 trust primitives), 2026-09-18. (evidence: S-MS)
+- **S-RCPT** [OPEN]: docs/TRUST-CHAIN.md 'OutcomeReceiptV1' (COMMANDER-RULED / G1 NORMATIVE), commit 51ae290. (evidence: S-RCPT)
+- **S-GATE** [OPEN]: docs/TRUST-CHAIN.md 'SettlementInstructionV1' + 'Decision -> Settlement direct authority = FORBIDDEN', commit 51ae290. (evidence: S-GATE)
 
 ## UNKNOWN (never auto-PASS)
 
@@ -229,6 +247,10 @@ total_amount != sum(outputs) parses; outputs are not bounded by any escrow notio
 ### AS-15 [high] proof_binding does not bind milestone_id (R9): cross-milestone proof replay
 proof_binding = H(intent_hash || milestone_revision || evidence_root || policy_hash) has no milestone_id in the preimage, and the delivered proofBinding() API cannot even receive one. Two distinct milestones sharing revision/intent/policy/evidence-root therefore share a single binding: a VALID decision for milestone A is a structurally valid proof for milestone B. Commander ruling R9 requires binding milestone_id in V1.
 - Grounded by: C-12-08
+
+### AS-16 [high] Decision-to-settlement authority conflation (trust boundary)
+A VerificationDecision is a signed verifier ASSERTION; an OutcomeReceipt is the protocol-recognized accepted outcome and the settlement authority boundary. If settlement can be authorized by a decision/proof_binding directly (without an accepted receipt), any single verifier's PASS becomes payment authority, collapsing the protocol's core trust separation. Ruled: receipt-gated settlement is mandatory; [S-GATE] enforces it.
+- Grounded by: S-GATE
 
 ## Statement
 

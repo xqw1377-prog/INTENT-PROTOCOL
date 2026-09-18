@@ -156,6 +156,15 @@
       "evidence": [
         "C-12-08"
       ]
+    },
+    {
+      "id": "AS-16",
+      "title": "Decision-to-settlement authority conflation (trust boundary)",
+      "severity": "high",
+      "detail": "A VerificationDecision is a signed verifier ASSERTION; an OutcomeReceipt is the protocol-recognized accepted outcome and the settlement authority boundary. If settlement can be authorized by a decision/proof_binding directly (without an accepted receipt), any single verifier's PASS becomes payment authority, collapsing the protocol's core trust separation. Ruled: receipt-gated settlement is mandatory; [S-GATE] enforces it.",
+      "evidence": [
+        "S-GATE"
+      ]
     }
   ]
 }

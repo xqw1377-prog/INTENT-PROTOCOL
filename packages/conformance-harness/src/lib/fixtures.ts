@@ -25,6 +25,7 @@ export const IDS = {
   bundle: "77777777-7777-4777-8777-777777777777",
   decision: "88888888-8888-4888-8888-888888888888",
   settlement: "99999999-9999-4999-8999-999999999999",
+  receipt: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
 } as const;
 
 export const T0 = "2026-09-17T00:00:00.000Z";
@@ -174,6 +175,49 @@ export function validArtifact(overrides: Record<string, unknown> = {}): Record<s
     payload_hash: ARTIFACT_PAYLOAD_HASHES.a1,
     locator: "cas://artifact-1",
     privacy_class: "INTERNAL",
+    ...overrides,
+  };
+}
+
+/**
+ * MilestoneV1 (G1 trust primitive #3). Field names follow the architecture
+ * doc §6 milestone shape; final alignment happens against Builder A's
+ * delivered schema at gate time — the assertion is about the object being a
+ * delivered, hashable G1 primitive, not about exact field spelling.
+ */
+export function validMilestone(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    schema_version: "milestone.v1",
+    milestone_id: IDS.milestone,
+    intent_id: IDS.intent,
+    intent_version: 1,
+    revision: 1,
+    acceptance_criteria: [criterion("crit-tests")],
+    budget_cap: "500",
+    proof_policy_ref: { uri: "ipfs://bafy-policy-verification", hash: POLICY_HASH },
+    ...overrides,
+  };
+}
+
+/**
+ * OutcomeReceiptV1 (G1 trust primitive #7) per docs/TRUST-CHAIN.md minimal
+ * binding set: receipt identity + schema version, intent commitment,
+ * milestone_id + revision, evidence_root, verification_policy_hash,
+ * deterministic accepted decision set, accepted result, issued_at
+ * (content_hash is attached by seal).
+ */
+export function validOutcomeReceipt(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    schema_version: "receipt.v1",
+    receipt_id: IDS.receipt,
+    intent_hash: `sha256:${"ab".repeat(32)}`,
+    milestone_id: IDS.milestone,
+    milestone_revision: 1,
+    evidence_root: `sha256:${"cd".repeat(32)}`,
+    policy_hash: POLICY_HASH,
+    accepted_decisions: [IDS.decision],
+    result: "ACCEPTED",
+    issued_at: T1,
     ...overrides,
   };
 }

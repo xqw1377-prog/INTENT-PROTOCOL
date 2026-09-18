@@ -174,6 +174,15 @@ merkle recomputation, canonical Decimal V1, and exact output-sum equality.
 Cross-object referential existence is DEFERRED to S1 (Commander ruling) and
 is not a G1 blocker.
 
+## Trust chain coverage (Issue #2 extension)
+
+Per docs/TRUST-CHAIN.md (G1 NORMATIVE, 8 trust primitives), the harness adds
+three spec assertions: `[S-MS]` MilestoneV1 as a delivered hashable primitive,
+`[S-RCPT]` OutcomeReceiptV1 with the ruled minimal binding set, and
+`[S-GATE]` receipt-gated settlement — a decision-only authorization must be
+unrepresentable (VerificationDecision != settlement authority). Attack
+surface AS-16 records the boundary.
+
 ## Machine gate status (frozen rule)
 
 ```
