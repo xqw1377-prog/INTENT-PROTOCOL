@@ -170,7 +170,7 @@ md.push("");
 md.push(`- Generated: ${report.generated_at}`);
 md.push(`- SUT snapshot: captured ${capture.captured_at} from git \`${capture.source_git_head.slice(0, 8)}\` (zod ${capture.zod_version})`);
 md.push(`- Checks: **${counts.PASS} PASS / ${counts.FAIL} FAIL / ${counts.UNKNOWN} UNKNOWN** (${results.length} total)`);
-md.push(`- Gate status: **NOT_READY** — no freeze declared; freeze authority: Commander.`);
+md.push(`- Gate status: **${report.summary.gate_status}** — ${report.summary.freeze_declaration}`);
 md.push("");
 md.push("## Area rollup");
 md.push("");

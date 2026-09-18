@@ -1,9 +1,9 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-18T03:56:28.603Z
+- Generated: 2026-09-18T04:04:07.828Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
 - Checks: **141 PASS / 19 FAIL / 25 UNKNOWN** (185 total)
-- Gate status: **NOT_READY** — no freeze declared; freeze authority: Commander.
+- Gate status: **NOT_READY** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 19 FAIL findings, 25 UNKNOWN entries; freeze blockers: 13 OPEN / 0 DISPOSITIONED.
 
 ## Area rollup
 
@@ -54,9 +54,9 @@
 - Message: `AssertionError: expected [Function] to throw an error`
 - Reproduce: `npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t "C-13-07b"`
 
-### S-R9 — [S-R9] proof binding MUST separate milestone_id AND bundle_id (R9 binds BOTH)
+### S-R9 — [S-R9] R9 EXACT BYTE PROTOCOL: oracle === golden vector; SUT === oracle; separation on milestone_id AND bundle_id
 - Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
-- Message: `AssertionError: binding must change with milestone_id: expected 'sha256:1fda76ffdb01f7100cc35afbf65240…' not to be 'sha256:1fda76ffdb01f7100cc35afbf65240…' // Object.is equality`
+- Message: `AssertionError: SUT must equal the frozen-formula oracle: expected 'sha256:1fda76ffdb01f7100cc35afbf65240…' to be 'sha256:e2d7869e432e3c99c9834ae3d19dc2…' // Object.is equality`
 - Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-R9"`
 
 ### S-RT#1 — [S-RT] EvidenceArtifact: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected

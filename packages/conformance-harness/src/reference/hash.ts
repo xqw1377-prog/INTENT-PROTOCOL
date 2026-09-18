@@ -78,23 +78,34 @@ export function refU64be(n: bigint | number): Uint8Array {
 }
 
 /**
- * R9 (PROOF TARGET BINDING), frozen formula:
+ * R9 (PROOF TARGET BINDING) — FROZEN byte protocol, implemented exactly:
  *
  *   proof_binding = SHA256(
- *     intent_hash            (32B)
- *     || milestone_id        (UTF-8, UUID text, fixed length 36)
- *     || bundle_id           (UTF-8, UUID text, fixed length 36)
- *     || milestone_revision  (u32 BE)
- *     || evidence_root       (32B)
- *     || policy_hash         (32B)
+ *     "intent-protocol/v1/proof-binding"   (domain separation)
+ *     || 0x00
+ *     || intent_hash          (32 bytes)
+ *     || milestone_id         (UUID binary, 16 bytes)
+ *     || milestone_revision   (u32 BE, 4 bytes)
+ *     || bundle_id            (UUID binary, 16 bytes)
+ *     || evidence_root        (32 bytes)
+ *     || policy_hash          (32 bytes)
  *   )
  *
- * Field order is this oracle's independent choice following the ruling's
- * enumeration order; UUID fields are fixed-length so the concatenation is
- * unambiguous. If Builder A's R9 implementation chooses a different order,
- * cross-checks will disagree and the discrepancy goes to Commander
- * adjudication — it must not be silently absorbed.
+ * Cross-checked against an independent Python implementation
+ * (scripts/kat-proof-binding.py) via the golden vector in
+ * vectors/proof-binding-vector.json. This is a byte-exact oracle: any
+ * disagreement with the SUT is a finding, and sensitivity alone is NOT
+ * sufficient (a wrong-but-sensitive hash must still fail S-R9).
  */
+const PROOF_BINDING_DOMAIN = utf8("intent-protocol/v1/proof-binding");
+
+function uuidBytes16(uuid: string): Uint8Array {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(uuid)) {
+    throw new Error(`reference: malformed canonical (lowercase hyphenated) UUID: ${uuid}`);
+  }
+  return Uint8Array.from(Buffer.from(uuid.replace(/-/g, ""), "hex"));
+}
+
 export function refProofBinding(p: {
   intent_hash: string;
   milestone_id: string;
@@ -105,10 +116,12 @@ export function refProofBinding(p: {
 }): string {
   return `sha256:${hex(
     sha256(
+      PROOF_BINDING_DOMAIN,
+      SEP,
       hashBytes32(p.intent_hash),
-      utf8(p.milestone_id),
-      utf8(p.bundle_id),
+      uuidBytes16(p.milestone_id),
       refU32be(p.milestone_revision),
+      uuidBytes16(p.bundle_id),
       hashBytes32(p.evidence_root),
       hashBytes32(p.policy_hash),
     ),

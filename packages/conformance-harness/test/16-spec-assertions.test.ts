@@ -1,5 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { ARTIFACT_HASHES, fakeHash, POLICY_HASH, validArtifact, validBundle, validDecision, validIntent, validSettlement } from "../src/lib/fixtures.js";
+import { refProofBinding } from "../src/reference/hash.js";
+import r9Vector from "../vectors/proof-binding-vector.json";
+
+const R9_CASE = {
+  intent_hash: fakeHash("ab"),
+  milestone_id: "22222222-2222-4222-8222-222222222222",
+  bundle_id: "77777777-7777-4777-8777-777777777777",
+  milestone_revision: 1,
+  evidence_root: fakeHash("cd"),
+  policy_hash: POLICY_HASH,
+} as const;
 import { sut, sealWith } from "../src/sut.js";
 
 const { IntentContractSchema, EvidenceArtifactSchema, EvidenceBundleSchema, VerificationDecisionSchema, SettlementInstructionSchema } = sut.objects;
@@ -32,24 +43,29 @@ const { merkleRoot } = sut.merkle;
  *   [S-SUM]    total_amount == sum(outputs.amount)
  */
 describe("[SPEC] R9–R14 normative assertions", () => {
+
   const usd2 = { network: "sim:local", asset: "USD", decimals: 2 } as const;
   const usd1 = { network: "sim:local", asset: "USD", decimals: 1 } as const;
   const eur2 = { network: "sim:local", asset: "EUR", decimals: 2 } as const;
 
   // ------------------------------------------------------------------ R9
-  test("[S-R9] proof binding MUST separate milestone_id AND bundle_id (R9 binds BOTH)", () => {
-    const bind = (over: Record<string, unknown>) =>
-      (sut.hash.proofBinding as (p: unknown) => string)({
-        intent_hash: fakeHash("ab"),
-        milestone_revision: 1,
-        evidence_root: fakeHash("cd"),
-        policy_hash: POLICY_HASH,
-        ...over,
-      });
-    const base = { milestone_id: "aaaaaaaa-0000-4000-8000-000000000001", bundle_id: "bbbbbbbb-0000-4000-8000-000000000001" };
-    const b0 = bind(base);
-    expect(bind({ ...base, milestone_id: "aaaaaaaa-0000-4000-8000-000000000002" }), "binding must change with milestone_id").not.toBe(b0);
-    expect(bind({ ...base, bundle_id: "bbbbbbbb-0000-4000-8000-000000000002" }), "binding must change with bundle_id").not.toBe(b0);
+  test("[S-R9] R9 EXACT BYTE PROTOCOL: oracle === golden vector; SUT === oracle; separation on milestone_id AND bundle_id", () => {
+    // The frozen formula (domain-separated, UUIDs as 16 binary bytes,
+    // exact field order) — sensitivity alone is NOT sufficient: a wrong but
+    // input-sensitive hash must still fail here.
+    const golden = r9Vector.expected;
+    // guard: the golden vector case must be exactly the fixture-derived inputs
+    expect(R9_CASE, "golden vector case drift").toEqual(r9Vector.case);
+    // (1) the independent TS oracle reproduces the third-party-computed golden digest
+    expect(refProofBinding(R9_CASE), "oracle vs golden KAT").toBe(golden);
+    // (2/3) the oracle separates both proof targets
+    expect(refProofBinding({ ...R9_CASE, milestone_id: "aaaaaaaa-0000-4000-8000-000000000002" }), "milestone_id sensitivity").not.toBe(golden);
+    expect(refProofBinding({ ...R9_CASE, bundle_id: "bbbbbbbb-0000-4000-8000-000000000002" }), "bundle_id sensitivity").not.toBe(golden);
+    // (4) the SUT must implement the SAME frozen byte protocol
+    const sutBinding = (sut.hash.proofBinding as (p: unknown) => string)(R9_CASE);
+    expect(sutBinding, "SUT must equal the frozen-formula oracle").toBe(golden);
+    expect((sut.hash.proofBinding as (p: unknown) => string)({ ...R9_CASE, milestone_id: "aaaaaaaa-0000-4000-8000-000000000002" })).not.toBe(sutBinding);
+    expect((sut.hash.proofBinding as (p: unknown) => string)({ ...R9_CASE, bundle_id: "bbbbbbbb-0000-4000-8000-000000000002" })).not.toBe(sutBinding);
   });
 
   // ------------------------------------------------------------------ R10
