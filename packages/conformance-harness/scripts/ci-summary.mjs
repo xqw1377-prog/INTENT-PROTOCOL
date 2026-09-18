@@ -63,8 +63,11 @@ if (report) {
   L.push("");
   L.push(`- Checks: **${s.counts.PASS} PASS / ${s.counts.FAIL} FAIL / ${s.counts.UNKNOWN} UNKNOWN** (${s.total_checks} total)`);
   L.push(`- Gate status: **${s.gate_status}** — ${s.freeze_declaration}`);
-  const blockers = (s.freeze_blockers ?? []).filter((b) => b.status === "OPEN");
-  L.push(`- Freeze blockers (Commander-ruled): **${blockers.length} OPEN**`);
+  const blockers = s.freeze_blockers ?? [];
+  const open = blockers.filter((b) => b.status === "OPEN");
+  const done = blockers.filter((b) => b.status === "DISPOSITIONED");
+  L.push(`- Freeze blockers (evidence-driven): **${open.length} OPEN / ${done.length} DISPOSITIONED**`);
+  if (open.length) L.push(`  - OPEN: ${open.map((b) => b.check_id).join(", ")}`);
   L.push("");
   L.push("| Area | Verdict | PASS | FAIL | UNKNOWN |");
   L.push("|---|---|---|---|---|");

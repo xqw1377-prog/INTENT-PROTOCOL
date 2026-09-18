@@ -196,7 +196,8 @@
               "check_id",
               "ruling",
               "rationale",
-              "status"
+              "status",
+              "evidence_check_ids"
             ],
             "additionalProperties": false,
             "properties": {
@@ -216,6 +217,15 @@
                   "OPEN",
                   "DISPOSITIONED"
                 ]
+              },
+              "evidence_check_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "note": {
+                "type": "string"
               }
             }
           }

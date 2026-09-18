@@ -74,21 +74,7 @@ describe("[C-11] settlement mutation", () => {
     expect(refProofBinding(tampered)).not.toBe(declared);
   });
 
-  test("[C-11-05][GAP] economic invariant total_amount == sum(outputs.amount) is NOT enforced by the schema", () => {
-    const s = JSON.parse(JSON.stringify(validSettlement()));
-    s.total_amount = "1000000.00"; // outputs only pay out 300.00
-    expect(() => SettlementInstructionSchema.parse(s)).not.toThrow();
-  });
 
-  test("[C-11-06][GAP] non-canonical decimal strings that pass the regex ('-0', '0.00', '1.10') are accepted", () => {
-    const s = (amount: string) => SettlementInstructionSchema.parse(validSettlement({
-      outputs: [{ recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount, reason: "r" }],
-    }));
-    // Same economic value, different canonical text => different hashes; no
-    // canonical decimal form is specified. '-0' even flips the sign of zero.
-    for (const amount of ["-0", "0.00", "1.10"]) expect(s(amount).outputs[0]!.amount).toBe(amount);
-    expect(() => s("007")).toThrow(); // leading zeros rejected by regex
-  });
 
   test("[C-11-07] settlementKey idempotency and separation (double-spend key)", () => {
     const p = { proof_binding: fakeHash("11"), escrow_id: "escrow:sim-0001", settlement_nonce: 7n };

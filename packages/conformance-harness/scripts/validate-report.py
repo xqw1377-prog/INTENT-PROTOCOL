@@ -79,6 +79,17 @@ if expected_fb != got_fb:
 for x in fb:
     if not x.get("ruling") or not x.get("rationale"):
         err(f"freeze blocker {x.get('check_id')}: missing ruling/rationale")
+    cid = x.get("check_id")
+    ev = [r for r in report.get("results", [])
+          if r["check_id"] == cid or r["check_id"].startswith(cid + "#") or r["check_id"].startswith(cid + "-")]
+    if x.get("status") not in ("OPEN", "DISPOSITIONED"):
+        err(f"freeze blocker {cid}: invalid status {x.get('status')}")
+    if x.get("status") == "DISPOSITIONED" and not ev:
+        err(f"freeze blocker {cid}: DISPOSITIONED without matching check evidence")
+    if x.get("status") == "DISPOSITIONED" and ev and not all(r["status"] == "PASS" for r in ev):
+        err(f"freeze blocker {cid}: DISPOSITIONED but matching checks are not all PASS")
+    if x.get("status") == "OPEN" and ev and all(r["status"] == "PASS" for r in ev):
+        err(f"freeze blocker {cid}: all matching checks PASS but status is OPEN (should be DISPOSITIONED)")
 
 if s.get("counts", {}).get("PASS") != pass_count or s.get("counts", {}).get("FAIL") != fail_count or s.get("counts", {}).get("UNKNOWN") != unknown_count:
     err(f"summary.counts mismatch: declared {s.get('counts')} vs actual P{pass_count}/F{fail_count}/U{unknown_count}")

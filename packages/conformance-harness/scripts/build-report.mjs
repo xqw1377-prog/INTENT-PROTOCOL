@@ -98,9 +98,22 @@ for (const r of results) {
 }
 for (const a of areas.values()) a.verdict = a.FAIL > 0 ? "FAIL" : a.UNKNOWN > 0 ? "UNKNOWN" : "PASS";
 
+// Freeze blocker status is EVIDENCE-DRIVEN (Commander order, PR #3 round 5):
+// DISPOSITIONED only when the blocker's normative assertion(s) all PASS.
+const statusOfBlocker = (id) => {
+  const rs = results.filter((r) => r.check_id === id || r.check_id.startsWith(`${id}#`) || r.check_id.startsWith(`${id}-`));
+  if (rs.length === 0) return { status: "OPEN", evidence_check_ids: [], note: "no matching check executed" };
+  const allPass = rs.every((r) => r.status === "PASS");
+  return { status: allPass ? "DISPOSITIONED" : "OPEN", evidence_check_ids: rs.map((r) => r.check_id) };
+};
 const freezeBlockers = Object.entries(unknowns)
   .filter(([, u]) => u.freeze_blocking)
-  .map(([id, u]) => ({ check_id: id, ruling: u.commander_ruling, rationale: u.rationale, status: "OPEN" }));
+  .map(([id, u]) => ({
+    check_id: id,
+    ruling: u.commander_ruling ?? "Spec assertion (Commander R-series / OQ dispositions)",
+    rationale: u.rationale,
+    ...statusOfBlocker(id),
+  }));
 
 const vectorFiles = readdirSync(path.join(pkgRoot, "vectors")).map((f) => ({
   file: `packages/conformance-harness/vectors/${f}`,
@@ -133,7 +146,7 @@ const report = {
     areas: [...areas.values()].sort((x, y) => x.area.localeCompare(y.area)),
     freeze_blockers: freezeBlockers,
     gate_status: "NOT_READY",
-    freeze_declaration: `NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. ${counts.FAIL} FAIL findings, ${counts.UNKNOWN} UNKNOWN entries and ${freezeBlockers.length} freeze blockers (Commander-ruled) must be dispositioned first.`,
+    freeze_declaration: `NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. ${counts.FAIL} FAIL findings, ${counts.UNKNOWN} UNKNOWN entries; freeze blockers: ${freezeBlockers.filter((b) => b.status === "OPEN").length} OPEN / ${freezeBlockers.filter((b) => b.status === "DISPOSITIONED").length} DISPOSITIONED.`,
   },
   results,
   attack_surfaces: attackSurfaces,
@@ -166,9 +179,9 @@ for (const r of results.filter((x) => x.status === "FAIL")) {
   md.push(`- Reproduce: \`${r.reproduce}\``);
   md.push("");
 }
-md.push("## Freeze blockers (Commander-ruled: must be dispositioned before G1)");
+md.push("## Freeze blockers (evidence-driven; must be DISPOSITIONED before G1)");
 md.push("");
-for (const fb of freezeBlockers) md.push(`- **${fb.check_id}**: ${esc(fb.ruling)}`);
+for (const fb of freezeBlockers) md.push(`- **${fb.check_id}** [${fb.status}]: ${esc(fb.ruling)} (evidence: ${fb.evidence_check_ids.join(", ") || "none"})`);
 md.push("");
 md.push("## UNKNOWN (never auto-PASS)");
 md.push("");

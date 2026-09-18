@@ -14,19 +14,7 @@ const { merkleRoot } = sut.merkle;
  * verifier resolving criteria by id. NEVER counted as PASS.
  */
 describe("[C-07] duplicate identifiers", () => {
-  test("[C-07-01][GAP] schema accepts duplicate criterion_id with different content (no uniqueness constraint)", () => {
-    const intent = validIntent() as { success_criteria: Array<Record<string, unknown>> };
-    const dup = { ...intent.success_criteria[0]!, assertion: "MUTATED but same criterion_id" };
-    const parsed = IntentContractSchema.parse(validIntent({ success_criteria: [...intent.success_criteria, dup] }));
-    expect(parsed.success_criteria.filter((c) => c.criterion_id === "crit-tests").length).toBe(2);
-  });
 
-  test("[C-07-02][GAP] schema accepts duplicate constraint_id with different content", () => {
-    const intent = validIntent() as { constraints: Array<Record<string, unknown>> };
-    expect(() =>
-      IntentContractSchema.parse(validIntent({ constraints: [...intent.constraints, { ...intent.constraints[0]!, statement: "different statement, same constraint_id" }] })),
-    ).not.toThrow();
-  });
 
   test("[C-07-03] SEALED bundle rejects duplicate artifact hashes (delivered superRefine)", () => {
     expect(() =>

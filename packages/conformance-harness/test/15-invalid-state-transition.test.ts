@@ -35,14 +35,6 @@ describe("[C-15] invalid state transitions", () => {
     expect(() => S.EvidenceBundleSchema.parse(validBundle({ state: "OPEN", artifact_hashes: [], run_ids: [] }))).not.toThrow();
   });
 
-  test("[C-15-04][GAP] sealing transition consistency: a SEALED bundle may declare a merkle_root that does NOT match its artifact set (schema accepts; only external recomputation catches it)", () => {
-    const lying = S.EvidenceBundleSchema.parse(validBundle({
-      state: "SEALED", merkle_root: "sha256:" + "ee".repeat(32), sealed_at: "2026-09-17T01:00:00.000Z",
-    }));
-    expect(lying.merkle_root).not.toBe(merkleRoot([ARTIFACT_HASHES.a1, ARTIFACT_HASHES.a2, ARTIFACT_HASHES.a3]));
-    // detection is possible (delivered primitives) but not enforced by the schema:
-    expect(() => S.EvidenceBundleSchema.parse(lying)).not.toThrow();
-  });
 
   test("[C-15-05][GAP] delivered EvidenceBundleState has only 2 of the 7 states documented in arch doc §7 (VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED absent)", () => {
     const delivered = ["OPEN", "SEALED"] as const;
