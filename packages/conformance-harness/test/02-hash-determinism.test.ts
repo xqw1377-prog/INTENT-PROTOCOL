@@ -67,19 +67,27 @@ describe("[C-02] hash determinism", () => {
     for (const bad of [-1n, 2n ** 64n]) expect(() => u64be(bad)).toThrow();
   });
 
-  test("[C-02-08] proofBinding: SUT === independent reference; sensitive to every component", () => {
+  test("[C-02-08] proofBinding ORACLE (R9 six-field formula): idempotent and sensitive to every bound field", () => {
     const p = {
       intent_hash: fakeHash("ab"),
+      milestone_id: "aaaaaaaa-0000-4000-8000-000000000001",
+      bundle_id: "bbbbbbbb-0000-4000-8000-000000000001",
       milestone_revision: 3,
       evidence_root: fakeHash("cd"),
       policy_hash: fakeHash("ef"),
-    } as const;
-    const expected = refProofBinding({ ...p });
-    expect(proofBinding(p)).toBe(expected);
-    expect(proofBinding({ ...p, milestone_revision: 4 })).not.toBe(expected);
-    expect(proofBinding({ ...p, intent_hash: fakeHash("ba") })).not.toBe(expected);
-    expect(proofBinding({ ...p, evidence_root: fakeHash("dc") })).not.toBe(expected);
-    expect(proofBinding({ ...p, policy_hash: fakeHash("fe") })).not.toBe(expected);
+    };
+    const b0 = refProofBinding(p);
+    expect(refProofBinding({ ...p })).toBe(b0);
+    for (const [field, value] of [
+      ["intent_hash", fakeHash("ba")],
+      ["milestone_id", "aaaaaaaa-0000-4000-8000-000000000002"],
+      ["bundle_id", "bbbbbbbb-0000-4000-8000-000000000002"],
+      ["milestone_revision", 4],
+      ["evidence_root", fakeHash("dc")],
+      ["policy_hash", fakeHash("fe")],
+    ] as Array<[string, unknown]>) {
+      expect(refProofBinding({ ...p, [field]: value } as typeof p), `sensitivity: ${String(field)}`).not.toBe(b0);
+    }
   });
 
   test("[C-02-09] settlementKey: SUT === independent reference; idempotent, differs per nonce/escrow", () => {

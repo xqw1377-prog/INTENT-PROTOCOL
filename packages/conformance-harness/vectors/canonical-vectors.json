@@ -1,5 +1,5 @@
 {
-  "$comment": "Canonical serialization vectors. `expected` values are hand-verified golden anchors for BOTH the independent reference and the SUT (RFC 8785-style rules as amended by ADR-005: UTF-16 key sort, NFC, safe integers only, no whitespace). Inputs must be JSON-expressible; JS-only values (-0, undefined, holes) are covered inline in test/01 and test/06. Non-ASCII is written with explicit \\uXXXX escapes to make the normalization form unambiguous.",
+  "$comment": "Canonical serialization vectors. `expected` values are hand-verified golden anchors for BOTH the independent reference and the SUT (RFC 8785-style rules as amended by ADR-005: UTF-16 key sort, NFC, safe integers only, no whitespace). Inputs must be JSON-expressible; JS-only values (-0, undefined, holes) are covered inline in test/01 and test/06. Non-ASCII is written with explicit \\uXXXX escapes; keys must ALREADY be NFC under IPC-JSON-1 (non-NFC keys are rejected, so no NFD-key vector exists) to make the normalization form unambiguous.",
   "vectors": [
     {
       "id": "V-EMPTY-OBJ",
@@ -118,14 +118,6 @@
         "name": "cafe\u0301"
       },
       "expected": "{\"name\":\"caf\u00e9\"}"
-    },
-    {
-      "id": "V-NFC-KEY",
-      "desc": "NFD key (e + U+0301) is NFC-composed on output",
-      "input": {
-        "e\u0301": 1
-      },
-      "expected": "{\"\u00e9\":1}"
     },
     {
       "id": "V-UTF16-SORT",

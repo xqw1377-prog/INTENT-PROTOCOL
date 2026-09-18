@@ -12,6 +12,8 @@
  * are NOT in the delivered snapshot and are covered as UNKNOWN entries.
  */
 import { createHash } from "node:crypto";
+import { refProofBinding } from "../reference/hash.js";
+import { refMerkleRoot } from "../reference/merkle.js";
 import type { IntentContract, EvidenceBundle, VerificationDecision, SettlementInstruction, EvidenceArtifact } from "../../sut-snapshot/protocol-schema-src/objects.js";
 import type { Hash } from "../../sut-snapshot/protocol-schema-src/hash.js";
 
@@ -52,6 +54,16 @@ export const POLICY_HASH = sha("verification-policy:conformance-v1") as Hash;
 export const VERIFIER_DIGEST = sha("verifier-impl:conformance-ref-verifier") as Hash;
 export const REPLAY_DIGEST = sha("replay-trace:conformance") as Hash;
 
+/** R9-exact binding for the canonical fixtures (oracle-computed, six fields). */
+export const R9_BINDING = refProofBinding({
+  intent_hash: `sha256:${"ab".repeat(32)}`,
+  milestone_id: IDS.milestone,
+  bundle_id: IDS.bundle,
+  milestone_revision: 1,
+  evidence_root: `sha256:${"cd".repeat(32)}`,
+  policy_hash: POLICY_HASH,
+}) as Hash;
+
 function criterion(criterion_id: string, extra: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     schema_version: "criterion.v1",
@@ -83,8 +95,8 @@ export function validIntent(overrides: Record<string, unknown> = {}): Record<str
     constraints: [{ constraint_id: "cons-no-secrets", kind: "COMPLIANCE", statement: "No secrets in evidence.", max_risk_level: "L1" }],
     budget: {
       asset: { network: "sim:local", asset: "USD", decimals: 2 },
-      total: "1000.00",
-      execution_cap: "400.00",
+      total: "1000",
+      execution_cap: "400",
     },
     verification_policy_ref: { uri: "ipfs://bafy-policy-verification", hash: POLICY_HASH },
     settlement_policy_ref: { uri: "ipfs://bafy-policy-settlement", hash: sha("settlement-policy:conformance-v1") },
@@ -103,8 +115,10 @@ export function validBundle(overrides: Record<string, unknown> = {}): Record<str
     milestone_revision: 1,
     run_ids: [IDS.run],
     artifact_hashes: [ARTIFACT_HASHES.a1, ARTIFACT_HASHES.a2, ARTIFACT_HASHES.a3],
+    merkle_root: refMerkleRoot([ARTIFACT_HASHES.a1, ARTIFACT_HASHES.a2, ARTIFACT_HASHES.a3]) as Hash,
     submitter: "agent:builder-a",
     policy_hash: POLICY_HASH,
+    sealed_at: T1,
     state: "SEALED",
     ...overrides,
   };
@@ -122,7 +136,7 @@ export function validDecision(overrides: Record<string, unknown> = {}): Record<s
     bundle_id: IDS.bundle,
     evidence_root: "sha256:" + "cd".repeat(32),
     policy_hash: POLICY_HASH,
-    proof_binding: "sha256:" + "ef".repeat(32),
+    proof_binding: R9_BINDING,
     result: "VALID",
     reason_codes: ["ALL_CRITERIA_MET"],
     replay_digest: REPLAY_DIGEST,
@@ -138,12 +152,12 @@ export function validSettlement(overrides: Record<string, unknown> = {}): Record
     escrow_ref: "escrow:sim-0001",
     milestone_id: IDS.milestone,
     decision_id: IDS.decision,
-    proof_binding: "sha256:" + "ef".repeat(32),
+    proof_binding: R9_BINDING,
     nonce: "7",
     outputs: [
-      { recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "300.00", reason: "milestone payout" },
+      { recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "300", reason: "milestone payout" },
     ],
-    total_amount: "300.00",
+    total_amount: "300",
     ...overrides,
   };
 }

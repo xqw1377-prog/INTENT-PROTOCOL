@@ -38,9 +38,9 @@ describe("[C-08] unknown fields / unsupported version", () => {
     criteria[0].sneaky = undefined; // restore
     criteria[0].evidence_requirements[0].extra = 1;
     expect(() => S.IntentContractSchema.parse(validIntent({ success_criteria: criteria }))).toThrow();
-    expect(() => S.IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2, note: "x" }, total: "1.00", execution_cap: "1.00" } }))).toThrow();
+    expect(() => S.IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2, note: "x" }, total: "1", execution_cap: "1" } }))).toThrow();
     expect(() => S.SettlementInstructionSchema.parse(validSettlement({
-      outputs: [{ recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "1.00", reason: "r", memo: "x" }],
+      outputs: [{ recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "1", reason: "r", memo: "x" }],
     }))).toThrow();
     expect(() => S.IntentContractSchema.parse(validIntent({
       signature: { scheme: "ed25519", signer: "user:alice", key_id: "k1", value: "sig", vendor: "x" },

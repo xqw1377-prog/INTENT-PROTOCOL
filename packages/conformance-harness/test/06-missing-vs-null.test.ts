@@ -41,7 +41,7 @@ describe("[C-06] missing vs null", () => {
   });
 
   test("[C-06-05] nested: budget.total=null and criteria[0]=null are rejected", () => {
-    expect(() => IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2 }, total: null, execution_cap: "1.00" } }))).toThrow();
+    expect(() => IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2 }, total: null, execution_cap: "1" } }))).toThrow();
     expect(() => IntentContractSchema.parse(validIntent({ success_criteria: [null] }))).toThrow();
     expect(() => IntentContractSchema.parse(validIntent({ goal: { statement: null, target_state: "t", domain: "d" } }))).toThrow();
   });

@@ -144,75 +144,81 @@
     },
     "S-R9": {
       "kind": "spec_asserted",
-      "rationale": "R9 (PROOF TARGET BINDING): proof_binding must bind milestone_id. Supersedes gap-demonstration C-12-08; the normative assertion [S-R9] in test/16 now FAILs any SUT whose binding does not separate proof targets. Blocker stays OPEN until Builder A lands R9 and the gate run passes.",
+      "rationale": "R9 PROOF TARGET BINDING: proof_binding must be computed over intent_hash, milestone_id, bundle_id, milestone_revision, evidence_root and policy_hash. [S-R9] FAILs any SUT whose binding does not separate both proof targets.",
       "freeze_blocking": true,
       "commander_ruling": "Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1."
     },
     "S-SUBJ": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "OQ-5: SubjectRef V1 accepted as a shape but '@' must be removed (lookalike principal ids). [S-SUBJ] FAILs any SUT still accepting '@'.",
+      "rationale": "SubjectRef rejects '@' (OQ-5): no lookalike principal ids.",
       "commander_ruling": "Commander OQ-5 disposition, 2026-09-17/18: remove '@' from SubjectRef id charset in V1."
     },
     "S-UUID": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "UUIDs must be canonical (lowercase v4) so object identity is byte-stable across implementations. [S-UUID] FAILs any SUT accepting non-canonical UUIDs.",
+      "rationale": "UUID canonical form is lowercase hyphenated text, version-agnostic; uppercase and non-UUID text must be rejected.",
       "commander_ruling": "Commander R-series, 2026-09-18: non-canonical UUID -> FAIL."
     },
     "S-RT": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "All FIVE first-class hashable objects (IntentContract, EvidenceArtifact, EvidenceBundle, VerificationDecision, SettlementInstruction) must seal -> round-trip JSON text -> re-seal idempotently and reject a wrong declared content_hash. Ruling R10 scope.",
+      "rationale": "R10 SEALED ROUND-TRIP: all five first-class hashable objects (IntentContract, EvidenceArtifact, EvidenceBundle, VerificationDecision, SettlementInstruction) must seal -> JSON text round-trip -> re-seal idempotently and reject a wrong declared content_hash.",
       "commander_ruling": "Commander R-series, 2026-09-18: sealed round-trip not holding -> FAIL."
     },
     "S-ASSET": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "One SettlementInstruction carries exactly one asset; mixed-asset outputs are a settlement-semantic error. [S-ASSET] FAILs any SUT accepting mixed assets.",
+      "rationale": "One SettlementInstruction carries exactly one asset; mixed-asset outputs must be rejected.",
       "commander_ruling": "Commander R-series, 2026-09-18: multiple assets in one Settlement -> FAIL."
     },
     "S-SCALE": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "Output amount scale (decimal places) must not exceed the referenced asset's decimals. [S-SCALE] FAILs over-precision amounts.",
+      "rationale": "Output amount scale (decimal places) must not exceed the referenced asset's decimals.",
       "commander_ruling": "Commander R-series, 2026-09-18: amount scale beyond asset.decimals -> FAIL."
     },
     "S-BUDGET": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "Budget execution_cap must not exceed total. [S-BUDGET] FAILs inverted budgets.",
+      "rationale": "Budget execution_cap must not exceed total.",
       "commander_ruling": "Commander R-series, 2026-09-18: budget cap > total -> FAIL."
     },
     "S-SURR": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "IPC-JSON-1 (OQ-1 canonical profile name) must reject lone surrogates: they are not valid Unicode scalar text and split cross-language canonicalizers. [S-SURR] FAILs any canonicalizer accepting them. NOTE: harness reference canonicalizer must be updated in the same commit once this rule is verified in the SUT.",
+      "rationale": "IPC-JSON-1 rejects lone surrogates: strings must be Unicode scalar text.",
       "commander_ruling": "Commander R-series, 2026-09-18: lone surrogate entering IPC-JSON-1 -> FAIL."
     },
     "S-UNIQ": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "criterion_id and constraint_id must be unique within their Intent (ruled behavior; Builder A reports it implemented). [S-UNIQ] FAILs any SUT accepting duplicates. Supersedes gap checks C-07-01/C-07-02.",
+      "rationale": "criterion_id and constraint_id are unique within their Intent.",
       "commander_ruling": "Commander R-series + PR #3 round 5: ID uniqueness is executable spec; old GAP blocker deduplicated into this assertion."
     },
     "S-MERKLE": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "A SEALED bundle must be rejected unless its merkle_root equals the recomputed root of its artifact set. Supersedes gap check C-15-04.",
+      "rationale": "A SEALED bundle is rejected unless its merkle_root equals the recomputed root of its artifact set.",
       "commander_ruling": "Commander R-series + PR #3 round 5: SEALED merkle enforcement is executable spec."
     },
     "S-DEC": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "Amounts must be canonical Decimal V1 minimal form: '150'/'15.5' accepted; '1.10'/'0.00'/'-0'/'150.0' rejected. Supersedes gap check C-11-06. If Builder A instead normalizes-on-read, this assertion FAILs and the discrepancy goes to Commander adjudication.",
+      "rationale": "Amounts are canonical Decimal V1 minimal form: '150'/'15.5' accepted; '1.10'/'0.00'/'-0'/'150.0' rejected.",
       "commander_ruling": "Commander R-series + PR #3 round 5: canonical decimal is executable spec."
     },
     "S-SUM": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "total_amount must equal the exact sum of outputs.amount (BigInt-exact per Builder A report). Supersedes gap check C-11-05.",
+      "rationale": "total_amount equals the exact (BigInt) sum of outputs.amount.",
       "commander_ruling": "Commander R-series + PR #3 round 5: settlement sum invariant is executable spec."
+    },
+    "S-KEYNFC": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "IPC-JSON-1 R3: object keys must ALREADY be in Normalization Form C; non-NFC keys are rejected, never silently normalized (silent normalization created duplicate-key ambiguity).",
+      "commander_ruling": "Commander OQ-1 / IPC-JSON-1 freeze, 2026-09-18: canonical profile named IPC-JSON-1; keys must already be NFC."
     }
   }
 }

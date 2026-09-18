@@ -35,7 +35,7 @@ describe("[C-12] replay of the same bundle", () => {
       version: 2,
       parent_hash: h1,
       change_reason: "budget raised",
-      budget: { asset: { network: "sim:local", asset: "USD", decimals: 2 }, total: "2000.00", execution_cap: "800.00" },
+      budget: { asset: { network: "sim:local", asset: "USD", decimals: 2 }, total: "2000", execution_cap: "800" },
     }));
     expect(contentHash(v2)).not.toBe(h1);
     // and version>1 without change_reason / parent_hash is rejected

@@ -77,8 +77,28 @@ export function refU64be(n: bigint | number): Uint8Array {
   return new Uint8Array(b);
 }
 
+/**
+ * R9 (PROOF TARGET BINDING), frozen formula:
+ *
+ *   proof_binding = SHA256(
+ *     intent_hash            (32B)
+ *     || milestone_id        (UTF-8, UUID text, fixed length 36)
+ *     || bundle_id           (UTF-8, UUID text, fixed length 36)
+ *     || milestone_revision  (u32 BE)
+ *     || evidence_root       (32B)
+ *     || policy_hash         (32B)
+ *   )
+ *
+ * Field order is this oracle's independent choice following the ruling's
+ * enumeration order; UUID fields are fixed-length so the concatenation is
+ * unambiguous. If Builder A's R9 implementation chooses a different order,
+ * cross-checks will disagree and the discrepancy goes to Commander
+ * adjudication — it must not be silently absorbed.
+ */
 export function refProofBinding(p: {
   intent_hash: string;
+  milestone_id: string;
+  bundle_id: string;
   milestone_revision: number;
   evidence_root: string;
   policy_hash: string;
@@ -86,6 +106,8 @@ export function refProofBinding(p: {
   return `sha256:${hex(
     sha256(
       hashBytes32(p.intent_hash),
+      utf8(p.milestone_id),
+      utf8(p.bundle_id),
       refU32be(p.milestone_revision),
       hashBytes32(p.evidence_root),
       hashBytes32(p.policy_hash),

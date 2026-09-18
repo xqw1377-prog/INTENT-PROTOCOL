@@ -71,9 +71,4 @@ describe("[C-01] canonical serialization determinism", () => {
     expect(() => canonicalize({ s: Symbol("x") })).toThrow();
   });
 
-  test("[C-01-10] lone surrogates are escaped (JSON.stringify semantics) and agree with reference", () => {
-    const withLone = { k: "a\uD800b" }; // unpaired high surrogate
-    expect(canonicalize(withLone)).toBe(refCanonicalize(withLone));
-    expect(JSON.parse(canonicalize(withLone)).k).toBe("a\uD800b");
-  });
 });

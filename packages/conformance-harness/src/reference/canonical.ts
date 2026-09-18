@@ -1,29 +1,25 @@
 /**
- * INDEPENDENT reference canonical JSON serializer (Builder B).
+ * INDEPENDENT reference canonical JSON serializer (Builder B) — IPC-JSON-1.
  *
- * Written exclusively from the protocol's written rules (canonical.ts header /
- * ADR-005 "Canonical JSON + domain-separated hash" / architecture doc §6.1):
+ * Implements the FROZEN canonical profile (Commander OQ-1 ruling: the profile
+ * is formally named IPC-JSON-1):
  *
  *   R1. Object keys are sorted by UTF-16 code unit order.
  *   R2. Keys whose value is `undefined` are omitted; `null` is preserved.
- *   R3. Strings are NFC-normalized before serialization and escaped per
- *       JSON.stringify (only `"`, `\` and C0 control chars; controls as
- *       lowercase `\uXXXX`).
+ *   R3. STRING VALUES are NFC-normalized before serialization. KEYS MUST
+ *       ALREADY BE NFC — a key that is not in Normalization Form C is
+ *       REJECTED, never silently normalized (silent normalization created
+ *       duplicate-key ambiguity; non-NFC keys are now a producer error).
  *   R4. Numbers MUST be safe integers (|n| <= 2^53-1). Floats, NaN, Infinity
  *       and -0 are rejected.
  *   R5. Arrays preserve order.
  *   R6. No whitespace.
+ *   R7. Strings MUST be Unicode scalar text: lone surrogates are REJECTED
+ *       (they are not valid Unicode and split cross-language canonicalizers).
+ *   R8. After NFC equivalence two keys of one object MUST NOT collide.
  *
- * This module MUST NOT import anything from @intent/protocol-schema. It shares
- * no code with the implementation under test; agreement between the two is the
- * conformance signal, disagreement is a finding.
- *
- * Additional rule this reference enforces (derived, required for the output to
- * be a well-defined canonical form):
- *
- *   R7. After NFC normalization two keys of the same object MUST NOT collide;
- *       a collision would produce duplicate keys in the canonical text and an
- *       ambiguous hash input, so it is rejected.
+ * This module MUST NOT import anything from the SUT. Agreement between this
+ * oracle and the SUT is the conformance signal; disagreement is a finding.
  */
 
 export class RefCanonicalizationError extends Error {
@@ -63,7 +59,10 @@ function ser(value: unknown, path: string): string {
   const seen = new Set<string>();
   for (const rawKey of Object.keys(obj)) {
     if (obj[rawKey] === undefined) continue; // R2
-    const key = rawKey.normalize("NFC"); // R3 applies to keys as strings too
+    const key = rawKey; // R3: keys must ALREADY be NFC — never silently normalized
+    if (key !== key.normalize("NFC")) {
+      throw new RefCanonicalizationError(`key is not in Normalization Form C (IPC-JSON-1 R3): ${JSON.stringify(rawKey)}`, path);
+    }
     if (seen.has(key)) {
       // R7: two distinct raw keys collapsing onto one normalized key would
       // emit duplicate keys — ambiguous canonical text.
@@ -95,8 +94,9 @@ function jsonString(s: string): string {
     if (ch === '"') out += '\\"';
     else if (ch === "\\") out += "\\\\";
     else if (ch.charCodeAt(0) < 0x20) out += "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0");
-    else if (isLoneSurrogate(ch)) out += "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0");
-    else out += ch;
+    else if (isLoneSurrogate(ch)) {
+      throw new RefCanonicalizationError(`lone surrogate in string (IPC-JSON-1 R7): U+${ch.charCodeAt(0).toString(16).toUpperCase()}`, "$");
+    } else out += ch;
   }
   return out + '"';
 }

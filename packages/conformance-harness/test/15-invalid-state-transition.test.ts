@@ -24,11 +24,14 @@ describe("[C-15] invalid state transitions", () => {
   });
 
   test("[C-15-02] delivered bundle invariant: SEALED requires merkle_root + sealed_at + >=1 artifact + no duplicates", () => {
-    const sealed = { merkle_root: "sha256:" + "ab".repeat(32), sealed_at: "2026-09-17T01:00:00.000Z" };
-    expect(() => S.EvidenceBundleSchema.parse(validBundle({ state: "SEALED", artifact_hashes: [], ...sealed }))).toThrow();
-    expect(() => S.EvidenceBundleSchema.parse(validBundle({ state: "SEALED", artifact_hashes: [ARTIFACT_HASHES.a1] }))).toThrow();
-    expect(() => S.EvidenceBundleSchema.parse(validBundle({ state: "SEALED", artifact_hashes: [ARTIFACT_HASHES.a1, ARTIFACT_HASHES.a1], ...sealed }))).toThrow();
-    expect(() => S.EvidenceBundleSchema.parse(validBundle({ state: "SEALED", artifact_hashes: [ARTIFACT_HASHES.a1], ...sealed }))).not.toThrow();
+    // validBundle() is legal-by-default now; construct each MISSING field
+    // case explicitly (undefined overrides the fixture defaults at runtime).
+    const base = validBundle();
+    expect(() => S.EvidenceBundleSchema.parse({ ...base, artifact_hashes: [] })).toThrow();
+    expect(() => S.EvidenceBundleSchema.parse({ ...base, merkle_root: undefined })).toThrow();
+    expect(() => S.EvidenceBundleSchema.parse({ ...base, sealed_at: undefined })).toThrow();
+    expect(() => S.EvidenceBundleSchema.parse({ ...base, artifact_hashes: [ARTIFACT_HASHES.a1, ARTIFACT_HASHES.a1] })).toThrow();
+    expect(() => S.EvidenceBundleSchema.parse(base)).not.toThrow(); // control
   });
 
   test("[C-15-03] OPEN bundle carries no seal requirements (forward seam OPEN->SEALED is the only frozen transition)", () => {

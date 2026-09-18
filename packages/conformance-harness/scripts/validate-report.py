@@ -38,6 +38,7 @@ for k in ["PASS", "FAIL", "UNKNOWN"]:
         err(f"summary.counts.{k} missing")
 if s.get("gate_status") not in ("NOT_READY", "READY_WITH_EXCEPTIONS", "READY"):
     err("summary.gate_status invalid")
+
 if "frozen" in s.get("freeze_declaration", "").lower() and "does not declare" not in s.get("freeze_declaration", "").lower():
     err("report must not declare the schema frozen")
 
@@ -93,6 +94,13 @@ for x in fb:
 
 if s.get("counts", {}).get("PASS") != pass_count or s.get("counts", {}).get("FAIL") != fail_count or s.get("counts", {}).get("UNKNOWN") != unknown_count:
     err(f"summary.counts mismatch: declared {s.get('counts')} vs actual P{pass_count}/F{fail_count}/U{unknown_count}")
+open_fb = sum(1 for x in s.get("freeze_blockers", []) if x.get("status") == "OPEN")
+expected_gate = ("NOT_READY" if (fail_count > 0 or open_fb > 0)
+                 else "READY_WITH_EXCEPTIONS" if unknown_count > 0
+                 else "READY")
+if s.get("gate_status") != expected_gate:
+    err(f"summary.gate_status={s.get('gate_status')} violates the machine rule (expected {expected_gate} for F{fail_count}/U{unknown_count}/OPENblockers{open_fb})")
+
 
 for a in report.get("attack_surfaces", []):
     if not re.match(r"^AS-\d+$", a.get("id", "")):

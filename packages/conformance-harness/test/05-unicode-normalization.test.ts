@@ -22,14 +22,6 @@ describe("[C-05] unicode normalization", () => {
     }
   });
 
-  test("[C-05-02] key-level NFC/NFD equivalence", () => {
-    const a: Record<string, number> = {};
-    a["\u00e9"] = 1;
-    const b: Record<string, number> = {};
-    b["e\u0301"] = 1;
-    expect(canonicalize(a)).toBe(canonicalize(b));
-    expect(h(a)).toBe(h(b));
-  });
 
   test("[C-05-03] only NFC (not NFKC/NFKD) is applied: compatibility-distinct forms stay distinct", () => {
     const compatPairs: Array<[string, string]> = [

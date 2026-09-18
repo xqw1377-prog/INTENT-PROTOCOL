@@ -145,8 +145,16 @@ const report = {
     counts,
     areas: [...areas.values()].sort((x, y) => x.area.localeCompare(y.area)),
     freeze_blockers: freezeBlockers,
-    gate_status: "NOT_READY",
-    freeze_declaration: `NONE — this report does not declare the schema frozen. Freeze authority belongs to the Commander. ${counts.FAIL} FAIL findings, ${counts.UNKNOWN} UNKNOWN entries; freeze blockers: ${freezeBlockers.filter((b) => b.status === "OPEN").length} OPEN / ${freezeBlockers.filter((b) => b.status === "DISPOSITIONED").length} DISPOSITIONED.`,
+    // Evidence-driven machine gate status (Commander rule, frozen):
+    //   FAIL>0 or OPEN blocker>0            -> NOT_READY
+    //   0 FAIL + 0 OPEN + UNKNOWN>0         -> READY_WITH_EXCEPTIONS
+    //   0 FAIL + 0 OPEN + 0 UNKNOWN         -> READY
+    gate_status: counts.FAIL > 0 || freezeBlockers.some((b) => b.status === "OPEN")
+      ? "NOT_READY"
+      : counts.UNKNOWN > 0
+        ? "READY_WITH_EXCEPTIONS"
+        : "READY",
+    freeze_declaration: `NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. ${counts.FAIL} FAIL findings, ${counts.UNKNOWN} UNKNOWN entries; freeze blockers: ${freezeBlockers.filter((b) => b.status === "OPEN").length} OPEN / ${freezeBlockers.filter((b) => b.status === "DISPOSITIONED").length} DISPOSITIONED.`,
   },
   results,
   attack_surfaces: attackSurfaces,

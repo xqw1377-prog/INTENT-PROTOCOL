@@ -1,19 +1,19 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-18T01:36:33.209Z
+- Generated: 2026-09-18T03:56:28.603Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
-- Checks: **143 PASS / 18 FAIL / 25 UNKNOWN** (186 total)
+- Checks: **141 PASS / 19 FAIL / 25 UNKNOWN** (185 total)
 - Gate status: **NOT_READY** — no freeze declared; freeze authority: Commander.
 
 ## Area rollup
 
 | Area | Verdict | PASS | FAIL | UNKNOWN |
 |---|---|---|---|---|
-| C-01 | **FAIL** | 9 | 1 | 0 |
+| C-01 | **FAIL** | 8 | 1 | 0 |
 | C-02 | **PASS** | 9 | 0 | 0 |
 | C-03 | **PASS** | 6 | 0 | 0 |
 | C-04 | **PASS** | 10 | 0 | 0 |
-| C-05 | **FAIL** | 6 | 1 | 0 |
+| C-05 | **FAIL** | 5 | 1 | 0 |
 | C-06 | **PASS** | 5 | 0 | 0 |
 | C-07 | **UNKNOWN** | 3 | 0 | 2 |
 | C-08 | **UNKNOWN** | 9 | 0 | 2 |
@@ -24,7 +24,7 @@
 | C-13 | **FAIL** | 48 | 2 | 1 |
 | C-14 | **UNKNOWN** | 2 | 0 | 9 |
 | C-15 | **UNKNOWN** | 3 | 0 | 5 |
-| SPEC-ASSERTIONS | **FAIL** | 3 | 13 | 0 |
+| SPEC-ASSERTIONS | **FAIL** | 3 | 14 | 0 |
 | SUT-LOAD | **UNKNOWN** | 5 | 0 | 1 |
 
 ## FAIL findings
@@ -94,6 +94,11 @@
 - Message: `AssertionError: expected [Function] to throw an error`
 - Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-SURR"`
 
+### S-KEYNFC — [S-KEYNFC] object keys MUST already be NFC — non-NFC keys are rejected, never silently normalized (IPC-JSON-1 R3)
+- Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
+- Message: `AssertionError: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-KEYNFC"`
+
 ### S-SUBJ — [S-SUBJ] SubjectRef MUST reject '@' (ruling OQ-5)
 - Evidence: `packages/conformance-harness/test/16-spec-assertions.test.ts`
 - Message: `AssertionError: expected [Function] to throw an error`
@@ -133,6 +138,7 @@
 - **S-MERKLE** [OPEN]: Commander R-series + PR #3 round 5: SEALED merkle enforcement is executable spec. (evidence: S-MERKLE)
 - **S-DEC** [OPEN]: Commander R-series + PR #3 round 5: canonical decimal is executable spec. (evidence: S-DEC)
 - **S-SUM** [OPEN]: Commander R-series + PR #3 round 5: settlement sum invariant is executable spec. (evidence: S-SUM)
+- **S-KEYNFC** [OPEN]: Commander OQ-1 / IPC-JSON-1 freeze, 2026-09-18: canonical profile named IPC-JSON-1; keys must already be NFC. (evidence: S-KEYNFC)
 
 ## UNKNOWN (never auto-PASS)
 
@@ -205,8 +211,8 @@ hash_input = domain||0x00||version||0x00||canonical is injective only because (a
 - Grounded by: C-02-06
 
 ### AS-11 [low] Unicode strategy diverges from RFC 8785/JCS while claiming compatibility
-The spec header claims 'RFC 8785 / JCS compatible', but JCS does NOT normalize strings, while this protocol NFC-normalizes keys and values. A strict JCS implementation produces different canonical bytes (and different hashes) for any string not already in NFC. Additionally, lone surrogates and U+2028/2029 pass through as JSON-legal but JS-source-illegal text — a hazard for eval-adjacent consumers and some non-JS JSON libraries.
-- Grounded by: C-05-01, C-05-06, C-05-07
+RESOLVED IN SPEC: the canonical profile is now formally named IPC-JSON-1 (OQ-1) and intentionally diverges from raw RFC 8785/JCS: string VALUES are NFC-normalized, KEYS must already be NFC, and lone surrogates are rejected. Residual hazard: this divergence is deliberate, so a strict JCS implementation still produces different bytes — cross-implementation consumers must implement IPC-JSON-1, not JCS. U+2028/U+2029 remain raw (valid JSON, JS-source-illegal).
+- Grounded by: C-05-01, C-05-07, S-KEYNFC, S-SURR
 
 ### AS-12 [high] Delivered scope is a moving subset of the documented protocol
 Arch doc §6/§7 document 10+ object kinds and 6 state machines; the delivered snapshot contains 6 object kinds, a 2-state bundle lifecycle, and no transition engine, and it changed shape twice while this verification was running (events.js removed; Milestone/Plan/Run/Grant/Edge/Dispute dropped; content_hash renamed payload_hash; SubjectRef charset widened). Until Builder A declares a frozen revision, any conformance verdict is point-in-time only — which is why this harness pins a snapshot.

@@ -104,11 +104,12 @@
       "id": "AS-11",
       "title": "Unicode strategy diverges from RFC 8785/JCS while claiming compatibility",
       "severity": "low",
-      "detail": "The spec header claims 'RFC 8785 / JCS compatible', but JCS does NOT normalize strings, while this protocol NFC-normalizes keys and values. A strict JCS implementation produces different canonical bytes (and different hashes) for any string not already in NFC. Additionally, lone surrogates and U+2028/2029 pass through as JSON-legal but JS-source-illegal text — a hazard for eval-adjacent consumers and some non-JS JSON libraries.",
+      "detail": "RESOLVED IN SPEC: the canonical profile is now formally named IPC-JSON-1 (OQ-1) and intentionally diverges from raw RFC 8785/JCS: string VALUES are NFC-normalized, KEYS must already be NFC, and lone surrogates are rejected. Residual hazard: this divergence is deliberate, so a strict JCS implementation still produces different bytes — cross-implementation consumers must implement IPC-JSON-1, not JCS. U+2028/U+2029 remain raw (valid JSON, JS-source-illegal).",
       "evidence": [
         "C-05-01",
-        "C-05-06",
-        "C-05-07"
+        "C-05-07",
+        "S-KEYNFC",
+        "S-SURR"
       ]
     },
     {

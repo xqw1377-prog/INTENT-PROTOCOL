@@ -24,6 +24,7 @@ const { merkleRoot } = sut.merkle;
  *   [S-SCALE]  amount scale <= asset.decimals
  *   [S-BUDGET] execution_cap <= total
  *   [S-SURR]   lone surrogates rejected by IPC-JSON-1
+ *   [S-KEYNFC] object keys must already be NFC (rejected otherwise)
  *   [S-SUBJ]   SubjectRef rejects '@'
  *   [S-UNIQ]   criterion_id / constraint_id unique within their object
  *   [S-MERKLE] SEALED bundle's merkle_root must be the recomputed root
@@ -52,15 +53,13 @@ describe("[SPEC] R9–R14 normative assertions", () => {
   });
 
   // ------------------------------------------------------------------ R10
-  const sealedBundleFixture = () => validBundle({
-    merkle_root: merkleRoot([ARTIFACT_HASHES.a1, ARTIFACT_HASHES.a2, ARTIFACT_HASHES.a3]),
-    sealed_at: "2026-09-17T01:00:00.000Z",
-  });
+  // validBundle() is now legal-by-default under the frozen spec (correct
+  // merkle_root + sealed_at + minimal-form fields).
 
   test.each([
     ["IntentContract", () => validIntent(), IntentContractSchema],
     ["EvidenceArtifact", () => validArtifact(), EvidenceArtifactSchema],
-    ["EvidenceBundle", () => sealedBundleFixture(), EvidenceBundleSchema],
+    ["EvidenceBundle", () => validBundle(), EvidenceBundleSchema],
     ["VerificationDecision", () => validDecision(), VerificationDecisionSchema],
     ["SettlementInstruction", () => validSettlement(), SettlementInstructionSchema],
   ])("[S-RT] %s: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected", (_name, fixture, schema) => {
@@ -101,9 +100,11 @@ describe("[SPEC] R9–R14 normative assertions", () => {
   test("[S-SCALE] amount scale MUST NOT exceed asset.decimals (decimal text itself legal)", () => {
     const control = validSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: usd1, amount: "15.5", reason: "scale ok" }], // scale 1 == decimals 1
+      total_amount: "15.5", // sum-consistent: S-SUM cannot fire here
     });
     const overPrecise = validSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: usd1, amount: "15.55", reason: "scale exceeds" }], // minimal-form legal decimal, scale 2 > 1
+      total_amount: "15.55", // sum-consistent: S-SUM cannot fire here
     });
     expect(() => SettlementInstructionSchema.parse(control)).not.toThrow();
     expect(() => SettlementInstructionSchema.parse(overPrecise)).toThrow(); // can only fail on the scale rule
@@ -125,6 +126,15 @@ describe("[SPEC] R9–R14 normative assertions", () => {
   test("[S-SURR] lone surrogates MUST be rejected by the canonical form (IPC-JSON-1)", () => {
     expect(() => canonicalize({ s: "x\uDFFFy" })).toThrow();
     expect(() => canonicalize({ s: "x\uD800y" })).toThrow();
+  });
+
+  test("[S-KEYNFC] object keys MUST already be NFC — non-NFC keys are rejected, never silently normalized (IPC-JSON-1 R3)", () => {
+    const nfcKey: Record<string, number> = {};
+    nfcKey["\u00e9"] = 1;
+    const nfdKey: Record<string, number> = {};
+    nfdKey["e\u0301"] = 1;
+    expect(() => canonicalize(nfcKey)).not.toThrow(); // control
+    expect(() => canonicalize(nfdKey)).toThrow(); // must be rejected, not normalized away
   });
 
   test("[S-SUBJ] SubjectRef MUST reject '@' (ruling OQ-5)", () => {
@@ -162,6 +172,7 @@ describe("[SPEC] R9–R14 normative assertions", () => {
   test("[S-DEC] amounts MUST be canonical Decimal V1 minimal form (no trailing zeros, no negative zero)", () => {
     const at = (amount: string) => SettlementInstructionSchema.parse(validSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: usd2, amount, reason: "decimal probe" }],
+      total_amount: amount, // sum-consistent: S-SUM cannot fire here
     }));
     expect(() => at("150")).not.toThrow();  // canonical integer form
     expect(() => at("15.5")).not.toThrow(); // canonical fractional form

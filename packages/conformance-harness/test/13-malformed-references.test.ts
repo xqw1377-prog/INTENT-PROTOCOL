@@ -76,7 +76,7 @@ describe("[C-13] malformed references", () => {
     ["NaN", "NaN"],
     ["comma decimal", "1,5"],
   ])("[C-13-06] Decimal rejects: %s", (_label, bad) => {
-    expect(() => S.IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2 }, total: bad, execution_cap: "1.00" } }))).toThrow();
+    expect(() => S.IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2 }, total: bad, execution_cap: "1" } }))).toThrow();
   });
 
   test.each([

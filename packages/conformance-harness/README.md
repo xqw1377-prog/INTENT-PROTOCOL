@@ -156,18 +156,44 @@ Formal entry point policy (Commander order): this workflow is the gate
 Actions entry ONLY once it exists on the DEFAULT branch. Per-branch
 dispatching is NOT a substitute and must not be treated as gate evidence.
 
-## Freeze blockers
+## Freeze blockers (13 normative assertions, evidence-driven)
 
-The Commander has ruled that the following UNKNOWNs are S0 protocol semantics
-and must be dispositioned BEFORE G1 Freeze (they cannot be deferred to a later
-layer); they are flagged `freeze_blocking: true` in `unknowns.json` and
-surfaced as `summary.freeze_blockers` in every report:
+The freeze blocker set is exactly the executable spec assertions in
+`test/16-spec-assertions.ts`; status is computed from evidence
+(DISPOSITIONED only when the assertion passes), never hardcoded:
 
-- uniqueness of `criterion_id` and `constraint_id` (C-07-01, C-07-02)
-- the canonical decimal form (C-11-06)
-- whether a SEALED bundle must verify its `merkle_root` at seal time (C-15-04)
-- which layer owns `total_amount == sum(outputs.amount)` (C-11-05)
-- which layer owns Decision/Settlement cross-object binding (C-14-02/03/04)
+`S-R9 S-RT S-UUID S-ASSET S-SCALE S-BUDGET S-SURR S-KEYNFC S-SUBJ S-UNIQ
+S-MERKLE S-DEC S-SUM`
+
+R9 = proof binding covers milestone_id AND bundle_id; R10 = all five
+first-class objects seal/round-trip idempotently and reject wrong declared
+hashes; plus canonical UUID text, single-asset settlement, amount scale ≤
+asset.decimals, execution_cap ≤ total, lone-surrogate rejection, keys
+already NFC (IPC-JSON-1), no '@' in SubjectRef, id uniqueness, SEALED
+merkle recomputation, canonical Decimal V1, and exact output-sum equality.
+Cross-object referential existence is DEFERRED to S1 (Commander ruling) and
+is not a G1 blocker.
+
+## Machine gate status (frozen rule)
+
+```
+FAIL > 0  OR  OPEN blocker > 0   ->  NOT_READY
+0 FAIL + 0 OPEN + UNKNOWN > 0    ->  READY_WITH_EXCEPTIONS
+0 FAIL + 0 OPEN + 0 UNKNOWN      ->  READY
+```
+
+A machine `READY` is NEVER an automatic G1 PASS: `freeze_declaration` stays
+`NONE` and the final signature belongs to the Commander.
+
+## Fixture & oracle baseline
+
+All common fixtures (`validIntent/validSettlement/validDecision/validBundle`)
+are legal under the FROZEN spec: minimal-form decimals, R9-exact oracle-computed
+`proof_binding`, SEALED bundles carrying the correct recomputed `merkle_root`
+and `sealed_at`. The independent oracle implements IPC-JSON-1 (keys must
+already be NFC; lone surrogates rejected; values NFC-normalized) and the R9
+six-field binding. Every must-throw spec assertion uses inputs that are legal
+under every OTHER frozen rule and carries a matched control case.
 
 Full remediation flow (Devin fixes → re-capture at the same pushed SHA →
 re-run all conformance → Commander reviews diff / golden vectors / independent
