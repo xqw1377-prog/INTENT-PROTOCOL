@@ -1,0 +1,476 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://intent-protocol.dev/schemas/p0-s0-conformance-report.schema.json",
+  "title": "Intent Protocol P0-S0 Conformance Report",
+  "description": "Machine-readable output of the independent (Builder B) conformance harness. PASS entries must carry test evidence; UNKNOWN entries must carry a rationale and never auto-promote to PASS.",
+  "type": "object",
+  "required": [
+    "report_id",
+    "generated_at",
+    "harness",
+    "sut",
+    "provenance",
+    "summary",
+    "results",
+    "attack_surfaces"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "pattern": "^p0-s0-conformance-"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "harness": {
+      "type": "object",
+      "required": [
+        "name",
+        "builder",
+        "independence",
+        "reproduce_all"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "builder": {
+          "type": "string"
+        },
+        "independence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reproduce_all": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "sut": {
+      "type": "object",
+      "required": [
+        "package",
+        "capture",
+        "snapshot_files"
+      ],
+      "properties": {
+        "package": {
+          "type": "string"
+        },
+        "capture": {
+          "$ref": "#/definitions/capture"
+        },
+        "snapshot_files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fileDigest"
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "git_head",
+        "vector_files",
+        "unknowns_manifest",
+        "attack_surfaces_manifest"
+      ],
+      "properties": {
+        "git_head": {
+          "type": "string"
+        },
+        "vector_files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fileDigest"
+          }
+        },
+        "unknowns_manifest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "attack_surfaces_manifest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_checks",
+        "counts",
+        "areas",
+        "gate_status",
+        "freeze_declaration",
+        "freeze_blockers"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "total_checks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "counts": {
+          "type": "object",
+          "required": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "PASS": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "FAIL": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "UNKNOWN": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "areas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "area",
+              "total",
+              "PASS",
+              "FAIL",
+              "UNKNOWN",
+              "verdict"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "area": {
+                "type": "string"
+              },
+              "total": {
+                "type": "integer"
+              },
+              "PASS": {
+                "type": "integer"
+              },
+              "FAIL": {
+                "type": "integer"
+              },
+              "UNKNOWN": {
+                "type": "integer"
+              },
+              "verdict": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "UNKNOWN"
+                ]
+              }
+            }
+          }
+        },
+        "gate_status": {
+          "enum": [
+            "NOT_READY",
+            "READY_WITH_EXCEPTIONS",
+            "READY"
+          ]
+        },
+        "freeze_declaration": {
+          "type": "string"
+        },
+        "freeze_blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "check_id",
+              "ruling",
+              "rationale",
+              "status",
+              "evidence_check_ids"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "check_id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Za-z0-9-]*$"
+              },
+              "ruling": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "OPEN",
+                  "DISPOSITIONED"
+                ]
+              },
+              "evidence_check_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "check_id",
+          "status",
+          "area",
+          "title",
+          "evidence",
+          "reproduce"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9-]*(#[0-9]+)?$"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN"
+            ]
+          },
+          "unknown_kind": {
+            "enum": [
+              "gap_documented",
+              "blocked"
+            ]
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "object",
+            "required": [
+              "test_file",
+              "test_title",
+              "runner_status"
+            ],
+            "properties": {
+              "test_file": {
+                "type": "string"
+              },
+              "test_title": {
+                "type": "string"
+              },
+              "runner_status": {
+                "type": "string"
+              },
+              "duration_ms": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "failure_messages": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "reproduce": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "UNKNOWN"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "unknown_kind",
+                "rationale"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "FAIL"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "required": [
+                    "failure_messages"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "attack_surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "severity",
+          "detail",
+          "evidence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AS-\\d+$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "fileDigest": {
+      "type": "object",
+      "required": [
+        "file",
+        "sha256",
+        "bytes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "capture": {
+      "type": "object",
+      "required": [
+        "captured_at",
+        "source_git_head",
+        "source_dir",
+        "zod_version",
+        "files"
+      ],
+      "properties": {
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source_git_head": {
+          "type": "string"
+        },
+        "source_dir": {
+          "type": "string"
+        },
+        "zod_version": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fileDigest"
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "git-sha",
+            "worktree"
+          ]
+        },
+        "pinned_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "remote_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "remote_refs_containing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "zod_version_source": {
+          "enum": [
+            "pinned-lockfile",
+            "live-node_modules"
+          ]
+        },
+        "warning": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

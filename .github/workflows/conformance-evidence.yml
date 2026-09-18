@@ -1,0 +1,129 @@
+name: Conformance Evidence (Builder B)
+
+# Independent machine evidence for G1 gate review (Commander orders, PR #3).
+#
+# Contract:
+#   - Manually dispatched with an EXACT 40-hex Builder A commit SHA
+#     (target_sha). Short SHAs are rejected.
+#   - The harness revision (this branch/commit) and the Builder A SUT SHA are
+#     separate, pinned independently, and both recorded in the Job Summary.
+#   - Stale snapshots/reports are deleted before the run, so uploaded evidence
+#     can never be a leftover from an earlier, interrupted attempt.
+#   - The SUT is captured from the git object database at target SHA
+#     (capture-sut.mjs --sha), never from a live worktree; the zod dependency
+#     version is read from the SAME pinned commit's package-lock.json.
+#   - Full conformance + report validator always run; evidence artifacts
+#     (report, capture, unknowns, attack surfaces) are uploaded on PASS and
+#     FAIL alike; a conformance FAIL fails the job (exit code deferred past
+#     upload, never swallowed).
+#   - Actions are pinned to full commit SHAs (supply-chain hardening, §17).
+#     Update pins only via a reviewed commit that changes exactly one pin.
+#   - Read-only: contents:read only; no writes to source, PRs, issues,
+#     releases, packages or deployments.
+#
+# This workflow is the formal Actions entry point only once it exists on the
+# DEFAULT branch. Until then it MUST NOT be treated as a gate entry (no
+# per-branch dispatching as a substitute).
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: "Exact Builder A commit SHA to verify (full 40 hex chars, must be pushed to origin)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    name: Independent conformance evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # actions/checkout v4.1.7
+      - name: Check out Builder B harness (NOT the SUT)
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          fetch-depth: 0 # capture-sut needs remote refs + target SHA objects
+
+      - name: Resolve and pin inputs
+        env:
+          RAW_TARGET_SHA: ${{ inputs.target_sha }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$RAW_TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::target_sha must be a FULL 40-hex commit SHA (short SHAs are not accepted), got: $RAW_TARGET_SHA"
+            exit 1
+          fi
+          git fetch origin "$RAW_TARGET_SHA" --depth=1 2>/dev/null || true # object already present via fetch-depth:0
+          TARGET_SHA=$(git rev-parse "${RAW_TARGET_SHA}^{commit}")
+          if [ "$TARGET_SHA" != "$RAW_TARGET_SHA" ]; then
+            echo "::error::resolved SHA $TARGET_SHA does not equal input $RAW_TARGET_SHA"
+            exit 1
+          fi
+          echo "TARGET_SHA=$TARGET_SHA" >> "$GITHUB_ENV"
+          echo "HARNESS_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "TARGET_LOCKFILE_SHA256=$(git show "$TARGET_SHA:package-lock.json" | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          echo "HARNESS_LOCKFILE_SHA256=$(sha256sum package-lock.json | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      # actions/setup-node v4.0.2
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version: 22
+
+      - name: Install harness dependencies (harness lockfile)
+        run: npm ci --no-audit --no-fund
+
+      - name: Purge stale evidence (snapshot + report from any earlier attempt)
+        run: |
+          rm -rf packages/conformance-harness/sut-snapshot packages/conformance-harness/report
+          echo "stale evidence purged; a failed run below now cannot upload leftovers"
+
+      - name: Capture SUT at target SHA (refuses unpinned / local-only SHAs)
+        run: node packages/conformance-harness/scripts/capture-sut.mjs --sha "$TARGET_SHA"
+
+      - name: Run conformance (report always built; exit code deferred, not swallowed)
+        working-directory: packages/conformance-harness
+        run: |
+          set +e
+          npm run conformance
+          CODE=$?
+          set -e
+          echo "CONFORMANCE_EXIT=$CODE" >> "$GITHUB_ENV"
+          echo "conformance exit code: $CODE (deferred to the gate step below)"
+
+      - name: Validate report structure
+        working-directory: packages/conformance-harness
+        run: python3 scripts/validate-report.py
+
+      - name: Write Job Summary (target SHA / harness SHA / node+ICU / lockfiles / report)
+        if: always()
+        env:
+          TARGET_SHA: ${{ env.TARGET_SHA }}
+          HARNESS_SHA: ${{ env.HARNESS_SHA }}
+          TARGET_LOCKFILE_SHA256: ${{ env.TARGET_LOCKFILE_SHA256 }}
+          HARNESS_LOCKFILE_SHA256: ${{ env.HARNESS_LOCKFILE_SHA256 }}
+          CONFORMANCE_EXIT: ${{ env.CONFORMANCE_EXIT }}
+        run: node packages/conformance-harness/scripts/ci-summary.mjs
+
+      # actions/upload-artifact v4.4.3
+      - name: Upload evidence artifact (PASS and FAIL alike)
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        with:
+          name: conformance-evidence-${{ env.TARGET_SHA }}
+          path: |
+            packages/conformance-harness/report/
+            packages/conformance-harness/sut-snapshot/capture.json
+            packages/conformance-harness/unknowns.json
+            packages/conformance-harness/attack-surfaces.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Gate exit (conformance FAIL fails the job)
+        if: ${{ env.CONFORMANCE_EXIT != '0' }}
+        run: |
+          echo "::error::conformance exited $CONFORMANCE_EXIT (FAIL findings present). Evidence uploaded as artifact; job fails per Commander order."
+          exit 1

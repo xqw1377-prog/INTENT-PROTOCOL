@@ -1,0 +1,224 @@
+{
+  "$comment": "Rationale manifest for every check recorded as UNKNOWN (never auto-PASS). Two flavors: gap_documented = behavior demonstrated and recorded, but the written protocol does not require the stronger property (or the enforcing layer is undelivered); blocked = cannot be executed because the enforcing component was not delivered in the S0 snapshot. freeze_blocking=true marks UNKNOWNs the Commander has ruled must be dispositioned before G1 Freeze (not deferrable). kind=spec_asserted marks Commander-ruled normative assertions (test/16): the gate FAILs while the rule is missing; these are never UNKNOWN. Freeze blocker status is EVIDENCE-DRIVEN (build-report): a blocker is DISPOSITIONED only when its normative assertion(s) all PASS.",
+  "unknowns": {
+    "PKG-ENTRY-01": {
+      "kind": "blocked",
+      "rationale": "Live package barrel/@intent/protocol-schema entry import was not evaluated against the frozen snapshot: Builder A edited the live tree twice during verification (missing events.js -> fixed; Milestone/Plan/Run/Grant/Edge/Dispute objects removed; artifact content_hash renamed payload_hash; SubjectRef charset widened). Re-run scripts/capture-sut.mjs to pin a newer SUT.",
+      "blocked_by": "SUT churn"
+    },
+    "C-07-04": {
+      "kind": "gap_documented",
+      "rationale": "Duplicate artifact hashes/run ids accepted while a bundle is OPEN; the delivered superRefine only guards SEALED.",
+      "blocked_by": "spec silent"
+    },
+    "C-07-07": {
+      "kind": "gap_documented",
+      "rationale": "Duplicate keys in raw JSON text collapse last-wins at JS parse time before canonicalization; two byte-different evidence texts can share one hash.",
+      "blocked_by": "JS parse semantics"
+    },
+    "C-08-05": {
+      "kind": "gap_documented",
+      "rationale": "Criterion.threshold is open-ended JSON by design; arbitrary nested semantics are representable inside a frozen criterion.",
+      "blocked_by": "design choice"
+    },
+    "C-08-06": {
+      "kind": "blocked",
+      "rationale": "Unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase cannot be tested: objects documented in arch doc §6 are absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered objects"
+    },
+    "C-09-08": {
+      "kind": "gap_documented",
+      "rationale": "EvidenceArtifact carries no self content_hash field; a received artifact cannot prove its own metadata integrity the way a sealed Intent can (payload_hash covers CAS bytes only).",
+      "blocked_by": "schema design"
+    },
+    "C-09-09": {
+      "kind": "gap_documented",
+      "rationale": "payload_hash is format-checked only; the (bytes, hash) binding is enforced by CAS-side recomputation outside the delivered layer.",
+      "blocked_by": "CAS layer undelivered"
+    },
+    "C-10-08": {
+      "kind": "blocked",
+      "rationale": "Milestone acceptance-criteria immutability cannot be tested: Milestone object absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered object"
+    },
+    "C-12-06": {
+      "kind": "gap_documented",
+      "rationale": "A decision may reference an OPEN (unsealed) bundle; nothing in the delivered layer binds decision validity to bundle state.",
+      "blocked_by": "verification engine undelivered"
+    },
+    "C-12-07": {
+      "kind": "gap_documented",
+      "rationale": "Same bundle_id with a different artifact set is representable; no uniqueness/append-only constraint exists in the schema layer.",
+      "blocked_by": "ledger/service layer undelivered"
+    },
+    "C-13-02c": {
+      "kind": "gap_documented",
+      "rationale": "SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid. Commander ruling OQ-5 (2026-09-17): SubjectRef V1 is accepted as a shape but '@' must be REMOVED; once Builder A lands it, this check must flip to assert rejection.",
+      "blocked_by": "uncoordinated live edit"
+    },
+    "C-13-09b": {
+      "kind": "gap_documented",
+      "rationale": "UUID schema accepts any RFC version and uppercase; intent ids are not pinned to a single version/canonical form.",
+      "blocked_by": "spec silent"
+    },
+    "C-13-12": {
+      "kind": "blocked",
+      "rationale": "Run manifest / grant / edge NodeRef / dispute reference validation cannot be tested: objects absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered objects"
+    },
+    "C-14-02": {
+      "kind": "gap_documented",
+      "rationale": "decision.intent_hash can be fabricated; no delivered API binds a decision to an existing Intent object.",
+      "blocked_by": "referential-integrity layer undelivered",
+      "freeze_blocking": false,
+      "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
+    },
+    "C-14-03": {
+      "kind": "gap_documented",
+      "rationale": "decision.evidence_root need not equal merkleRoot(bundle.artifact_hashes); the contradiction is representable.",
+      "blocked_by": "verification engine undelivered",
+      "freeze_blocking": false,
+      "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
+    },
+    "C-14-04": {
+      "kind": "gap_documented",
+      "rationale": "Settlement may reference a dangling decision_id and arbitrary proof_binding.",
+      "blocked_by": "settlement gate undelivered",
+      "freeze_blocking": false,
+      "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
+    },
+    "C-14-05": {
+      "kind": "gap_documented",
+      "rationale": "decision.milestone_id / bundle.milestone_id can dangle; no Milestone object is delivered at all.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-06": {
+      "kind": "gap_documented",
+      "rationale": "bundle.run_ids can reference nonexistent runs.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-08": {
+      "kind": "gap_documented",
+      "rationale": "verification/settlement policy refs are content-addressed but no policy object schema ships to bind them.",
+      "blocked_by": "policy layer undelivered"
+    },
+    "C-14-09": {
+      "kind": "blocked",
+      "rationale": "ContributionEdge.evidence_ref existence unenforceable: Edge object absent from the delivered S0 snapshot.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-10": {
+      "kind": "blocked",
+      "rationale": "DisputeCase.challenged_decision existence unenforceable: DisputeCase object absent.",
+      "blocked_by": "undelivered object"
+    },
+    "C-14-11": {
+      "kind": "blocked",
+      "rationale": "ExecutionRun.grants existence/scope unenforceable: Run/Grant objects absent.",
+      "blocked_by": "undelivered objects"
+    },
+    "C-15-05": {
+      "kind": "gap_documented",
+      "rationale": "Delivered EvidenceBundleState has 2 of the 7 states documented in arch doc §7; VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED are absent.",
+      "blocked_by": "doc/impl drift"
+    },
+    "C-15-06": {
+      "kind": "blocked",
+      "rationale": "Milestone state machine (arch doc §7) not delivered.",
+      "blocked_by": "undelivered"
+    },
+    "C-15-07": {
+      "kind": "blocked",
+      "rationale": "Settlement state machine (arch doc §7) not delivered; SettlementInstruction has no state field in S0.",
+      "blocked_by": "undelivered"
+    },
+    "C-15-08": {
+      "kind": "blocked",
+      "rationale": "Intent state machine (arch doc §7) not delivered.",
+      "blocked_by": "undelivered"
+    },
+    "C-15-09": {
+      "kind": "blocked",
+      "rationale": "G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists (@intent/intent-core absent).",
+      "blocked_by": "undelivered"
+    },
+    "S-R9": {
+      "kind": "spec_asserted",
+      "rationale": "R9 PROOF TARGET BINDING: proof_binding must be computed over intent_hash, milestone_id, bundle_id, milestone_revision, evidence_root and policy_hash. [S-R9] FAILs any SUT whose binding does not separate both proof targets.",
+      "freeze_blocking": true,
+      "commander_ruling": "Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1."
+    },
+    "S-SUBJ": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "SubjectRef rejects '@' (OQ-5): no lookalike principal ids.",
+      "commander_ruling": "Commander OQ-5 disposition, 2026-09-17/18: remove '@' from SubjectRef id charset in V1."
+    },
+    "S-UUID": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "UUID canonical form is lowercase hyphenated text, version-agnostic; uppercase and non-UUID text must be rejected.",
+      "commander_ruling": "Commander R-series, 2026-09-18: non-canonical UUID -> FAIL."
+    },
+    "S-RT": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "R10 SEALED ROUND-TRIP: all five first-class hashable objects (IntentContract, EvidenceArtifact, EvidenceBundle, VerificationDecision, SettlementInstruction) must seal -> JSON text round-trip -> re-seal idempotently and reject a wrong declared content_hash.",
+      "commander_ruling": "Commander R-series, 2026-09-18: sealed round-trip not holding -> FAIL."
+    },
+    "S-ASSET": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "One SettlementInstruction carries exactly one asset; mixed-asset outputs must be rejected.",
+      "commander_ruling": "Commander R-series, 2026-09-18: multiple assets in one Settlement -> FAIL."
+    },
+    "S-SCALE": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "Output amount scale (decimal places) must not exceed the referenced asset's decimals.",
+      "commander_ruling": "Commander R-series, 2026-09-18: amount scale beyond asset.decimals -> FAIL."
+    },
+    "S-BUDGET": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "Budget execution_cap must not exceed total.",
+      "commander_ruling": "Commander R-series, 2026-09-18: budget cap > total -> FAIL."
+    },
+    "S-SURR": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "IPC-JSON-1 rejects lone surrogates: strings must be Unicode scalar text.",
+      "commander_ruling": "Commander R-series, 2026-09-18: lone surrogate entering IPC-JSON-1 -> FAIL."
+    },
+    "S-UNIQ": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "criterion_id and constraint_id are unique within their Intent.",
+      "commander_ruling": "Commander R-series + PR #3 round 5: ID uniqueness is executable spec; old GAP blocker deduplicated into this assertion."
+    },
+    "S-MERKLE": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "A SEALED bundle is rejected unless its merkle_root equals the recomputed root of its artifact set.",
+      "commander_ruling": "Commander R-series + PR #3 round 5: SEALED merkle enforcement is executable spec."
+    },
+    "S-DEC": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "Amounts are canonical Decimal V1 minimal form: '150'/'15.5' accepted; '1.10'/'0.00'/'-0'/'150.0' rejected.",
+      "commander_ruling": "Commander R-series + PR #3 round 5: canonical decimal is executable spec."
+    },
+    "S-SUM": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "total_amount equals the exact (BigInt) sum of outputs.amount.",
+      "commander_ruling": "Commander R-series + PR #3 round 5: settlement sum invariant is executable spec."
+    },
+    "S-KEYNFC": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "IPC-JSON-1 R3: object keys must ALREADY be in Normalization Form C; non-NFC keys are rejected, never silently normalized (silent normalization created duplicate-key ambiguity).",
+      "commander_ruling": "Commander OQ-1 / IPC-JSON-1 freeze, 2026-09-18: canonical profile named IPC-JSON-1; keys must already be NFC."
+    }
+  }
+}

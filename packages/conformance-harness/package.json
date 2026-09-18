@@ -1,0 +1,13 @@
+{
+  "name": "@intent/conformance-harness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "P0-S0 independent black-box conformance harness (Builder B). Attacks the protocol schema + canonical hash against a frozen SUT snapshot; shares no code with the implementation under test.",
+  "type": "module",
+  "scripts": {
+    "capture:sut": "node scripts/capture-sut.mjs",
+    "test": "vitest run --root ../.. packages/conformance-harness",
+    "conformance": "node scripts/run-conformance.mjs",
+    "report": "node scripts/build-report.mjs"
+  }
+}

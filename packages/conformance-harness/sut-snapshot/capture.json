@@ -1,0 +1,44 @@
+{
+  "captured_at": "2026-09-17T14:25:58.822Z",
+  "source_git_head": "d2ddb961c4aa287a6aa0c56eebfdcbeebd143296",
+  "source_dir": "packages/protocol-schema/src",
+  "zod_version": "3.25.76",
+  "files": [
+    {
+      "file": "packages/protocol-schema/src/canonical.ts",
+      "sha256": "ac18d0ede9911f2f9b07b4ec392e6930322e8f8a7ab4eda1332c39fd843180c6",
+      "bytes": 2709
+    },
+    {
+      "file": "packages/protocol-schema/src/hash.ts",
+      "sha256": "6906b26324d957bde11d50636e6fdc6811da3dfe54085c79fb4f5006ea36bcba",
+      "bytes": 4188
+    },
+    {
+      "file": "packages/protocol-schema/src/index.ts",
+      "sha256": "0853552387640304923d1113a51160544e9b99701735d8435d6f8840abc3f6cb",
+      "bytes": 180
+    },
+    {
+      "file": "packages/protocol-schema/src/merkle.ts",
+      "sha256": "028a0413a8f57f4758c213e6394b6cf3bba25cbba4541903d49ae232e40fa262",
+      "bytes": 2999
+    },
+    {
+      "file": "packages/protocol-schema/src/objects.ts",
+      "sha256": "98deea2dc38a0b2b14bdbae3b214cef3d53f05e5a346726e5b17ec006b12eb84",
+      "bytes": 9352
+    },
+    {
+      "file": "packages/protocol-schema/src/primitives.ts",
+      "sha256": "53ccfbd30c4bc82a8bb561950c3a434ea0c63ac4af713e58e2285d17c5866d0f",
+      "bytes": 2777
+    },
+    {
+      "file": "packages/protocol-schema/src/states.ts",
+      "sha256": "b7fbde8f52bdd192f66af0778aee7df39f80290070b44388cfdc2613034bb4a7",
+      "bytes": 729
+    }
+  ],
+  "note": "Verbatim copy of Builder A's protocol-schema source at capture time. The harness imports ONLY this snapshot; the live tree is never loaded by tests."
+}

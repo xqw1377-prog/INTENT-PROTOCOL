@@ -1,0 +1,161 @@
+{
+  "$comment": "Attack surfaces that remain open against the P0-S0 schema + canonical hash layer, as demonstrated or reasoned by this harness. Each entry cites the check evidence that grounds it.",
+  "attack_surfaces": [
+    {
+      "id": "AS-01",
+      "title": "NFC key-collision produces duplicate-key canonical JSON",
+      "severity": "high",
+      "detail": "canonicalize({NFC 'é': 1, NFD 'e'+U+0301: 2}) emits '{\"é\":1,\"é\":2}' — invalid, ambiguous canonical text. A second implementation (or JSON.parse) collapses the keys, so the same canonical bytes can be re-read as a different object than the one that was hashed. The independent reference rejects this case.",
+      "evidence": [
+        "C-05-05"
+      ]
+    },
+    {
+      "id": "AS-02",
+      "title": "-0 silently canonicalizes to 0 against the frozen spec text",
+      "severity": "medium",
+      "detail": "Spec header rule 4 says -0 is rejected; the implementation maps -0 -> 0. Two distinct JS values share one canonical form; a strict cross-language implementation following the written rule will refuse objects the TS implementation accepts (and hash differently on any value it does emit).",
+      "evidence": [
+        "C-01-07"
+      ]
+    },
+    {
+      "id": "AS-03",
+      "title": "Schema admits values the canonicalizer rejects (unhashable-but-valid objects)",
+      "severity": "high",
+      "detail": "Criterion.threshold uses z.number().int() (accepts 2^53, 1e308) while canonicalization requires safe integers; U64-as-string regex accepts 2^64 while u64be() throws. A schema-valid Intent/Settlement can exist that can never be sealed — parsers in other languages will disagree about whether the object is acceptable at all.",
+      "evidence": [
+        "C-10-03",
+        "C-13-07b"
+      ]
+    },
+    {
+      "id": "AS-04",
+      "title": "Timestamp format is shape-checked, not calendrically validated",
+      "severity": "medium",
+      "detail": "'2026-13-45T99:99:99.999Z' passes TimestampSchema despite being invalid RFC 3339. Cross-language timestamp parsers (strict RFC 3339) will reject objects the TS layer accepted, splitting the hash universe.",
+      "evidence": [
+        "C-13-05"
+      ]
+    },
+    {
+      "id": "AS-05",
+      "title": "No canonical decimal form",
+      "severity": "medium",
+      "detail": "Amounts like '1.0' / '1.00' / '1' / '-0' are distinct canonical strings for the same economic value. Any component that normalizes decimals before hashing (or after) will disagree with one that does not. Settlement amounts are the highest-value instance.",
+      "evidence": [
+        "C-11-06"
+      ]
+    },
+    {
+      "id": "AS-06",
+      "title": "Duplicate-key raw JSON collapses last-wins before canonicalization",
+      "severity": "medium",
+      "detail": "'{\"a\":1,\"a\":2}' and '{\"a\":2}' hash identically. Byte-level audit of evidence text diverges from hash-level identity; a malicious producer can include decoy keys that vanish in the hash.",
+      "evidence": [
+        "C-07-07"
+      ]
+    },
+    {
+      "id": "AS-07",
+      "title": "Identifier uniqueness is unenforced (criterion_id, constraint_id, bundle_id reuse)",
+      "severity": "medium",
+      "detail": "Same-id different-content criteria are representable; the same bundle_id can seal two different artifact sets. Downstream resolution by id becomes attacker-choosable.",
+      "evidence": [
+        "C-07-01",
+        "C-07-02",
+        "C-12-07"
+      ]
+    },
+    {
+      "id": "AS-08",
+      "title": "Cross-object references are free-floating",
+      "severity": "high",
+      "detail": "decisions bind fabricated intent_hash/evidence_root; settlements bind dangling decision_id; bundles bind nonexistent runs. Nothing in the delivered layer enforces the §15.1 north-star chain (Receipt -> Settlement -> Decision -> Bundle -> Run -> Intent). The proof_binding construction is sound, but its INPUTS are unauthenticated at this layer.",
+      "evidence": [
+        "C-14-02",
+        "C-14-03",
+        "C-14-04",
+        "C-14-05",
+        "C-14-06",
+        "C-12-06"
+      ]
+    },
+    {
+      "id": "AS-09",
+      "title": "SEALED bundle state does not imply a correct merkle_root",
+      "severity": "high",
+      "detail": "The bundle invariant checks presence, not consistency: a SEALED bundle with a fabricated merkle_root parses. Detection requires every consumer to recompute merkleRoot(artifact_hashes) — cheap, but currently nothing mandates it.",
+      "evidence": [
+        "C-15-04",
+        "C-09-02"
+      ]
+    },
+    {
+      "id": "AS-10",
+      "title": "Domain/version separation relies on 0x00 exclusion, not length prefixing",
+      "severity": "low",
+      "detail": "hash_input = domain||0x00||version||0x00||canonical is injective only because (a) domain/version literals are frozen and 0x00-free and (b) canonical JSON escapes control characters. Any future domain string containing U+0000, or a non-JSON-escaping canonicalizer, breaks the separation. A length-prefixed design would not depend on both invariants.",
+      "evidence": [
+        "C-02-06"
+      ]
+    },
+    {
+      "id": "AS-11",
+      "title": "Unicode strategy diverges from RFC 8785/JCS while claiming compatibility",
+      "severity": "low",
+      "detail": "RESOLVED IN SPEC: the canonical profile is now formally named IPC-JSON-1 (OQ-1) and intentionally diverges from raw RFC 8785/JCS: string VALUES are NFC-normalized, KEYS must already be NFC, and lone surrogates are rejected. Residual hazard: this divergence is deliberate, so a strict JCS implementation still produces different bytes — cross-implementation consumers must implement IPC-JSON-1, not JCS. U+2028/U+2029 remain raw (valid JSON, JS-source-illegal).",
+      "evidence": [
+        "C-05-01",
+        "C-05-07",
+        "S-KEYNFC",
+        "S-SURR"
+      ]
+    },
+    {
+      "id": "AS-12",
+      "title": "Delivered scope is a moving subset of the documented protocol",
+      "severity": "high",
+      "detail": "Arch doc §6/§7 document 10+ object kinds and 6 state machines; the delivered snapshot contains 6 object kinds, a 2-state bundle lifecycle, and no transition engine, and it changed shape twice while this verification was running (events.js removed; Milestone/Plan/Run/Grant/Edge/Dispute dropped; content_hash renamed payload_hash; SubjectRef charset widened). Until Builder A declares a frozen revision, any conformance verdict is point-in-time only — which is why this harness pins a snapshot.",
+      "evidence": [
+        "C-08-06",
+        "C-13-12",
+        "C-14-09",
+        "C-15-05",
+        "C-15-06",
+        "C-15-07",
+        "C-15-08",
+        "C-15-09",
+        "PKG-ENTRY-01"
+      ]
+    },
+    {
+      "id": "AS-13",
+      "title": "SubjectRef charset widened to include '@' without protocol review",
+      "severity": "low",
+      "detail": "user:alice@evil is now a valid principal. Visual spoofing of email-like principal ids becomes representable in signed objects.",
+      "evidence": [
+        "C-13-02c"
+      ]
+    },
+    {
+      "id": "AS-14",
+      "title": "Economic invariants absent from every delivered layer",
+      "severity": "medium",
+      "detail": "total_amount != sum(outputs) parses; outputs are not bounded by any escrow notion; u64 nonce has no monotonicity. The A5/A7 principles (proof before payment, idempotent effects) currently rest entirely on undelivered engines.",
+      "evidence": [
+        "C-11-05",
+        "C-11-07"
+      ]
+    },
+    {
+      "id": "AS-15",
+      "title": "proof_binding does not bind milestone_id (R9): cross-milestone proof replay",
+      "severity": "high",
+      "detail": "proof_binding = H(intent_hash || milestone_revision || evidence_root || policy_hash) has no milestone_id in the preimage, and the delivered proofBinding() API cannot even receive one. Two distinct milestones sharing revision/intent/policy/evidence-root therefore share a single binding: a VALID decision for milestone A is a structurally valid proof for milestone B. Commander ruling R9 requires binding milestone_id in V1.",
+      "evidence": [
+        "C-12-08"
+      ]
+    }
+  ]
+}
