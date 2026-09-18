@@ -15,17 +15,27 @@ import { fileURLToPath } from "node:url";
 import * as path from "node:path";
 
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const vitestBin = path.resolve(pkgDir, "../../node_modules/.bin/vitest");
+// Spawn the real JS entry via the current node binary: node_modules/.bin/vitest
+// is a POSIX shell wrapper that spawnSync cannot exec on Windows, which made the
+// runner silently skip the tests and build a report from stale vitest-results.json.
+const vitestBin = path.resolve(pkgDir, "../../node_modules/vitest/vitest.mjs");
 
 // CI purges report/ before the run; the output directory must exist for
 // vitest's --outputFile regardless of whether vitest recreates it itself.
 mkdirSync(path.join(pkgDir, "report"), { recursive: true });
 
 const vitest = spawnSync(
-  vitestBin,
-  ["run", "--root", "../..", "--reporter=json", "--outputFile=packages/conformance-harness/report/vitest-results.json", "packages/conformance-harness"],
+  process.execPath,
+  [vitestBin, "run", "--root", "../..", "--reporter=json", "--outputFile=packages/conformance-harness/report/vitest-results.json", "packages/conformance-harness"],
   { cwd: pkgDir, stdio: "inherit" },
 );
+
+if (vitest.error || vitest.status === null) {
+  // vitest never ran: building a report now would dress stale results up as
+  // fresh evidence. Refuse instead.
+  console.error(`vitest failed to run: ${vitest.error ?? "no exit status"} — refusing to build a report from possibly-stale results`);
+  process.exit(1);
+}
 
 const report = spawnSync(process.execPath, ["scripts/build-report.mjs"], { cwd: pkgDir, stdio: "inherit" });
 

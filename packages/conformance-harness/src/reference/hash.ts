@@ -5,7 +5,8 @@
  *   hash_input     = DOMAIN || 0x00 || schema_version || 0x00 || canonical_json(payload)
  *   content_hash   = SHA256(hash_input)
  *   proof_binding  = SHA256(intent_hash || milestone_revision(u32 BE) || evidence_root || policy_hash)
- *   settlement_key = SHA256(proof_binding || escrow_id || 0x00 || settlement_nonce(u64 BE))
+ *   settlement_key = SHA256("intent-protocol/v1/settlement-key" || 0x00 || outcome_receipt_hash[32]
+ *                           || UTF8(escrow_ref) || 0x00 || nonce(u64 BE))          [FROZEN @ e28a22e]
  *
  * Hashes rendered as `sha256:<64 lowercase hex>`.
  *
@@ -128,12 +129,42 @@ export function refProofBinding(p: {
   )}`;
 }
 
+/**
+ * SETTLEMENT KEY — FROZEN byte protocol (docs/TRUST-CHAIN.md @ e28a22e),
+ * implemented exactly:
+ *
+ *   settlement_key = SHA256(
+ *     "intent-protocol/v1/settlement-key"  (domain separation)
+ *     || 0x00
+ *     || outcome_receipt_hash  (32 bytes — the receipt IS the settlement
+ *                              authority; a raw decision / proof_binding is not)
+ *     || UTF8(escrow_ref)
+ *     || 0x00                  (explicit terminator before the fixed-width nonce)
+ *     || nonce                 (u64 BE, 8 bytes)
+ *   )
+ *
+ * The encoding is injective: the nonce is fixed-width and the byte 9 positions
+ * from the end is always the explicit 0x00 terminator, so escrow_ref always
+ * recovers exactly. Cross-checked against an independent Python implementation
+ * (scripts/kat-settlement-key.py) via the golden vector in
+ * vectors/settlement-key-vector.json. Any disagreement with the SUT is a
+ * finding; a wrong-but-sensitive key must still fail.
+ */
+const SETTLEMENT_KEY_DOMAIN = utf8("intent-protocol/v1/settlement-key");
+
 export function refSettlementKey(p: {
-  proof_binding: string;
-  escrow_id: string;
-  settlement_nonce: bigint | number;
+  outcome_receipt_hash: string;
+  escrow_ref: string;
+  nonce: bigint | number;
 }): string {
   return `sha256:${hex(
-    sha256(hashBytes32(p.proof_binding), utf8(p.escrow_id), SEP, refU64be(p.settlement_nonce)),
+    sha256(
+      SETTLEMENT_KEY_DOMAIN,
+      SEP,
+      hashBytes32(p.outcome_receipt_hash),
+      utf8(p.escrow_ref),
+      SEP,
+      refU64be(p.nonce),
+    ),
   )}`;
 }

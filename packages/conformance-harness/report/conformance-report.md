@@ -1,16 +1,16 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-18T04:04:07.828Z
+- Generated: 2026-09-18T07:32:34.544Z
 - SUT snapshot: captured 2026-09-17T14:25:58.822Z from git `d2ddb961` (zod 3.25.76)
-- Checks: **141 PASS / 19 FAIL / 25 UNKNOWN** (185 total)
-- Gate status: **NOT_READY** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 19 FAIL findings, 25 UNKNOWN entries; freeze blockers: 13 OPEN / 0 DISPOSITIONED.
+- Checks: **141 PASS / 31 FAIL / 25 UNKNOWN** (197 total)
+- Gate status: **NOT_READY** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 31 FAIL findings, 25 UNKNOWN entries; freeze blockers: 17 OPEN / 0 DISPOSITIONED.
 
 ## Area rollup
 
 | Area | Verdict | PASS | FAIL | UNKNOWN |
 |---|---|---|---|---|
 | C-01 | **FAIL** | 8 | 1 | 0 |
-| C-02 | **PASS** | 9 | 0 | 0 |
+| C-02 | **FAIL** | 8 | 1 | 0 |
 | C-03 | **PASS** | 6 | 0 | 0 |
 | C-04 | **PASS** | 10 | 0 | 0 |
 | C-05 | **FAIL** | 5 | 1 | 0 |
@@ -19,12 +19,12 @@
 | C-08 | **UNKNOWN** | 9 | 0 | 2 |
 | C-09 | **UNKNOWN** | 7 | 0 | 2 |
 | C-10 | **FAIL** | 7 | 1 | 1 |
-| C-11 | **PASS** | 6 | 0 | 0 |
+| C-11 | **FAIL** | 5 | 1 | 0 |
 | C-12 | **UNKNOWN** | 5 | 0 | 2 |
 | C-13 | **FAIL** | 48 | 2 | 1 |
 | C-14 | **UNKNOWN** | 2 | 0 | 9 |
 | C-15 | **UNKNOWN** | 3 | 0 | 5 |
-| SPEC-ASSERTIONS | **FAIL** | 3 | 14 | 0 |
+| SPEC-ASSERTIONS | **FAIL** | 5 | 24 | 0 |
 | SUT-LOAD | **UNKNOWN** | 5 | 0 | 1 |
 
 ## FAIL findings
@@ -33,6 +33,11 @@
 - Evidence: `packages/conformance-harness/test/01-canonical-determinism.test.ts`
 - Message: `AssertionError: expected [Function] to throw an error`
 - Reproduce: `npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t "C-01-07"`
+
+### C-02-09 — [C-02-09] settlementKey: SUT === independent reference over the FROZEN receipt-keyed preimage (TRUST-CHAIN @ e28a22e); differs per nonce/escrow
+- Evidence: `packages/conformance-harness/test/02-hash-determinism.test.ts`
+- Message: `AssertionError: SUT settlement_key must equal the frozen formula (domain-prefixed, receipt-keyed): expected 'sha256:860a859f4f0f9642a57b040eeb5119…' to be 'sha256:1ad5dccc9716edab0ade61804ff6ac…' // Object.is equality`
+- Reproduce: `npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t "C-02-09"`
 
 ### C-05-05 — [C-05-05] an object holding BOTH the NFC and NFD spelling of one key must not produce ambiguous canonical JSON
 - Evidence: `packages/conformance-harness/test/05-unicode-normalization.test.ts`
@@ -43,6 +48,11 @@
 - Evidence: `packages/conformance-harness/test/10-criterion-mutation.test.ts`
 - Message: `AssertionError: expected [Function] to not throw an error but 'CanonicalizationError: number must be…' was thrown`
 - Reproduce: `npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t "C-10-03"`
+
+### C-11-07 — [C-11-07] settlementKey idempotency and separation (double-spend key; FROZEN receipt-keyed preimage)
+- Evidence: `packages/conformance-harness/test/11-settlement-mutation.test.ts`
+- Message: `AssertionError: SUT settlement_key must equal the frozen formula (domain-prefixed, receipt-keyed): expected 'sha256:860a859f4f0f9642a57b040eeb5119…' to be 'sha256:1ad5dccc9716edab0ade61804ff6ac…' // Object.is equality`
+- Reproduce: `npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t "C-11-07"`
 
 ### C-13-05 — [C-13-05] FAIL: Timestamp regex accepts calendrically impossible RFC 3339 strings (month 13, day 45, hour 99)
 - Evidence: `packages/conformance-harness/test/13-malformed-references.test.ts`
@@ -124,6 +134,56 @@
 - Message: `AssertionError: expected [Function] to throw an error`
 - Reproduce: `npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t "S-SUM"`
 
+### S-MS-01 — [S-MS-01] MilestoneV1 exact wire: exported as MilestoneSchema, exact frozen field set, schema_version literal 'milestone.v1'
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: MilestoneSchema must be exported by the SUT under its EXACT frozen name (no alias resolution): expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-MS-01"`
+
+### S-MS-02 — [S-MS-02] MilestoneV1 rules: revision >= 1; criterion_ids non-empty, unique; allocation scale <= asset.decimals
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: MilestoneSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-MS-02"`
+
+### S-MS-03 — [S-MS-03] MilestoneV1 digest: every required field feeds it, criterion order is canonical, domain pinned to intent-protocol/v1/milestone, round-trip idempotent
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: MilestoneSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-MS-03"`
+
+### S-RCPT-01 — [S-RCPT-01] OutcomeReceiptV1 exact wire: exported as OutcomeReceiptSchema, exact frozen field set, literals 'outcome-receipt.v1' / 'ACCEPTED'
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name (no alias resolution, no ReceiptSchema fallback): expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-RCPT-01"`
+
+### S-RCPT-02 — [S-RCPT-02] decision_hashes MUST be non-empty, unique, strictly lexicographically ascending
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-RCPT-02"`
+
+### S-RCPT-03 — [S-RCPT-03] OutcomeReceiptV1 digest: every required field feeds it, domain pinned to intent-protocol/v1/outcome-receipt, round-trip idempotent
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-RCPT-03"`
+
+### S-GATE-01 — [S-GATE-01] Settlement exact wire: exact frozen field set carrying outcome_receipt_hash; decision_id / proof_binding are FORBIDDEN authority fields
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: exact wire: the field-name set must be EXACTLY the frozen set — no alias, no omission, no addition: expected Set{ 'schema_version', …(10) } to deeply equal Set{ 'schema_version', …(8) }`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-GATE-01"`
+
+### S-GATE-02 — [S-GATE-02] Settlement authorization is structurally receipt-gated: no receipt -> reject; raw decision authority -> reject
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: the superseded decision-gated wire (decision_id + proof_binding) must NOT parse under the frozen contract: expected [Function] to throw an error`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-GATE-02"`
+
+### S-GATE-03 — [S-GATE-03] Settlement frozen rules on the receipt-gated wire: one asset, scale <= decimals, total == exact sum
+- Evidence: `packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts`
+- Message: `AssertionError: control: exact-sum settlement must parse: expected [Function] to not throw an error but '[\n  {\n    "code": "invalid_type",\n…' was thrown`
+- Reproduce: `npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t "S-GATE-03"`
+
+### S-SKEY-02 — [S-SKEY-02] SUT === oracle === golden vector: a settlementKey implementing any other preimage FAILS
+- Evidence: `packages/conformance-harness/test/18-settlement-key.test.ts`
+- Message: `Error: SUT settlementKey does not accept the FROZEN receipt-keyed parameterization (outcome_receipt_hash, escrow_ref, nonce): malformed hash: undefined`
+- Reproduce: `npx vitest run packages/conformance-harness/test/18-settlement-key.test.ts -t "S-SKEY-02"`
+
 ## Freeze blockers (evidence-driven; must be DISPOSITIONED before G1)
 
 - **S-R9** [OPEN]: Commander ruling R9 (PROOF TARGET BINDING), 2026-09-17: V1 proof_binding MUST bind at least intent_hash + milestone_id + milestone_revision + evidence_root + policy_hash. A proof must prove the result belongs to THIS specific milestone. Not deferrable to S1. (evidence: S-R9)
@@ -139,6 +199,10 @@
 - **S-DEC** [OPEN]: Commander R-series + PR #3 round 5: canonical decimal is executable spec. (evidence: S-DEC)
 - **S-SUM** [OPEN]: Commander R-series + PR #3 round 5: settlement sum invariant is executable spec. (evidence: S-SUM)
 - **S-KEYNFC** [OPEN]: Commander OQ-1 / IPC-JSON-1 freeze, 2026-09-18: canonical profile named IPC-JSON-1; keys must already be NFC. (evidence: S-KEYNFC)
+- **S-MS** [OPEN]: Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): exact wire contracts are normative for G1; Milestone identity is (intent_hash, milestone_id, milestone_revision). (evidence: S-MS-01, S-MS-02, S-MS-03)
+- **S-RCPT** [OPEN]: Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): receipt wire/hash object and deterministic bindings are frozen in G1; formation logic is S1. (evidence: S-RCPT-01, S-RCPT-02, S-RCPT-03)
+- **S-GATE** [OPEN]: Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): settlement is authorized only from an accepted OutcomeReceipt; a raw VerificationDecision / proof_binding is never settlement authority. (evidence: S-GATE-01, S-GATE-02, S-GATE-03)
+- **S-SKEY** [OPEN]: Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): settlement idempotency key binds the receipt, with explicit 0x00 terminator before the fixed-width u64be nonce; same three-way discipline as R9. (evidence: S-SKEY-01, S-SKEY-02, S-SKEY-KAT)
 
 ## UNKNOWN (never auto-PASS)
 
@@ -229,6 +293,14 @@ total_amount != sum(outputs) parses; outputs are not bounded by any escrow notio
 ### AS-15 [high] proof_binding does not bind milestone_id (R9): cross-milestone proof replay
 proof_binding = H(intent_hash || milestone_revision || evidence_root || policy_hash) has no milestone_id in the preimage, and the delivered proofBinding() API cannot even receive one. Two distinct milestones sharing revision/intent/policy/evidence-root therefore share a single binding: a VALID decision for milestone A is a structurally valid proof for milestone B. Commander ruling R9 requires binding milestone_id in V1.
 - Grounded by: C-12-08
+
+### AS-16 [high] Delivered settlement authorization is decision-gated on the superseded wire
+The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2).
+- Grounded by: S-GATE-01, S-GATE-02, C-14-04
+
+### AS-17 [high] settlement_key implements the superseded preimage (no domain prefix, proof_binding-keyed)
+The frozen idempotency key is SHA256("intent-protocol/v1/settlement-key" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation.
+- Grounded by: S-SKEY-02, C-02-09, C-11-07
 
 ## Statement
 

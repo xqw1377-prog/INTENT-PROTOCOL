@@ -74,10 +74,13 @@ describe("[C-11] settlement mutation", () => {
 
 
 
-  test("[C-11-07] settlementKey idempotency and separation (double-spend key)", () => {
+  test("[C-11-07] settlementKey idempotency and separation (double-spend key; FROZEN receipt-keyed preimage)", () => {
     const p = { proof_binding: fakeHash("11"), escrow_id: "escrow:sim-0001", settlement_nonce: 7n };
     const k0 = settlementKey(p);
-    expect(k0).toBe(refSettlementKey({ ...p }));
+    // FROZEN formula (TRUST-CHAIN @ e28a22e): domain-prefixed, keyed by
+    // outcome_receipt_hash; the superseded proof_binding-keyed preimage FAILS here.
+    expect(k0, "SUT settlement_key must equal the frozen formula (domain-prefixed, receipt-keyed)")
+      .toBe(refSettlementKey({ outcome_receipt_hash: p.proof_binding, escrow_ref: p.escrow_id, nonce: p.settlement_nonce }));
     expect(settlementKey(p)).toBe(k0);
     expect(settlementKey({ ...p, settlement_nonce: 8n })).not.toBe(k0);
     expect(settlementKey({ ...p, escrow_id: "escrow:sim-0002" })).not.toBe(k0);

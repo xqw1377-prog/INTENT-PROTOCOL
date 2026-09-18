@@ -10,6 +10,14 @@
  * SettlementInstruction. Milestone / Plan / ExecutionRun / CapabilityGrant /
  * ContributionEdge / DisputeCase objects documented in the architecture doc
  * are NOT in the delivered snapshot and are covered as UNKNOWN entries.
+ *
+ * TRUST-CHAIN ROUND (Commander freeze docs/TRUST-CHAIN.md @ e28a22e, B-TC1..6):
+ * validMilestone / validOutcomeReceipt / validReceiptSettlement build objects
+ * on the FROZEN exact wire — exact field names, no aliases. The legacy
+ * validSettlement() KEEPS the old decision-gated wire on purpose: the legacy
+ * suites pin the old SUT's behavior, and S-GATE uses the contrast as the
+ * authority-boundary finding. Re-sync all legacy settlement fixtures when
+ * Builder A lands the receipt-gated wire.
  */
 import { createHash } from "node:crypto";
 import { refProofBinding } from "../reference/hash.js";
@@ -25,6 +33,7 @@ export const IDS = {
   bundle: "77777777-7777-4777-8777-777777777777",
   decision: "88888888-8888-4888-8888-888888888888",
   settlement: "99999999-9999-4999-8999-999999999999",
+  receipt: "aaaaaaa1-aaa1-4aa1-8aa1-aaaaaaaaaaa1",
 } as const;
 
 export const T0 = "2026-09-17T00:00:00.000Z";
@@ -34,6 +43,16 @@ const sha = (s: string): Hash => `sha256:${createHash("sha256").update(s).digest
 
 /** Deterministic fake `sha256:`-typed hash from a repeated hex char, for typed SUT calls. */
 export const fakeHash = (c: string): Hash => `sha256:${c.repeat(32)}` as Hash;
+
+/** Shared hash material for the trust-chain fixtures (fixed constants). */
+export const INTENT_HASH = `sha256:${"ab".repeat(32)}` as Hash;
+export const EVIDENCE_ROOT = `sha256:${"cd".repeat(32)}` as Hash;
+export const SETTLEMENT_POLICY_HASH = sha("settlement-policy:conformance-v1") as Hash;
+/** Strictly lexicographically ascending pair ("11.." < "22..") for decision_hashes. */
+export const DECISION_HASH_1 = fakeHash("11");
+export const DECISION_HASH_2 = fakeHash("22");
+/** Arbitrary fixed receipt commitment used as the settlement authorization input. */
+export const RECEIPT_HASH = fakeHash("ac");
 
 /** Deterministic, obviously-fake artifact byte hashes. */
 export const RAW_ARTIFACTS = {
@@ -156,6 +175,56 @@ export function validSettlement(overrides: Record<string, unknown> = {}): Record
     nonce: "7",
     outputs: [
       { recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "300", reason: "milestone payout" },
+    ],
+    total_amount: "300",
+    ...overrides,
+  };
+}
+
+// ---------------------------------------------------- Trust chain (FROZEN wire, @ e28a22e)
+
+/** MilestoneV1 on the frozen exact wire — these EXACT names, no aliases allowed. */
+export function validMilestone(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    schema_version: "milestone.v1",
+    milestone_id: IDS.milestone,
+    intent_hash: INTENT_HASH,
+    milestone_revision: 1,
+    criterion_ids: ["crit-tests", "crit-report"], // non-empty, unique, order-significant
+    verification_policy_hash: POLICY_HASH,
+    settlement_policy_hash: SETTLEMENT_POLICY_HASH,
+    allocation: { asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "300" },
+    ...overrides,
+  };
+}
+
+/** OutcomeReceiptV1 on the frozen exact wire (G1 freezes the commitment structure only). */
+export function validOutcomeReceipt(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    schema_version: "outcome-receipt.v1",
+    receipt_id: IDS.receipt,
+    intent_hash: INTENT_HASH,
+    milestone_id: IDS.milestone,
+    milestone_revision: 1,
+    evidence_root: EVIDENCE_ROOT,
+    verification_policy_hash: POLICY_HASH,
+    decision_hashes: [DECISION_HASH_1, DECISION_HASH_2], // non-empty, unique, strictly ascending
+    accepted_result: "ACCEPTED",
+    issued_at: T1,
+    ...overrides,
+  };
+}
+
+/** SettlementInstructionV1 on the frozen receipt-gated wire: authorized ONLY by outcome_receipt_hash. */
+export function validReceiptSettlement(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    schema_version: "settlement.v1",
+    settlement_id: IDS.settlement,
+    escrow_ref: "escrow:sim-0001",
+    outcome_receipt_hash: RECEIPT_HASH,
+    nonce: "7",
+    outputs: [
+      { recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "300", reason: "receipt-gated payout" },
     ],
     total_amount: "300",
     ...overrides,
