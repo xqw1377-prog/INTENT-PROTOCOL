@@ -30,7 +30,7 @@ Any of:
 
 ## Cross-language implementers
 
-- Serialization: UTF-16-sorted keys, NFC strings, JSON.stringify escape set, **integers only** (reject non-safe-integers; Decimal/u64 as strings). This is RFC 8785 minus floating-point.
-- Hash: SHA-256 over `DOMAIN || 0x00 || schema_version || 0x00 || canonical_utf8`.
-- Render: `sha256:<64 lowercase hex>`.
+- Serialization: **IPC-JSON-1** — UTF-16-sorted keys that must already be NFC, NFC-normalized string values, JSON.stringify escape set, **integers only** (reject non-safe-integers, `-0`, unpaired surrogates; Decimal/u64 as strings). This is a closed profile, NOT RFC 8785 (ADR-S0-001, R13).
+- Hash: SHA-256 over `DOMAIN || 0x00 || schema_version || 0x00 || ipc_json_1_utf8`.
+- Render: `sha256:<64 lowercase hex>`; UUIDs lowercase hyphenated; Decimals canonical non-negative.
 - Conformance target: byte-identical output on `fixtures/golden-vectors.json`.

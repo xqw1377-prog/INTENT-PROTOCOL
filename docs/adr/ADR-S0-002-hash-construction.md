@@ -7,9 +7,11 @@
 ## Decision
 
 ```
-hash_input     = DOMAIN || 0x00 || schema_version || 0x00 || canonical_json(payload)
+hash_input     = DOMAIN || 0x00 || schema_version || 0x00 || ipc_json_1(payload)
 content_hash   = SHA256(hash_input)                     → "sha256:<64hex>"
-proof_binding  = SHA256(intent_hash || rev_u32be || evidence_root || policy_hash)
+proof_binding  = SHA256("intent-protocol/v1/proof-binding" || 0x00 ||
+                        intent_hash || milestone_id || rev_u32be ||
+                        bundle_id || evidence_root || policy_hash)
 settlement_key = SHA256(proof_binding || escrow_id || 0x00 || nonce_u64be)
 ```
 
@@ -27,7 +29,7 @@ node  = SHA256("intent-protocol/v1/merkle-node" || 0x00 || left || right)
 ## Rationale
 
 - Every preimage carries a domain + schema_version so objects of different kinds/versions can never collide (§6.1 requirement).
-- `proof_binding` binds a decision to one frozen intent version + milestone revision + evidence root + policy hash — an old proof cannot be replayed onto a new target (§17 Proof Replay).
+- `proof_binding` binds a decision to the frozen intent version + the **milestone identity** (id + revision) + the **bundle identity** (id + evidence root) + policy hash (Commander R9 — binding identity, not just revision/root, closes the cross-object replay hole). An old proof cannot be replayed onto a new milestone or a different bundle of identical content (§17 Proof Replay).
 - `settlement_key` is the on-chain/off-chain idempotency key; the same instruction can never produce two releases (§17 Double Spend, ADR-011).
 
 ## Consequences

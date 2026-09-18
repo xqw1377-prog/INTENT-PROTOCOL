@@ -147,7 +147,7 @@
         "bundle_id": "00000000-0000-4000-8000-000000000003",
         "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
         "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
-        "proof_binding": "sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
         "result": "VALID",
         "reason_codes": [
           "TESTS_PASS",
@@ -156,8 +156,8 @@
         "replay_digest": "sha256:a135800a1cb297a5a8ef88cb4e52908c37007abaac8abc886572f6651d3e79b3",
         "decided_at": "2026-09-17T00:00:00.000Z"
       },
-      "canonical": "{\"bundle_id\":\"00000000-0000-4000-8000-000000000003\",\"decided_at\":\"2026-09-17T00:00:00.000Z\",\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"evidence_root\":\"sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc\",\"intent_hash\":\"sha256:bea69ccf7301da5bda253bc7c9e0f88b4bd9fbed650247e47fc52d62958d5b7c\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"milestone_revision\":1,\"policy_hash\":\"sha256:00000000000000000000000000000000000000000000000000000000000000a0\",\"proof_binding\":\"sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d\",\"reason_codes\":[\"TESTS_PASS\",\"DEPLOY_REACHABLE\"],\"replay_digest\":\"sha256:a135800a1cb297a5a8ef88cb4e52908c37007abaac8abc886572f6651d3e79b3\",\"result\":\"VALID\",\"schema_version\":\"decision.v1\",\"verifier_digest\":\"sha256:00000000000000000000000000000000000000000000000000000000000000c0\",\"verifier_id\":\"verifier:ci-verifier@1\"}",
-      "content_hash": "sha256:5d9fdbafd45da46de0e7452bffc2bd25f1b97258b7ec76c38dca3054cf4c9bcb"
+      "canonical": "{\"bundle_id\":\"00000000-0000-4000-8000-000000000003\",\"decided_at\":\"2026-09-17T00:00:00.000Z\",\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"evidence_root\":\"sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc\",\"intent_hash\":\"sha256:bea69ccf7301da5bda253bc7c9e0f88b4bd9fbed650247e47fc52d62958d5b7c\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"milestone_revision\":1,\"policy_hash\":\"sha256:00000000000000000000000000000000000000000000000000000000000000a0\",\"proof_binding\":\"sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc\",\"reason_codes\":[\"TESTS_PASS\",\"DEPLOY_REACHABLE\"],\"replay_digest\":\"sha256:a135800a1cb297a5a8ef88cb4e52908c37007abaac8abc886572f6651d3e79b3\",\"result\":\"VALID\",\"schema_version\":\"decision.v1\",\"verifier_digest\":\"sha256:00000000000000000000000000000000000000000000000000000000000000c0\",\"verifier_id\":\"verifier:ci-verifier@1\"}",
+      "content_hash": "sha256:dcdadb4f413af4adad0914e2c14f95c34d990dfddfb8426674a747c7b0beb65e"
     },
     {
       "name": "settlement-instruction-v1",
@@ -168,7 +168,7 @@
         "escrow_ref": "escrow:0xabc123",
         "milestone_id": "00000000-0000-4000-8000-000000000002",
         "decision_id": "00000000-0000-4000-8000-000000000004",
-        "proof_binding": "sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
         "nonce": "0",
         "outputs": [
           {
@@ -195,8 +195,8 @@
         "total_amount": "1650",
         "expires_at": "2026-11-01T00:00:00.000Z"
       },
-      "canonical": "{\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"escrow_ref\":\"escrow:0xabc123\",\"expires_at\":\"2026-11-01T00:00:00.000Z\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"nonce\":\"0\",\"outputs\":[{\"amount\":\"1500\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"milestone-1 completion\",\"recipient\":\"agent:executor_01\"},{\"amount\":\"150\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"settlement fee 10%\",\"recipient\":\"org:platform\"}],\"proof_binding\":\"sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d\",\"schema_version\":\"settlement.v1\",\"settlement_id\":\"00000000-0000-4000-8000-000000000005\",\"total_amount\":\"1650\"}",
-      "content_hash": "sha256:1bf7eff53c49e4709768757d1ddb83128eb1ac95b6ac247484272c1ebfe8554c"
+      "canonical": "{\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"escrow_ref\":\"escrow:0xabc123\",\"expires_at\":\"2026-11-01T00:00:00.000Z\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"nonce\":\"0\",\"outputs\":[{\"amount\":\"1500\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"milestone-1 completion\",\"recipient\":\"agent:executor_01\"},{\"amount\":\"150\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"settlement fee 10%\",\"recipient\":\"org:platform\"}],\"proof_binding\":\"sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc\",\"schema_version\":\"settlement.v1\",\"settlement_id\":\"00000000-0000-4000-8000-000000000005\",\"total_amount\":\"1650\"}",
+      "content_hash": "sha256:1436fac8d6711be9afae27763f4a03f39ba52d1bed712ade07559963b9e33c51"
     },
     {
       "name": "settlement-fractional-decimal",
@@ -207,7 +207,7 @@
         "escrow_ref": "escrow:0xabc123",
         "milestone_id": "00000000-0000-4000-8000-000000000002",
         "decision_id": "00000000-0000-4000-8000-000000000004",
-        "proof_binding": "sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
         "nonce": "0",
         "outputs": [
           {
@@ -234,14 +234,14 @@
         "total_amount": "0.03",
         "expires_at": "2026-11-01T00:00:00.000Z"
       },
-      "canonical": "{\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"escrow_ref\":\"escrow:0xabc123\",\"expires_at\":\"2026-11-01T00:00:00.000Z\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"nonce\":\"0\",\"outputs\":[{\"amount\":\"0.01\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"a\",\"recipient\":\"agent:executor_01\"},{\"amount\":\"0.02\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"b\",\"recipient\":\"org:platform\"}],\"proof_binding\":\"sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d\",\"schema_version\":\"settlement.v1\",\"settlement_id\":\"00000000-0000-4000-8000-000000000005\",\"total_amount\":\"0.03\"}",
-      "content_hash": "sha256:00a1213f6284a5027dbbdf423c9e042211b6869c628e899ff1940001f1b2186a"
+      "canonical": "{\"decision_id\":\"00000000-0000-4000-8000-000000000004\",\"escrow_ref\":\"escrow:0xabc123\",\"expires_at\":\"2026-11-01T00:00:00.000Z\",\"milestone_id\":\"00000000-0000-4000-8000-000000000002\",\"nonce\":\"0\",\"outputs\":[{\"amount\":\"0.01\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"a\",\"recipient\":\"agent:executor_01\"},{\"amount\":\"0.02\",\"asset\":{\"asset\":\"0xUSDC\",\"decimals\":6,\"network\":\"evm:8453\"},\"reason\":\"b\",\"recipient\":\"org:platform\"}],\"proof_binding\":\"sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc\",\"schema_version\":\"settlement.v1\",\"settlement_id\":\"00000000-0000-4000-8000-000000000005\",\"total_amount\":\"0.03\"}",
+      "content_hash": "sha256:95b494cf30ae6301477bbc9e713ec5d6d33d0f127d502e9224f1238a0716efdb"
     }
   ],
   "derived": {
     "bundle_merkle_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
-    "decision_proof_binding": "sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d",
-    "settlement_key": "sha256:cf5965a6c94b4923aafa863943d76f4331d7d1e9a188de008c9f8e587259d95e"
+    "decision_proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
+    "settlement_key": "sha256:b1364418403dafb2296aa0900512e6e4e505b5d5ae229d0d6cddb3fca380901b"
   },
   "equivalence": [
     {
@@ -1094,7 +1094,7 @@
         "escrow_ref": "escrow:0xabc123",
         "milestone_id": "00000000-0000-4000-8000-000000000002",
         "decision_id": "00000000-0000-4000-8000-000000000004",
-        "proof_binding": "sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
         "nonce": "0",
         "outputs": [
           {
@@ -1131,7 +1131,7 @@
         "escrow_ref": "escrow:0xabc123",
         "milestone_id": "00000000-0000-4000-8000-000000000002",
         "decision_id": "00000000-0000-4000-8000-000000000004",
-        "proof_binding": "sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
         "nonce": "0",
         "outputs": [
           {
@@ -1195,7 +1195,7 @@
         "bundle_id": "00000000-0000-4000-8000-000000000003",
         "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
         "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0",
-        "proof_binding": "sha256:40f680ef77b4005037d695999d463ca33812a0f0ee3e30fec06f960a3b0bd39d",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
         "result": "VALID",
         "reason_codes": [
           "TESTS_PASS",
@@ -1213,6 +1213,270 @@
         "é": 2
       },
       "expect": "canonical_error"
+    },
+    {
+      "name": "unpaired-surrogate-value",
+      "raw": {
+        "s": "x\udfffy"
+      },
+      "expect": "canonical_error"
+    },
+    {
+      "name": "unpaired-surrogate-key",
+      "raw": {
+        "x\ud800y": 1
+      },
+      "expect": "canonical_error"
+    },
+    {
+      "name": "uppercase-uuid",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-00000000000A",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000",
+          "execution_cap": "2000"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "non-hyphenated-uuid",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000000040008000000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "20000",
+          "execution_cap": "2000"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "multi-asset-settlement",
+      "input": {
+        "schema_version": "settlement.v1",
+        "settlement_id": "00000000-0000-4000-8000-000000000005",
+        "escrow_ref": "escrow:0xabc123",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "decision_id": "00000000-0000-4000-8000-000000000004",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
+        "nonce": "0",
+        "outputs": [
+          {
+            "recipient": "agent:executor_01",
+            "asset": {
+              "network": "evm:8453",
+              "asset": "0xUSDC",
+              "decimals": 6
+            },
+            "amount": "1500",
+            "reason": "a"
+          },
+          {
+            "recipient": "org:platform",
+            "asset": {
+              "network": "fiat:USD",
+              "asset": "USD",
+              "decimals": 2
+            },
+            "amount": "150",
+            "reason": "b"
+          }
+        ],
+        "total_amount": "1650",
+        "expires_at": "2026-11-01T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "amount-scale-exceeds-asset-decimals",
+      "input": {
+        "schema_version": "settlement.v1",
+        "settlement_id": "00000000-0000-4000-8000-000000000005",
+        "escrow_ref": "escrow:0xabc123",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "decision_id": "00000000-0000-4000-8000-000000000004",
+        "proof_binding": "sha256:24ffb09546abc45143e669ca48cbdf5f8db6210d831bbba407be45fe96ba76bc",
+        "nonce": "0",
+        "outputs": [
+          {
+            "recipient": "agent:executor_01",
+            "asset": {
+              "network": "evm:8453",
+              "asset": "0xUSDC",
+              "decimals": 6
+            },
+            "amount": "0.0000001",
+            "reason": "a"
+          }
+        ],
+        "total_amount": "0.0000001",
+        "expires_at": "2026-11-01T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
+    },
+    {
+      "name": "execution-cap-over-total",
+      "input": {
+        "schema_version": "intent.v1",
+        "intent_id": "00000000-0000-4000-8000-000000000001",
+        "version": 1,
+        "owner_subject": "user:alice",
+        "goal": {
+          "statement": "Launch a restaurant menu diagnosis agent",
+          "target_state": "30 real merchants onboarded with diagnosis reports",
+          "domain": "software-delivery"
+        },
+        "success_criteria": [
+          {
+            "schema_version": "criterion.v1",
+            "criterion_id": "crit-tests",
+            "kind": "MACHINE",
+            "assertion": "required test suite passes 30/30 after target commit",
+            "verifier_ref": "verifier:ci-verifier@1",
+            "evidence_requirements": [
+              {
+                "kind": "ci-run",
+                "min_level": "E2",
+                "source": "github-actions",
+                "required": true
+              }
+            ],
+            "threshold": {
+              "passed": 30,
+              "total": 30
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "constraint_id": "c1",
+            "kind": "FORBIDDEN_ACTION",
+            "statement": "never touch merchant payment keys"
+          }
+        ],
+        "budget": {
+          "asset": {
+            "network": "evm:8453",
+            "asset": "0xUSDC",
+            "decimals": 6
+          },
+          "total": "100",
+          "execution_cap": "100.01"
+        },
+        "deadline": "2026-10-17T00:00:00.000Z",
+        "verification_policy_ref": {
+          "uri": "policy://software-delivery/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+        },
+        "settlement_policy_ref": {
+          "uri": "policy://milestone-escrow/v1",
+          "hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a1"
+        },
+        "created_at": "2026-09-17T00:00:00.000Z"
+      },
+      "expect": "schema_parse_error"
     },
     {
       "name": "sealed-bundle-without-merkle-root",
@@ -1598,14 +1862,38 @@
       "name": "tampered-evidence-root-changes-proof-binding",
       "base": {
         "intent_hash": "sha256:bea69ccf7301da5bda253bc7c9e0f88b4bd9fbed650247e47fc52d62958d5b7c",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
         "milestone_revision": 1,
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
         "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
         "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
       },
       "mutated": {
         "intent_hash": "sha256:bea69ccf7301da5bda253bc7c9e0f88b4bd9fbed650247e47fc52d62958d5b7c",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
         "milestone_revision": 1,
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
         "evidence_root": "sha256:000000000000000000000000000000000000000000000000000000000000beef",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+      },
+      "expect": "different digest"
+    },
+    {
+      "name": "different-milestone-or-bundle-id-changes-proof-binding (R9)",
+      "base": {
+        "intent_hash": "sha256:bea69ccf7301da5bda253bc7c9e0f88b4bd9fbed650247e47fc52d62958d5b7c",
+        "milestone_id": "00000000-0000-4000-8000-000000000002",
+        "milestone_revision": 1,
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
+        "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
+      },
+      "mutated": {
+        "intent_hash": "sha256:bea69ccf7301da5bda253bc7c9e0f88b4bd9fbed650247e47fc52d62958d5b7c",
+        "milestone_id": "00000000-0000-4000-8000-000000000007",
+        "milestone_revision": 1,
+        "bundle_id": "00000000-0000-4000-8000-000000000003",
+        "evidence_root": "sha256:96f38933da786a0454f159c5ee9e6e80361dee3341b457d7065d06ddab5275dc",
         "policy_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000a0"
       },
       "expect": "different digest"

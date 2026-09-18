@@ -3,7 +3,8 @@ import { HASH_RE, type Hash } from "./hash.js";
 
 /** `sha256:<64 hex>` — parses to the branded `Hash` template type. */
 export const HashSchema = z.string().regex(HASH_RE, "expected sha256:<64 lowercase hex>").transform((s) => s as Hash);
-export const UUIDSchema = z.string().uuid();
+/** UUID in canonical form: lowercase hex, standard hyphenated 8-4-4-4-12 (R11). */
+export const UUIDSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/, "expected lowercase hyphenated UUID");
 /** RFC 3339 UTC timestamp with millisecond precision and a real calendar date, e.g. 2026-09-17T00:00:00.000Z */
 export const TimestampSchema = z.string()
   .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "expected ISO-8601 UTC ms timestamp")

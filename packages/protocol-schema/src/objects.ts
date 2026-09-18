@@ -44,6 +44,22 @@ export function decimalSum(amounts: readonly string[]): string {
   return frac ? `${int}.${frac}` : int;
 }
 
+/** Fractional-digit count of a canonical decimal ("0.01" → 2, "10" → 0). */
+export function decimalScale(a: string): number {
+  return a.split(".")[1]?.length ?? 0;
+}
+
+/** Exact comparison of two canonical decimals via scaled BigInt (no floats). Returns -1 | 0 | 1. */
+export function decimalCompare(a: string, b: string): number {
+  const scale = Math.max(decimalScale(a), decimalScale(b));
+  const toInt = (v: string) => {
+    const [i, f = ""] = v.split(".");
+    return BigInt(i! + f.padEnd(scale, "0"));
+  };
+  const d = toInt(a) - toInt(b);
+  return d < 0n ? -1 : d > 0n ? 1 : 0;
+}
+
 // ---------------------------------------------------------------- CriterionV1
 
 export const EvidenceRuleSchema = z.object({
@@ -86,7 +102,17 @@ export const BudgetSpecSchema = z.object({
   total: DecimalSchema,
   /** Hard cap for model/tool/API spend inside the total. */
   execution_cap: DecimalSchema,
-}).strict();
+}).strict().superRefine((v, ctx) => {
+  // R12: cap never exceeds total; amount scale never exceeds asset decimals.
+  if (decimalCompare(v.execution_cap, v.total) > 0) {
+    ctx.addIssue({ code: "custom", message: "execution_cap exceeds total", path: ["execution_cap"] });
+  }
+  for (const [k, amt] of [["total", v.total], ["execution_cap", v.execution_cap]] as const) {
+    if (decimalScale(amt) > v.asset.decimals) {
+      ctx.addIssue({ code: "custom", message: `${k} has more fractional digits than asset.decimals`, path: [k] });
+    }
+  }
+});
 
 export const IntentContractSchema = z.object({
   schema_version: z.literal("intent.v1"),
@@ -198,7 +224,9 @@ export const VerificationDecisionSchema = z.object({
   // Commander ruling: proof_binding must recompute exactly from the object's own fields.
   const recomputed = proofBinding({
     intent_hash: v.intent_hash,
+    milestone_id: v.milestone_id,
     milestone_revision: v.milestone_revision,
+    bundle_id: v.bundle_id,
     evidence_root: v.evidence_root,
     policy_hash: v.policy_hash,
   });
@@ -231,9 +259,27 @@ export const SettlementInstructionSchema = z.object({
   expires_at: TimestampSchema.optional(),
   content_hash: HashSchema.optional(),
 }).strict().superRefine((v, ctx) => {
-  // Commander ruling: total_amount must be the EXACT decimal sum of outputs (no floats).
+  // R5: total_amount must be the EXACT decimal sum of outputs (no floats).
   if (decimalSum(v.outputs.map((o) => o.amount)) !== v.total_amount) {
     ctx.addIssue({ code: "custom", message: "total_amount does not equal exact sum of outputs", path: ["total_amount"] });
+  }
+  // R12: V1 settlement is single-asset; every output must reference the same asset triple.
+  const assetKey = (a: { network: string; asset: string; decimals: number }) => `${a.network}|${a.asset}|${a.decimals}`;
+  const first = assetKey(v.outputs[0]!.asset);
+  for (const [i, o] of v.outputs.entries()) {
+    if (assetKey(o.asset) !== first) {
+      ctx.addIssue({ code: "custom", message: "multi-asset settlement is not allowed in V1", path: ["outputs", i, "asset"] });
+    }
+  }
+  // R12: amount scale may not exceed asset decimals (unit closure).
+  const maxScale = v.outputs[0]!.asset.decimals;
+  for (const [i, o] of v.outputs.entries()) {
+    if (decimalScale(o.amount) > maxScale) {
+      ctx.addIssue({ code: "custom", message: "amount has more fractional digits than asset.decimals", path: ["outputs", i, "amount"] });
+    }
+  }
+  if (decimalScale(v.total_amount) > maxScale) {
+    ctx.addIssue({ code: "custom", message: "total_amount has more fractional digits than asset.decimals", path: ["total_amount"] });
   }
 });
 export type SettlementInstruction = z.infer<typeof SettlementInstructionSchema>;

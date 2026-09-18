@@ -64,7 +64,9 @@ describe("golden vectors — valid", () => {
     expect(merkleRoot(bundle.artifact_hashes)).toBe(bundle.merkle_root);
     expect(proofBinding({
       intent_hash: decision.intent_hash,
+      milestone_id: decision.milestone_id,
       milestone_revision: decision.milestone_revision,
+      bundle_id: decision.bundle_id,
       evidence_root: decision.evidence_root,
       policy_hash: decision.policy_hash,
     })).toBe(GOLDEN.derived.decision_proof_binding);
@@ -110,7 +112,9 @@ describe("golden vectors — negative", () => {
         case "binding_mismatch":
           expect(proofBinding({
             intent_hash: v.input.intent_hash,
+            milestone_id: v.input.milestone_id,
             milestone_revision: v.input.milestone_revision,
+            bundle_id: v.input.bundle_id,
             evidence_root: v.input.evidence_root,
             policy_hash: v.input.policy_hash,
           })).not.toBe(v.input.proof_binding);

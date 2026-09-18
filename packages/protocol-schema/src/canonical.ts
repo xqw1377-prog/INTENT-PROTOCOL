@@ -1,19 +1,24 @@
 /**
- * Canonical JSON (ADR-005).
+ * IPC-JSON-1 — the canonical JSON profile of Intent Protocol (ADR-005, Commander R13).
  *
- * Frozen rules — changing any of these is a protocol-breaking change:
- *  1. Object keys are sorted by UTF-16 code unit order (RFC 8785 / JCS compatible).
+ * This is NOT RFC 8785 / JCS and must not be described as "JCS compatible": it is
+ * stricter (integers only, NFC-required keys, no unpaired surrogates). Frozen rules —
+ * changing any of these is a protocol-breaking change:
+ *
+ *  1. Object keys are sorted by raw UTF-16 code unit order.
  *  2. Keys whose value is `undefined` are omitted; `null` is preserved.
- *  3. String VALUES are NFC-normalized before escaping per JSON.stringify
- *     (only `"`, `\` and control chars are escaped; control chars use lowercase `\uXXXX`).
- *     Keys are compared in raw UTF-16 order and emitted verbatim.
+ *  3. String VALUES are NFC-normalized, then escaped per JSON.stringify
+ *     (only `"`, `\` and control chars escaped; control chars use lowercase `\uXXXX`).
  *  4. Numbers MUST be safe integers (|n| <= 2^53-1). Floats, NaN, Infinity and -0 are rejected;
  *     monetary and decimal values MUST be carried as strings (see `Decimal`).
  *  5. Keys must already be NFC: a key whose NFC normalization differs from itself is REJECTED
- *     (never normalized, never merged). Values are NFC-normalized.
- *  6. Arrays preserve order.
- *  7. No whitespace.
+ *     (never normalized, never merged).
+ *  6. Unpaired UTF-16 surrogates are REJECTED in both keys and values.
+ *  7. Arrays preserve order.
+ *  8. No whitespace.
  */
+
+export const CANONICAL_PROFILE = "IPC-JSON-1";
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue | undefined };
@@ -23,6 +28,25 @@ export class CanonicalizationError extends Error {
     super(`${message} at ${path || "$"}`);
     this.name = "CanonicalizationError";
   }
+}
+
+/** True if the string contains an unpaired UTF-16 surrogate. */
+function hasLoneSurrogate(s: string): boolean {
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c >= 0xd800 && c <= 0xdbff) {
+      const next = s.charCodeAt(i + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) { i++; continue; }
+      return true;
+    }
+    if (c >= 0xdc00 && c <= 0xdfff) return true;
+  }
+  return false;
+}
+
+function checkKey(k: string, path: string): void {
+  if (hasLoneSurrogate(k)) throw new CanonicalizationError("unpaired surrogate in object key", path);
+  if (k.normalize("NFC") !== k) throw new CanonicalizationError("object key is not NFC-normalized", path);
 }
 
 export function canonicalize(value: unknown): string {
@@ -37,6 +61,7 @@ function serialize(value: unknown, path: string): string {
   if (value === null) return "null";
   switch (typeof value) {
     case "string":
+      if (hasLoneSurrogate(value)) throw new CanonicalizationError("unpaired surrogate in string value", path);
       return JSON.stringify(value.normalize("NFC"));
     case "boolean":
       return value ? "true" : "false";
@@ -63,13 +88,9 @@ function serialize(value: unknown, path: string): string {
   const keys = Object.keys(obj)
     .filter((k) => obj[k] !== undefined)
     .sort(compareUtf16);
-  // Two distinct spellings may normalize to the same NFC key — that would make the
-  // canonical form ambiguous, so reject rather than pick a winner.
   // Keys must already be NFC — a non-NFC key would collide-or-split field
-  // identity, so reject it rather than normalize (Commander ruling).
-  for (const k of keys) {
-    if (k.normalize("NFC") !== k) throw new CanonicalizationError("object key is not NFC-normalized", path);
-  }
+  // identity, so reject it rather than normalize (Commander ruling R1).
+  for (const k of keys) checkKey(k, path);
   const parts = keys.map((k) => `${JSON.stringify(k)}:${serialize(obj[k], path ? `${path}.${k}` : k)}`);
   return `{${parts.join(",")}}`;
 }
