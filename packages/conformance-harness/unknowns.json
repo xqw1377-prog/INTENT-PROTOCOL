@@ -82,7 +82,7 @@
     },
     "C-14-04": {
       "kind": "gap_documented",
-      "rationale": "Settlement may reference a dangling decision_id and arbitrary proof_binding.",
+      "rationale": "The SUPERSEDED decision-gated settlement wire permits a dangling decision_id and arbitrary proof_binding (demonstrated against the delivered SUT via the negative sample). The frozen receipt-gated wire forbids these authority fields entirely; see S-GATE-AUTH. Cross-object referential existence is separately deferred to S1.",
       "blocked_by": "settlement gate undelivered",
       "freeze_blocking": false,
       "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
@@ -220,25 +220,43 @@
       "rationale": "IPC-JSON-1 R3: object keys must ALREADY be in Normalization Form C; non-NFC keys are rejected, never silently normalized (silent normalization created duplicate-key ambiguity).",
       "commander_ruling": "Commander OQ-1 / IPC-JSON-1 freeze, 2026-09-18: canonical profile named IPC-JSON-1; keys must already be NFC."
     },
-    "S-MS": {
+    "S-MS-WIRE": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "MilestoneV1 EXACT WIRE (B-TC1): exported as MilestoneSchema; field-name set EXACTLY {schema_version, milestone_id, intent_hash, milestone_revision, criterion_ids, verification_policy_hash, settlement_policy_hash, allocation, content_hash?, signature?}; literal 'milestone.v1'; revision >= 1; criterion_ids non-empty/unique/order-significant; allocation scale <= asset.decimals; every required field feeds the digest; domain pinned to intent-protocol/v1/milestone; seal round-trip idempotent. Semantic aliases are not conforming.",
-      "commander_ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): exact wire contracts are normative for G1; Milestone identity is (intent_hash, milestone_id, milestone_revision)."
+      "rationale": "MilestoneV1 EXACT WIRE (B-TC1): exported as MilestoneSchema under its EXACT frozen name; field-name set EXACTLY {schema_version, milestone_id, intent_hash, milestone_revision, criterion_ids, verification_policy_hash, settlement_policy_hash, allocation, content_hash?, signature?}; literal 'milestone.v1'; alias/unknown fields rejected; revision >= 1; criterion_ids non-empty and unique; allocation scale <= asset.decimals.",
+      "commander_ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): exact wire contracts are normative for G1; semantic aliases are not conforming; Milestone identity is (intent_hash, milestone_id, milestone_revision)."
     },
-    "S-RCPT": {
+    "S-MS-HASH": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "OutcomeReceiptV1 EXACT WIRE (B-TC2): exported as OutcomeReceiptSchema; field-name set EXACTLY {schema_version, receipt_id, intent_hash, milestone_id, milestone_revision, evidence_root, verification_policy_hash, decision_hashes, accepted_result, issued_at, content_hash?, signature?}; literals 'outcome-receipt.v1' / 'ACCEPTED'; decision_hashes non-empty, unique, strictly lexicographically ascending; every required field feeds the digest; domain pinned to intent-protocol/v1/outcome-receipt; seal round-trip idempotent. A receipt is the protocol-accepted outcome; a decision is only a verifier assertion.",
+      "rationale": "MilestoneV1 DIGEST RULES (B-TC1): every required field feeds content_hash; criterion_ids array order is canonical (swapping changes the digest); domain pinned byte-exactly to intent-protocol/v1/milestone over milestone.v1 against the independent reference; seal -> JSON round-trip -> re-seal idempotent; wrong declared hash rejected.",
+      "commander_ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): changing any required field changes the object digest."
+    },
+    "S-RCPT-WIRE": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "OutcomeReceiptV1 EXACT WIRE (B-TC2): exported as OutcomeReceiptSchema under its EXACT frozen name (no ReceiptSchema fallback); field-name set EXACTLY {schema_version, receipt_id, intent_hash, milestone_id, milestone_revision, evidence_root, verification_policy_hash, decision_hashes, accepted_result, issued_at, content_hash?, signature?}; literals 'outcome-receipt.v1' and 'ACCEPTED'; alias/unknown fields rejected.",
       "commander_ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): receipt wire/hash object and deterministic bindings are frozen in G1; formation logic is S1."
     },
-    "S-GATE": {
+    "S-RCPT-SET": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
-      "rationale": "SETTLEMENT IS RECEIPT-GATED (B-TC3): SettlementInstructionV1 must carry EXACTLY {schema_version, settlement_id, escrow_ref, outcome_receipt_hash, nonce, outputs, total_amount, expires_at?, content_hash?}; the authority fields decision_id and proof_binding are FORBIDDEN and unrepresentable; a settlement without outcome_receipt_hash is rejected; the superseded decision-gated wire must NOT parse; one-asset/scale/exact-sum rules hold on the receipt-gated wire.",
+      "rationale": "OutcomeReceiptV1 DECISION SET RULES (B-TC2): decision_hashes must be non-empty, unique, and strictly lexicographically ascending; empty, duplicate, or descending sets are rejected.",
+      "commander_ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): duplicates or non-sorted decision_hashes are invalid; the set is the deterministic accepted-decision commitment."
+    },
+    "S-RCPT-HASH": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "OutcomeReceiptV1 DIGEST RULES (B-TC2): every required field feeds content_hash; domain pinned byte-exactly to intent-protocol/v1/outcome-receipt over outcome-receipt.v1 against the independent reference; seal -> JSON round-trip -> re-seal idempotent; wrong declared hash rejected.",
+      "commander_ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): changing any required field changes the object digest."
+    },
+    "S-GATE-AUTH": {
+      "kind": "spec_asserted",
+      "freeze_blocking": true,
+      "rationale": "SETTLEMENT IS RECEIPT-GATED (B-TC3): SettlementInstructionV1 field set EXACTLY {schema_version, settlement_id, escrow_ref, outcome_receipt_hash, nonce, outputs, total_amount, expires_at?, content_hash?}; the authority fields decision_id and proof_binding are FORBIDDEN and unrepresentable; a settlement without outcome_receipt_hash is rejected; the superseded decision-gated wire must NOT parse; one-asset/scale/exact-sum rules hold on the receipt-gated wire.",
       "commander_ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): settlement is authorized only from an accepted OutcomeReceipt; a raw VerificationDecision / proof_binding is never settlement authority."
     },
-    "S-SKEY": {
+    "S-SETTLEMENT-KEY": {
       "kind": "spec_asserted",
       "freeze_blocking": true,
       "rationale": "SETTLEMENT KEY FROZEN BYTE PROTOCOL (B-TC4): settlement_key = SHA256(\"intent-protocol/v1/settlement-key\" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]). Three independent implementations must agree byte-exactly: the TS oracle (src/reference/hash.ts), the Python KAT (scripts/kat-settlement-key.py via vectors/settlement-key-vector.json, whose expected was computed by Python first), and the SUT. A SUT computing the superseded proof_binding-keyed, domain-less preimage FAILS.",

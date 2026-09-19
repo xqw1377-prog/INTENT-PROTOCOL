@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { ARTIFACT_HASHES, POLICY_HASH, validBundle, validDecision, validIntent, validSettlement } from "../src/lib/fixtures.js";
+import { ARTIFACT_HASHES, POLICY_HASH, validBundle, validDecision, validIntent, supersededDecisionGatedSettlement } from "../src/lib/fixtures.js";
 import { sut, sealWith, contentHashOf } from "../src/sut.js";
 
 const S = sut.objects;
@@ -39,8 +39,8 @@ describe("[C-14] cross-object referential integrity", () => {
     expect(inconsistent.evidence_root).not.toBe(bundle.merkle_root); // contradiction is representable
   });
 
-  test("[C-14-04][GAP] settlement may reference a dangling decision_id and an arbitrary proof_binding", () => {
-    const s = validSettlement({ decision_id: "deadbeef-dead-4ead-8ead-deaddeadbead", proof_binding: fabricated("88") });
+  test("[C-14-04][GAP] the SUPERSEDED decision-gated wire permits a dangling decision_id and arbitrary proof_binding (frozen wire forbids these fields)", () => {
+    const s = supersededDecisionGatedSettlement({ decision_id: "deadbeef-dead-4ead-8ead-deaddeadbead", proof_binding: fabricated("88") });
     expect(() => S.SettlementInstructionSchema.parse(s)).not.toThrow();
   });
 

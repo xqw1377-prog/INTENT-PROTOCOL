@@ -13,11 +13,13 @@
  *
  * TRUST-CHAIN ROUND (Commander freeze docs/TRUST-CHAIN.md @ e28a22e, B-TC1..6):
  * validMilestone / validOutcomeReceipt / validReceiptSettlement build objects
- * on the FROZEN exact wire — exact field names, no aliases. The legacy
- * validSettlement() KEEPS the old decision-gated wire on purpose: the legacy
- * suites pin the old SUT's behavior, and S-GATE uses the contrast as the
- * authority-boundary finding. Re-sync all legacy settlement fixtures when
- * Builder A lands the receipt-gated wire.
+ * on the FROZEN exact wire — exact field names, no aliases.
+ * validReceiptSettlement is the ONLY positive Settlement baseline: every
+ * positive settlement test uses it, now, before Builder A's receipt-gated SUT
+ * arrives — otherwise a correct new SUT would be failed by legacy tests for
+ * correctly rejecting decision_id / proof_binding. The old decision-gated
+ * object survives ONLY as supersededDecisionGatedSettlement(), a negative
+ * sample proving the old authorization wire must be rejected.
  */
 import { createHash } from "node:crypto";
 import { refProofBinding } from "../reference/hash.js";
@@ -164,7 +166,15 @@ export function validDecision(overrides: Record<string, unknown> = {}): Record<s
   };
 }
 
-export function validSettlement(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+/**
+ * NEGATIVE SAMPLE ONLY — the superseded decision-gated settlement wire.
+ * The frozen contract (TRUST-CHAIN.md @ e28a22e) forbids decision_id and
+ * proof_binding on a settlement and requires outcome_receipt_hash, so this
+ * object must be REJECTED by a conforming SUT. It exists to prove that the
+ * old authorization path is unrepresentable — never use it as a positive
+ * fixture; use validReceiptSettlement().
+ */
+export function supersededDecisionGatedSettlement(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     schema_version: "settlement.v1",
     settlement_id: IDS.settlement,

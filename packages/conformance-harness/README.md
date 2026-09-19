@@ -13,13 +13,13 @@ nothing from the SUT. The SUT is loaded exclusively through `src/sut.ts`.
 
 See `report/conformance-report.json` (machine-readable) and
 `report/conformance-report.md` (summary). Current pinned run (Builder B
-branch `zcode/g1-exact-wire-verifiers`, SUT snapshot unchanged — the OLD
-decision-gated SUT, deliberately, see B-TC6 below):
+branch `zcode/g1-exact-wire-verifiers`, PR #5, SUT snapshot unchanged — the
+OLD decision-gated SUT, deliberately):
 
-- **141 PASS / 31 FAIL / 25 UNKNOWN** across 197 checks (15 mandated attack
+- **135 PASS / 37 FAIL / 25 UNKNOWN** across 197 checks (15 mandated attack
   areas + spec assertions + trust-chain exact-wire verifiers + settlement-key
   three-way + SUT loadability)
-- Gate status: `NOT_READY` (17/17 freeze blockers OPEN)
+- Gate status: `NOT_READY` (20/20 freeze blockers OPEN)
 - Every PASS is bound to a test file + title + duration; every FAIL carries the
   raw failure message (the reproduction output); every UNKNOWN carries a
   rationale from `unknowns.json` and never auto-promotes to PASS.
@@ -34,10 +34,19 @@ The 5 implementation FAIL findings (attack areas):
 | C-13-05 | Timestamp regex accepts calendrically impossible strings (`2026-13-45T99:99:99.999Z`) despite claiming RFC 3339. |
 | C-13-07b | U64-as-string regex has no upper bound: `2^64` passes the schema and fails `u64be()` at hashing time. |
 
-The remaining 26 FAILs are the OPEN freeze blockers' normative assertions
-(13 pre-existing spec assertions + the B-TC trust-chain red lights below) —
-they fail **because the SUT has not delivered the frozen behavior yet**, which
-is exactly what a gate must show.
+The remaining 32 FAILs are the OPEN freeze blockers' normative assertions
+(13 pre-existing spec assertions + the trust-chain red lights below + the
+legacy settlement checks now bound to the receipt-gated baseline, which the
+old SUT rejects because `outcome_receipt_hash` is not on its superseded wire)
+— they fail **because the SUT has not delivered the frozen behavior yet**,
+which is exactly what a gate must show.
+
+Evidence integrity: `run-conformance.mjs` deletes the previous
+`vitest-results.json` BEFORE the run and refuses to build a report unless the
+run produced a fresh results file; `build-report.mjs` records a failed suite
+collection as a synthetic `SUITE-COLLECT-FAIL` finding instead of silently
+dropping the file's checks. A dead vitest process can never dress the previous
+round's JSON up as new evidence.
 
 ## Trust-chain round (B-TC1..B-TC6, Commander order; docs/TRUST-CHAIN.md @ e28a22e)
 
@@ -48,51 +57,63 @@ names by regex slots (`/receipt_id|^id$/`, `intent_hash|intent_commitment`,
 `?? ReceiptSchema` fallbacks). Guessing is not verification: every verifier
 here asserts the frozen names and fails on anything else.
 
-- **B-TC1 [S-MS]** `test/17-trust-chain-exact-wire.test.ts` — MilestoneV1
-  exported as `MilestoneSchema`; field set EXACTLY the frozen names; literal
-  `milestone.v1`; revision ≥ 1; criterion_ids non-empty/unique/order-significant;
-  allocation scale ≤ decimals; every required field feeds the digest; domain
-  pinned byte-exactly to `intent-protocol/v1/milestone`; round-trip idempotent.
-- **B-TC2 [S-RCPT]** — OutcomeReceiptV1 as `OutcomeReceiptSchema` (no
-  `ReceiptSchema` fallback); literals `outcome-receipt.v1` / `ACCEPTED`;
-  `decision_hashes` non-empty, unique, strictly lexicographically ascending;
-  domain pinned to `intent-protocol/v1/outcome-receipt`.
-- **B-TC3 [S-GATE]** — Settlement exact wire carries `outcome_receipt_hash`;
+- **B-TC1 [S-MS-WIRE] / [S-MS-HASH]** `test/17-trust-chain-exact-wire.test.ts`
+  — MilestoneV1 exported as `MilestoneSchema`; field set EXACTLY the frozen
+  names; literal `milestone.v1`; revision ≥ 1; criterion_ids non-empty/unique;
+  allocation scale ≤ decimals. Hash layer: every required field feeds the
+  digest; criterion order canonical; domain pinned byte-exactly to
+  `intent-protocol/v1/milestone`; round-trip idempotent.
+- **B-TC2 [S-RCPT-WIRE] / [S-RCPT-SET] / [S-RCPT-HASH]** — OutcomeReceiptV1 as
+  `OutcomeReceiptSchema` (no `ReceiptSchema` fallback); literals
+  `outcome-receipt.v1` / `ACCEPTED`; decision_hashes non-empty, unique,
+  strictly lexicographically ascending; domain pinned to
+  `intent-protocol/v1/outcome-receipt`; digest + round-trip layer separate.
+- **B-TC3 [S-GATE-AUTH]** — Settlement exact wire carries `outcome_receipt_hash`;
   `decision_id` / `proof_binding` are FORBIDDEN and unrepresentable; a
   settlement without a receipt is rejected; **the old decision-gated wire must
   no longer parse** (this is the authority-boundary red light: against the old
-  SUT it still parses — finding S-GATE-02).
-- **B-TC4 [S-SKEY]** `test/18-settlement-key.test.ts` — settlement_key frozen
-  byte protocol with mandatory three-way exact agreement:
+  SUT it still parses — finding S-GATE-AUTH-02).
+- **B-TC4 [S-SETTLEMENT-KEY]** `test/18-settlement-key.test.ts` — settlement_key
+  frozen byte protocol with mandatory three-way exact agreement:
   - TS oracle `refSettlementKey` (`src/reference/hash.ts`, node:crypto only);
   - Python KAT `scripts/kat-settlement-key.py` (hashlib only), re-derived
-    in-suite (`S-SKEY-KAT`) and standalone;
+    in-suite (`S-SETTLEMENT-KEY-KAT`) and standalone;
   - golden vector `vectors/settlement-key-vector.json` — `expected` computed
     by the **Python** implementation first, then the TS oracle checked against it;
-  - SUT leg (`S-SKEY-02`): RED — the delivered `settlementKey` cannot accept
-    the frozen receipt-keyed parameterization and computes the superseded
-    domain-less proof_binding-keyed preimage (C-02-09 / C-11-07 flipped red
-    for the same reason; legacy tests now bind to the frozen formula).
-- **B-TC5** — the new blockers S-MS / S-RCPT / S-GATE / S-SKEY are registered
-  in `unknowns.json` with `freeze_blocking: true` and their OPEN/DISPOSITIONED
-  status is computed from test evidence by `build-report.mjs`, never hardcoded.
-  New attack surfaces AS-16 (decision-gated settlement on the superseded wire)
-  and AS-17 (superseded settlement_key preimage) are grounded in check evidence.
+  - SUT leg (`S-SETTLEMENT-KEY-02`): RED — the delivered `settlementKey` cannot
+    accept the frozen receipt-keyed parameterization and computes the superseded
+    domain-less proof_binding-keyed preimage (C-02-09 / C-11-07 flipped red for
+    the same reason; legacy tests now bind to the frozen formula).
+- **B-TC5** — the 4 broad scaffold-era blocker ids are split into 7 PRECISE
+  blockers — `S-MS-WIRE S-MS-HASH S-RCPT-WIRE S-RCPT-SET S-RCPT-HASH
+  S-GATE-AUTH S-SETTLEMENT-KEY` — so a partial SUT shows exactly which layer
+  (wire / set rules / hash / authority / key) fails. Registered in
+  `unknowns.json` with `freeze_blocking: true`; OPEN/DISPOSITIONED status is
+  computed from test evidence by `build-report.mjs`, never hardcoded. 20
+  blockers total with the 13 spec-round ids. New attack surfaces AS-16
+  (decision-gated settlement on the superseded wire) and AS-17 (superseded
+  settlement_key preimage) are grounded in check evidence.
 - **B-TC6** — red-light self-test against the OLD SUT snapshot (unchanged
   `capture.json`): every exact-wire check fails for the intended reason —
   Milestone/Receipt: "must be exported under its EXACT frozen name";
   Settlement: field set is not the frozen set; old authority wire still parses;
   settlement_key: "does not accept the FROZEN receipt-keyed parameterization".
-  The only new green checks are the SUT-independent oracle legs (S-SKEY-01,
-  S-SKEY-KAT) — TS oracle === Python KAT === golden vector.
+  The only new green checks are the SUT-independent oracle legs
+  (S-SETTLEMENT-KEY-01, S-SETTLEMENT-KEY-KAT) — TS oracle === Python KAT ===
+  golden vector.
 
-When Builder A lands the 8-object receipt-gated chain, re-capture at the new
-pushed SHA (`npm run capture:sut -- --sha <commit>`) and re-run. Note: legacy
-settlement fixtures (`validSettlement`) pin the OLD decision-gated wire on
-purpose; the legacy S-ASSET/S-SCALE/S-SUM/S-DEC/S-RT settlement checks must be
-re-synced to `validReceiptSettlement` as part of that re-verification round —
-shape drift is a reportable protocol event, not something the harness silently
-absorbs.
+Positive settlement fixtures were migrated NOW (not deferred): every positive
+settlement check — legacy suites included — uses `validReceiptSettlement()`
+on the frozen wire, so a correct receipt-gated SUT from Builder A will be
+judged fairly instead of being failed for correctly rejecting
+`decision_id` / `proof_binding`. The old object survives ONLY as
+`supersededDecisionGatedSettlement()`, a negative sample proving the old
+authorization wire must be rejected. Consequently the legacy settlement checks
+(C-08 / C-11-00..02 / C-13 / S-ASSET / S-SCALE / S-DEC / S-SUM / S-RT#4) are
+red against the old SUT for exactly that reason. Defensive detail: test/11's
+baseline parses lazily inside each check — a describe-scope parse would abort
+collection and silently drop the file from the evidence; `build-report.mjs`
+additionally records any failed collection as `SUITE-COLLECT-FAIL`.
 
 Open attack surfaces are catalogued in `attack-surfaces.json` (14 entries,
 each grounded in check evidence) and reproduced in the report.
@@ -227,7 +248,7 @@ Formal entry point policy (Commander order): this workflow is the gate
 Actions entry ONLY once it exists on the DEFAULT branch. Per-branch
 dispatching is NOT a substitute and must not be treated as gate evidence.
 
-## Freeze blockers (17 normative assertion sets, evidence-driven)
+## Freeze blockers (20 normative assertion sets, evidence-driven)
 
 The freeze blocker set is the executable spec assertions in
 `test/16-spec-assertions.test.ts` plus the trust-chain exact-wire assertions in
@@ -235,10 +256,14 @@ The freeze blocker set is the executable spec assertions in
 when the assertion passes), never hardcoded:
 
 `S-R9 S-RT S-UUID S-ASSET S-SCALE S-BUDGET S-SURR S-KEYNFC S-SUBJ S-UNIQ
-S-MERKLE S-DEC S-SUM` (spec round 5)
+S-MERKLE S-DEC S-SUM` (spec round 5 — 13 blockers)
 
-`S-MS S-RCPT S-GATE S-SKEY` (trust-chain round B-TC1..B-TC4,
-docs/TRUST-CHAIN.md @ e28a22e)
+`S-MS-WIRE S-MS-HASH S-RCPT-WIRE S-RCPT-SET S-RCPT-HASH S-GATE-AUTH
+S-SETTLEMENT-KEY` (trust-chain round B-TC1..B-TC4, docs/TRUST-CHAIN.md
+@ e28a22e — 7 blockers, split per layer so a partial SUT shows exactly which
+layer fails: wire / set rules / hash / authority / key)
+
+20 blockers total.
 
 R9 = proof binding covers milestone_id AND bundle_id; R10 = all five
 first-class objects seal/round-trip idempotently and reject wrong declared
@@ -278,10 +303,11 @@ six-field binding. Every must-throw spec assertion uses inputs that are legal
 under every OTHER frozen rule and carries a matched control case.
 
 Trust-chain fixtures (`validMilestone/validOutcomeReceipt/validReceiptSettlement`)
-build objects on the frozen exact wire @ e28a22e; the legacy `validSettlement`
-keeps the OLD decision-gated wire on purpose (legacy suites pin the old SUT;
-see the trust-chain round section for the re-sync note). The settlement-key
-oracle (`refSettlementKey`) implements the frozen domain-separated, receipt-keyed
+build objects on the frozen exact wire @ e28a22e. `validReceiptSettlement` is
+the ONLY positive Settlement baseline across the whole harness;
+`supersededDecisionGatedSettlement` is a negative-only sample proving the old
+authorization wire must be rejected. The settlement-key oracle
+(`refSettlementKey`) implements the frozen domain-separated, receipt-keyed
 byte protocol; its golden vector was computed by the independent Python KAT
 first, and the SUT must reproduce it byte-exactly.
 

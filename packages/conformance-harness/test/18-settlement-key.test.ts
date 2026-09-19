@@ -40,7 +40,7 @@ const CASE = {
  */
 describe("[SETTLEMENT-KEY] B-TC4 frozen byte protocol — three-way exact agreement", () => {
 
-  test("[S-SKEY-01] TS oracle reproduces the Python-computed golden vector; every input separates; u64 boundaries exact", () => {
+  test("[S-SETTLEMENT-KEY-01] TS oracle reproduces the Python-computed golden vector; every input separates; u64 boundaries exact", () => {
     expect(CASE, "golden vector case drift").toEqual(golden.case);
     expect(golden.domain, "frozen domain literal drift").toBe("intent-protocol/v1/settlement-key");
     expect(refSettlementKey(CASE), "oracle vs golden KAT (Python-computed)").toBe(golden.expected);
@@ -58,7 +58,7 @@ describe("[SETTLEMENT-KEY] B-TC4 frozen byte protocol — three-way exact agreem
     expect(() => refSettlementKey({ ...CASE, outcome_receipt_hash: "sha256:abcd" })).toThrow();
   });
 
-  test("[S-SKEY-02] SUT === oracle === golden vector: a settlementKey implementing any other preimage FAILS", () => {
+  test("[S-SETTLEMENT-KEY-02] SUT === oracle === golden vector: a settlementKey implementing any other preimage FAILS", () => {
     const sutKey = sut.hash.settlementKey as ((p: unknown) => string) | undefined;
     expect(sutKey, "settlementKey must be exported by the SUT (sut.hash)").toBeDefined();
     if (!sutKey) return;
@@ -78,7 +78,7 @@ describe("[SETTLEMENT-KEY] B-TC4 frozen byte protocol — three-way exact agreem
       "SUT key must separate on nonce").not.toBe(fromSut);
   });
 
-  test("[S-SKEY-KAT] independent Python KAT re-derives the golden vector (third implementation, hashlib only)", () => {
+  test("[S-SETTLEMENT-KEY-KAT] independent Python KAT re-derives the golden vector (third implementation, hashlib only)", () => {
     const katPath = fileURLToPath(new URL("../scripts/kat-settlement-key.py", import.meta.url));
     // probe before use: on Windows `python3` can be the Store alias stub, which
     // "runs" but exits 9009 (command not found) for every invocation.

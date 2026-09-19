@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   DECISION_HASH_1, DECISION_HASH_2, fakeHash, POLICY_HASH,
-  validMilestone, validOutcomeReceipt, validReceiptSettlement, validSettlement,
+  validMilestone, validOutcomeReceipt, validReceiptSettlement, supersededDecisionGatedSettlement,
 } from "../src/lib/fixtures.js";
 import { refHashObject } from "../src/reference/hash.js";
 import { sut, sealWith } from "../src/sut.js";
@@ -73,7 +73,7 @@ function exactFieldSet(shape: Record<string, unknown>, required: readonly string
 describe("[TRUST-CHAIN] B-TC1 MilestoneV1 exact-wire verifier", () => {
   const REQUIRED = ["schema_version", "milestone_id", "intent_hash", "milestone_revision", "criterion_ids", "verification_policy_hash", "settlement_policy_hash", "allocation"] as const;
 
-  test("[S-MS-01] MilestoneV1 exact wire: exported as MilestoneSchema, exact frozen field set, schema_version literal 'milestone.v1'", () => {
+  test("[S-MS-WIRE-01] MilestoneV1 exact wire: exported as MilestoneSchema, exact frozen field set, schema_version literal 'milestone.v1'", () => {
     const schema = objects.MilestoneSchema;
     expect(schema, "MilestoneSchema must be exported by the SUT under its EXACT frozen name (no alias resolution)").toBeDefined();
     if (!schema) return;
@@ -85,7 +85,7 @@ describe("[TRUST-CHAIN] B-TC1 MilestoneV1 exact-wire verifier", () => {
     expect(() => asParseable(schema).parse(validMilestone({ intent_commitment: fakeHash("bb") })), "semantic alias 'intent_commitment' must be unrepresentable").toThrow();
   });
 
-  test("[S-MS-02] MilestoneV1 rules: revision >= 1; criterion_ids non-empty, unique; allocation scale <= asset.decimals", () => {
+  test("[S-MS-WIRE-02] MilestoneV1 rules: revision >= 1; criterion_ids non-empty, unique; allocation scale <= asset.decimals", () => {
     const schema = objects.MilestoneSchema;
     expect(schema, "MilestoneSchema must be exported by the SUT under its EXACT frozen name").toBeDefined();
     if (!schema) return;
@@ -101,7 +101,7 @@ describe("[TRUST-CHAIN] B-TC1 MilestoneV1 exact-wire verifier", () => {
     })), "control: scale == decimals must parse").not.toThrow();
   });
 
-  test("[S-MS-03] MilestoneV1 digest: every required field feeds it, criterion order is canonical, domain pinned to intent-protocol/v1/milestone, round-trip idempotent", () => {
+  test("[S-MS-HASH-01] MilestoneV1 digest: every required field feeds it, criterion order is canonical, domain pinned to intent-protocol/v1/milestone, round-trip idempotent", () => {
     const schema = objects.MilestoneSchema;
     expect(schema, "MilestoneSchema must be exported by the SUT under its EXACT frozen name").toBeDefined();
     if (!schema) return;
@@ -135,7 +135,7 @@ describe("[TRUST-CHAIN] B-TC1 MilestoneV1 exact-wire verifier", () => {
 describe("[TRUST-CHAIN] B-TC2 OutcomeReceiptV1 exact-wire verifier", () => {
   const REQUIRED = ["schema_version", "receipt_id", "intent_hash", "milestone_id", "milestone_revision", "evidence_root", "verification_policy_hash", "decision_hashes", "accepted_result", "issued_at"] as const;
 
-  test("[S-RCPT-01] OutcomeReceiptV1 exact wire: exported as OutcomeReceiptSchema, exact frozen field set, literals 'outcome-receipt.v1' / 'ACCEPTED'", () => {
+  test("[S-RCPT-WIRE-01] OutcomeReceiptV1 exact wire: exported as OutcomeReceiptSchema, exact frozen field set, literals 'outcome-receipt.v1' / 'ACCEPTED'", () => {
     const schema = objects.OutcomeReceiptSchema;
     expect(schema, "OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name (no alias resolution, no ReceiptSchema fallback)").toBeDefined();
     if (!schema) return;
@@ -148,7 +148,7 @@ describe("[TRUST-CHAIN] B-TC2 OutcomeReceiptV1 exact-wire verifier", () => {
     expect(() => asParseable(schema).parse(validOutcomeReceipt({ policy_hash: POLICY_HASH })), "alias/unknown fields must be rejected (strict wire)").toThrow();
   });
 
-  test("[S-RCPT-02] decision_hashes MUST be non-empty, unique, strictly lexicographically ascending", () => {
+  test("[S-RCPT-SET-01] decision_hashes MUST be non-empty, unique, strictly lexicographically ascending", () => {
     const schema = objects.OutcomeReceiptSchema;
     expect(schema, "OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name").toBeDefined();
     if (!schema) return;
@@ -161,7 +161,7 @@ describe("[TRUST-CHAIN] B-TC2 OutcomeReceiptV1 exact-wire verifier", () => {
     })), "control: three-element ascending set must parse").not.toThrow();
   });
 
-  test("[S-RCPT-03] OutcomeReceiptV1 digest: every required field feeds it, domain pinned to intent-protocol/v1/outcome-receipt, round-trip idempotent", () => {
+  test("[S-RCPT-HASH-01] OutcomeReceiptV1 digest: every required field feeds it, domain pinned to intent-protocol/v1/outcome-receipt, round-trip idempotent", () => {
     const schema = objects.OutcomeReceiptSchema;
     expect(schema, "OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name").toBeDefined();
     if (!schema) return;
@@ -190,7 +190,7 @@ describe("[TRUST-CHAIN] B-TC2 OutcomeReceiptV1 exact-wire verifier", () => {
 describe("[TRUST-CHAIN] B-TC3 receipt-gated Settlement exact-wire verifier", () => {
   const REQUIRED = ["schema_version", "settlement_id", "escrow_ref", "outcome_receipt_hash", "nonce", "outputs", "total_amount"] as const;
 
-  test("[S-GATE-01] Settlement exact wire: exact frozen field set carrying outcome_receipt_hash; decision_id / proof_binding are FORBIDDEN authority fields", () => {
+  test("[S-GATE-AUTH-01] Settlement exact wire: exact frozen field set carrying outcome_receipt_hash; decision_id / proof_binding are FORBIDDEN authority fields", () => {
     const shape = shapeOf(SettlementInstructionSchema);
     exactFieldSet(shape, REQUIRED, ["expires_at", "content_hash"]);
     expect(Object.keys(shape), "forbidden authority field decision_id must be absent from the frozen wire").not.toContain("decision_id");
@@ -201,14 +201,14 @@ describe("[TRUST-CHAIN] B-TC3 receipt-gated Settlement exact-wire verifier", () 
     expect(() => SettlementInstructionSchema.parse(validReceiptSettlement({ proof_binding: fakeHash("99") })), "proof_binding must be unrepresentable on a V1 settlement").toThrow();
   });
 
-  test("[S-GATE-02] Settlement authorization is structurally receipt-gated: no receipt -> reject; raw decision authority -> reject", () => {
+  test("[S-GATE-AUTH-02] Settlement authorization is structurally receipt-gated: no receipt -> reject; raw decision authority -> reject", () => {
     const { outcome_receipt_hash: _omitted, ...withoutReceipt } = validReceiptSettlement();
     expect(() => SettlementInstructionSchema.parse(withoutReceipt), "a settlement without outcome_receipt_hash must be rejected").toThrow();
-    expect(() => SettlementInstructionSchema.parse(validSettlement()), "the superseded decision-gated wire (decision_id + proof_binding) must NOT parse under the frozen contract").toThrow();
+    expect(() => SettlementInstructionSchema.parse(supersededDecisionGatedSettlement()), "the superseded decision-gated wire (decision_id + proof_binding) must NOT parse under the frozen contract").toThrow();
     expect(() => SettlementInstructionSchema.parse(validReceiptSettlement()), "control: receipt-gated settlement must parse").not.toThrow();
   });
 
-  test("[S-GATE-03] Settlement frozen rules on the receipt-gated wire: one asset, scale <= decimals, total == exact sum", () => {
+  test("[S-GATE-AUTH-03] Settlement frozen rules on the receipt-gated wire: one asset, scale <= decimals, total == exact sum", () => {
     const usd2 = { network: "sim:local", asset: "USD", decimals: 2 };
     const usd1 = { network: "sim:local", asset: "USD", decimals: 1 };
     const eur2 = { network: "sim:local", asset: "EUR", decimals: 2 };

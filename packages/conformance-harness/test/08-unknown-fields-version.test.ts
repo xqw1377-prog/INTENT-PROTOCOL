@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { validArtifact, validBundle, validDecision, validIntent, validSettlement } from "../src/lib/fixtures.js";
+import { validArtifact, validBundle, validDecision, validIntent, validReceiptSettlement } from "../src/lib/fixtures.js";
 import { sut } from "../src/sut.js";
 
 const S = sut.objects;
@@ -11,7 +11,7 @@ describe("[C-08] unknown fields / unsupported version", () => {
     ["EvidenceArtifact", validArtifact()],
     ["EvidenceBundle", validBundle({ merkle_root: "sha256:" + "ab".repeat(32), sealed_at: "2026-09-17T01:00:00.000Z" })],
     ["VerificationDecision", validDecision()],
-    ["SettlementInstruction", validSettlement()],
+    ["SettlementInstruction", validReceiptSettlement()],
     ["Criterion", (validIntent() as { success_criteria: Array<Record<string, unknown>> }).success_criteria[0]!],
   ];
 
@@ -39,7 +39,7 @@ describe("[C-08] unknown fields / unsupported version", () => {
     criteria[0].evidence_requirements[0].extra = 1;
     expect(() => S.IntentContractSchema.parse(validIntent({ success_criteria: criteria }))).toThrow();
     expect(() => S.IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2, note: "x" }, total: "1", execution_cap: "1" } }))).toThrow();
-    expect(() => S.SettlementInstructionSchema.parse(validSettlement({
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "1", reason: "r", memo: "x" }],
     }))).toThrow();
     expect(() => S.IntentContractSchema.parse(validIntent({
@@ -62,7 +62,7 @@ describe("[C-08] unknown fields / unsupported version", () => {
       validArtifact(),
       validBundle({ state: "OPEN" }),
       validDecision(),
-      validSettlement(),
+      validReceiptSettlement(),
       (validIntent() as { success_criteria: Array<Record<string, unknown>> }).success_criteria[0]!,
     ];
     cases.forEach((parse, i) => {

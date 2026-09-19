@@ -163,8 +163,8 @@
       "severity": "high",
       "detail": "The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2).",
       "evidence": [
-        "S-GATE-01",
-        "S-GATE-02",
+        "S-GATE-AUTH-01",
+        "S-GATE-AUTH-02",
         "C-14-04"
       ]
     },
@@ -174,7 +174,7 @@
       "severity": "high",
       "detail": "The frozen idempotency key is SHA256(\"intent-protocol/v1/settlement-key\" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation.",
       "evidence": [
-        "S-SKEY-02",
+        "S-SETTLEMENT-KEY-02",
         "C-02-09",
         "C-11-07"
       ]
