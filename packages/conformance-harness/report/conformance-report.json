@@ -1,6 +1,6 @@
 {
-  "report_id": "p0-s0-conformance-2026-09-18T04-04-07-827Z",
-  "generated_at": "2026-09-18T04:04:07.828Z",
+  "report_id": "p0-s0-conformance-2026-09-19T04-11-55-832Z",
+  "generated_at": "2026-09-19T04:11:55.833Z",
   "harness": {
     "name": "@intent/conformance-harness",
     "builder": "Builder B (Independent Verifier)",
@@ -92,29 +92,33 @@
     ]
   },
   "provenance": {
-    "git_head": "2c5cb8d1dbc7863c7b55410567bd1559b3953a2a",
+    "git_head": "13acb2423fe430a3a11a98f6153fef78a7b86a25",
     "vector_files": [
       {
         "file": "packages/conformance-harness/vectors/canonical-vectors.json",
-        "sha256": "d03b3979e74b4ed73e11ba99c50084fb6beba315b682704f9a7837027d098788"
+        "sha256": "632be06af8590286afce67890f65d24bd6b997a0cd37cd4ef91e2c44fc86de2c"
       },
       {
         "file": "packages/conformance-harness/vectors/hash-vectors.json",
-        "sha256": "ae4b3624296fa4f01cd3acda2b433c8f5bd8d4c79b4af4f2325b7d309a1305b9"
+        "sha256": "07d47bf63c2ea9087e9e66294aad3e90cb300a314b215e3433d2ce1a560ebbae"
       },
       {
         "file": "packages/conformance-harness/vectors/proof-binding-vector.json",
-        "sha256": "61a62942b508034b09022a70c254d436099fdfb56856cdab9320673bf0542afc"
+        "sha256": "c77c83359e9be24f1ef8f82af9b27c5ea5bb524ff664b6feed34d0b5fd13076c"
+      },
+      {
+        "file": "packages/conformance-harness/vectors/settlement-key-vector.json",
+        "sha256": "09835302fd109ed7f786af667fbb4a629623c7e24ad2a00e1fe9e33ebde72540"
       }
     ],
-    "unknowns_manifest": "c19bdc4cbf545d4032dd24a468a7ae46404040e8afaed49178226f30cbe78c87",
-    "attack_surfaces_manifest": "b4ca51a1a625558880ac5b63fc89455f563828192e618a0df76489648c4c5542"
+    "unknowns_manifest": "09ff2d4ee71ff6278c4a37ea5bc84c025d017dcdf82e339a938757d88c261180",
+    "attack_surfaces_manifest": "edf5d71abb404037cf5b726196a1ada94f0cc3b4eb05acee945bd092206fa114"
   },
   "summary": {
-    "total_checks": 185,
+    "total_checks": 197,
     "counts": {
-      "PASS": 141,
-      "FAIL": 19,
+      "PASS": 135,
+      "FAIL": 37,
       "UNKNOWN": 25
     },
     "areas": [
@@ -129,10 +133,10 @@
       {
         "area": "C-02",
         "total": 9,
-        "PASS": 9,
-        "FAIL": 0,
+        "PASS": 8,
+        "FAIL": 1,
         "UNKNOWN": 0,
-        "verdict": "PASS"
+        "verdict": "FAIL"
       },
       {
         "area": "C-03",
@@ -177,10 +181,10 @@
       {
         "area": "C-08",
         "total": 11,
-        "PASS": 9,
-        "FAIL": 0,
+        "PASS": 7,
+        "FAIL": 2,
         "UNKNOWN": 2,
-        "verdict": "UNKNOWN"
+        "verdict": "FAIL"
       },
       {
         "area": "C-09",
@@ -201,10 +205,10 @@
       {
         "area": "C-11",
         "total": 6,
-        "PASS": 6,
-        "FAIL": 0,
+        "PASS": 2,
+        "FAIL": 4,
         "UNKNOWN": 0,
-        "verdict": "PASS"
+        "verdict": "FAIL"
       },
       {
         "area": "C-12",
@@ -240,9 +244,9 @@
       },
       {
         "area": "SPEC-ASSERTIONS",
-        "total": 17,
-        "PASS": 3,
-        "FAIL": 14,
+        "total": 29,
+        "PASS": 4,
+        "FAIL": 25,
         "UNKNOWN": 0,
         "verdict": "FAIL"
       },
@@ -376,10 +380,78 @@
         "evidence_check_ids": [
           "S-KEYNFC"
         ]
+      },
+      {
+        "check_id": "S-MS-WIRE",
+        "ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): exact wire contracts are normative for G1; semantic aliases are not conforming; Milestone identity is (intent_hash, milestone_id, milestone_revision).",
+        "rationale": "MilestoneV1 EXACT WIRE (B-TC1): exported as MilestoneSchema under its EXACT frozen name; field-name set EXACTLY {schema_version, milestone_id, intent_hash, milestone_revision, criterion_ids, verification_policy_hash, settlement_policy_hash, allocation, content_hash?, signature?}; literal 'milestone.v1'; alias/unknown fields rejected; revision >= 1; criterion_ids non-empty and unique; allocation scale <= asset.decimals.",
+        "status": "OPEN",
+        "evidence_check_ids": [
+          "S-MS-WIRE-01",
+          "S-MS-WIRE-02"
+        ]
+      },
+      {
+        "check_id": "S-MS-HASH",
+        "ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): changing any required field changes the object digest.",
+        "rationale": "MilestoneV1 DIGEST RULES (B-TC1): every required field feeds content_hash; criterion_ids array order is canonical (swapping changes the digest); domain pinned byte-exactly to intent-protocol/v1/milestone over milestone.v1 against the independent reference; seal -> JSON round-trip -> re-seal idempotent; wrong declared hash rejected.",
+        "status": "OPEN",
+        "evidence_check_ids": [
+          "S-MS-HASH-01"
+        ]
+      },
+      {
+        "check_id": "S-RCPT-WIRE",
+        "ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): receipt wire/hash object and deterministic bindings are frozen in G1; formation logic is S1.",
+        "rationale": "OutcomeReceiptV1 EXACT WIRE (B-TC2): exported as OutcomeReceiptSchema under its EXACT frozen name (no ReceiptSchema fallback); field-name set EXACTLY {schema_version, receipt_id, intent_hash, milestone_id, milestone_revision, evidence_root, verification_policy_hash, decision_hashes, accepted_result, issued_at, content_hash?, signature?}; literals 'outcome-receipt.v1' and 'ACCEPTED'; alias/unknown fields rejected.",
+        "status": "OPEN",
+        "evidence_check_ids": [
+          "S-RCPT-WIRE-01"
+        ]
+      },
+      {
+        "check_id": "S-RCPT-SET",
+        "ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): duplicates or non-sorted decision_hashes are invalid; the set is the deterministic accepted-decision commitment.",
+        "rationale": "OutcomeReceiptV1 DECISION SET RULES (B-TC2): decision_hashes must be non-empty, unique, and strictly lexicographically ascending; empty, duplicate, or descending sets are rejected.",
+        "status": "OPEN",
+        "evidence_check_ids": [
+          "S-RCPT-SET-01"
+        ]
+      },
+      {
+        "check_id": "S-RCPT-HASH",
+        "ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): changing any required field changes the object digest.",
+        "rationale": "OutcomeReceiptV1 DIGEST RULES (B-TC2): every required field feeds content_hash; domain pinned byte-exactly to intent-protocol/v1/outcome-receipt over outcome-receipt.v1 against the independent reference; seal -> JSON round-trip -> re-seal idempotent; wrong declared hash rejected.",
+        "status": "OPEN",
+        "evidence_check_ids": [
+          "S-RCPT-HASH-01"
+        ]
+      },
+      {
+        "check_id": "S-GATE-AUTH",
+        "ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): settlement is authorized only from an accepted OutcomeReceipt; a raw VerificationDecision / proof_binding is never settlement authority.",
+        "rationale": "SETTLEMENT IS RECEIPT-GATED (B-TC3): SettlementInstructionV1 field set EXACTLY {schema_version, settlement_id, escrow_ref, outcome_receipt_hash, nonce, outputs, total_amount, expires_at?, content_hash?}; the authority fields decision_id and proof_binding are FORBIDDEN and unrepresentable; a settlement without outcome_receipt_hash is rejected; the superseded decision-gated wire must NOT parse; one-asset/scale/exact-sum rules hold on the receipt-gated wire.",
+        "status": "OPEN",
+        "evidence_check_ids": [
+          "S-GATE-AUTH-01",
+          "S-GATE-AUTH-02",
+          "S-GATE-AUTH-03"
+        ]
+      },
+      {
+        "check_id": "S-SETTLEMENT-KEY",
+        "ruling": "Commander freeze, docs/TRUST-CHAIN.md @ e28a22e (2026-09-18): settlement idempotency key binds the receipt, with explicit 0x00 terminator before the fixed-width u64be nonce; same three-way discipline as R9.",
+        "rationale": "SETTLEMENT KEY FROZEN BYTE PROTOCOL (B-TC4): settlement_key = SHA256(\"intent-protocol/v1/settlement-key\" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]). Three independent implementations must agree byte-exactly: the TS oracle (src/reference/hash.ts), the Python KAT (scripts/kat-settlement-key.py via vectors/settlement-key-vector.json, whose expected was computed by Python first), and the SUT. A SUT computing the superseded proof_binding-keyed, domain-less preimage FAILS.",
+        "status": "OPEN",
+        "evidence_check_ids": [
+          "S-SETTLEMENT-KEY-01",
+          "S-SETTLEMENT-KEY-02",
+          "S-SETTLEMENT-KEY-KAT"
+        ]
       }
     ],
     "gate_status": "NOT_READY",
-    "freeze_declaration": "NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 19 FAIL findings, 25 UNKNOWN entries; freeze blockers: 13 OPEN / 0 DISPOSITIONED."
+    "freeze_declaration": "NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 37 FAIL findings, 25 UNKNOWN entries; freeze blockers: 20 OPEN / 0 DISPOSITIONED."
   },
   "results": [
     {
@@ -391,7 +463,7 @@
         "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
         "test_title": "[SUT-LOAD-00] snapshot capture.json exists and pins 7 source files",
         "runner_status": "passed",
-        "duration_ms": 1.3400410000000136
+        "duration_ms": 2.518699999999967
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-00\""
     },
@@ -404,7 +476,7 @@
         "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
         "test_title": "[SUT-LOAD-04] dependency pinning: runtime zod version must equal the capture's recorded version; gate captures must read it from the pinned lockfile, not live node_modules",
         "runner_status": "passed",
-        "duration_ms": 0.505500000000012
+        "duration_ms": 2.025099999999952
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-04\""
     },
@@ -417,7 +489,7 @@
         "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
         "test_title": "[SUT-LOAD-01] snapshot modules export the documented API",
         "runner_status": "passed",
-        "duration_ms": 0.18737499999997453
+        "duration_ms": 0.772199999999998
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-01\""
     },
@@ -430,7 +502,7 @@
         "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
         "test_title": "[SUT-LOAD-02] sha256 empty-string known answer (NIST)",
         "runner_status": "passed",
-        "duration_ms": 0.21562499999998863
+        "duration_ms": 0.8588000000000875
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-02\""
     },
@@ -443,7 +515,7 @@
         "test_file": "packages/conformance-harness/test/00-smoke.test.ts",
         "test_title": "[SUT-LOAD-03] sha256 'abc' known answer (NIST FIPS 180-2)",
         "runner_status": "passed",
-        "duration_ms": 0.08808400000000915
+        "duration_ms": 0.23869999999999436
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/00-smoke.test.ts -t \"SUT-LOAD-03\""
     },
@@ -471,7 +543,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-01] repeated serialization of the same value is byte-identical (100x)",
         "runner_status": "passed",
-        "duration_ms": 2.102374999999995
+        "duration_ms": 4.9734999999999445
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-01\""
     },
@@ -484,7 +556,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-02] independent fresh instances (JSON round-trip) serialize identically",
         "runner_status": "passed",
-        "duration_ms": 0.37495799999999235
+        "duration_ms": 1.0913000000000466
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-02\""
     },
@@ -497,7 +569,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-03] SUT agrees with independent reference on every canonical vector",
         "runner_status": "passed",
-        "duration_ms": 0.6083749999999668
+        "duration_ms": 1.8334999999999582
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-03\""
     },
@@ -510,7 +582,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-04] canonical form is round-trip idempotent (parse(serialize(x)) reserializes to itself)",
         "runner_status": "passed",
-        "duration_ms": 0.2153750000000514
+        "duration_ms": 0.8786999999999807
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-04\""
     },
@@ -523,7 +595,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-05] arrays preserve order (never sorted)",
         "runner_status": "passed",
-        "duration_ms": 0.26949999999999363
+        "duration_ms": 1.0437999999999192
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-05\""
     },
@@ -536,7 +608,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-06] floats / NaN / Infinity / beyond-safe integers are rejected",
         "runner_status": "passed",
-        "duration_ms": 0.7890830000000051
+        "duration_ms": 3.1935000000000855
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-06\""
     },
@@ -549,9 +621,9 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-07] FAIL: spec rule 4 says -0 is rejected; the SUT accepts it and silently maps it to 0 (0/-0 hash ambiguity)",
         "runner_status": "failed",
-        "duration_ms": 2.4339169999999513,
+        "duration_ms": 9.121600000000058,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/01-canonical-determinism.test.ts:56:43\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\01-canonical-determinism.test.ts:56:43\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-07\""
@@ -565,7 +637,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-08] undefined values: omitted in objects, rejected in arrays",
         "runner_status": "passed",
-        "duration_ms": 0.13937499999997272
+        "duration_ms": 0.7286000000000286
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-08\""
     },
@@ -578,7 +650,7 @@
         "test_file": "packages/conformance-harness/test/01-canonical-determinism.test.ts",
         "test_title": "[C-01-09] non-plain objects (Date/Map/Set/TypedArray/bigint/symbol) rejected",
         "runner_status": "passed",
-        "duration_ms": 0.2956249999999727
+        "duration_ms": 1.1868999999999232
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/01-canonical-determinism.test.ts -t \"C-01-09\""
     },
@@ -591,7 +663,7 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-01] hashObject is deterministic across repetitions (50x per vector cell)",
         "runner_status": "passed",
-        "duration_ms": 1.9362499999999727
+        "duration_ms": 5.344600000000014
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-01\""
     },
@@ -604,7 +676,7 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-02] SUT hashObject agrees with independent reference on every (domain, version, payload) cell",
         "runner_status": "passed",
-        "duration_ms": 10.414375000000007
+        "duration_ms": 17.42579999999998
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-02\""
     },
@@ -617,7 +689,7 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-03] domain separation: same payload+version under different domains yields different hashes",
         "runner_status": "passed",
-        "duration_ms": 0.3910420000000272
+        "duration_ms": 0.5376999999999725
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-03\""
     },
@@ -630,7 +702,7 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-04] version separation: same payload+domain under different versions yields different hashes",
         "runner_status": "passed",
-        "duration_ms": 0.29358300000001236
+        "duration_ms": 0.4052000000000362
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-04\""
     },
@@ -643,7 +715,7 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-05] hash format: sha256: + 64 lowercase hex; roundtrip fromHash/toHash; malformed rejected",
         "runner_status": "passed",
-        "duration_ms": 1.1057089999999903
+        "duration_ms": 1.3891999999999598
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-05\""
     },
@@ -656,7 +728,7 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-06] hash_input layout is exactly domain||0x00||version||0x00||canonical",
         "runner_status": "passed",
-        "duration_ms": 0.24204099999997197
+        "duration_ms": 0.2635999999999967
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-06\""
     },
@@ -669,7 +741,7 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-07] u32be/u64be agree with reference on boundary values and reject out-of-range",
         "runner_status": "passed",
-        "duration_ms": 1.1043750000000045
+        "duration_ms": 1.2886999999999489
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-07\""
     },
@@ -682,20 +754,23 @@
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
         "test_title": "[C-02-08] proofBinding ORACLE (R9 six-field formula): idempotent and sensitive to every bound field",
         "runner_status": "passed",
-        "duration_ms": 2.3722080000000005
+        "duration_ms": 1.879699999999957
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-08\""
     },
     {
       "check_id": "C-02-09",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[C-02] hash determinism",
-      "title": "[C-02-09] settlementKey: SUT === independent reference; idempotent, differs per nonce/escrow",
+      "title": "[C-02-09] settlementKey: SUT === independent reference over the FROZEN receipt-keyed preimage (TRUST-CHAIN @ e28a22e); differs per nonce/escrow",
       "evidence": {
         "test_file": "packages/conformance-harness/test/02-hash-determinism.test.ts",
-        "test_title": "[C-02-09] settlementKey: SUT === independent reference; idempotent, differs per nonce/escrow",
-        "runner_status": "passed",
-        "duration_ms": 1.4080000000000155
+        "test_title": "[C-02-09] settlementKey: SUT === independent reference over the FROZEN receipt-keyed preimage (TRUST-CHAIN @ e28a22e); differs per nonce/escrow",
+        "runner_status": "failed",
+        "duration_ms": 16.176399999999944,
+        "failure_messages": [
+          "AssertionError: SUT settlement_key must equal the frozen formula (domain-prefixed, receipt-keyed): expected 'sha256:860a859f4f0f9642a57b040eeb5119…' to be 'sha256:1ad5dccc9716edab0ade61804ff6ac…' // Object.is equality\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\02-hash-determinism.test.ts:99:115\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/02-hash-determinism.test.ts -t \"C-02-09\""
     },
@@ -708,7 +783,7 @@
         "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
         "test_title": "[C-03-01] all 24 insertion orders of a 4-key object yield identical canonical text",
         "runner_status": "passed",
-        "duration_ms": 1.7795409999999947
+        "duration_ms": 3.709100000000035
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-01\""
     },
@@ -721,7 +796,7 @@
         "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
         "test_title": "[C-03-02] deep key-order shuffles of a full Intent yield identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 4.506332999999984
+        "duration_ms": 17.130499999999984
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-02\""
     },
@@ -734,7 +809,7 @@
         "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
         "test_title": "[C-03-03] raw JSON text with reordered keys yields identical canonical text",
         "runner_status": "passed",
-        "duration_ms": 0.08429100000000744
+        "duration_ms": 0.33379999999999654
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-03\""
     },
@@ -747,7 +822,7 @@
         "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
         "test_title": "[C-03-04] integer-like keys sort as strings (UTF-16), not numerically",
         "runner_status": "passed",
-        "duration_ms": 0.04254200000002584
+        "duration_ms": 0.16660000000001673
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-04\""
     },
@@ -760,7 +835,7 @@
         "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
         "test_title": "[C-03-05] guard: reordering an ARRAY (success_criteria) must change the hash",
         "runner_status": "passed",
-        "duration_ms": 0.6565410000000043
+        "duration_ms": 2.7209000000000287
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-05\""
     },
@@ -773,7 +848,7 @@
         "test_file": "packages/conformance-harness/test/03-property-order-mutation.test.ts",
         "test_title": "[C-03-06] schema parse result is order-insensitive (zod object key order irrelevant)",
         "runner_status": "passed",
-        "duration_ms": 0.46016599999995833
+        "duration_ms": 2.14530000000002
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/03-property-order-mutation.test.ts -t \"C-03-06\""
     },
@@ -786,7 +861,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-01] whitespace variant 'pretty-2' yields identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 6.405250000000024
+        "duration_ms": 11.109699999999975
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
     },
@@ -799,7 +874,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-01] whitespace variant 'pretty-4' yields identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 0.9761670000000038
+        "duration_ms": 2.12519999999995
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
     },
@@ -812,7 +887,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-01] whitespace variant 'tabs' yields identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 1.121292000000011
+        "duration_ms": 1.709799999999973
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
     },
@@ -825,7 +900,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-01] whitespace variant 'crlf-lines' yields identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 0.4922080000000051
+        "duration_ms": 1.5851000000000113
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
     },
@@ -838,7 +913,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-01] whitespace variant 'trailing-newline' yields identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 0.4322090000000003
+        "duration_ms": 1.6772000000000844
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
     },
@@ -851,7 +926,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-01] whitespace variant 'leading-space' yields identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 0.36795900000001325
+        "duration_ms": 1.6148000000000593
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
     },
@@ -864,7 +939,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-01] whitespace variant 'repretty' yields identical content_hash",
         "runner_status": "passed",
-        "duration_ms": 0.4064160000000072
+        "duration_ms": 1.4418000000000575
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-01\""
     },
@@ -877,7 +952,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-02] whitespace INSIDE string values is significant and changes the hash",
         "runner_status": "passed",
-        "duration_ms": 0.3818339999999978
+        "duration_ms": 2.5389999999999873
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-02\""
     },
@@ -890,7 +965,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-03] canonical output itself contains no non-string whitespace",
         "runner_status": "passed",
-        "duration_ms": 0.30929199999999923
+        "duration_ms": 0.7798999999999978
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-03\""
     },
@@ -903,7 +978,7 @@
         "test_file": "packages/conformance-harness/test/04-whitespace-mutation.test.ts",
         "test_title": "[C-04-04] tab/newline inside string survives into canonical as \\u0009 / \\u000a escapes",
         "runner_status": "passed",
-        "duration_ms": 0.061916999999994005
+        "duration_ms": 0.3169000000000324
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/04-whitespace-mutation.test.ts -t \"C-04-04\""
     },
@@ -916,7 +991,7 @@
         "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
         "test_title": "[C-05-01] value-level NFC/NFD equivalence: canonically equivalent strings hash identically",
         "runner_status": "passed",
-        "duration_ms": 2.2751670000000104
+        "duration_ms": 3.7877999999999474
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-01\""
     },
@@ -929,7 +1004,7 @@
         "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
         "test_title": "[C-05-03] only NFC (not NFKC/NFKD) is applied: compatibility-distinct forms stay distinct",
         "runner_status": "passed",
-        "duration_ms": 0.5808750000000487
+        "duration_ms": 1.6305000000000973
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-03\""
     },
@@ -942,7 +1017,7 @@
         "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
         "test_title": "[C-05-04] key sorting is UTF-16 code-unit order, not code-point order",
         "runner_status": "passed",
-        "duration_ms": 0.20787500000000136
+        "duration_ms": 0.752399999999966
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-04\""
     },
@@ -955,9 +1030,9 @@
         "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
         "test_title": "[C-05-05] an object holding BOTH the NFC and NFD spelling of one key must not produce ambiguous canonical JSON",
         "runner_status": "failed",
-        "duration_ms": 2.787083999999993,
+        "duration_ms": 8.642600000000016,
         "failure_messages": [
-          "AssertionError: canonical text has duplicate keys: {\"é\":2,\"é\":1}: expected 1 to be 2 // Object.is equality\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/05-unicode-normalization.test.ts:55:87\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at runSuite (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+          "AssertionError: canonical text has duplicate keys: {\"é\":2,\"é\":1}: expected 1 to be 2 // Object.is equality\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\05-unicode-normalization.test.ts:55:87\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-05\""
@@ -971,7 +1046,7 @@
         "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
         "test_title": "[C-05-07] U+2028/U+2029 are emitted raw — valid JSON, agrees with reference; recorded as cross-language hazard",
         "runner_status": "passed",
-        "duration_ms": 0.247792000000004
+        "duration_ms": 0.6419999999999391
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-07\""
     },
@@ -984,7 +1059,7 @@
         "test_file": "packages/conformance-harness/test/05-unicode-normalization.test.ts",
         "test_title": "[C-05-08] normalization happens at canonicalization, not before: NFD input value canonicalizes to the NFC form",
         "runner_status": "passed",
-        "duration_ms": 0.06454199999996035
+        "duration_ms": 0.41010000000005675
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/05-unicode-normalization.test.ts -t \"C-05-08\""
     },
@@ -997,7 +1072,7 @@
         "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
         "test_title": "[C-06-01] canonical: null is preserved, undefined is omitted, and the two differ in hash",
         "runner_status": "passed",
-        "duration_ms": 1.7113329999999962
+        "duration_ms": 3.3713000000000193
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-01\""
     },
@@ -1010,7 +1085,7 @@
         "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
         "test_title": "[C-06-02] canonical: null in arrays is preserved, undefined in arrays is rejected",
         "runner_status": "passed",
-        "duration_ms": 0.45050000000000523
+        "duration_ms": 2.150100000000009
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-02\""
     },
@@ -1023,7 +1098,7 @@
         "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
         "test_title": "[C-06-03] schema: optional fields accept absence but reject explicit null",
         "runner_status": "passed",
-        "duration_ms": 3.175791000000004
+        "duration_ms": 13.773500000000013
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-03\""
     },
@@ -1036,7 +1111,7 @@
         "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
         "test_title": "[C-06-04] schema: required fields reject null and absence",
         "runner_status": "passed",
-        "duration_ms": 2.197209000000015
+        "duration_ms": 9.213900000000024
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-04\""
     },
@@ -1049,7 +1124,7 @@
         "test_file": "packages/conformance-harness/test/06-missing-vs-null.test.ts",
         "test_title": "[C-06-05] nested: budget.total=null and criteria[0]=null are rejected",
         "runner_status": "passed",
-        "duration_ms": 0.37991700000000606
+        "duration_ms": 1.7110999999999876
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/06-missing-vs-null.test.ts -t \"C-06-05\""
     },
@@ -1062,7 +1137,7 @@
         "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
         "test_title": "[C-07-03] SEALED bundle rejects duplicate artifact hashes (delivered superRefine)",
         "runner_status": "passed",
-        "duration_ms": 5.016124999999988
+        "duration_ms": 8.14240000000001
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-03\""
     },
@@ -1077,7 +1152,7 @@
         "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
         "test_title": "[C-07-04][GAP] OPEN bundle still accepts duplicate artifact hashes and duplicate run_ids (guard only covers SEALED)",
         "runner_status": "passed",
-        "duration_ms": 1.1392920000000117
+        "duration_ms": 1.6533000000000015
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-04\""
     },
@@ -1090,7 +1165,7 @@
         "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
         "test_title": "[C-07-05] merkle root de-duplicates by design: [X] and [X,X] share one root (set semantics)",
         "runner_status": "passed",
-        "duration_ms": 0.5614160000000084
+        "duration_ms": 1.0551000000000386
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-05\""
     },
@@ -1103,7 +1178,7 @@
         "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
         "test_title": "[C-07-06] duplicate ids do NOT hide mutation: same-id different-content criteria change the intent hash",
         "runner_status": "passed",
-        "duration_ms": 3.6860829999999964
+        "duration_ms": 5.817999999999984
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-06\""
     },
@@ -1118,7 +1193,7 @@
         "test_file": "packages/conformance-harness/test/07-duplicate-identifiers.test.ts",
         "test_title": "[C-07-07][GAP] duplicate keys in raw JSON text collapse last-wins BEFORE canonicalization (JS parse semantics)",
         "runner_status": "passed",
-        "duration_ms": 0.07758400000000165
+        "duration_ms": 0.3222999999999274
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/07-duplicate-identifiers.test.ts -t \"C-07-07\""
     },
@@ -1131,7 +1206,7 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-01] IntentContract rejects an unknown top-level field",
         "runner_status": "passed",
-        "duration_ms": 5.574667000000005
+        "duration_ms": 8.615999999999985
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
     },
@@ -1144,7 +1219,7 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-01] EvidenceArtifact rejects an unknown top-level field",
         "runner_status": "passed",
-        "duration_ms": 0.22016600000000608
+        "duration_ms": 0.5842999999999847
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
     },
@@ -1157,7 +1232,7 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-01] EvidenceBundle rejects an unknown top-level field",
         "runner_status": "passed",
-        "duration_ms": 0.16362499999999613
+        "duration_ms": 0.6375000000000455
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
     },
@@ -1170,20 +1245,23 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-01] VerificationDecision rejects an unknown top-level field",
         "runner_status": "passed",
-        "duration_ms": 0.15308299999998098
+        "duration_ms": 0.5976000000000568
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
     },
     {
       "check_id": "C-08-01#4",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[C-08] unknown fields / unsupported version",
       "title": "[C-08-01] SettlementInstruction rejects an unknown top-level field",
       "evidence": {
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-01] SettlementInstruction rejects an unknown top-level field",
-        "runner_status": "passed",
-        "duration_ms": 0.24933300000000713
+        "runner_status": "failed",
+        "duration_ms": 13.312999999999988,
+        "failure_messages": [
+          "AssertionError: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\08-unknown-fields-version.test.ts:28:52\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:861:59\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
     },
@@ -1196,7 +1274,7 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-01] Criterion rejects an unknown top-level field",
         "runner_status": "passed",
-        "duration_ms": 0.2490410000000054
+        "duration_ms": 1.0475999999999885
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-01\""
     },
@@ -1209,20 +1287,23 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-02] nested unknown fields are rejected (goal/criterion/budget/output/signature/evidence-rule/hashref)",
         "runner_status": "passed",
-        "duration_ms": 1.0227079999999944
+        "duration_ms": 5.3361999999999625
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-02\""
     },
     {
       "check_id": "C-08-03",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[C-08] unknown fields / unsupported version",
       "title": "[C-08-03] unsupported schema_version literals are rejected for every delivered object kind",
       "evidence": {
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-03] unsupported schema_version literals are rejected for every delivered object kind",
-        "runner_status": "passed",
-        "duration_ms": 1.8442499999999882
+        "runner_status": "failed",
+        "duration_ms": 4.635400000000004,
+        "failure_messages": [
+          "AssertionError: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\08-unknown-fields-version.test.ts:69:44\n    at Array.forEach (<anonymous>)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\08-unknown-fields-version.test.ts:68:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-03\""
     },
@@ -1235,7 +1316,7 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-04] missing schema_version is rejected",
         "runner_status": "passed",
-        "duration_ms": 0.31479199999998286
+        "duration_ms": 0.8675999999999249
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-04\""
     },
@@ -1250,7 +1331,7 @@
         "test_file": "packages/conformance-harness/test/08-unknown-fields-version.test.ts",
         "test_title": "[C-08-05][GAP] Criterion.threshold is open-ended JSON: arbitrary nested unknown semantics are accepted by design",
         "runner_status": "passed",
-        "duration_ms": 2.1526250000000005
+        "duration_ms": 1.1381999999999834
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/08-unknown-fields-version.test.ts -t \"C-08-05\""
     },
@@ -1278,7 +1359,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-01] flipping one byte of raw artifact bytes changes the content hash (SUT and reference agree)",
         "runner_status": "passed",
-        "duration_ms": 1.0717089999999985
+        "duration_ms": 2.83400000000006
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-01\""
     },
@@ -1291,7 +1372,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-02] swapping one artifact hash in a sealed bundle breaks the declared merkle root",
         "runner_status": "passed",
-        "duration_ms": 0.4723330000000203
+        "duration_ms": 1.6850000000000591
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-02\""
     },
@@ -1304,7 +1385,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-03] merkle root is deterministic under input reordering and duplication",
         "runner_status": "passed",
-        "duration_ms": 0.7931659999999852
+        "duration_ms": 3.017500000000041
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-03\""
     },
@@ -1317,7 +1398,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-04] valid merkle proof verifies under SUT and reference; tampered sibling or root fails",
         "runner_status": "passed",
-        "duration_ms": 0.3883339999999862
+        "duration_ms": 2.5300999999999476
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-04\""
     },
@@ -1330,7 +1411,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-05] proof for a leaf not in the bundle is rejected",
         "runner_status": "passed",
-        "duration_ms": 0.29137499999998795
+        "duration_ms": 2.068399999999997
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-05\""
     },
@@ -1343,7 +1424,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-06] empty evidence bundle has no root",
         "runner_status": "passed",
-        "duration_ms": 0.10554199999998559
+        "duration_ms": 0.8106999999999971
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-06\""
     },
@@ -1356,7 +1437,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-07] tampering artifact METADATA (subject/locator/captured_at) changes the artifact content_hash",
         "runner_status": "passed",
-        "duration_ms": 1.5661249999999995
+        "duration_ms": 3.0937000000000126
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-07\""
     },
@@ -1371,7 +1452,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-08][GAP] EvidenceArtifact has no self-declared content_hash field — metadata tampering cannot be caught by comparing a declared digest (only by re-hashing the object)",
         "runner_status": "passed",
-        "duration_ms": 0.41720799999998803
+        "duration_ms": 1.5565000000000282
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-08\""
     },
@@ -1386,7 +1467,7 @@
         "test_file": "packages/conformance-harness/test/09-evidence-tampering.test.ts",
         "test_title": "[C-09-09][GAP] artifact.payload_hash is only FORMAT-checked by the schema; (bytes, hash) binding needs CAS recomputation outside the delivered layer",
         "runner_status": "passed",
-        "duration_ms": 0.2243750000000091
+        "duration_ms": 0.4692000000000007
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/09-evidence-tampering.test.ts -t \"C-09-09\""
     },
@@ -1399,7 +1480,7 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-00] control: baseline hash agrees with the independent reference",
         "runner_status": "passed",
-        "duration_ms": 0.899915999999962
+        "duration_ms": 2.7280999999999267
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-00\""
     },
@@ -1412,7 +1493,7 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-01] mutating a criterion assertion changes the hash; stale declared content_hash is rejected by seal()",
         "runner_status": "passed",
-        "duration_ms": 1.3699170000000436
+        "duration_ms": 4.23090000000002
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-01\""
     },
@@ -1425,7 +1506,7 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-02] mutating threshold value changes the hash; number vs string threshold are distinct",
         "runner_status": "passed",
-        "duration_ms": 0.6493749999999636
+        "duration_ms": 3.4687999999999874
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-02\""
     },
@@ -1438,9 +1519,9 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-03] FAIL: schema admits thresholds that canonicalization rejects (2^53 is integer but not safe) — schema-valid object cannot be sealed",
         "runner_status": "failed",
-        "duration_ms": 4.0058329999999955,
+        "duration_ms": 17.77819999999997,
         "failure_messages": [
-          "AssertionError: expected [Function] to not throw an error but 'CanonicalizationError: number must be…' was thrown\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/10-criterion-mutation.test.ts:48:42\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to not throw an error but 'CanonicalizationError: number must be…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\10-criterion-mutation.test.ts:48:42\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-03\""
@@ -1454,7 +1535,7 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-04] reordering criteria changes the hash (array order is semantic)",
         "runner_status": "passed",
-        "duration_ms": 0.49979200000001356
+        "duration_ms": 1.3649999999998954
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-04\""
     },
@@ -1467,7 +1548,7 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-05] removing or adding a criterion changes the hash",
         "runner_status": "passed",
-        "duration_ms": 0.5284169999999904
+        "duration_ms": 6.7549999999999955
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-05\""
     },
@@ -1480,7 +1561,7 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-06] criterion evidence_requirements mutation (required true->false) changes the hash",
         "runner_status": "passed",
-        "duration_ms": 0.2350420000000213
+        "duration_ms": 1.8348999999999478
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-06\""
     },
@@ -1493,7 +1574,7 @@
         "test_file": "packages/conformance-harness/test/10-criterion-mutation.test.ts",
         "test_title": "[C-10-07] mutating criterion kind MACHINE->HUMAN changes the hash",
         "runner_status": "passed",
-        "duration_ms": 0.2967909999999847
+        "duration_ms": 1.219600000000014
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/10-criterion-mutation.test.ts -t \"C-10-07\""
     },
@@ -1514,40 +1595,49 @@
     },
     {
       "check_id": "C-11-00",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[C-11] settlement mutation",
       "title": "[C-11-00] control: baseline settlement hash agrees with independent reference",
       "evidence": {
         "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
         "test_title": "[C-11-00] control: baseline settlement hash agrees with independent reference",
-        "runner_status": "passed",
-        "duration_ms": 1.126874999999984
+        "runner_status": "failed",
+        "duration_ms": 14.218399999999974,
+        "failure_messages": [
+          "ZodError: [\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"milestone_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"decision_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"proof_binding\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"outcome_receipt_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'outcome_receipt_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:39:31)\n    at ZodObject.parse (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:114:22)\n    at baseline (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\11-settlement-mutation.test.ts:16:33)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\11-settlement-mutation.test.ts:19:24\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-00\""
     },
     {
       "check_id": "C-11-01",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[C-11] settlement mutation",
       "title": "[C-11-01] amount / recipient / reason / outputs mutations change the hash; seal() rejects stale declared hash",
       "evidence": {
         "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
         "test_title": "[C-11-01] amount / recipient / reason / outputs mutations change the hash; seal() rejects stale declared hash",
-        "runner_status": "passed",
-        "duration_ms": 1.5512499999999818
+        "runner_status": "failed",
+        "duration_ms": 1.2536999999999807,
+        "failure_messages": [
+          "ZodError: [\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"milestone_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"decision_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"proof_binding\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"outcome_receipt_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'outcome_receipt_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:39:31)\n    at ZodObject.parse (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:114:22)\n    at baseline (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\11-settlement-mutation.test.ts:16:33)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\11-settlement-mutation.test.ts:26:28\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-01\""
     },
     {
       "check_id": "C-11-02",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[C-11] settlement mutation",
       "title": "[C-11-02] nonce mutation changes the hash (replay separation)",
       "evidence": {
         "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
         "test_title": "[C-11-02] nonce mutation changes the hash (replay separation)",
-        "runner_status": "passed",
-        "duration_ms": 0.23179099999998698
+        "runner_status": "failed",
+        "duration_ms": 0.834699999999998,
+        "failure_messages": [
+          "ZodError: [\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"milestone_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"decision_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"proof_binding\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"outcome_receipt_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'outcome_receipt_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:39:31)\n    at ZodObject.parse (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:114:22)\n    at baseline (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\11-settlement-mutation.test.ts:16:33)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\11-settlement-mutation.test.ts:47:28\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-02\""
     },
@@ -1560,7 +1650,7 @@
         "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
         "test_title": "[C-11-03] decision proof_binding round-trips the SUT binding API (SUT self-consistency; R9 conformance is enforced by S-R9)",
         "runner_status": "passed",
-        "duration_ms": 0.4440409999999986
+        "duration_ms": 3.645599999999945
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-03\""
     },
@@ -1573,20 +1663,23 @@
         "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
         "test_title": "[C-11-04] tampering milestone_revision invalidates a declared proof_binding (detectable by recompute)",
         "runner_status": "passed",
-        "duration_ms": 0.07883400000000051
+        "duration_ms": 1.5226999999999862
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-04\""
     },
     {
       "check_id": "C-11-07",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[C-11] settlement mutation",
-      "title": "[C-11-07] settlementKey idempotency and separation (double-spend key)",
+      "title": "[C-11-07] settlementKey idempotency and separation (double-spend key; FROZEN receipt-keyed preimage)",
       "evidence": {
         "test_file": "packages/conformance-harness/test/11-settlement-mutation.test.ts",
-        "test_title": "[C-11-07] settlementKey idempotency and separation (double-spend key)",
-        "runner_status": "passed",
-        "duration_ms": 0.6341249999999832
+        "test_title": "[C-11-07] settlementKey idempotency and separation (double-spend key; FROZEN receipt-keyed preimage)",
+        "runner_status": "failed",
+        "duration_ms": 6.675000000000068,
+        "failure_messages": [
+          "AssertionError: SUT settlement_key must equal the frozen formula (domain-prefixed, receipt-keyed): expected 'sha256:860a859f4f0f9642a57b040eeb5119…' to be 'sha256:1ad5dccc9716edab0ade61804ff6ac…' // Object.is equality\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\11-settlement-mutation.test.ts:88:8\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/11-settlement-mutation.test.ts -t \"C-11-07\""
     },
@@ -1599,7 +1692,7 @@
         "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
         "test_title": "[C-12-01] identical decision inputs reproduce the identical proof_binding (idempotent, 10x)",
         "runner_status": "passed",
-        "duration_ms": 1.0047090000000196
+        "duration_ms": 2.697599999999966
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-01\""
     },
@@ -1612,7 +1705,7 @@
         "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
         "test_title": "[C-12-02] same evidence replayed at a LATER milestone revision yields a different binding (stale proof rejected)",
         "runner_status": "passed",
-        "duration_ms": 0.32558300000002305
+        "duration_ms": 1.1271000000000413
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-02\""
     },
@@ -1625,7 +1718,7 @@
         "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
         "test_title": "[C-12-03] same evidence under a different policy hash yields a different binding",
         "runner_status": "passed",
-        "duration_ms": 0.07024999999998727
+        "duration_ms": 0.3502000000000862
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-03\""
     },
@@ -1638,7 +1731,7 @@
         "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
         "test_title": "[C-12-04] amended intent (version 2) hashes differently from version 1 — old proofs cannot target the new version",
         "runner_status": "passed",
-        "duration_ms": 3.7375410000000215
+        "duration_ms": 14.6644
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-04\""
     },
@@ -1651,7 +1744,7 @@
         "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
         "test_title": "[C-12-05] settlement double-spend key: same (binding, escrow, nonce) -> same key; retried with new nonce -> new key",
         "runner_status": "passed",
-        "duration_ms": 0.192292000000009
+        "duration_ms": 0.5300999999999476
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-05\""
     },
@@ -1666,7 +1759,7 @@
         "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
         "test_title": "[C-12-06][GAP] a decision may reference a bundle that is OPEN (unsealed) — no cross-check in the schema layer",
         "runner_status": "passed",
-        "duration_ms": 0.18524999999999636
+        "duration_ms": 0.7802000000000362
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-06\""
     },
@@ -1681,7 +1774,7 @@
         "test_file": "packages/conformance-harness/test/12-replay-same-bundle.test.ts",
         "test_title": "[C-12-07][GAP] the same bundle_id with a DIFFERENT artifact set is representable — no uniqueness/append-only constraint in schema",
         "runner_status": "passed",
-        "duration_ms": 0.196708000000001
+        "duration_ms": 0.8264999999998963
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/12-replay-same-bundle.test.ts -t \"C-12-07\""
     },
@@ -1694,7 +1787,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: uppercase hex",
         "runner_status": "passed",
-        "duration_ms": 4.02841699999999
+        "duration_ms": 7.880199999999945
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1707,7 +1800,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: 63 chars",
         "runner_status": "passed",
-        "duration_ms": 0.6238749999999982
+        "duration_ms": 1.4309999999999263
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1720,7 +1813,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: 65 chars",
         "runner_status": "passed",
-        "duration_ms": 0.264082999999971
+        "duration_ms": 0.9270999999999958
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1733,7 +1826,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: no prefix",
         "runner_status": "passed",
-        "duration_ms": 0.17641700000001492
+        "duration_ms": 0.8940999999999804
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1746,7 +1839,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: 0x prefix",
         "runner_status": "passed",
-        "duration_ms": 0.21116599999999153
+        "duration_ms": 1.439899999999966
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1759,7 +1852,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: sha384",
         "runner_status": "passed",
-        "duration_ms": 0.17699999999996407
+        "duration_ms": 1.0302000000000362
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1772,7 +1865,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: empty",
         "runner_status": "passed",
-        "duration_ms": 0.15437500000001592
+        "duration_ms": 1.161799999999971
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1785,7 +1878,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: trailing newline",
         "runner_status": "passed",
-        "duration_ms": 0.1516669999999749
+        "duration_ms": 1.350999999999999
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1798,7 +1891,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-01] hash field rejects malformed value: internal spaces",
         "runner_status": "passed",
-        "duration_ms": 0.4396669999999858
+        "duration_ms": 1.5821999999999434
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-01\""
     },
@@ -1811,7 +1904,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02] SubjectRef rejects: no colon",
         "runner_status": "passed",
-        "duration_ms": 0.21687499999995907
+        "duration_ms": 1.018799999999942
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
     },
@@ -1824,7 +1917,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02] SubjectRef rejects: empty id",
         "runner_status": "passed",
-        "duration_ms": 0.15412500000002183
+        "duration_ms": 0.6779999999999973
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
     },
@@ -1837,7 +1930,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02] SubjectRef rejects: unknown kind",
         "runner_status": "passed",
-        "duration_ms": 0.133624999999995
+        "duration_ms": 0.7163999999999078
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
     },
@@ -1850,7 +1943,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02] SubjectRef rejects: id too long (129)",
         "runner_status": "passed",
-        "duration_ms": 0.14554199999997763
+        "duration_ms": 0.6125999999999294
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
     },
@@ -1863,7 +1956,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02] SubjectRef rejects: space in id",
         "runner_status": "passed",
-        "duration_ms": 0.2173330000000533
+        "duration_ms": 0.6870999999999867
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
     },
@@ -1876,7 +1969,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02] SubjectRef rejects: slash in id",
         "runner_status": "passed",
-        "duration_ms": 0.14441699999997581
+        "duration_ms": 0.46669999999994616
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
     },
@@ -1889,7 +1982,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02] SubjectRef rejects: colon-injection",
         "runner_status": "passed",
-        "duration_ms": 0.1396249999999668
+        "duration_ms": 0.4860999999999649
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02\""
     },
@@ -1902,7 +1995,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-02b] SubjectRef accepts boundary id length 128 and all documented kinds",
         "runner_status": "passed",
-        "duration_ms": 1.0263749999999732
+        "duration_ms": 3.8038999999999987
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-02b\""
     },
@@ -1915,7 +2008,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-03] HashRef rejects empty uri and malformed hash",
         "runner_status": "passed",
-        "duration_ms": 0.2941250000000082
+        "duration_ms": 1.3817999999999984
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-03\""
     },
@@ -1928,7 +2021,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-04] Timestamp rejects: no milliseconds",
         "runner_status": "passed",
-        "duration_ms": 0.14533299999999372
+        "duration_ms": 0.911200000000008
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
     },
@@ -1941,7 +2034,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-04] Timestamp rejects: offset timezone",
         "runner_status": "passed",
-        "duration_ms": 0.2073750000000132
+        "duration_ms": 0.5910000000000082
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
     },
@@ -1954,7 +2047,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-04] Timestamp rejects: lowercase z",
         "runner_status": "passed",
-        "duration_ms": 0.1353330000000028
+        "duration_ms": 0.6385000000000218
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
     },
@@ -1967,7 +2060,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-04] Timestamp rejects: date only",
         "runner_status": "passed",
-        "duration_ms": 0.14225000000004684
+        "duration_ms": 0.6348999999999023
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
     },
@@ -1980,7 +2073,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-04] Timestamp rejects: space separator",
         "runner_status": "passed",
-        "duration_ms": 0.13195899999999483
+        "duration_ms": 9.659900000000107
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-04\""
     },
@@ -1993,9 +2086,9 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-05] FAIL: Timestamp regex accepts calendrically impossible RFC 3339 strings (month 13, day 45, hour 99)",
         "runner_status": "failed",
-        "duration_ms": 2.6469999999999914,
+        "duration_ms": 8.811800000000062,
         "failure_messages": [
-          "AssertionError: 2026-13-01T00:00:00.000Z: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/13-malformed-references.test.ts:64:89\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: 2026-13-01T00:00:00.000Z: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\13-malformed-references.test.ts:64:89\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-05\""
@@ -2009,7 +2102,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: exponent",
         "runner_status": "passed",
-        "duration_ms": 0.25074999999998226
+        "duration_ms": 1.3318000000001575
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2022,7 +2115,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: leading zero",
         "runner_status": "passed",
-        "duration_ms": 0.15037499999999682
+        "duration_ms": 0.58400000000006
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2035,7 +2128,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: bare dot",
         "runner_status": "passed",
-        "duration_ms": 0.9959170000000199
+        "duration_ms": 0.47889999999983957
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2048,7 +2141,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: trailing dot",
         "runner_status": "passed",
-        "duration_ms": 0.5676250000000209
+        "duration_ms": 0.5190000000000055
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2061,7 +2154,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: explicit plus",
         "runner_status": "passed",
-        "duration_ms": 0.40299999999996317
+        "duration_ms": 0.5009000000000015
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2074,7 +2167,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: empty",
         "runner_status": "passed",
-        "duration_ms": 0.5559170000000222
+        "duration_ms": 0.39049999999997453
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2087,7 +2180,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: thousands separator",
         "runner_status": "passed",
-        "duration_ms": 0.1594159999999647
+        "duration_ms": 0.4379999999998745
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2100,7 +2193,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: NaN",
         "runner_status": "passed",
-        "duration_ms": 0.18000000000000682
+        "duration_ms": 0.47889999999983957
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2113,7 +2206,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-06] Decimal rejects: comma decimal",
         "runner_status": "passed",
-        "duration_ms": 0.13383299999998144
+        "duration_ms": 0.41460000000006403
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-06\""
     },
@@ -2126,7 +2219,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-07] U64-as-string rejects: negative",
         "runner_status": "passed",
-        "duration_ms": 0.1376250000000141
+        "duration_ms": 0.7110000000000127
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
     },
@@ -2139,7 +2232,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-07] U64-as-string rejects: exponent",
         "runner_status": "passed",
-        "duration_ms": 0.06687499999998181
+        "duration_ms": 0.3022000000000844
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
     },
@@ -2152,7 +2245,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-07] U64-as-string rejects: hex",
         "runner_status": "passed",
-        "duration_ms": 0.04320799999999281
+        "duration_ms": 1.1727000000000771
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
     },
@@ -2165,7 +2258,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-07] U64-as-string rejects: empty",
         "runner_status": "passed",
-        "duration_ms": 0.04058399999996709
+        "duration_ms": 0.2762000000000171
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
     },
@@ -2178,7 +2271,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-07] U64-as-string rejects: leading space",
         "runner_status": "passed",
-        "duration_ms": 0.041249999999990905
+        "duration_ms": 0.25939999999991414
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
     },
@@ -2191,7 +2284,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-07] U64-as-string rejects: explicit plus",
         "runner_status": "passed",
-        "duration_ms": 0.042208000000016455
+        "duration_ms": 0.2322999999998956
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07\""
     },
@@ -2204,9 +2297,9 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-07b] FAIL: U64-as-string regex has no upper bound — 2^64 is accepted by the schema but rejected by u64be() at hashing time",
         "runner_status": "failed",
-        "duration_ms": 0.35804200000001174,
+        "duration_ms": 5.002399999999852,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/13-malformed-references.test.ts:99:107\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\13-malformed-references.test.ts:94:99\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-07b\""
@@ -2220,7 +2313,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-08] U32 number rejects: negative",
         "runner_status": "passed",
-        "duration_ms": 0.18400000000002592
+        "duration_ms": 1.4341999999999189
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
     },
@@ -2233,7 +2326,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-08] U32 number rejects: float",
         "runner_status": "passed",
-        "duration_ms": 0.17054200000001174
+        "duration_ms": 11.666999999999916
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
     },
@@ -2246,7 +2339,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-08] U32 number rejects: u32 overflow",
         "runner_status": "passed",
-        "duration_ms": 0.16345899999998892
+        "duration_ms": 1.4647999999999683
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
     },
@@ -2259,7 +2352,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-08] U32 number rejects: NaN",
         "runner_status": "passed",
-        "duration_ms": 0.15166599999997743
+        "duration_ms": 0.9544000000000779
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-08\""
     },
@@ -2272,7 +2365,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-09] UUID rejects: not a uuid",
         "runner_status": "passed",
-        "duration_ms": 0.16183399999999892
+        "duration_ms": 1.7856999999999061
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
     },
@@ -2285,7 +2378,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-09] UUID rejects: braced",
         "runner_status": "passed",
-        "duration_ms": 0.14529199999998355
+        "duration_ms": 1.1948999999999614
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
     },
@@ -2298,7 +2391,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-09] UUID rejects: empty",
         "runner_status": "passed",
-        "duration_ms": 0.14441599999997834
+        "duration_ms": 0.9447999999999865
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
     },
@@ -2311,7 +2404,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-09] UUID rejects: g hex digit",
         "runner_status": "passed",
-        "duration_ms": 0.13566600000001472
+        "duration_ms": 2.050700000000006
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-09\""
     },
@@ -2324,7 +2417,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-10] decision/bundle malformed cross-fields: non-uuid bundle_id, bad evidence_root, negative revision",
         "runner_status": "passed",
-        "duration_ms": 0.27675000000004957
+        "duration_ms": 2.1276000000000295
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-10\""
     },
@@ -2337,7 +2430,7 @@
         "test_file": "packages/conformance-harness/test/13-malformed-references.test.ts",
         "test_title": "[C-13-11] escrow_ref and decision reason_codes entries must be non-empty; settlement needs >=1 output",
         "runner_status": "passed",
-        "duration_ms": 0.1326670000000263
+        "duration_ms": 0.7641000000000986
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/13-malformed-references.test.ts -t \"C-13-11\""
     },
@@ -2365,7 +2458,7 @@
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
         "test_title": "[C-14-01] delivered checker: merkle proof binds a bundle's artifacts to its root (tamper = detect)",
         "runner_status": "passed",
-        "duration_ms": 0.8624169999999935
+        "duration_ms": 3.175399999999968
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-01\""
     },
@@ -2380,7 +2473,7 @@
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
         "test_title": "[C-14-02][GAP] decision.intent_hash may be a fabricated hash bound to no Intent object",
         "runner_status": "passed",
-        "duration_ms": 1.1841670000000022
+        "duration_ms": 3.2288999999999533
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-02\""
     },
@@ -2395,7 +2488,7 @@
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
         "test_title": "[C-14-03][GAP] decision.evidence_root is not required to equal merkleRoot(bundle.artifact_hashes)",
         "runner_status": "passed",
-        "duration_ms": 0.7955839999999625
+        "duration_ms": 3.3923999999999523
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-03\""
     },
@@ -2403,14 +2496,14 @@
       "check_id": "C-14-04",
       "status": "UNKNOWN",
       "unknown_kind": "gap_documented",
-      "rationale": "gap_documented: Settlement may reference a dangling decision_id and arbitrary proof_binding.",
+      "rationale": "gap_documented: The SUPERSEDED decision-gated settlement wire permits a dangling decision_id and arbitrary proof_binding (demonstrated against the delivered SUT via the negative sample). The frozen receipt-gated wire forbids these authority fields entirely; see S-GATE-AUTH. Cross-object referential existence is separately deferred to S1.",
       "area": "[C-14] cross-object referential integrity",
-      "title": "[C-14-04][GAP] settlement may reference a dangling decision_id and an arbitrary proof_binding",
+      "title": "[C-14-04][GAP] the SUPERSEDED decision-gated wire permits a dangling decision_id and arbitrary proof_binding (frozen wire forbids these fields)",
       "evidence": {
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
-        "test_title": "[C-14-04][GAP] settlement may reference a dangling decision_id and an arbitrary proof_binding",
+        "test_title": "[C-14-04][GAP] the SUPERSEDED decision-gated wire permits a dangling decision_id and arbitrary proof_binding (frozen wire forbids these fields)",
         "runner_status": "passed",
-        "duration_ms": 0.2226660000000038
+        "duration_ms": 1.0312999999999874
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-04\""
     },
@@ -2425,7 +2518,7 @@
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
         "test_title": "[C-14-05][GAP] decision.milestone_id / bundle.milestone_id may dangle (no Milestone object delivered at all)",
         "runner_status": "passed",
-        "duration_ms": 0.21050000000002456
+        "duration_ms": 1.3116999999999734
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-05\""
     },
@@ -2440,7 +2533,7 @@
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
         "test_title": "[C-14-06][GAP] bundle.run_ids may reference runs that do not exist (no ExecutionRun object delivered)",
         "runner_status": "passed",
-        "duration_ms": 0.18654199999997445
+        "duration_ms": 0.7907000000000153
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-06\""
     },
@@ -2453,7 +2546,7 @@
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
         "test_title": "[C-14-07] intent chain integrity IS locally checkable: parent_hash of v2 must equal hash of v1",
         "runner_status": "passed",
-        "duration_ms": 1.549209000000019
+        "duration_ms": 5.153799999999933
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-07\""
     },
@@ -2468,7 +2561,7 @@
         "test_file": "packages/conformance-harness/test/14-cross-object-integrity.test.ts",
         "test_title": "[C-14-08][GAP] verification_policy_ref / settlement_policy_ref are content-addressed refs with no retrievable policy object in the delivered layer",
         "runner_status": "passed",
-        "duration_ms": 0.22208399999999529
+        "duration_ms": 0.9621999999999389
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/14-cross-object-integrity.test.ts -t \"C-14-08\""
     },
@@ -2526,7 +2619,7 @@
         "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
         "test_title": "[C-15-01] out-of-enum state literals are rejected (bundle 'CLOSED'/'VALID', decision result 'MAYBE')",
         "runner_status": "passed",
-        "duration_ms": 6.1065830000000005
+        "duration_ms": 9.528500000000008
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-01\""
     },
@@ -2539,7 +2632,7 @@
         "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
         "test_title": "[C-15-02] delivered bundle invariant: SEALED requires merkle_root + sealed_at + >=1 artifact + no duplicates",
         "runner_status": "passed",
-        "duration_ms": 0.6557919999999626
+        "duration_ms": 2.6446999999999434
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-02\""
     },
@@ -2552,7 +2645,7 @@
         "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
         "test_title": "[C-15-03] OPEN bundle carries no seal requirements (forward seam OPEN->SEALED is the only frozen transition)",
         "runner_status": "passed",
-        "duration_ms": 0.12429200000002538
+        "duration_ms": 0.6702999999999975
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-03\""
     },
@@ -2567,7 +2660,7 @@
         "test_file": "packages/conformance-harness/test/15-invalid-state-transition.test.ts",
         "test_title": "[C-15-05][GAP] delivered EvidenceBundleState has only 2 of the 7 states documented in arch doc §7 (VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED absent)",
         "runner_status": "passed",
-        "duration_ms": 0.2921670000000063
+        "duration_ms": 0.928600000000074
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/15-invalid-state-transition.test.ts -t \"C-15-05\""
     },
@@ -2640,9 +2733,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-R9] R9 EXACT BYTE PROTOCOL: oracle === golden vector; SUT === oracle; separation on milestone_id AND bundle_id",
         "runner_status": "failed",
-        "duration_ms": 7.584292000000005,
+        "duration_ms": 19.54230000000007,
         "failure_messages": [
-          "AssertionError: SUT must equal the frozen-formula oracle: expected 'sha256:1fda76ffdb01f7100cc35afbf65240…' to be 'sha256:e2d7869e432e3c99c9834ae3d19dc2…' // Object.is equality\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:66:68\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at runSuite (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+          "AssertionError: SUT must equal the frozen-formula oracle: expected 'sha256:1fda76ffdb01f7100cc35afbf65240…' to be 'sha256:e2d7869e432e3c99c9834ae3d19dc2…' // Object.is equality\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:66:68\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-R9\""
@@ -2656,7 +2749,7 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-RT] IntentContract: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected",
         "runner_status": "passed",
-        "duration_ms": 3.3980000000000246
+        "duration_ms": 9.298799999999915
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-RT\""
     },
@@ -2669,9 +2762,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-RT] EvidenceArtifact: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected",
         "runner_status": "failed",
-        "duration_ms": 1.2490420000000313,
+        "duration_ms": 3.1504999999999654,
         "failure_messages": [
-          "ZodError: [\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"content_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'content_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/zod/v3/types.js:39:31)\n    at ZodObject.parse (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/zod/v3/types.js:114:22)\n    at Module.seal (/Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/sut-snapshot/protocol-schema-src/objects.ts:223:20)\n    at sealWith (/Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/src/sut.ts:35:18)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:84:21\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:861:59\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)"
+          "ZodError: [\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"content_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'content_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:39:31)\n    at ZodObject.parse (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:114:22)\n    at Module.seal (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\sut-snapshot\\protocol-schema-src\\objects.ts:223:20)\n    at sealWith (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\src\\sut.ts:35:18)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:84:21\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:861:59\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-RT\""
@@ -2685,9 +2778,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-RT] EvidenceBundle: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected",
         "runner_status": "failed",
-        "duration_ms": 0.43183299999998326,
+        "duration_ms": 1.720899999999915,
         "failure_messages": [
-          "ZodError: [\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"content_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'content_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/zod/v3/types.js:39:31)\n    at ZodEffects.parse (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/zod/v3/types.js:114:22)\n    at Module.seal (/Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/sut-snapshot/protocol-schema-src/objects.ts:223:20)\n    at sealWith (/Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/src/sut.ts:35:18)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:84:21\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:861:59\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)"
+          "ZodError: [\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"content_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'content_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:39:31)\n    at ZodEffects.parse (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:114:22)\n    at Module.seal (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\sut-snapshot\\protocol-schema-src\\objects.ts:223:20)\n    at sealWith (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\src\\sut.ts:35:18)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:84:21\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:861:59\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-RT\""
@@ -2701,20 +2794,23 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-RT] VerificationDecision: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected",
         "runner_status": "passed",
-        "duration_ms": 0.3067919999999731
+        "duration_ms": 8.061399999999935
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-RT\""
     },
     {
       "check_id": "S-RT#4",
-      "status": "PASS",
+      "status": "FAIL",
       "area": "[SPEC] R9–R14 normative assertions",
       "title": "[S-RT] SettlementInstruction: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected",
       "evidence": {
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-RT] SettlementInstruction: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected",
-        "runner_status": "passed",
-        "duration_ms": 0.27174999999999727
+        "runner_status": "failed",
+        "duration_ms": 1.4157999999999902,
+        "failure_messages": [
+          "ZodError: [\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"milestone_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"decision_id\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"string\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"proof_binding\"\n    ],\n    \"message\": \"Required\"\n  },\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"outcome_receipt_hash\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key(s) in object: 'outcome_receipt_hash'\"\n  }\n]\n    at Object.get error [as error] (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:39:31)\n    at ZodObject.parse (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/zod/v3/types.js:114:22)\n    at Module.seal (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\sut-snapshot\\protocol-schema-src\\objects.ts:223:20)\n    at sealWith (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\src\\sut.ts:35:18)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:82:21\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:861:59\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)"
+        ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-RT\""
     },
@@ -2727,9 +2823,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-UUID] UUID canonical form = lowercase hyphenated text; version-agnostic; uppercase rejected",
         "runner_status": "failed",
-        "duration_ms": 1.1044159999999579,
+        "duration_ms": 4.786999999999807,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:95:128\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:95:128\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-UUID\""
@@ -2743,9 +2839,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-ASSET] one SettlementInstruction MUST carry exactly one asset (inputs otherwise legal)",
         "runner_status": "failed",
-        "duration_ms": 0.2627080000000319,
+        "duration_ms": 12.498000000000047,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:113:60\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:112:66\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-ASSET\""
@@ -2759,9 +2855,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-SCALE] amount scale MUST NOT exceed asset.decimals (decimal text itself legal)",
         "runner_status": "failed",
-        "duration_ms": 0.3482920000000149,
+        "duration_ms": 3.2937999999999192,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:126:66\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:125:66\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-SCALE\""
@@ -2775,9 +2871,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-BUDGET] execution_cap MUST NOT exceed budget total (both minimal-form decimals)",
         "runner_status": "failed",
-        "duration_ms": 0.5136249999999905,
+        "duration_ms": 2.4585000000001855,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:138:56\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:138:56\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-BUDGET\""
@@ -2791,9 +2887,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-SURR] lone surrogates MUST be rejected by the canonical form (IPC-JSON-1)",
         "runner_status": "failed",
-        "duration_ms": 0.1619580000000269,
+        "duration_ms": 1.1852000000001226,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:143:51\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:143:51\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-SURR\""
@@ -2807,9 +2903,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-KEYNFC] object keys MUST already be NFC — non-NFC keys are rejected, never silently normalized (IPC-JSON-1 R3)",
         "runner_status": "failed",
-        "duration_ms": 0.18795799999998053,
+        "duration_ms": 1.2790999999999713,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:153:40\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:153:40\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-KEYNFC\""
@@ -2823,9 +2919,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-SUBJ] SubjectRef MUST reject '@' (ruling OQ-5)",
         "runner_status": "failed",
-        "duration_ms": 0.4098750000000564,
+        "duration_ms": 2.077400000000125,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:158:97\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:158:97\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-SUBJ\""
@@ -2839,9 +2935,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-UNIQ] criterion_id and constraint_id MUST be unique within the Intent",
         "runner_status": "failed",
-        "duration_ms": 0.5657500000000368,
+        "duration_ms": 1.9067000000000007,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:171:60\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:171:60\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-UNIQ\""
@@ -2855,9 +2951,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-MERKLE] a SEALED bundle whose merkle_root is not the recomputed root MUST be rejected",
         "runner_status": "failed",
-        "duration_ms": 0.32533300000000054,
+        "duration_ms": 2.2018000000000484,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:185:53\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:185:53\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-MERKLE\""
@@ -2871,9 +2967,9 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-DEC] amounts MUST be canonical Decimal V1 minimal form (no trailing zeros, no negative zero)",
         "runner_status": "failed",
-        "duration_ms": 0.2233749999999759,
+        "duration_ms": 1.1791999999998097,
         "failure_messages": [
-          "AssertionError: 1.10 must be rejected as non-canonical: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:196:91\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:193:33\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-DEC\""
@@ -2887,12 +2983,198 @@
         "test_file": "packages/conformance-harness/test/16-spec-assertions.test.ts",
         "test_title": "[S-SUM] total_amount MUST equal the exact sum of outputs.amount",
         "runner_status": "failed",
-        "duration_ms": 0.20358400000003485,
+        "duration_ms": 0.7856999999999061,
         "failure_messages": [
-          "AssertionError: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/chai/index.js:1686:25)\n    at /Users/xinquanwang/intent-protocol-builder-b/packages/conformance-harness/test/16-spec-assertions.test.ts:208:63\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///Users/xinquanwang/intent-protocol-builder-b/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+          "AssertionError: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\16-spec-assertions.test.ts:207:66\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
         ]
       },
       "reproduce": "npx vitest run packages/conformance-harness/test/16-spec-assertions.test.ts -t \"S-SUM\""
+    },
+    {
+      "check_id": "S-MS-WIRE-01",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC1 MilestoneV1 exact-wire verifier",
+      "title": "[S-MS-WIRE-01] MilestoneV1 exact wire: exported as MilestoneSchema, exact frozen field set, schema_version literal 'milestone.v1'",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-MS-WIRE-01] MilestoneV1 exact wire: exported as MilestoneSchema, exact frozen field set, schema_version literal 'milestone.v1'",
+        "runner_status": "failed",
+        "duration_ms": 7.875299999999925,
+        "failure_messages": [
+          "AssertionError: MilestoneSchema must be exported by the SUT under its EXACT frozen name (no alias resolution): expected undefined to be defined\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:78:117\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-MS-WIRE-01\""
+    },
+    {
+      "check_id": "S-MS-WIRE-02",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC1 MilestoneV1 exact-wire verifier",
+      "title": "[S-MS-WIRE-02] MilestoneV1 rules: revision >= 1; criterion_ids non-empty, unique; allocation scale <= asset.decimals",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-MS-WIRE-02] MilestoneV1 rules: revision >= 1; criterion_ids non-empty, unique; allocation scale <= asset.decimals",
+        "runner_status": "failed",
+        "duration_ms": 0.782799999999952,
+        "failure_messages": [
+          "AssertionError: MilestoneSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:90:95\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-MS-WIRE-02\""
+    },
+    {
+      "check_id": "S-MS-HASH-01",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC1 MilestoneV1 exact-wire verifier",
+      "title": "[S-MS-HASH-01] MilestoneV1 digest: every required field feeds it, criterion order is canonical, domain pinned to intent-protocol/v1/milestone, round-trip idempotent",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-MS-HASH-01] MilestoneV1 digest: every required field feeds it, criterion order is canonical, domain pinned to intent-protocol/v1/milestone, round-trip idempotent",
+        "runner_status": "failed",
+        "duration_ms": 0.9823000000000093,
+        "failure_messages": [
+          "AssertionError: MilestoneSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:106:95\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-MS-HASH-01\""
+    },
+    {
+      "check_id": "S-RCPT-WIRE-01",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC2 OutcomeReceiptV1 exact-wire verifier",
+      "title": "[S-RCPT-WIRE-01] OutcomeReceiptV1 exact wire: exported as OutcomeReceiptSchema, exact frozen field set, literals 'outcome-receipt.v1' / 'ACCEPTED'",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-RCPT-WIRE-01] OutcomeReceiptV1 exact wire: exported as OutcomeReceiptSchema, exact frozen field set, literals 'outcome-receipt.v1' / 'ACCEPTED'",
+        "runner_status": "failed",
+        "duration_ms": 0.9070000000000391,
+        "failure_messages": [
+          "AssertionError: OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name (no alias resolution, no ReceiptSchema fallback): expected undefined to be defined\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:140:149\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-RCPT-WIRE-01\""
+    },
+    {
+      "check_id": "S-RCPT-SET-01",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC2 OutcomeReceiptV1 exact-wire verifier",
+      "title": "[S-RCPT-SET-01] decision_hashes MUST be non-empty, unique, strictly lexicographically ascending",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-RCPT-SET-01] decision_hashes MUST be non-empty, unique, strictly lexicographically ascending",
+        "runner_status": "failed",
+        "duration_ms": 0.996599999999944,
+        "failure_messages": [
+          "AssertionError: OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:153:100\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-RCPT-SET-01\""
+    },
+    {
+      "check_id": "S-RCPT-HASH-01",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC2 OutcomeReceiptV1 exact-wire verifier",
+      "title": "[S-RCPT-HASH-01] OutcomeReceiptV1 digest: every required field feeds it, domain pinned to intent-protocol/v1/outcome-receipt, round-trip idempotent",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-RCPT-HASH-01] OutcomeReceiptV1 digest: every required field feeds it, domain pinned to intent-protocol/v1/outcome-receipt, round-trip idempotent",
+        "runner_status": "failed",
+        "duration_ms": 0.8205000000000382,
+        "failure_messages": [
+          "AssertionError: OutcomeReceiptSchema must be exported by the SUT under its EXACT frozen name: expected undefined to be defined\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:166:100\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-RCPT-HASH-01\""
+    },
+    {
+      "check_id": "S-GATE-AUTH-01",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC3 receipt-gated Settlement exact-wire verifier",
+      "title": "[S-GATE-AUTH-01] Settlement exact wire: exact frozen field set carrying outcome_receipt_hash; decision_id / proof_binding are FORBIDDEN authority fields",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-GATE-AUTH-01] Settlement exact wire: exact frozen field set carrying outcome_receipt_hash; decision_id / proof_binding are FORBIDDEN authority fields",
+        "runner_status": "failed",
+        "duration_ms": 6.402000000000044,
+        "failure_messages": [
+          "AssertionError: exact wire: the field-name set must be EXACTLY the frozen set — no alias, no omission, no addition: expected Set{ 'schema_version', …(10) } to deeply equal Set{ 'schema_version', …(8) }\n    at exactFieldSet (C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:69:6)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:195:5\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-GATE-AUTH-01\""
+    },
+    {
+      "check_id": "S-GATE-AUTH-02",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC3 receipt-gated Settlement exact-wire verifier",
+      "title": "[S-GATE-AUTH-02] Settlement authorization is structurally receipt-gated: no receipt -> reject; raw decision authority -> reject",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-GATE-AUTH-02] Settlement authorization is structurally receipt-gated: no receipt -> reject; raw decision authority -> reject",
+        "runner_status": "failed",
+        "duration_ms": 5.5855999999999995,
+        "failure_messages": [
+          "AssertionError: the superseded decision-gated wire (decision_id + proof_binding) must NOT parse under the frozen contract: expected [Function] to throw an error\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:207:199\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-GATE-AUTH-02\""
+    },
+    {
+      "check_id": "S-GATE-AUTH-03",
+      "status": "FAIL",
+      "area": "[TRUST-CHAIN] B-TC3 receipt-gated Settlement exact-wire verifier",
+      "title": "[S-GATE-AUTH-03] Settlement frozen rules on the receipt-gated wire: one asset, scale <= decimals, total == exact sum",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts",
+        "test_title": "[S-GATE-AUTH-03] Settlement frozen rules on the receipt-gated wire: one asset, scale <= decimals, total == exact sum",
+        "runner_status": "failed",
+        "duration_ms": 9.666200000000003,
+        "failure_messages": [
+          "AssertionError: control: exact-sum settlement must parse: expected [Function] to not throw an error but '[\\n  {\\n    \"code\": \"invalid_type\",\\n…' was thrown\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at Proxy.<anonymous> (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/chai/index.js:1686:25)\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\17-trust-chain-exact-wire.test.ts:238:58\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/17-trust-chain-exact-wire.test.ts -t \"S-GATE-AUTH-03\""
+    },
+    {
+      "check_id": "S-SETTLEMENT-KEY-01",
+      "status": "PASS",
+      "area": "[SETTLEMENT-KEY] B-TC4 frozen byte protocol — three-way exact agreement",
+      "title": "[S-SETTLEMENT-KEY-01] TS oracle reproduces the Python-computed golden vector; every input separates; u64 boundaries exact",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/18-settlement-key.test.ts",
+        "test_title": "[S-SETTLEMENT-KEY-01] TS oracle reproduces the Python-computed golden vector; every input separates; u64 boundaries exact",
+        "runner_status": "passed",
+        "duration_ms": 5.7146999999999935
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/18-settlement-key.test.ts -t \"S-SETTLEMENT-KEY-01\""
+    },
+    {
+      "check_id": "S-SETTLEMENT-KEY-02",
+      "status": "FAIL",
+      "area": "[SETTLEMENT-KEY] B-TC4 frozen byte protocol — three-way exact agreement",
+      "title": "[S-SETTLEMENT-KEY-02] SUT === oracle === golden vector: a settlementKey implementing any other preimage FAILS",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/18-settlement-key.test.ts",
+        "test_title": "[S-SETTLEMENT-KEY-02] SUT === oracle === golden vector: a settlementKey implementing any other preimage FAILS",
+        "runner_status": "failed",
+        "duration_ms": 5.862899999999854,
+        "failure_messages": [
+          "Error: SUT settlementKey does not accept the FROZEN receipt-keyed parameterization (outcome_receipt_hash, escrow_ref, nonce): malformed hash: undefined\n    at C:\\Users\\xqw13\\INTENT PROTOCL\\INTENT-PROTOCOL\\packages\\conformance-harness\\test\\18-settlement-key.test.ts:70:13\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///C:/Users/xqw13/INTENT%20PROTOCL/INTENT-PROTOCOL/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+        ]
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/18-settlement-key.test.ts -t \"S-SETTLEMENT-KEY-02\""
+    },
+    {
+      "check_id": "S-SETTLEMENT-KEY-KAT",
+      "status": "PASS",
+      "area": "[SETTLEMENT-KEY] B-TC4 frozen byte protocol — three-way exact agreement",
+      "title": "[S-SETTLEMENT-KEY-KAT] independent Python KAT re-derives the golden vector (third implementation, hashlib only)",
+      "evidence": {
+        "test_file": "packages/conformance-harness/test/18-settlement-key.test.ts",
+        "test_title": "[S-SETTLEMENT-KEY-KAT] independent Python KAT re-derives the golden vector (third implementation, hashlib only)",
+        "runner_status": "passed",
+        "duration_ms": 722.7925
+      },
+      "reproduce": "npx vitest run packages/conformance-harness/test/18-settlement-key.test.ts -t \"S-SETTLEMENT-KEY-KAT\""
     }
   ],
   "attack_surfaces": [
@@ -3050,6 +3332,28 @@
       "detail": "proof_binding = H(intent_hash || milestone_revision || evidence_root || policy_hash) has no milestone_id in the preimage, and the delivered proofBinding() API cannot even receive one. Two distinct milestones sharing revision/intent/policy/evidence-root therefore share a single binding: a VALID decision for milestone A is a structurally valid proof for milestone B. Commander ruling R9 requires binding milestone_id in V1.",
       "evidence": [
         "C-12-08"
+      ]
+    },
+    {
+      "id": "AS-16",
+      "title": "Delivered settlement authorization is decision-gated on the superseded wire",
+      "severity": "high",
+      "detail": "The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2).",
+      "evidence": [
+        "S-GATE-AUTH-01",
+        "S-GATE-AUTH-02",
+        "C-14-04"
+      ]
+    },
+    {
+      "id": "AS-17",
+      "title": "settlement_key implements the superseded preimage (no domain prefix, proof_binding-keyed)",
+      "severity": "high",
+      "detail": "The frozen idempotency key is SHA256(\"intent-protocol/v1/settlement-key\" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation.",
+      "evidence": [
+        "S-SETTLEMENT-KEY-02",
+        "C-02-09",
+        "C-11-07"
       ]
     }
   ]

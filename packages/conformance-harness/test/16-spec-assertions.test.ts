@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { ARTIFACT_HASHES, fakeHash, POLICY_HASH, validArtifact, validBundle, validDecision, validIntent, validSettlement } from "../src/lib/fixtures.js";
+import { ARTIFACT_HASHES, fakeHash, POLICY_HASH, validArtifact, validBundle, validDecision, validIntent, validReceiptSettlement } from "../src/lib/fixtures.js";
 import { refProofBinding } from "../src/reference/hash.js";
 import r9Vector from "../vectors/proof-binding-vector.json";
 
@@ -77,7 +77,7 @@ describe("[SPEC] R9–R14 normative assertions", () => {
     ["EvidenceArtifact", () => validArtifact(), EvidenceArtifactSchema],
     ["EvidenceBundle", () => validBundle(), EvidenceBundleSchema],
     ["VerificationDecision", () => validDecision(), VerificationDecisionSchema],
-    ["SettlementInstruction", () => validSettlement(), SettlementInstructionSchema],
+    ["SettlementInstruction", () => validReceiptSettlement(), SettlementInstructionSchema],
   ])("[S-RT] %s: seal -> JSON text round-trip -> re-seal idempotent; wrong declared hash rejected", (_name, fixture, schema) => {
     const sealed1 = sealWith(schema as never, fixture());
     const back = JSON.parse(JSON.stringify(sealed1));
@@ -97,13 +97,13 @@ describe("[SPEC] R9–R14 normative assertions", () => {
 
   // ------------------------------------------------------------------ assets
   test("[S-ASSET] one SettlementInstruction MUST carry exactly one asset (inputs otherwise legal)", () => {
-    const mixed = validSettlement({
+    const mixed = validReceiptSettlement({
       outputs: [
         { recipient: "agent:builder-a", asset: usd2, amount: "150", reason: "split" },
         { recipient: "user:alice", asset: eur2, amount: "150", reason: "split" },
       ],
     });
-    const control = validSettlement({
+    const control = validReceiptSettlement({
       outputs: [
         { recipient: "agent:builder-a", asset: usd2, amount: "150", reason: "split" },
         { recipient: "user:alice", asset: usd2, amount: "150", reason: "split" },
@@ -114,11 +114,11 @@ describe("[SPEC] R9–R14 normative assertions", () => {
   });
 
   test("[S-SCALE] amount scale MUST NOT exceed asset.decimals (decimal text itself legal)", () => {
-    const control = validSettlement({
+    const control = validReceiptSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: usd1, amount: "15.5", reason: "scale ok" }], // scale 1 == decimals 1
       total_amount: "15.5", // sum-consistent: S-SUM cannot fire here
     });
-    const overPrecise = validSettlement({
+    const overPrecise = validReceiptSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: usd1, amount: "15.55", reason: "scale exceeds" }], // minimal-form legal decimal, scale 2 > 1
       total_amount: "15.55", // sum-consistent: S-SUM cannot fire here
     });
@@ -186,7 +186,7 @@ describe("[SPEC] R9–R14 normative assertions", () => {
   });
 
   test("[S-DEC] amounts MUST be canonical Decimal V1 minimal form (no trailing zeros, no negative zero)", () => {
-    const at = (amount: string) => SettlementInstructionSchema.parse(validSettlement({
+    const at = (amount: string) => SettlementInstructionSchema.parse(validReceiptSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: usd2, amount, reason: "decimal probe" }],
       total_amount: amount, // sum-consistent: S-SUM cannot fire here
     }));
@@ -202,8 +202,8 @@ describe("[SPEC] R9–R14 normative assertions", () => {
       { recipient: "agent:builder-a", asset: usd2, amount: "150", reason: "split" },
       { recipient: "user:alice", asset: usd2, amount: "50.5", reason: "split" },
     ];
-    const control = validSettlement({ outputs, total_amount: "200.5" });
-    const mismatch = validSettlement({ outputs, total_amount: "299" });
+    const control = validReceiptSettlement({ outputs, total_amount: "200.5" });
+    const mismatch = validReceiptSettlement({ outputs, total_amount: "299" });
     expect(() => SettlementInstructionSchema.parse(control)).not.toThrow();
     expect(() => SettlementInstructionSchema.parse(mismatch)).toThrow(); // can only fail on the sum invariant
   });

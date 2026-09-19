@@ -39,6 +39,27 @@ const sha256File = (p) => createHash("sha256").update(readFileSync(p)).digest("h
 const results = [];
 for (const tr of vitestJson.testResults) {
   const relFile = path.relative(repoRoot, tr.name).split(path.sep).join("/");
+  // EVIDENCE-INTEGRITY GUARD: a suite that fails to COLLECT (e.g. a throw at
+  // describe scope against a non-conforming SUT) yields no assertionResults.
+  // Silently dropping it would erase whole check ids from the evidence, so a
+  // failed collection is recorded as a synthetic FAIL finding instead.
+  if (tr.status === "failed" && (tr.assertionResults?.length ?? 0) === 0) {
+    results.push({
+      check_id: "SUITE-COLLECT-FAIL",
+      status: "FAIL",
+      area: "SUITE-COLLECT",
+      title: `suite failed to collect: ${relFile}`,
+      evidence: {
+        test_file: relFile,
+        test_title: `suite failed to collect: ${relFile}`,
+        runner_status: "failed",
+        duration_ms: null,
+        failure_messages: [String(tr.message ?? "runner reported suite failure without a message")],
+      },
+      reproduce: `npx vitest run ${relFile}`,
+    });
+    continue;
+  }
   for (const a of tr.assertionResults) {
     const title = (a.title || a.fullName || "");
     const idMatch = title.match(CHECK_ID_RE);

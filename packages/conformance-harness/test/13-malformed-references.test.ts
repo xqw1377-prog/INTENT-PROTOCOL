@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { validDecision, validIntent, validSettlement } from "../src/lib/fixtures.js";
+import { validDecision, validIntent, validReceiptSettlement } from "../src/lib/fixtures.js";
 import { sut } from "../src/sut.js";
 
 const S = sut.objects;
@@ -87,16 +87,16 @@ describe("[C-13] malformed references", () => {
     ["leading space", " 7"],
     ["explicit plus", "+7"],
   ])("[C-13-07] U64-as-string rejects: %s", (_label, bad) => {
-    expect(() => S.SettlementInstructionSchema.parse(validSettlement({ nonce: bad }))).toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({ nonce: bad }))).toThrow();
   });
 
   test("[C-13-07b] FAIL: U64-as-string regex has no upper bound — 2^64 is accepted by the schema but rejected by u64be() at hashing time", () => {
-    expect(() => S.SettlementInstructionSchema.parse(validSettlement({ nonce: "0" }))).not.toThrow();
-    expect(() => S.SettlementInstructionSchema.parse(validSettlement({ nonce: "18446744073709551615" }))).not.toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({ nonce: "0" }))).not.toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({ nonce: "18446744073709551615" }))).not.toThrow();
     // 2^64 is out of u64 range; the documented U64Schema ("u64 as decimal
     // string") should reject it, but the regex accepts any digit string, so a
     // schema-valid settlement exists that can never be canonicalized/hashed.
-    expect(() => S.SettlementInstructionSchema.parse(validSettlement({ nonce: "18446744073709551616" }))).toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({ nonce: "18446744073709551616" }))).toThrow();
   });
 
   test.each([
@@ -127,9 +127,9 @@ describe("[C-13] malformed references", () => {
   });
 
   test("[C-13-11] escrow_ref and decision reason_codes entries must be non-empty; settlement needs >=1 output", () => {
-    expect(() => S.SettlementInstructionSchema.parse(validSettlement({ escrow_ref: "" }))).toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({ escrow_ref: "" }))).toThrow();
     expect(() => S.VerificationDecisionSchema.parse(validDecision({ reason_codes: [""] }))).toThrow();
-    expect(() => S.SettlementInstructionSchema.parse(validSettlement({ outputs: [] }))).toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({ outputs: [] }))).toThrow();
   });
 
   test.todo("[C-13-12][GAP] ExecutionRun output_manifest / CapabilityGrant / ContributionEdge NodeRef / DisputeCase reference validation (objects NOT delivered in the S0 snapshot)");

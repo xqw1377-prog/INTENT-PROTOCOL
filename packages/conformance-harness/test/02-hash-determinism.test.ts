@@ -90,10 +90,13 @@ describe("[C-02] hash determinism", () => {
     }
   });
 
-  test("[C-02-09] settlementKey: SUT === independent reference; idempotent, differs per nonce/escrow", () => {
+  test("[C-02-09] settlementKey: SUT === independent reference over the FROZEN receipt-keyed preimage (TRUST-CHAIN @ e28a22e); differs per nonce/escrow", () => {
     const p = { proof_binding: fakeHash("11"), escrow_id: "escrow:sim-0001", settlement_nonce: 7n };
-    const expected = refSettlementKey({ ...p });
-    expect(settlementKey(p)).toBe(expected);
+    // FROZEN formula: domain-prefixed, keyed by outcome_receipt_hash. The same key
+    // material is fed to both sides; a SUT still computing the superseded
+    // proof_binding-keyed preimage fails here — that is the finding.
+    const expected = refSettlementKey({ outcome_receipt_hash: p.proof_binding, escrow_ref: p.escrow_id, nonce: p.settlement_nonce });
+    expect(settlementKey(p), "SUT settlement_key must equal the frozen formula (domain-prefixed, receipt-keyed)").toBe(expected);
     expect(settlementKey(p)).toBe(expected); // idempotent
     expect(settlementKey({ ...p, settlement_nonce: 8n })).not.toBe(expected);
     expect(settlementKey({ ...p, escrow_id: "escrow:sim-0002" })).not.toBe(expected);

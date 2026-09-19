@@ -1,0 +1,10 @@
+{
+  "$comment": "Settlement-key golden known-answer vector (Commander freeze, docs/TRUST-CHAIN.md @ e28a22e). expected computed by an independent Python implementation of the FROZEN byte protocol (scripts/kat-settlement-key.py re-derives and checks it). The TS oracle and the SUT must both reproduce this exact digest: three-way exact agreement is mandatory (B-TC4).",
+  "domain": "intent-protocol/v1/settlement-key",
+  "case": {
+    "outcome_receipt_hash": "sha256:adadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadad",
+    "escrow_ref": "escrow:sim-0001",
+    "nonce": 7
+  },
+  "expected": "sha256:718731cef25064b1c79d7356e06daadff5b27188d7b8a2747748a6bcd9615c33"
+}
