@@ -1,13 +1,39 @@
 # GP0 Independent Contract Audit (Builder D)
 
-Status: **GP0 AUDIT COMPLETE / AWAITING COMMANDER VERDICT**
+Status: **GP0 DELTA RE-AUDIT COMPLETE / AWAITING COMMANDER VERDICT**
+
+## Delta re-audit (amendment a1d9749) — verdict: PASS-ELIGIBLE, no new blockers
+
+Audited amendment: 5e44297 -> a1d9749 (docs/GOLDEN-PATH-V1.md + docs/GATES.md
+only; 137 insertions / 16 deletions — every deletion line-verified as
+replacement-by-stronger-clause, zero weakening).
+
+| Order item | Finding | Evidence |
+|---|---|---|
+| B1 wrong-payee closed? | **YES** — immutable ClaimRecord at CLAIM; §7 payee binding (single output, exact SubjectRef equality, frozen asset/amount/escrow); callers cannot supply payee; mismatch rejected before ELIGIBLE; negative case 9; GP4/GATES/GP5 payee assertions; hard invariants extended | [GP0-D01] text pins, [GP0-D02] executable semantics (7 violation classes incl. claim-task-freeze drift) |
+| C1 enum mapping accurate? | **YES** — prose ACCEPT ⇔ `VerificationDecisionV1.result === "VALID"`; "No `ACCEPT` result value may be invented"; remaining enum values preserved | [GP0-D03] |
+| C2 free variables gone? | **YES** — Task Freeze Record contract frozen (path, full field schema, max_attempts=3, suite sha256, deadline, escrow_ref); task_freeze_hash = SHA-256 over exact file bytes, explicitly NOT G1 content_hash/primitive/domain; single source of facts; post-GP2 change invalidates run; wall-clock not evidence | [GP0-D04] |
+| New blockers? | **NONE** — GP runtime strictness (outputs==1 etc.) layered over, not into, the G1 wire; ClaimRecord/task record are GP-local contracts; storage mechanism left as implementation freedom under frozen behavioral constraints | diff review + D01–D05 |
+| G1 zero change? | **YES** — amendment touches docs only; task_freeze_hash disclaims G1 hash domains; all prior audit pins still hold against amended text | [GP0-D05] |
+
+Note: C4 (fake-timer must assert the 2000 ms delay semantically) was also
+frozen by the amendment ("wall-clock waiting is not evidence") — all five
+clarifications from the original audit are now either pinned (C1, C2, C4) or
+explicitly out of GP0 scope (C3 uninterrupted-definition, C5 sybil scope).
+
+Delta verdict: **PASS-ELIGIBLE** (Commander signs GP0 PASS).
+Executable: `npx vitest run packages/gp-audit` — 11/11 PASS (6 original + 5 delta).
+
+---
+
+## Original audit (5e44297) — superseded verdict, retained for record
 
 - Audited main SHA: `5e44297f4f9b1b2faa4c6bef67d30d5e6ff01d94`
 - Normative inputs: `docs/GOLDEN-PATH-V1.md`, `docs/GATES.md` (GP additions), frozen G1 trust chain (`docs/TRUST-CHAIN.md` @ e28a22e lineage, closed at c1a85cb6)
 - Order: Issue #8 (Builder D activation)
 - Executable evidence: `test/gp0-contract-audit.test.ts` — **6/6 PASS** (`npx vitest run packages/gp-audit`)
 
-## Verdict recommendation: **NOT-ELIGIBLE** (one blocker, one-paragraph fix)
+Original verdict: **NOT-ELIGIBLE** (B1) — resolved by amendment a1d9749
 
 Everything audited is machine-testable and internally consistent except a
 single missing authorization binding (B1 below). Once amended, this audit
