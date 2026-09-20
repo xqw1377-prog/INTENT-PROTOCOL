@@ -1,13 +1,13 @@
 {
   "mode": "git-sha",
-  "pinned_sha": "602eac434a836a84d6fc16fc89caccd4fd225706",
+  "pinned_sha": "c1a85cb61ca453226fb90e230f4afd04cf3a964e",
   "remote_url": "https://github.com/xqw1377-prog/INTENT-PROTOCOL.git",
   "remote_refs_containing": [
     "origin/devin/p0-s0-schema-remediation"
   ],
   "zod_version_source": "pinned-lockfile",
-  "captured_at": "2026-09-20T04:43:37.971Z",
-  "source_git_head": "dc76ae9efe45e4f3c5414a5e0d9a4375276a5f56",
+  "captured_at": "2026-09-20T14:45:46.770Z",
+  "source_git_head": "5b1eb1f8631d8a7409d733cc57ae5db4ac853f09",
   "source_dir": "packages/protocol-schema/src",
   "zod_version": "3.25.76",
   "files": [

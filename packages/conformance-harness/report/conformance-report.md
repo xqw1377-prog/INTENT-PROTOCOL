@@ -1,7 +1,7 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-20T08:15:37.086Z
-- SUT snapshot: captured 2026-09-20T04:43:37.971Z from git `dc76ae9e` (zod 3.25.76)
+- Generated: 2026-09-20T14:46:24.317Z
+- SUT snapshot: captured 2026-09-20T14:45:46.770Z from git `5b1eb1f8` (zod 3.25.76)
 - Checks: **176 PASS / 0 FAIL / 23 UNKNOWN** (199 total)
 - Gate status: **READY_WITH_EXCEPTIONS** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 0 FAIL findings, 23 UNKNOWN entries; freeze blockers: 0 OPEN / 20 DISPOSITIONED.
 

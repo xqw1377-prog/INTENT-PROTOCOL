@@ -12,10 +12,12 @@ nothing from the SUT. The SUT is loaded exclusively through `src/sut.ts`.
 ## Verdict (point-in-time)
 
 See `report/conformance-report.json` (machine-readable) and
-`report/conformance-report.md` (summary). Current pinned run (**DIAGNOSTIC,
-not Formal G1** — remediation-18 self-check of the verifier itself):
+`report/conformance-report.md` (summary). Current pinned run (**FORMAL G1 RUN** against the Commander-published target,
+branch `zcode/g1-formal-c1a85cb`):
 
-- SUT: Builder A pre-candidate `602eac434a836a84d6fc16fc89caccd4fd225706`
+- SUT: **Formal target `c1a85cb61ca453226fb90e230f4afd04cf3a964e`** (Devin; parent = main@5b1eb1f;
+  packages/protocol-schema byte-identical to the accepted 602eac43 — golden drift check: NONE;
+  only docs delta is the "20000.00" -> "20000" ADR correction)
   (origin/devin/p0-s0-schema-remediation), captured `mode=git-sha` from the
   git object database (see `sut-snapshot/capture.json`).
 - **176 PASS / 0 FAIL / 23 UNKNOWN** across 199 checks (reconciliation-18:
@@ -24,8 +26,9 @@ not Formal G1** — remediation-18 self-check of the verifier itself):
   grew by 2 instead of staying 197; no checks were removed)
 - Gate status: `READY_WITH_EXCEPTIONS` (0 FAIL + 0 OPEN blockers + UNKNOWN > 0,
   per the frozen machine rule). `freeze_declaration` stays `NONE` — the final
-  G1 signature belongs to the Commander, and this run is explicitly NOT the
-  formal gate: the formal target must be a Commander-published SHA.
+  G1 signature belongs to the Commander, and **machine READY is NEVER an
+  automatic G1 PASS** — the final verdict belongs to the Commander. R9 KAT and
+  settlement-key KAT independently reproduced.
 - **20/20 freeze blockers DISPOSITIONED** (all 13 spec-round + all 7
   trust-chain blockers evidence-PASS against this SUT).
 - Evidence metadata reconciled to the current SUT facts: stale UNKNOWN
