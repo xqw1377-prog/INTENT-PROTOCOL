@@ -18,13 +18,20 @@ not Formal G1** — remediation-18 self-check of the verifier itself):
 - SUT: Builder A pre-candidate `602eac434a836a84d6fc16fc89caccd4fd225706`
   (origin/devin/p0-s0-schema-remediation), captured `mode=git-sha` from the
   git object database (see `sut-snapshot/capture.json`).
-- **174 PASS / 0 FAIL / 23 UNKNOWN** across 197 checks
+- **176 PASS / 0 FAIL / 23 UNKNOWN** across 199 checks (reconciliation-18:
+  the two formerly manifest-only UNKNOWN ids C-13-02c / C-13-09b became
+  executable PASS checks — they had never been executed before, so the total
+  grew by 2 instead of staying 197; no checks were removed)
 - Gate status: `READY_WITH_EXCEPTIONS` (0 FAIL + 0 OPEN blockers + UNKNOWN > 0,
   per the frozen machine rule). `freeze_declaration` stays `NONE` — the final
   G1 signature belongs to the Commander, and this run is explicitly NOT the
   formal gate: the formal target must be a Commander-published SHA.
 - **20/20 freeze blockers DISPOSITIONED** (all 13 spec-round + all 7
   trust-chain blockers evidence-PASS against this SUT).
+- Evidence metadata reconciled to the current SUT facts: stale UNKNOWN
+  rationales corrected (PKG-ENTRY-01 / C-08-06 / C-15-06); attack surfaces
+  AS-01/02/03/04/05/09/15/16/17 marked REMEDIATED and AS-07/12/13/14
+  partially remediated with current evidence.
 - Every PASS is bound to a test file + title + duration; every UNKNOWN carries
   a rationale from `unknowns.json` and never auto-promotes to PASS.
 

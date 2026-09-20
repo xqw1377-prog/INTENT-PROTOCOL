@@ -42,9 +42,9 @@
       "id": "AS-05",
       "title": "No canonical decimal form",
       "severity": "medium",
-      "detail": "Amounts like '1.0' / '1.00' / '1' / '-0' are distinct canonical strings for the same economic value. Any component that normalizes decimals before hashing (or after) will disagree with one that does not. Settlement amounts are the highest-value instance.",
+      "detail": "Canonical Decimal V1 minimal form is now FROZEN and enforced at schema parse ('1.10'/'0.00'/'-0'/'150.0' rejected; '150'/'15.5' accepted). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-DEC PASS.",
       "evidence": [
-        "C-11-06"
+        "S-DEC"
       ]
     },
     {
@@ -60,10 +60,9 @@
       "id": "AS-07",
       "title": "Identifier uniqueness is unenforced (criterion_id, constraint_id, bundle_id reuse)",
       "severity": "medium",
-      "detail": "Same-id different-content criteria are representable; the same bundle_id can seal two different artifact sets. Downstream resolution by id becomes attacker-choosable.",
+      "detail": "PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): criterion_id / constraint_id uniqueness is now enforced at parse (S-UNIQ PASS). Still open: the same bundle_id sealing two different artifact sets (C-12-07) — an append-only ledger constraint, S1 scope.",
       "evidence": [
-        "C-07-01",
-        "C-07-02",
+        "S-UNIQ",
         "C-12-07"
       ]
     },
@@ -85,9 +84,9 @@
       "id": "AS-09",
       "title": "SEALED bundle state does not imply a correct merkle_root",
       "severity": "high",
-      "detail": "The bundle invariant checks presence, not consistency: a SEALED bundle with a fabricated merkle_root parses. Detection requires every consumer to recompute merkleRoot(artifact_hashes) — cheap, but currently nothing mandates it.",
+      "detail": "SEALED bundle consistency is now ENFORCED at schema parse: merkle_root must equal the recomputed root of the artifact set. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-MERKLE PASS; tamper-by-recomputation remains available to any consumer (C-09-02 PASS).",
       "evidence": [
-        "C-15-04",
+        "S-MERKLE",
         "C-09-02"
       ]
     },
@@ -116,7 +115,7 @@
       "id": "AS-12",
       "title": "Delivered scope is a moving subset of the documented protocol",
       "severity": "high",
-      "detail": "Arch doc §6/§7 document 10+ object kinds and 6 state machines; the delivered snapshot contains 6 object kinds, a 2-state bundle lifecycle, and no transition engine, and it changed shape twice while this verification was running (events.js removed; Milestone/Plan/Run/Grant/Edge/Dispute dropped; content_hash renamed payload_hash; SubjectRef charset widened). Until Builder A declares a frozen revision, any conformance verdict is point-in-time only — which is why this harness pins a snapshot.",
+      "detail": "PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): the delivered surface is now the 8-object G1 trust chain frozen in TRUST-CHAIN.md @ e28a22e (IntentContract, Criterion, Milestone, EvidenceArtifact, EvidenceBundle, VerificationDecision, OutcomeReceipt, SettlementInstruction), verified by the exact-wire blockers S-MS-WIRE/S-RCPT-WIRE (PASS). The drift vector is CLOSED: every capture is SHA-pinned from the git object database (mode=git-sha). Still outside delivered scope: Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase and the §7 state machines (S1+).",
       "evidence": [
         "C-08-06",
         "C-13-12",
@@ -133,8 +132,9 @@
       "id": "AS-13",
       "title": "SubjectRef charset widened to include '@' without protocol review",
       "severity": "low",
-      "detail": "user:alice@evil is now a valid principal. Visual spoofing of email-like principal ids becomes representable in signed objects.",
+      "detail": "SubjectRef charset no longer contains '@': lookalike email-form principal ids are rejected on every principal slot (OQ-5). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-SUBJ PASS and the formerly-UNKNOWN C-13-02c is now an executable PASS check (verifier_id / submitter / recipient slots).",
       "evidence": [
+        "S-SUBJ",
         "C-13-02c"
       ]
     },
@@ -142,9 +142,12 @@
       "id": "AS-14",
       "title": "Economic invariants absent from every delivered layer",
       "severity": "medium",
-      "detail": "total_amount != sum(outputs) parses; outputs are not bounded by any escrow notion; u64 nonce has no monotonicity. The A5/A7 principles (proof before payment, idempotent effects) currently rest entirely on undelivered engines.",
+      "detail": "PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): exact-sum equality, single-asset and scale<=decimals are enforced at parse (S-SUM / S-ASSET / S-SCALE PASS), and settlement is receipt-gated (S-GATE-AUTH PASS). Still open: outputs are not bounded by any escrow notion and the u64 nonce has no monotonicity — both live in the settlement engine, S1 scope.",
       "evidence": [
-        "C-11-05",
+        "S-SUM",
+        "S-ASSET",
+        "S-SCALE",
+        "S-GATE-AUTH",
         "C-11-07"
       ]
     },
@@ -152,9 +155,9 @@
       "id": "AS-15",
       "title": "proof_binding does not bind milestone_id (R9): cross-milestone proof replay",
       "severity": "high",
-      "detail": "proof_binding = H(intent_hash || milestone_revision || evidence_root || policy_hash) has no milestone_id in the preimage, and the delivered proofBinding() API cannot even receive one. Two distinct milestones sharing revision/intent/policy/evidence-root therefore share a single binding: a VALID decision for milestone A is a structurally valid proof for milestone B. Commander ruling R9 requires binding milestone_id in V1.",
+      "detail": "proof_binding now binds milestone_id AND bundle_id per the frozen R9 six-field byte protocol; cross-milestone proof replay is separated. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-R9 PASS — oracle === golden vector === SUT, sensitivity on both proof targets verified.",
       "evidence": [
-        "C-12-08"
+        "S-R9"
       ]
     },
     {

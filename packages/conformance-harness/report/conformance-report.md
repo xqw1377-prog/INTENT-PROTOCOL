@@ -1,8 +1,8 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-20T04:46:39.103Z
+- Generated: 2026-09-20T08:07:43.324Z
 - SUT snapshot: captured 2026-09-20T04:43:37.971Z from git `dc76ae9e` (zod 3.25.76)
-- Checks: **174 PASS / 0 FAIL / 23 UNKNOWN** (197 total)
+- Checks: **176 PASS / 0 FAIL / 23 UNKNOWN** (199 total)
 - Gate status: **READY_WITH_EXCEPTIONS** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 0 FAIL findings, 23 UNKNOWN entries; freeze blockers: 0 OPEN / 20 DISPOSITIONED.
 
 ## Area rollup
@@ -21,7 +21,7 @@
 | C-10 | **UNKNOWN** | 8 | 0 | 1 |
 | C-11 | **PASS** | 6 | 0 | 0 |
 | C-12 | **UNKNOWN** | 5 | 0 | 2 |
-| C-13 | **UNKNOWN** | 50 | 0 | 1 |
+| C-13 | **UNKNOWN** | 52 | 0 | 1 |
 | C-14 | **UNKNOWN** | 3 | 0 | 8 |
 | C-15 | **UNKNOWN** | 3 | 0 | 5 |
 | SPEC-ASSERTIONS | **PASS** | 29 | 0 | 0 |
@@ -54,11 +54,11 @@
 
 ## UNKNOWN (never auto-PASS)
 
-- **PKG-ENTRY-01** (blocked): blocked: Live package barrel/@intent/protocol-schema entry import was not evaluated against the frozen snapshot: Builder A edited the live tree twice during verification (missing events.js -> fixed; Milestone/Plan/Run/Grant/Edge/Dispute objects removed; artifact content_hash renamed payload_hash; SubjectRef charset widened). Re-run scripts/capture-sut.mjs to pin a newer SUT.
+- **PKG-ENTRY-01** (blocked): blocked: Reconciliation-18: the original blocker (Builder A editing the live tree during verification) is CLOSED — every capture is pinned at a pushed SHA from the git object database (mode=git-sha, capture.json). The barrel/entry-point import remains unevaluated because packaging is outside S0 gate scope; re-opens with S1 packaging.
 - **C-07-04** (gap_documented): gap_documented: Duplicate artifact hashes/run ids accepted while a bundle is OPEN; the delivered superRefine only guards SEALED.
 - **C-07-07** (gap_documented): gap_documented: Duplicate keys in raw JSON text collapse last-wins at JS parse time before canonicalization; two byte-different evidence texts can share one hash.
 - **C-08-05** (gap_documented): gap_documented: Criterion.threshold is open-ended JSON by design; arbitrary nested semantics are representable inside a frozen criterion.
-- **C-08-06** (blocked): blocked: Unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase cannot be tested: objects documented in arch doc §6 are absent from the delivered S0 snapshot.
+- **C-08-06** (blocked): blocked: Reconciliation-18: the Milestone half is CLOSED — MilestoneV1 is delivered on the frozen wire (TRUST-CHAIN.md @ e28a22e) and its strict alias/unknown-field rejection is asserted by S-MS-WIRE-01. Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase remain outside the delivered G1 scope.
 - **C-09-09** (gap_documented): gap_documented: payload_hash is format-checked only; the (bytes, hash) binding is enforced by CAS-side recomputation outside the delivered layer.
 - **C-10-08** (blocked): blocked: SUPERSEDED PREMISE (remediation-18, PR #5 review): MilestoneV1 IS delivered on the frozen wire (TRUST-CHAIN.md @ e28a22e) and content immutability is enforced by the digest (every required field incl. criterion_ids feeds content_hash — asserted by S-MS-WIRE / S-MS-HASH). Only the lifecycle MUTATION machinery (revision bump / acceptance transition) remains undelivered; that is S1 scope.
 - **C-12-06** (gap_documented): gap_documented: A decision may reference an OPEN (unsealed) bundle; nothing in the delivered layer binds decision validity to bundle state.
@@ -73,7 +73,7 @@
 - **C-14-10** (blocked): blocked: DisputeCase.challenged_decision existence unenforceable: DisputeCase object absent.
 - **C-14-11** (blocked): blocked: ExecutionRun.grants existence/scope unenforceable: Run/Grant objects absent.
 - **C-15-05** (gap_documented): gap_documented: Delivered EvidenceBundleState has 2 of the 7 states documented in arch doc §7; VERIFYING/VALID/INVALID/INSUFFICIENT/CHALLENGED are absent.
-- **C-15-06** (blocked): blocked: Milestone state machine (arch doc §7) not delivered.
+- **C-15-06** (blocked): blocked: Reconciliation-18: the Milestone OBJECT is delivered on the frozen wire; only the lifecycle machinery (state enum + transition engine, arch doc §7) is undelivered — S1 scope, same deferral class as C-10-08.
 - **C-15-07** (blocked): blocked: Settlement state machine (arch doc §7) not delivered; SettlementInstruction has no state field in S0.
 - **C-15-08** (blocked): blocked: Intent state machine (arch doc §7) not delivered.
 - **C-15-09** (blocked): blocked: G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists (@intent/intent-core absent).
@@ -81,40 +81,40 @@
 ## Attack surfaces
 
 ### AS-01 [high] NFC key-collision produces duplicate-key canonical JSON
-canonicalize({NFC 'é': 1, NFD 'e'+U+0301: 2}) emits '{"é":1,"é":2}' — invalid, ambiguous canonical text. A second implementation (or JSON.parse) collapses the keys, so the same canonical bytes can be re-read as a different object than the one that was hashed. The independent reference rejects this case.
+canonicalize({NFC 'é': 1, NFD 'e'+U+0301: 2}) emits '{"é":1,"é":2}' — invalid, ambiguous canonical text. A second implementation (or JSON.parse) collapses the keys, so the same canonical bytes can be re-read as a different object than the one that was hashed. The independent reference rejects this case. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-05-05 now PASS — the canonicalizer rejects non-NFC keys per IPC-JSON-1 instead of emitting duplicate-key JSON.
 - Grounded by: C-05-05
 
 ### AS-02 [medium] -0 silently canonicalizes to 0 against the frozen spec text
-Spec header rule 4 says -0 is rejected; the implementation maps -0 -> 0. Two distinct JS values share one canonical form; a strict cross-language implementation following the written rule will refuse objects the TS implementation accepts (and hash differently on any value it does emit).
+Spec header rule 4 says -0 is rejected; the implementation maps -0 -> 0. Two distinct JS values share one canonical form; a strict cross-language implementation following the written rule will refuse objects the TS implementation accepts (and hash differently on any value it does emit). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-01-07 now PASS — -0 is rejected at canonicalization.
 - Grounded by: C-01-07
 
 ### AS-03 [high] Schema admits values the canonicalizer rejects (unhashable-but-valid objects)
-Criterion.threshold uses z.number().int() (accepts 2^53, 1e308) while canonicalization requires safe integers; U64-as-string regex accepts 2^64 while u64be() throws. A schema-valid Intent/Settlement can exist that can never be sealed — parsers in other languages will disagree about whether the object is acceptable at all.
+Criterion.threshold uses z.number().int() (accepts 2^53, 1e308) while canonicalization requires safe integers; U64-as-string regex accepts 2^64 while u64be() throws. A schema-valid Intent/Settlement can exist that can never be sealed — parsers in other languages will disagree about whether the object is acceptable at all. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-10-03 and C-13-07b now PASS — unsafe ints are rejected at schema parse and the U64-as-string regex is upper-bounded, so every schema-valid object is sealable.
 - Grounded by: C-10-03, C-13-07b
 
 ### AS-04 [medium] Timestamp format is shape-checked, not calendrically validated
-'2026-13-45T99:99:99.999Z' passes TimestampSchema despite being invalid RFC 3339. Cross-language timestamp parsers (strict RFC 3339) will reject objects the TS layer accepted, splitting the hash universe.
+'2026-13-45T99:99:99.999Z' passes TimestampSchema despite being invalid RFC 3339. Cross-language timestamp parsers (strict RFC 3339) will reject objects the TS layer accepted, splitting the hash universe. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-13-05 now PASS — timestamps are calendrically validated.
 - Grounded by: C-13-05
 
 ### AS-05 [medium] No canonical decimal form
-Amounts like '1.0' / '1.00' / '1' / '-0' are distinct canonical strings for the same economic value. Any component that normalizes decimals before hashing (or after) will disagree with one that does not. Settlement amounts are the highest-value instance.
-- Grounded by: C-11-06
+Canonical Decimal V1 minimal form is now FROZEN and enforced at schema parse ('1.10'/'0.00'/'-0'/'150.0' rejected; '150'/'15.5' accepted). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-DEC PASS.
+- Grounded by: S-DEC
 
 ### AS-06 [medium] Duplicate-key raw JSON collapses last-wins before canonicalization
 '{"a":1,"a":2}' and '{"a":2}' hash identically. Byte-level audit of evidence text diverges from hash-level identity; a malicious producer can include decoy keys that vanish in the hash.
 - Grounded by: C-07-07
 
 ### AS-07 [medium] Identifier uniqueness is unenforced (criterion_id, constraint_id, bundle_id reuse)
-Same-id different-content criteria are representable; the same bundle_id can seal two different artifact sets. Downstream resolution by id becomes attacker-choosable.
-- Grounded by: C-07-01, C-07-02, C-12-07
+PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): criterion_id / constraint_id uniqueness is now enforced at parse (S-UNIQ PASS). Still open: the same bundle_id sealing two different artifact sets (C-12-07) — an append-only ledger constraint, S1 scope.
+- Grounded by: S-UNIQ, C-12-07
 
 ### AS-08 [high] Cross-object references are free-floating
 decisions bind fabricated intent_hash/evidence_root; settlements bind dangling decision_id; bundles bind nonexistent runs. Nothing in the delivered layer enforces the §15.1 north-star chain (Receipt -> Settlement -> Decision -> Bundle -> Run -> Intent). The proof_binding construction is sound, but its INPUTS are unauthenticated at this layer.
 - Grounded by: C-14-02, C-14-03, C-14-04, C-14-05, C-14-06, C-12-06
 
 ### AS-09 [high] SEALED bundle state does not imply a correct merkle_root
-The bundle invariant checks presence, not consistency: a SEALED bundle with a fabricated merkle_root parses. Detection requires every consumer to recompute merkleRoot(artifact_hashes) — cheap, but currently nothing mandates it.
-- Grounded by: C-15-04, C-09-02
+SEALED bundle consistency is now ENFORCED at schema parse: merkle_root must equal the recomputed root of the artifact set. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-MERKLE PASS; tamper-by-recomputation remains available to any consumer (C-09-02 PASS).
+- Grounded by: S-MERKLE, C-09-02
 
 ### AS-10 [low] Domain/version separation relies on 0x00 exclusion, not length prefixing
 hash_input = domain||0x00||version||0x00||canonical is injective only because (a) domain/version literals are frozen and 0x00-free and (b) canonical JSON escapes control characters. Any future domain string containing U+0000, or a non-JSON-escaping canonicalizer, breaks the separation. A length-prefixed design would not depend on both invariants.
@@ -125,27 +125,27 @@ RESOLVED IN SPEC: the canonical profile is now formally named IPC-JSON-1 (OQ-1) 
 - Grounded by: C-05-01, C-05-07, S-KEYNFC, S-SURR
 
 ### AS-12 [high] Delivered scope is a moving subset of the documented protocol
-Arch doc §6/§7 document 10+ object kinds and 6 state machines; the delivered snapshot contains 6 object kinds, a 2-state bundle lifecycle, and no transition engine, and it changed shape twice while this verification was running (events.js removed; Milestone/Plan/Run/Grant/Edge/Dispute dropped; content_hash renamed payload_hash; SubjectRef charset widened). Until Builder A declares a frozen revision, any conformance verdict is point-in-time only — which is why this harness pins a snapshot.
+PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): the delivered surface is now the 8-object G1 trust chain frozen in TRUST-CHAIN.md @ e28a22e (IntentContract, Criterion, Milestone, EvidenceArtifact, EvidenceBundle, VerificationDecision, OutcomeReceipt, SettlementInstruction), verified by the exact-wire blockers S-MS-WIRE/S-RCPT-WIRE (PASS). The drift vector is CLOSED: every capture is SHA-pinned from the git object database (mode=git-sha). Still outside delivered scope: Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase and the §7 state machines (S1+).
 - Grounded by: C-08-06, C-13-12, C-14-09, C-15-05, C-15-06, C-15-07, C-15-08, C-15-09, PKG-ENTRY-01
 
 ### AS-13 [low] SubjectRef charset widened to include '@' without protocol review
-user:alice@evil is now a valid principal. Visual spoofing of email-like principal ids becomes representable in signed objects.
-- Grounded by: C-13-02c
+SubjectRef charset no longer contains '@': lookalike email-form principal ids are rejected on every principal slot (OQ-5). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-SUBJ PASS and the formerly-UNKNOWN C-13-02c is now an executable PASS check (verifier_id / submitter / recipient slots).
+- Grounded by: S-SUBJ, C-13-02c
 
 ### AS-14 [medium] Economic invariants absent from every delivered layer
-total_amount != sum(outputs) parses; outputs are not bounded by any escrow notion; u64 nonce has no monotonicity. The A5/A7 principles (proof before payment, idempotent effects) currently rest entirely on undelivered engines.
-- Grounded by: C-11-05, C-11-07
+PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): exact-sum equality, single-asset and scale<=decimals are enforced at parse (S-SUM / S-ASSET / S-SCALE PASS), and settlement is receipt-gated (S-GATE-AUTH PASS). Still open: outputs are not bounded by any escrow notion and the u64 nonce has no monotonicity — both live in the settlement engine, S1 scope.
+- Grounded by: S-SUM, S-ASSET, S-SCALE, S-GATE-AUTH, C-11-07
 
 ### AS-15 [high] proof_binding does not bind milestone_id (R9): cross-milestone proof replay
-proof_binding = H(intent_hash || milestone_revision || evidence_root || policy_hash) has no milestone_id in the preimage, and the delivered proofBinding() API cannot even receive one. Two distinct milestones sharing revision/intent/policy/evidence-root therefore share a single binding: a VALID decision for milestone A is a structurally valid proof for milestone B. Commander ruling R9 requires binding milestone_id in V1.
-- Grounded by: C-12-08
+proof_binding now binds milestone_id AND bundle_id per the frozen R9 six-field byte protocol; cross-milestone proof replay is separated. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-R9 PASS — oracle === golden vector === SUT, sensitivity on both proof targets verified.
+- Grounded by: S-R9
 
 ### AS-16 [high] Delivered settlement authorization is decision-gated on the superseded wire
-The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2).
+The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-GATE-AUTH-01/02 and C-14-04 now PASS — SettlementInstructionV1 is receipt-gated (outcome_receipt_hash required; decision_id/proof_binding unrepresentable).
 - Grounded by: S-GATE-AUTH-01, S-GATE-AUTH-02, C-14-04
 
 ### AS-17 [high] settlement_key implements the superseded preimage (no domain prefix, proof_binding-keyed)
-The frozen idempotency key is SHA256("intent-protocol/v1/settlement-key" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation.
+The frozen idempotency key is SHA256("intent-protocol/v1/settlement-key" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-SETTLEMENT-KEY-02, C-02-09, C-11-07 now PASS — settlementKey implements the frozen domain-separated receipt-keyed preimage (three-way agreement with the TS oracle and Python KAT).
 - Grounded by: S-SETTLEMENT-KEY-02, C-02-09, C-11-07
 
 ## Statement

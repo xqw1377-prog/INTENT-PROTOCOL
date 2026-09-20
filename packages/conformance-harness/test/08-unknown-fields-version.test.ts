@@ -89,5 +89,5 @@ describe("[C-08] unknown fields / unsupported version", () => {
     expect(() => S.IntentContractSchema.parse(validIntent({ success_criteria: criteria }))).not.toThrow();
   });
 
-  test.todo("[C-08-06][GAP] unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase (objects documented in arch doc §6 but NOT delivered in the S0 snapshot)");
+  test.todo("[C-08-06][GAP] unknown-field strictness for Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase (arch doc §6 objects outside the G1 scope — NOT delivered). Reconciliation-18: the Milestone half is CLOSED: MilestoneV1 is delivered on the frozen wire and its strict alias/unknown-field rejection is asserted by S-MS-WIRE-01)");
 });
