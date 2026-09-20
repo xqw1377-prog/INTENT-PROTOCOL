@@ -1,6 +1,6 @@
 # Golden Path V1 — GP0 Frozen Contract
 
-Status: **FROZEN / AWAITING INDEPENDENT GP0 AUDIT**
+Status: **AMENDED / AWAITING BUILDER D DELTA RE-AUDIT**
 
 Scope: first vertical product proof after G1. This document does not modify any G1 wire/hash semantics.
 
@@ -36,15 +36,59 @@ Required frozen task facts:
 - AssetRef
 - escrow_ref
 - deadline
+- max_attempts = **3**
+- frozen acceptance-suite identity
 
-The implementation package created for GP-001 MUST be deterministic and testable without real waiting. The retry sleep path MUST be injectable or fake-timer compatible.
+### Task Freeze Record (runtime contract, not a G1 object)
+
+Before GP2 begins, Builder C MUST commit exactly one machine-readable task record at:
+
+`packages/golden-path/fixtures/gp-001-task.json`
+
+Required fields:
+
+```json
+{
+  "schema_version": "gp-task-freeze.v1",
+  "bounty_id": "GP-001",
+  "repository_url": "<https-url>",
+  "package_path": "<repo-relative-path>",
+  "base_commit_sha": "<40-lowercase-hex>",
+  "allowed_paths": ["<repo-relative-glob-or-path>"],
+  "forbidden_paths": ["<repo-relative-glob-or-path>"],
+  "acceptance_suite_path": "<repo-relative-path>",
+  "acceptance_suite_sha256": "sha256:<64-lowercase-hex>",
+  "max_attempts": 3,
+  "deadline": "<RFC3339-UTC>",
+  "escrow_ref": "<opaque-nonempty-string>",
+  "asset": {
+    "network": "solana-devnet",
+    "asset": "USDC-test",
+    "decimals": 6
+  },
+  "reward": "10",
+  "verification_policy": "2-of-2"
+}
+```
+
+The record's runtime audit hash is:
+
+```
+task_freeze_hash = "sha256:" + SHA256(exact committed UTF-8 file bytes)
+```
+
+This is a GP runtime audit hash only. It is NOT a new G1 `content_hash`, schema primitive, or hash domain.
+
+The Task Freeze Record is the single machine-readable source of GP-001 task facts. Intent/Milestone/runtime fields MUST be derived from it and Builder D MUST verify field equality plus `task_freeze_hash` before accepting GP2 evidence. Changing the record after GP2 starts invalidates the run and requires Commander review.
+
+The implementation package created for GP-001 MUST be deterministic and testable without real waiting. The retry sleep path MUST be injectable or fake-timer compatible. The acceptance test MUST observe an exact **2000 ms** requested delay through the injected/fake clock; wall-clock waiting is not evidence.
 
 ### Acceptance criteria
 
 At minimum:
 1. HTTP 429 + `Retry-After: "2"` causes a 2000 ms retry delay, then retries.
 2. A subsequent HTTP 200 is returned to the caller.
-3. Retry count obeys the frozen max-attempt policy.
+3. Retry count obeys the frozen `max_attempts = 3` policy.
 4. Non-429 non-success responses do not enter the 429 retry path.
 5. Existing package tests pass.
 6. Build/typecheck passes.
@@ -93,6 +137,23 @@ CREATED
 -> SETTLED
 ```
 
+### Claim binding
+
+At the `CLAIMED` transition the runtime MUST append an immutable ClaimRecord:
+
+```json
+{
+  "schema_version": "gp-claim.v1",
+  "claim_id": "<lowercase-hyphenated-uuid>",
+  "bounty_id": "GP-001",
+  "claimant": "<SubjectRef>",
+  "task_freeze_hash": "sha256:<64-lowercase-hex>",
+  "claimed_at": "<RFC3339-UTC>"
+}
+```
+
+`claimant` MUST parse under the frozen G1 SubjectRef grammar. Once appended, the ClaimRecord MUST NOT be mutated or replaced for that bounty execution. ExecutionRef and the Proof Pack MUST reference the same `claim_id`, `claimant`, and `task_freeze_hash`.
+
 ### Execution
 
 ```
@@ -123,7 +184,9 @@ Required hard invariants:
 - no accepted OutcomeReceipt -> settlement cannot become ELIGIBLE;
 - OutcomeReceipt.content_hash is the settlement authority; raw decision_id and proof_binding are never settlement authority;
 - invalid transitions are rejected;
-- retries/recovery are deterministic and idempotent.
+- retries/recovery are deterministic and idempotent;
+- the ClaimRecord is immutable after CLAIMED;
+- GP-001 settlement recipient authorization is derived only from the recorded ClaimRecord claimant.
 
 ## 4. Mandatory anti-double-release model
 
@@ -236,10 +299,20 @@ Independently verify:
 
 Each verifier emits its own VerificationDecisionV1.
 
+### Decision vocabulary mapping
+
+In this GP contract, prose such as "verifier ACCEPT", "ACCEPTS", or runtime verification state `ACCEPTED` maps to the frozen G1 wire condition:
+
+```
+VerificationDecisionV1.result === "VALID"
+```
+
+No `"ACCEPT"` result value may be invented. The other frozen wire values remain `INVALID`, `INSUFFICIENT`, and `DISPUTED`.
+
 Requirements:
 - verifier identities MUST be distinct;
 - both decisions MUST target the same frozen milestone/bundle/policy binding;
-- both MUST be ACCEPTED for receipt formation;
+- both decisions MUST have `result === "VALID"` for receipt formation;
 - OutcomeReceipt.decision_hashes MUST be non-empty, unique, strictly lexicographically sorted;
 - no manual/admin/demo path may create an accepted receipt.
 
@@ -248,6 +321,29 @@ Requirements:
 Receipt Engine may form OutcomeReceiptV1 only after the frozen 2-of-2 policy is satisfied.
 
 Settlement Engine accepts only the accepted OutcomeReceipt content hash as authority.
+
+### GP-001 payee binding
+
+The economic beneficiary is frozen at CLAIM time, not settlement-formation time.
+
+For GP-001, a conforming SettlementInstruction MUST satisfy ALL of:
+
+```
+outputs.length == 1
+outputs[0].recipient == ClaimRecord.claimant
+outputs[0].asset == {
+  network: "solana-devnet",
+  asset: "USDC-test",
+  decimals: 6
+}
+outputs[0].amount == "10"
+total_amount == "10"
+escrow_ref == TaskFreezeRecord.escrow_ref
+```
+
+Recipient comparison is exact equality of the parsed SubjectRef string. Settlement formation MUST read the immutable ClaimRecord; callers may not supply/override the payee. Any recipient mismatch MUST be rejected before settlement becomes ELIGIBLE.
+
+This binding is a GP runtime authorization rule and does not modify MilestoneV1 or any frozen G1 wire object.
 
 Forbidden settlement authorities:
 - decision_id
@@ -265,7 +361,8 @@ Required GP4 negative cases:
 5. one verifier ACCEPT only -> no receipt / no settlement;
 6. evidence tamper -> verification fails / no receipt;
 7. wrong milestone/bundle/policy binding -> reject;
-8. crash/retry after release boundary -> still exactly one economic release.
+8. crash/retry after release boundary -> still exactly one economic release;
+9. settlement recipient != recorded ClaimRecord claimant -> REJECT / no RELEASE.
 
 ## 8. Proof Pack
 
@@ -274,6 +371,8 @@ GP5 MUST produce a self-verifiable Proof Pack. Hashes alone are insufficient.
 Minimum contents:
 
 ### Full objects
+- GP-001 Task Freeze Record + its exact file bytes + task_freeze_hash
+- immutable ClaimRecord
 - IntentContractV1
 - MilestoneV1
 - EvidenceBundleV1
@@ -291,6 +390,8 @@ Minimum contents:
 - evidence artifacts needed to recompute artifact hashes and bundle merkle_root
 
 ### Settlement evidence
+- recorded claimant SubjectRef
+- proof that SettlementInstruction has exactly one output and its recipient equals the recorded claimant
 - escrow_ref
 - escrow ledger entry/history
 - economic release uniqueness key `(escrow_ref, outcome_receipt_hash)`
@@ -336,8 +437,12 @@ Static string scanning alone is not sufficient.
 PASS requires:
 - this contract merged to default branch;
 - independent Builder D audit finds no untestable/contradictory acceptance rule;
-- exact demo task/asset/reward/verification policy/release uniqueness model are frozen;
+- GP-001 Task Freeze Record schema/required fields are frozen, including `max_attempts = 3`;
+- payee authorization is frozen as immutable ClaimRecord claimant -> exactly one SettlementInstruction output recipient;
+- asset/reward/verification policy/release uniqueness model are frozen;
 - no G1 semantic modification.
+
+Concrete repository/base-SHA/path/deadline/escrow values are frozen by the committed Task Freeze Record before GP2; GP0 freezes the record contract and the no-free-variable requirements.
 
 ### GP1 — G2 State Machines
 
@@ -351,6 +456,8 @@ PASS requires:
 ### GP2 — G3 Execution + Evidence
 
 PASS requires:
+- committed `packages/golden-path/fixtures/gp-001-task.json` exists and matches the GP0 record contract;
+- Builder D verifies `task_freeze_hash` and equality of its facts against Intent/Milestone/runtime inputs;
 - isolated Agent execution on the real frozen task;
 - real patch commit;
 - reproducible acceptance/build commands;
@@ -362,7 +469,7 @@ PASS requires:
 
 PASS requires:
 - two distinct independent verifiers;
-- 2-of-2 ACCEPT policy;
+- 2-of-2 policy where both frozen G1 decision results equal `"VALID"`;
 - both R9 bindings independently recomputed;
 - rejected/single-verifier paths cannot form receipt;
 - accepted OutcomeReceipt exactly matches the frozen G1 wire rules.
@@ -371,6 +478,8 @@ PASS requires:
 
 PASS requires:
 - OutcomeReceipt-gated local settlement;
+- exactly one GP-001 output whose recipient equals the immutable ClaimRecord claimant, amount is `"10"`, and asset is the frozen triple;
+- wrong-recipient SettlementInstruction is rejected before ELIGIBLE;
 - unique economic release key `(escrow_ref, outcome_receipt_hash)`;
 - settlement_key instruction idempotency;
 - same receipt with different nonce cannot double release;
@@ -384,14 +493,14 @@ PASS requires one uninterrupted GP-001 run:
 
 ```
 Sponsor creates/funds bounty
--> Agent claims
+-> Agent claims (immutable ClaimRecord records claimant)
 -> Agent executes and commits patch
 -> EvidenceBundle SEALED
 -> Verifier A independently ACCEPTS
 -> Verifier B independently ACCEPTS
 -> OutcomeReceipt formed
--> SettlementInstruction formed
--> escrow RELEASED exactly once
+-> SettlementInstruction formed with recipient == recorded claimant
+-> escrow RELEASED exactly once to that claimant
 -> replay/different-nonce second release blocked
 -> Proof Pack independently verifies
 ```
@@ -404,6 +513,8 @@ GP5 is the first product-closure evidence. It is not production/mainnet evidence
 
 Owns:
 - G2 runtime state machines
+- immutable ClaimRecord creation/storage
+- GP-001 Task Freeze Record implementation/consumption
 - Agent runner
 - ExecutionRef
 - evidence packaging
