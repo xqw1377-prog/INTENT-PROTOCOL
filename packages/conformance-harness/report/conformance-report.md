@@ -1,6 +1,6 @@
 # Intent Protocol P0-S0 Conformance Report (Builder B, Independent Verifier)
 
-- Generated: 2026-09-20T08:07:43.324Z
+- Generated: 2026-09-20T08:15:37.086Z
 - SUT snapshot: captured 2026-09-20T04:43:37.971Z from git `dc76ae9e` (zod 3.25.76)
 - Checks: **176 PASS / 0 FAIL / 23 UNKNOWN** (199 total)
 - Gate status: **READY_WITH_EXCEPTIONS** — NONE — a machine READY status is never an automatic G1 PASS. This report does not declare the schema frozen; freeze authority and the final signature belong to the Commander. 0 FAIL findings, 23 UNKNOWN entries; freeze blockers: 0 OPEN / 20 DISPOSITIONED.
@@ -80,40 +80,40 @@
 
 ## Attack surfaces
 
-### AS-01 [high] NFC key-collision produces duplicate-key canonical JSON
-canonicalize({NFC 'é': 1, NFD 'e'+U+0301: 2}) emits '{"é":1,"é":2}' — invalid, ambiguous canonical text. A second implementation (or JSON.parse) collapses the keys, so the same canonical bytes can be re-read as a different object than the one that was hashed. The independent reference rejects this case. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-05-05 now PASS — the canonicalizer rejects non-NFC keys per IPC-JSON-1 instead of emitting duplicate-key JSON.
+### AS-01 [high] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): NFC key-collision produced duplicate-key canonical JSON
+The pre-freeze canonicalizer emitted '{"é":1,"é":2}' for an object holding both the NFC and NFD spelling of one key. CLOSED: the pinned SUT rejects non-NFC keys per IPC-JSON-1 R3/R8 (C-05-05 PASS; S-KEYNFC PASS). Retained for audit trail only.
 - Grounded by: C-05-05
 
-### AS-02 [medium] -0 silently canonicalizes to 0 against the frozen spec text
-Spec header rule 4 says -0 is rejected; the implementation maps -0 -> 0. Two distinct JS values share one canonical form; a strict cross-language implementation following the written rule will refuse objects the TS implementation accepts (and hash differently on any value it does emit). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-01-07 now PASS — -0 is rejected at canonicalization.
+### AS-02 [medium] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): -0 silently canonicalized to 0
+The pre-freeze implementation mapped -0 -> 0 against the frozen spec text, giving 0/-0 hash ambiguity. CLOSED: -0 is rejected at canonicalization (C-01-07 PASS). Retained for audit trail only.
 - Grounded by: C-01-07
 
-### AS-03 [high] Schema admits values the canonicalizer rejects (unhashable-but-valid objects)
-Criterion.threshold uses z.number().int() (accepts 2^53, 1e308) while canonicalization requires safe integers; U64-as-string regex accepts 2^64 while u64be() throws. A schema-valid Intent/Settlement can exist that can never be sealed — parsers in other languages will disagree about whether the object is acceptable at all. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-10-03 and C-13-07b now PASS — unsafe ints are rejected at schema parse and the U64-as-string regex is upper-bounded, so every schema-valid object is sealable.
+### AS-03 [high] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): schema admitted values the canonicalizer rejects
+Pre-freeze: z.number().int() accepted 2^53 and the U64-as-string regex accepted 2^64 while canonicalization/hashing rejected them (schema-valid but unsealable objects). CLOSED: unsafe ints are rejected at schema parse and the U64 regex is upper-bounded (C-10-03, C-13-07b PASS). Retained for audit trail only.
 - Grounded by: C-10-03, C-13-07b
 
-### AS-04 [medium] Timestamp format is shape-checked, not calendrically validated
-'2026-13-45T99:99:99.999Z' passes TimestampSchema despite being invalid RFC 3339. Cross-language timestamp parsers (strict RFC 3339) will reject objects the TS layer accepted, splitting the hash universe. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-13-05 now PASS — timestamps are calendrically validated.
+### AS-04 [medium] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): timestamp format was shape-checked, not calendrically validated
+Pre-freeze: '2026-13-45T99:99:99.999Z' passed TimestampSchema. CLOSED: timestamps are calendrically validated (C-13-05 PASS). Retained for audit trail only.
 - Grounded by: C-13-05
 
-### AS-05 [medium] No canonical decimal form
-Canonical Decimal V1 minimal form is now FROZEN and enforced at schema parse ('1.10'/'0.00'/'-0'/'150.0' rejected; '150'/'15.5' accepted). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-DEC PASS.
+### AS-05 [medium] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): no canonical decimal form
+Pre-freeze: '1.0' / '1.00' / '1' / '-0' were distinct canonical strings for one economic value. CLOSED: canonical Decimal V1 minimal form is frozen and enforced at parse (S-DEC PASS). Retained for audit trail only.
 - Grounded by: S-DEC
 
 ### AS-06 [medium] Duplicate-key raw JSON collapses last-wins before canonicalization
 '{"a":1,"a":2}' and '{"a":2}' hash identically. Byte-level audit of evidence text diverges from hash-level identity; a malicious producer can include decoy keys that vanish in the hash.
 - Grounded by: C-07-07
 
-### AS-07 [medium] Identifier uniqueness is unenforced (criterion_id, constraint_id, bundle_id reuse)
+### AS-07 [medium] PARTIALLY REMEDIATED: id uniqueness (criteria/constraints enforced; bundle_id reuse is S1 ledger scope)
 PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): criterion_id / constraint_id uniqueness is now enforced at parse (S-UNIQ PASS). Still open: the same bundle_id sealing two different artifact sets (C-12-07) — an append-only ledger constraint, S1 scope.
 - Grounded by: S-UNIQ, C-12-07
 
-### AS-08 [high] Cross-object references are free-floating
-decisions bind fabricated intent_hash/evidence_root; settlements bind dangling decision_id; bundles bind nonexistent runs. Nothing in the delivered layer enforces the §15.1 north-star chain (Receipt -> Settlement -> Decision -> Bundle -> Run -> Intent). The proof_binding construction is sound, but its INPUTS are unauthenticated at this layer.
-- Grounded by: C-14-02, C-14-03, C-14-04, C-14-05, C-14-06, C-12-06
+### AS-08 [high] Cross-object references are free-floating (referential existence unenforced)
+Decisions bind fabricated intent_hash/evidence_root and bundles bind nonexistent runs: nothing in the schema layer enforces the §15.1 north-star chain (Receipt -> Settlement -> Decision -> Bundle -> Run -> Intent) — Commander-ruled DEFERRED to S1. The settlement leg is CLOSED against the pinned SUT: settlement is receipt-gated (outcome_receipt_hash required; decision_id / proof_binding unrepresentable — S-GATE-AUTH PASS, C-14-04 asserts the rejection). proof_binding construction is sound; its INPUTS are unauthenticated at this layer pending S1.
+- Grounded by: C-14-02, C-14-03, C-14-05, C-14-06, C-12-06
 
-### AS-09 [high] SEALED bundle state does not imply a correct merkle_root
-SEALED bundle consistency is now ENFORCED at schema parse: merkle_root must equal the recomputed root of the artifact set. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-MERKLE PASS; tamper-by-recomputation remains available to any consumer (C-09-02 PASS).
+### AS-09 [high] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): SEALED bundle state did not imply a correct merkle_root
+Pre-freeze: a SEALED bundle with a fabricated merkle_root parsed; detection was left to every consumer. CLOSED: merkle_root must equal the recomputed root at schema parse (S-MERKLE PASS; C-09-02 PASS). Retained for audit trail only.
 - Grounded by: S-MERKLE, C-09-02
 
 ### AS-10 [low] Domain/version separation relies on 0x00 exclusion, not length prefixing
@@ -124,28 +124,28 @@ hash_input = domain||0x00||version||0x00||canonical is injective only because (a
 RESOLVED IN SPEC: the canonical profile is now formally named IPC-JSON-1 (OQ-1) and intentionally diverges from raw RFC 8785/JCS: string VALUES are NFC-normalized, KEYS must already be NFC, and lone surrogates are rejected. Residual hazard: this divergence is deliberate, so a strict JCS implementation still produces different bytes — cross-implementation consumers must implement IPC-JSON-1, not JCS. U+2028/U+2029 remain raw (valid JSON, JS-source-illegal).
 - Grounded by: C-05-01, C-05-07, S-KEYNFC, S-SURR
 
-### AS-12 [high] Delivered scope is a moving subset of the documented protocol
+### AS-12 [high] PARTIALLY REMEDIATED: 8-object G1 trust chain delivered + SHA-pinned capture; remaining objects/state machines are S1+
 PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): the delivered surface is now the 8-object G1 trust chain frozen in TRUST-CHAIN.md @ e28a22e (IntentContract, Criterion, Milestone, EvidenceArtifact, EvidenceBundle, VerificationDecision, OutcomeReceipt, SettlementInstruction), verified by the exact-wire blockers S-MS-WIRE/S-RCPT-WIRE (PASS). The drift vector is CLOSED: every capture is SHA-pinned from the git object database (mode=git-sha). Still outside delivered scope: Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase and the §7 state machines (S1+).
 - Grounded by: C-08-06, C-13-12, C-14-09, C-15-05, C-15-06, C-15-07, C-15-08, C-15-09, PKG-ENTRY-01
 
-### AS-13 [low] SubjectRef charset widened to include '@' without protocol review
-SubjectRef charset no longer contains '@': lookalike email-form principal ids are rejected on every principal slot (OQ-5). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-SUBJ PASS and the formerly-UNKNOWN C-13-02c is now an executable PASS check (verifier_id / submitter / recipient slots).
+### AS-13 [low] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): SubjectRef charset included '@'
+Pre-freeze uncoordinated widening let user:alice@evil parse as a principal. CLOSED: '@' is rejected on every principal slot (S-SUBJ PASS; C-13-02c executable PASS). Retained for audit trail only.
 - Grounded by: S-SUBJ, C-13-02c
 
-### AS-14 [medium] Economic invariants absent from every delivered layer
-PARTIALLY REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): exact-sum equality, single-asset and scale<=decimals are enforced at parse (S-SUM / S-ASSET / S-SCALE PASS), and settlement is receipt-gated (S-GATE-AUTH PASS). Still open: outputs are not bounded by any escrow notion and the u64 nonce has no monotonicity — both live in the settlement engine, S1 scope.
-- Grounded by: S-SUM, S-ASSET, S-SCALE, S-GATE-AUTH, C-11-07
+### AS-14 [medium] Escrow bounding and nonce monotonicity absent from every delivered layer (S1 scope)
+Residual risk, grounded by C-15-07 (settlement lifecycle engine undelivered, S1 scope): outputs are not bounded by any escrow notion and the u64 nonce has no monotonicity — both live in the LOCKED->ELIGIBLE->RELEASED settlement machinery that does not exist yet. The former economic-format gaps ARE enforced at parse against the pinned SUT (exact-sum equality, single-asset, scale<=decimals: S-SUM / S-ASSET / S-SCALE PASS) and settlement is receipt-gated (S-GATE-AUTH PASS); the double-spend key derivation is frozen and three-way verified (C-11-07 PASS — remediation evidence, deliberately NOT cited as risk support per Commander order).
+- Grounded by: C-15-07
 
-### AS-15 [high] proof_binding does not bind milestone_id (R9): cross-milestone proof replay
-proof_binding now binds milestone_id AND bundle_id per the frozen R9 six-field byte protocol; cross-milestone proof replay is separated. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-R9 PASS — oracle === golden vector === SUT, sensitivity on both proof targets verified.
+### AS-15 [high] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): proof_binding did not bind milestone_id
+Pre-freeze: the binding preimage omitted milestone_id and the API could not receive it (cross-milestone proof replay). CLOSED: frozen R9 six-field byte protocol, oracle === golden vector === SUT with sensitivity on both proof targets (S-R9 PASS). Retained for audit trail only.
 - Grounded by: S-R9
 
-### AS-16 [high] Delivered settlement authorization is decision-gated on the superseded wire
-The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-GATE-AUTH-01/02 and C-14-04 now PASS — SettlementInstructionV1 is receipt-gated (outcome_receipt_hash required; decision_id/proof_binding unrepresentable).
+### AS-16 [high] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): settlement authorization was decision-gated
+Pre-freeze: SettlementInstructionV1 REQUIRED decision_id + proof_binding and had no outcome_receipt_hash slot, so a raw verifier assertion could drive settlement. CLOSED: the frozen receipt-gated wire is delivered (outcome_receipt_hash required; decision_id/proof_binding unrepresentable — S-GATE-AUTH-01/02/03 and C-14-04 PASS). Retained for audit trail only.
 - Grounded by: S-GATE-AUTH-01, S-GATE-AUTH-02, C-14-04
 
-### AS-17 [high] settlement_key implements the superseded preimage (no domain prefix, proof_binding-keyed)
-The frozen idempotency key is SHA256("intent-protocol/v1/settlement-key" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-SETTLEMENT-KEY-02, C-02-09, C-11-07 now PASS — settlementKey implements the frozen domain-separated receipt-keyed preimage (three-way agreement with the TS oracle and Python KAT).
+### AS-17 [high] HISTORICAL PRE-FREEZE FINDING (closed in SUT @ 602eac43, diagnostic 2026-09-20): settlement_key implemented the superseded preimage
+Pre-freeze: SHA256(proof_binding || escrow_id || 0x00 || nonce) — no domain separation, keyed on the wrong authority object. CLOSED: the frozen domain-separated receipt-keyed preimage is delivered with three-way exact agreement, TS oracle + Python KAT + SUT (S-SETTLEMENT-KEY-02, C-02-09, C-11-07 PASS). Retained for audit trail only.
 - Grounded by: S-SETTLEMENT-KEY-02, C-02-09, C-11-07
 
 ## Statement
