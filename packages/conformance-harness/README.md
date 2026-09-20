@@ -12,41 +12,63 @@ nothing from the SUT. The SUT is loaded exclusively through `src/sut.ts`.
 ## Verdict (point-in-time)
 
 See `report/conformance-report.json` (machine-readable) and
-`report/conformance-report.md` (summary). Current pinned run (Builder B
-branch `zcode/g1-exact-wire-verifiers`, PR #5, SUT snapshot unchanged — the
-OLD decision-gated SUT, deliberately):
+`report/conformance-report.md` (summary). Current pinned run (**DIAGNOSTIC,
+not Formal G1** — remediation-18 self-check of the verifier itself):
 
-- **135 PASS / 37 FAIL / 25 UNKNOWN** across 197 checks (15 mandated attack
-  areas + spec assertions + trust-chain exact-wire verifiers + settlement-key
-  three-way + SUT loadability)
-- Gate status: `NOT_READY` (20/20 freeze blockers OPEN)
-- Every PASS is bound to a test file + title + duration; every FAIL carries the
-  raw failure message (the reproduction output); every UNKNOWN carries a
-  rationale from `unknowns.json` and never auto-promotes to PASS.
+- SUT: Builder A pre-candidate `602eac434a836a84d6fc16fc89caccd4fd225706`
+  (origin/devin/p0-s0-schema-remediation), captured `mode=git-sha` from the
+  git object database (see `sut-snapshot/capture.json`).
+- **174 PASS / 0 FAIL / 23 UNKNOWN** across 197 checks
+- Gate status: `READY_WITH_EXCEPTIONS` (0 FAIL + 0 OPEN blockers + UNKNOWN > 0,
+  per the frozen machine rule). `freeze_declaration` stays `NONE` — the final
+  G1 signature belongs to the Commander, and this run is explicitly NOT the
+  formal gate: the formal target must be a Commander-published SHA.
+- **20/20 freeze blockers DISPOSITIONED** (all 13 spec-round + all 7
+  trust-chain blockers evidence-PASS against this SUT).
+- Every PASS is bound to a test file + title + duration; every UNKNOWN carries
+  a rationale from `unknowns.json` and never auto-promotes to PASS.
 
-The 5 implementation FAIL findings (attack areas):
+The five attack-area findings of the previous pinned run are all remediated in
+this SUT and now PASS: C-01-07 (-0 rejected), C-05-05 (non-NFC keys rejected,
+no duplicate-key JSON), C-10-03 (unsafe ints rejected at schema parse),
+C-13-05 (calendric timestamp validation), C-13-07b (U64 regex upper-bounded).
+Attack surfaces AS-01/02/03/04/16/17 are annotated REMEDIATED with this
+evidence.
 
-| Check | Finding |
-|---|---|
-| C-01-07 | Spec rule 4 says `-0` is rejected; the canonicalizer accepts it and silently maps it to `0` (0/-0 hash ambiguity). |
-| C-05-05 | An object holding both the NFC and NFD spelling of one key canonicalizes to **duplicate-key JSON** — ambiguous canonical text (`{"é":1,"é":2}`). |
-| C-10-03 | Schema accepts `threshold: 2^53` (integer, not safe); sealing then throws. Schema-valid objects exist that cannot be hashed. |
-| C-13-05 | Timestamp regex accepts calendrically impossible strings (`2026-13-45T99:99:99.999Z`) despite claiming RFC 3339. |
-| C-13-07b | U64-as-string regex has no upper bound: `2^64` passes the schema and fails `u64be()` at hashing time. |
+## Verifier remediation-18 (this branch)
 
-The remaining 32 FAILs are the OPEN freeze blockers' normative assertions
-(13 pre-existing spec assertions + the trust-chain red lights below + the
-legacy settlement checks now bound to the receipt-gated baseline, which the
-old SUT rejects because `outcome_receipt_hash` is not on its superseded wire)
-— they fail **because the SUT has not delivered the frozen behavior yet**,
-which is exactly what a gate must show.
+The Commander-ordered closeout of 18 stale verifier assertions (PR #5 review
+round), all confirmed against SUT 602eac43 and fixed — plus two same-class
+residues the diagnostic run exposed (C-11-01 amount/total isolation,
+C-14-04 superseded-GAP polarity), fixed under the same classes:
 
-Evidence integrity: `run-conformance.mjs` deletes the previous
-`vitest-results.json` BEFORE the run and refuses to build a report unless the
-run produced a fresh results file; `build-report.mjs` records a failed suite
-collection as a synthetic `SUITE-COLLECT-FAIL` finding instead of silently
-dropping the file's checks. A dead vitest process can never dress the previous
-round's JSON up as new evidence.
+- 3 × settlementKey calls re-parameterized to the FROZEN names
+  (`outcome_receipt_hash` / `escrow_ref` / `nonce`): C-02-09, C-11-07, C-12-05.
+- 5 × proofBinding calls re-parameterized to the FROZEN R9 six-field
+  signature (milestone_id + bundle_id bound): C-12-01/02/03, C-11-03/04
+  (C-11-03's values now equal the decision fixture's own fields so the
+  parse-time recomputation holds).
+- 1 × invalid merkle positive control: C-08-01's EvidenceBundle leg no longer
+  declares a fabricated root as a "valid" control (SEALED merkle rule).
+- 1 × (plus 2 same-class residues) amount/total isolation: C-08-02 nested
+  unknown-field input, C-11-01 amount mutation and lying-digest input are all
+  sum-consistent now, so each check fails ONLY on the rule under test.
+- 3 × binding-not-recomputed: C-14-02/03/05 recompute proof_binding over the
+  mutated fields (decisionWith helper) — the GAPs isolate dangling REFERENCES,
+  not binding-rule violations.
+- 2 × superseded GAPs: C-09-08 (artifact self content_hash now exists and a
+  wrong declared digest is rejected on seal — executable, no longer UNKNOWN)
+  and C-10-08 (Milestone IS delivered; only S1 lifecycle machinery remains —
+  premise corrected). C-14-04 flipped to assert the frozen rejection of the
+  superseded decision-gated wire (same class, found by the diagnostic run).
+- 1 × NFC polarity: C-05-05 now asserts IPC-JSON-1 (REJECT the NFC+NFD
+  key-collision input) instead of the pre-freeze "preserve both spellings"
+  expectation.
+- 1 × unsafe-int assumption: C-10-03 now asserts schema-level rejection of
+  2^53 with a 2^53-1 safe boundary control (every schema-valid object must be
+  sealable).
+- 1 × UUID no-op: S-UUID's uppercase probe now carries hex letters — the old
+  digit-only probe made `.toUpperCase()` a no-op that tested nothing.
 
 ## Trust-chain round (B-TC1..B-TC6, Commander order; docs/TRUST-CHAIN.md @ e28a22e)
 
@@ -70,9 +92,9 @@ here asserts the frozen names and fails on anything else.
   `intent-protocol/v1/outcome-receipt`; digest + round-trip layer separate.
 - **B-TC3 [S-GATE-AUTH]** — Settlement exact wire carries `outcome_receipt_hash`;
   `decision_id` / `proof_binding` are FORBIDDEN and unrepresentable; a
-  settlement without a receipt is rejected; **the old decision-gated wire must
-  no longer parse** (this is the authority-boundary red light: against the old
-  SUT it still parses — finding S-GATE-AUTH-02).
+  settlement without a receipt is rejected; the superseded decision-gated wire
+  must not parse (against the old pre-freeze SUT it did — the historical red
+  light; against SUT 602eac43 S-GATE-AUTH-01/02/03 and C-14-04 all PASS).
 - **B-TC4 [S-SETTLEMENT-KEY]** `test/18-settlement-key.test.ts` — settlement_key
   frozen byte protocol with mandatory three-way exact agreement:
   - TS oracle `refSettlementKey` (`src/reference/hash.ts`, node:crypto only);
@@ -80,10 +102,10 @@ here asserts the frozen names and fails on anything else.
     in-suite (`S-SETTLEMENT-KEY-KAT`) and standalone;
   - golden vector `vectors/settlement-key-vector.json` — `expected` computed
     by the **Python** implementation first, then the TS oracle checked against it;
-  - SUT leg (`S-SETTLEMENT-KEY-02`): RED — the delivered `settlementKey` cannot
-    accept the frozen receipt-keyed parameterization and computes the superseded
-    domain-less proof_binding-keyed preimage (C-02-09 / C-11-07 flipped red for
-    the same reason; legacy tests now bind to the frozen formula).
+  - SUT leg (`S-SETTLEMENT-KEY-02`): against the old pre-freeze SUT this was
+    RED (superseded domain-less proof_binding-keyed preimage); against SUT
+    602eac43 the SUT implements the frozen preimage — three-way agreement
+    holds (S-SETTLEMENT-KEY-02, C-02-09, C-11-07 all PASS).
 - **B-TC5** — the 4 broad scaffold-era blocker ids are split into 7 PRECISE
   blockers — `S-MS-WIRE S-MS-HASH S-RCPT-WIRE S-RCPT-SET S-RCPT-HASH
   S-GATE-AUTH S-SETTLEMENT-KEY` — so a partial SUT shows exactly which layer
@@ -93,29 +115,27 @@ here asserts the frozen names and fails on anything else.
   blockers total with the 13 spec-round ids. New attack surfaces AS-16
   (decision-gated settlement on the superseded wire) and AS-17 (superseded
   settlement_key preimage) are grounded in check evidence.
-- **B-TC6** — red-light self-test against the OLD SUT snapshot (unchanged
-  `capture.json`): every exact-wire check fails for the intended reason —
-  Milestone/Receipt: "must be exported under its EXACT frozen name";
-  Settlement: field set is not the frozen set; old authority wire still parses;
-  settlement_key: "does not accept the FROZEN receipt-keyed parameterization".
-  The only new green checks are the SUT-independent oracle legs
-  (S-SETTLEMENT-KEY-01, S-SETTLEMENT-KEY-KAT) — TS oracle === Python KAT ===
-  golden vector.
+- **B-TC6** — red-light self-test, originally against the OLD pre-freeze SUT
+  (every exact-wire check failed for the intended reason); after remediation-18
+  the same checks run against SUT 602eac43 and all PASS — the oracle legs
+  (TS oracle === Python KAT === golden vector) held throughout, and the SUT
+  legs now agree.
 
-Positive settlement fixtures were migrated NOW (not deferred): every positive
-settlement check — legacy suites included — uses `validReceiptSettlement()`
-on the frozen wire, so a correct receipt-gated SUT from Builder A will be
-judged fairly instead of being failed for correctly rejecting
-`decision_id` / `proof_binding`. The old object survives ONLY as
-`supersededDecisionGatedSettlement()`, a negative sample proving the old
-authorization wire must be rejected. Consequently the legacy settlement checks
-(C-08 / C-11-00..02 / C-13 / S-ASSET / S-SCALE / S-DEC / S-SUM / S-RT#4) are
-red against the old SUT for exactly that reason. Defensive detail: test/11's
+Positive settlement fixtures were migrated up-front (not deferred): every
+positive settlement check — legacy suites included — uses
+`validReceiptSettlement()` on the frozen wire; the old object survives ONLY as
+`supersededDecisionGatedSettlement()`, a negative sample asserting the old
+authorization wire must be rejected (C-14-04). Defensive detail: test/11's
 baseline parses lazily inside each check — a describe-scope parse would abort
 collection and silently drop the file from the evidence; `build-report.mjs`
 additionally records any failed collection as `SUITE-COLLECT-FAIL`.
 
-Open attack surfaces are catalogued in `attack-surfaces.json` (14 entries,
+Evidence integrity: `run-conformance.mjs` deletes the previous
+`vitest-results.json` BEFORE the run and refuses to build a report unless the
+run produced a fresh results file (existence + mtime ≥ run start); a dead
+vitest process can never dress the previous round's JSON up as new evidence.
+
+Open attack surfaces are catalogued in `attack-surfaces.json` (17 entries,
 each grounded in check evidence) and reproduced in the report.
 
 ## SUT drift incident (why the harness pins a snapshot)

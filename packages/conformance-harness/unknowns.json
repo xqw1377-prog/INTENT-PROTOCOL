@@ -26,11 +26,6 @@
       "rationale": "Unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase cannot be tested: objects documented in arch doc §6 are absent from the delivered S0 snapshot.",
       "blocked_by": "undelivered objects"
     },
-    "C-09-08": {
-      "kind": "gap_documented",
-      "rationale": "EvidenceArtifact carries no self content_hash field; a received artifact cannot prove its own metadata integrity the way a sealed Intent can (payload_hash covers CAS bytes only).",
-      "blocked_by": "schema design"
-    },
     "C-09-09": {
       "kind": "gap_documented",
       "rationale": "payload_hash is format-checked only; the (bytes, hash) binding is enforced by CAS-side recomputation outside the delivered layer.",
@@ -38,8 +33,8 @@
     },
     "C-10-08": {
       "kind": "blocked",
-      "rationale": "Milestone acceptance-criteria immutability cannot be tested: Milestone object absent from the delivered S0 snapshot.",
-      "blocked_by": "undelivered object"
+      "rationale": "SUPERSEDED PREMISE (remediation-18, PR #5 review): MilestoneV1 IS delivered on the frozen wire (TRUST-CHAIN.md @ e28a22e) and content immutability is enforced by the digest (every required field incl. criterion_ids feeds content_hash — asserted by S-MS-WIRE / S-MS-HASH). Only the lifecycle MUTATION machinery (revision bump / acceptance transition) remains undelivered; that is S1 scope.",
+      "blocked_by": "S1 lifecycle machinery"
     },
     "C-12-06": {
       "kind": "gap_documented",
@@ -80,17 +75,12 @@
       "freeze_blocking": false,
       "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
     },
-    "C-14-04": {
-      "kind": "gap_documented",
-      "rationale": "The SUPERSEDED decision-gated settlement wire permits a dangling decision_id and arbitrary proof_binding (demonstrated against the delivered SUT via the negative sample). The frozen receipt-gated wire forbids these authority fields entirely; see S-GATE-AUTH. Cross-object referential existence is separately deferred to S1.",
-      "blocked_by": "settlement gate undelivered",
-      "freeze_blocking": false,
-      "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
-    },
     "C-14-05": {
       "kind": "gap_documented",
-      "rationale": "decision.milestone_id / bundle.milestone_id can dangle; no Milestone object is delivered at all.",
-      "blocked_by": "undelivered object"
+      "rationale": "decision.milestone_id / bundle.milestone_id can dangle; no schema-layer existence check exists (the Milestone object itself IS delivered on the frozen wire — remediation-18 corrected the stale 'not delivered' premise). Existence enforcement is deferred with the other cross-object referential checks.",
+      "blocked_by": "referential-integrity layer undelivered",
+      "freeze_blocking": false,
+      "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
     },
     "C-14-06": {
       "kind": "gap_documented",

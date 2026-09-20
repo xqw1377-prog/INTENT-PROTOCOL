@@ -5,7 +5,7 @@
       "id": "AS-01",
       "title": "NFC key-collision produces duplicate-key canonical JSON",
       "severity": "high",
-      "detail": "canonicalize({NFC 'é': 1, NFD 'e'+U+0301: 2}) emits '{\"é\":1,\"é\":2}' — invalid, ambiguous canonical text. A second implementation (or JSON.parse) collapses the keys, so the same canonical bytes can be re-read as a different object than the one that was hashed. The independent reference rejects this case.",
+      "detail": "canonicalize({NFC 'é': 1, NFD 'e'+U+0301: 2}) emits '{\"é\":1,\"é\":2}' — invalid, ambiguous canonical text. A second implementation (or JSON.parse) collapses the keys, so the same canonical bytes can be re-read as a different object than the one that was hashed. The independent reference rejects this case. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-05-05 now PASS — the canonicalizer rejects non-NFC keys per IPC-JSON-1 instead of emitting duplicate-key JSON.",
       "evidence": [
         "C-05-05"
       ]
@@ -14,7 +14,7 @@
       "id": "AS-02",
       "title": "-0 silently canonicalizes to 0 against the frozen spec text",
       "severity": "medium",
-      "detail": "Spec header rule 4 says -0 is rejected; the implementation maps -0 -> 0. Two distinct JS values share one canonical form; a strict cross-language implementation following the written rule will refuse objects the TS implementation accepts (and hash differently on any value it does emit).",
+      "detail": "Spec header rule 4 says -0 is rejected; the implementation maps -0 -> 0. Two distinct JS values share one canonical form; a strict cross-language implementation following the written rule will refuse objects the TS implementation accepts (and hash differently on any value it does emit). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-01-07 now PASS — -0 is rejected at canonicalization.",
       "evidence": [
         "C-01-07"
       ]
@@ -23,7 +23,7 @@
       "id": "AS-03",
       "title": "Schema admits values the canonicalizer rejects (unhashable-but-valid objects)",
       "severity": "high",
-      "detail": "Criterion.threshold uses z.number().int() (accepts 2^53, 1e308) while canonicalization requires safe integers; U64-as-string regex accepts 2^64 while u64be() throws. A schema-valid Intent/Settlement can exist that can never be sealed — parsers in other languages will disagree about whether the object is acceptable at all.",
+      "detail": "Criterion.threshold uses z.number().int() (accepts 2^53, 1e308) while canonicalization requires safe integers; U64-as-string regex accepts 2^64 while u64be() throws. A schema-valid Intent/Settlement can exist that can never be sealed — parsers in other languages will disagree about whether the object is acceptable at all. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-10-03 and C-13-07b now PASS — unsafe ints are rejected at schema parse and the U64-as-string regex is upper-bounded, so every schema-valid object is sealable.",
       "evidence": [
         "C-10-03",
         "C-13-07b"
@@ -33,7 +33,7 @@
       "id": "AS-04",
       "title": "Timestamp format is shape-checked, not calendrically validated",
       "severity": "medium",
-      "detail": "'2026-13-45T99:99:99.999Z' passes TimestampSchema despite being invalid RFC 3339. Cross-language timestamp parsers (strict RFC 3339) will reject objects the TS layer accepted, splitting the hash universe.",
+      "detail": "'2026-13-45T99:99:99.999Z' passes TimestampSchema despite being invalid RFC 3339. Cross-language timestamp parsers (strict RFC 3339) will reject objects the TS layer accepted, splitting the hash universe. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): C-13-05 now PASS — timestamps are calendrically validated.",
       "evidence": [
         "C-13-05"
       ]
@@ -161,7 +161,7 @@
       "id": "AS-16",
       "title": "Delivered settlement authorization is decision-gated on the superseded wire",
       "severity": "high",
-      "detail": "The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2).",
+      "detail": "The frozen contract (docs/TRUST-CHAIN.md @ e28a22e) makes Settlement receipt-gated: outcome_receipt_hash required, decision_id/proof_binding forbidden. The delivered SettlementInstructionSchema still REQUIRES decision_id + proof_binding and has no outcome_receipt_hash slot, so the old decision-only authority remains structurally representable — a raw verifier assertion can drive settlement, violating the Proof Before Payment boundary (frozen principle 2). REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-GATE-AUTH-01/02 and C-14-04 now PASS — SettlementInstructionV1 is receipt-gated (outcome_receipt_hash required; decision_id/proof_binding unrepresentable).",
       "evidence": [
         "S-GATE-AUTH-01",
         "S-GATE-AUTH-02",
@@ -172,7 +172,7 @@
       "id": "AS-17",
       "title": "settlement_key implements the superseded preimage (no domain prefix, proof_binding-keyed)",
       "severity": "high",
-      "detail": "The frozen idempotency key is SHA256(\"intent-protocol/v1/settlement-key\" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation.",
+      "detail": "The frozen idempotency key is SHA256(\"intent-protocol/v1/settlement-key\" || 0x00 || outcome_receipt_hash[32] || UTF8(escrow_ref) || 0x00 || nonce_u64be[8]); the delivered settlementKey computes SHA256(proof_binding[32] || escrow_id || 0x00 || nonce) — no domain separation and keyed on the wrong authority object. Keys derived by the frozen formula and the delivered formula disagree for identical effects, so any cross-implementation idempotency check splits into two incompatible key universes until Builder A lands the frozen derivation. REMEDIATED in SUT @ 602eac43 (diagnostic run 2026-09-20): S-SETTLEMENT-KEY-02, C-02-09, C-11-07 now PASS — settlementKey implements the frozen domain-separated receipt-keyed preimage (three-way agreement with the TS oracle and Python KAT).",
       "evidence": [
         "S-SETTLEMENT-KEY-02",
         "C-02-09",

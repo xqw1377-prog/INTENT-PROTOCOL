@@ -1,16 +1,19 @@
 /**
  * S0 canonical schemas (Appendix A of the Technical Architecture, V0.1 draft).
  *
- * Scope: IntentContractV1, CriterionV1, EvidenceArtifactV1, EvidenceBundleV1,
- * VerificationDecisionV1, SettlementInstructionV1 — plus the shared sub-schemas
- * they reference. `schema_version` literals are frozen per object.
+ * Scope: IntentContractV1, CriterionV1, MilestoneV1, EvidenceArtifactV1,
+ * EvidenceBundleV1, VerificationDecisionV1, OutcomeReceiptV1,
+ * SettlementInstructionV1 — the eight G1 trust primitives (docs/TRUST-CHAIN.md)
+ * plus the shared sub-schemas they reference. `schema_version` literals are
+ * frozen per object.
  *
  * Hashing convention:
  *   content_hash = hashObject(Domain.X, schema_version, object minus { content_hash, signature })
  * Signatures sign the content_hash, not the raw bytes.
  */
 import { z } from "zod";
-import { Domain, hashObject, type Hash } from "./hash.js";
+import { Domain, hashObject, proofBinding, type Hash } from "./hash.js";
+import { merkleRoot } from "./merkle.js";
 import {
   AssetRefSchema, DecimalSchema, EvidenceLevel, HashRefSchema, HashSchema, PrivacyClass, RiskLevel,
   SignatureSchema, SubjectRefSchema, TimestampSchema, U32Schema, U64Schema, UUIDSchema,
@@ -18,8 +21,46 @@ import {
 import { DecisionResult, EvidenceBundleState } from "./states.js";
 
 const Json: z.ZodType<unknown> = z.lazy(() =>
-  z.union([z.string(), z.number().int(), z.boolean(), z.null(), z.array(Json), z.record(Json)]),
+  z.union([z.string(), z.number().refine(Number.isSafeInteger, "must be a safe integer"), z.boolean(), z.null(), z.array(Json), z.record(Json)]),
 );
+
+/**
+ * Exact decimal addition over canonical decimal strings — BigInt scaled
+ * arithmetic, never floats (Commander ruling: settlement math must be exact).
+ * Inputs must already satisfy DecimalSchema.
+ */
+export function decimalSum(amounts: readonly string[]): string {
+  let scale = 0;
+  for (const a of amounts) {
+    const frac = a.split(".")[1];
+    if (frac && frac.length > scale) scale = frac.length;
+  }
+  let sum = 0n;
+  for (const a of amounts) {
+    const [int, frac = ""] = a.split(".");
+    sum += BigInt(int! + frac.padEnd(scale, "0"));
+  }
+  const s = sum.toString().padStart(scale + 1, "0");
+  const int = scale ? s.slice(0, -scale) : s;
+  const frac = scale ? s.slice(-scale).replace(/0+$/, "") : "";
+  return frac ? `${int}.${frac}` : int;
+}
+
+/** Fractional-digit count of a canonical decimal ("0.01" → 2, "10" → 0). */
+export function decimalScale(a: string): number {
+  return a.split(".")[1]?.length ?? 0;
+}
+
+/** Exact comparison of two canonical decimals via scaled BigInt (no floats). Returns -1 | 0 | 1. */
+export function decimalCompare(a: string, b: string): number {
+  const scale = Math.max(decimalScale(a), decimalScale(b));
+  const toInt = (v: string) => {
+    const [i, f = ""] = v.split(".");
+    return BigInt(i! + f.padEnd(scale, "0"));
+  };
+  const d = toInt(a) - toInt(b);
+  return d < 0n ? -1 : d > 0n ? 1 : 0;
+}
 
 // ---------------------------------------------------------------- CriterionV1
 
@@ -63,7 +104,17 @@ export const BudgetSpecSchema = z.object({
   total: DecimalSchema,
   /** Hard cap for model/tool/API spend inside the total. */
   execution_cap: DecimalSchema,
-}).strict();
+}).strict().superRefine((v, ctx) => {
+  // R12: cap never exceeds total; amount scale never exceeds asset decimals.
+  if (decimalCompare(v.execution_cap, v.total) > 0) {
+    ctx.addIssue({ code: "custom", message: "execution_cap exceeds total", path: ["execution_cap"] });
+  }
+  for (const [k, amt] of [["total", v.total], ["execution_cap", v.execution_cap]] as const) {
+    if (decimalScale(amt) > v.asset.decimals) {
+      ctx.addIssue({ code: "custom", message: `${k} has more fractional digits than asset.decimals`, path: [k] });
+    }
+  }
+});
 
 export const IntentContractSchema = z.object({
   schema_version: z.literal("intent.v1"),
@@ -87,6 +138,11 @@ export const IntentContractSchema = z.object({
   if (v.version === 1 && v.parent_hash) ctx.addIssue({ code: "custom", message: "version 1 must not have parent_hash", path: ["parent_hash"] });
   if (v.version > 1 && !v.parent_hash) ctx.addIssue({ code: "custom", message: "version > 1 requires parent_hash", path: ["parent_hash"] });
   if (v.version > 1 && !v.change_reason) ctx.addIssue({ code: "custom", message: "version > 1 requires change_reason", path: ["change_reason"] });
+  const dup = (ids: string[]) => ids.filter((id, i) => ids.indexOf(id) !== i);
+  const dupCrit = dup(v.success_criteria.map((c) => c.criterion_id));
+  if (dupCrit.length) ctx.addIssue({ code: "custom", message: `duplicate criterion_id: ${dupCrit.join(",")}`, path: ["success_criteria"] });
+  const dupCons = dup(v.constraints.map((c) => c.constraint_id));
+  if (dupCons.length) ctx.addIssue({ code: "custom", message: `duplicate constraint_id: ${dupCons.join(",")}`, path: ["constraints"] });
 });
 export type IntentContract = z.infer<typeof IntentContractSchema>;
 
@@ -110,6 +166,7 @@ export const EvidenceArtifactSchema = z.object({
   payload_hash: HashSchema,
   locator: z.string().min(1),
   privacy_class: PrivacyClass,
+  content_hash: HashSchema.optional(),
   signature: SignatureSchema.optional(),
 }).strict();
 export type EvidenceArtifact = z.infer<typeof EvidenceArtifactSchema>;
@@ -128,6 +185,8 @@ export const EvidenceBundleSchema = z.object({
   policy_hash: HashSchema,
   sealed_at: TimestampSchema.optional(),
   state: EvidenceBundleState,
+  content_hash: HashSchema.optional(),
+  signature: SignatureSchema.optional(),
 }).strict().superRefine((v, ctx) => {
   if (v.state === "SEALED") {
     if (v.artifact_hashes.length === 0) ctx.addIssue({ code: "custom", message: "SEALED bundle requires >= 1 artifact", path: ["artifact_hashes"] });
@@ -136,9 +195,43 @@ export const EvidenceBundleSchema = z.object({
     if (new Set(v.artifact_hashes).size !== v.artifact_hashes.length) {
       ctx.addIssue({ code: "custom", message: "duplicate artifact_hash in bundle", path: ["artifact_hashes"] });
     }
+    // Commander ruling: merkle_root must be *equal to* the recomputed root, not just present.
+    if (v.merkle_root && v.artifact_hashes.length && merkleRoot(v.artifact_hashes) !== v.merkle_root) {
+      ctx.addIssue({ code: "custom", message: "merkle_root does not equal merkleRoot(artifact_hashes)", path: ["merkle_root"] });
+    }
   }
 });
 export type EvidenceBundle = z.infer<typeof EvidenceBundleSchema>;
+
+// ---------------------------------------------------------------- MilestoneV1
+
+export const MilestoneAllocationSchema = z.object({
+  asset: AssetRefSchema,
+  amount: DecimalSchema,
+}).strict();
+export type MilestoneAllocation = z.infer<typeof MilestoneAllocationSchema>;
+
+export const MilestoneSchema = z.object({
+  schema_version: z.literal("milestone.v1"),
+  milestone_id: UUIDSchema,
+  intent_hash: HashSchema,
+  milestone_revision: U32Schema.min(1),
+  /** Non-empty, unique; array order is canonical/significant. */
+  criterion_ids: z.array(z.string().min(1)).min(1),
+  verification_policy_hash: HashSchema,
+  settlement_policy_hash: HashSchema,
+  allocation: MilestoneAllocationSchema,
+  content_hash: HashSchema.optional(),
+  signature: SignatureSchema.optional(),
+}).strict().superRefine((v, ctx) => {
+  if (new Set(v.criterion_ids).size !== v.criterion_ids.length) {
+    ctx.addIssue({ code: "custom", message: "duplicate criterion_id in milestone", path: ["criterion_ids"] });
+  }
+  if (decimalScale(v.allocation.amount) > v.allocation.asset.decimals) {
+    ctx.addIssue({ code: "custom", message: "allocation amount has more fractional digits than asset.decimals", path: ["allocation", "amount"] });
+  }
+});
+export type Milestone = z.infer<typeof MilestoneSchema>;
 
 // ---------------------------------------------------------------- VerificationDecisionV1
 
@@ -162,8 +255,59 @@ export const VerificationDecisionSchema = z.object({
   decided_at: TimestampSchema,
   content_hash: HashSchema.optional(),
   signature: SignatureSchema.optional(),
-}).strict();
+}).strict().superRefine((v, ctx) => {
+  // Commander ruling: proof_binding must recompute exactly from the object's own fields.
+  const recomputed = proofBinding({
+    intent_hash: v.intent_hash,
+    milestone_id: v.milestone_id,
+    milestone_revision: v.milestone_revision,
+    bundle_id: v.bundle_id,
+    evidence_root: v.evidence_root,
+    policy_hash: v.policy_hash,
+  });
+  if (recomputed !== v.proof_binding) {
+    ctx.addIssue({ code: "custom", message: "proof_binding does not equal recomputed binding", path: ["proof_binding"] });
+  }
+});
 export type VerificationDecision = z.infer<typeof VerificationDecisionSchema>;
+
+// ---------------------------------------------------------------- OutcomeReceiptV1
+
+/**
+ * The protocol-recognized accepted outcome for one milestone revision after the
+ * verification policy is satisfied (docs/TRUST-CHAIN.md). Receipt formation and
+ * policy-aggregation execution are S1; G1 freezes the commitment structure.
+ * A VerificationDecision is a verifier assertion — it is never payment authority;
+ * the receipt is.
+ */
+export const OutcomeReceiptSchema = z.object({
+  schema_version: z.literal("outcome-receipt.v1"),
+  receipt_id: UUIDSchema,
+  intent_hash: HashSchema,
+  milestone_id: UUIDSchema,
+  milestone_revision: U32Schema.min(1),
+  evidence_root: HashSchema,
+  verification_policy_hash: HashSchema,
+  /** Deterministic accepted-decision set: non-empty, unique, strictly lexicographically ascending. */
+  decision_hashes: z.array(HashSchema).min(1),
+  /** A receipt is not a decision: the only representable outcome is ACCEPTED. */
+  accepted_result: z.literal("ACCEPTED"),
+  issued_at: TimestampSchema,
+  content_hash: HashSchema.optional(),
+  signature: SignatureSchema.optional(),
+}).strict().superRefine((v, ctx) => {
+  for (let i = 1; i < v.decision_hashes.length; i++) {
+    if (v.decision_hashes[i]! <= v.decision_hashes[i - 1]!) {
+      ctx.addIssue({
+        code: "custom",
+        message: "decision_hashes must be unique and strictly lexicographically ascending",
+        path: ["decision_hashes", i],
+      });
+      break;
+    }
+  }
+});
+export type OutcomeReceipt = z.infer<typeof OutcomeReceiptSchema>;
 
 // ---------------------------------------------------------------- SettlementInstructionV1
 
@@ -175,19 +319,45 @@ export const SettlementOutputSchema = z.object({
 }).strict();
 export type SettlementOutput = z.infer<typeof SettlementOutputSchema>;
 
+/**
+ * Receipt-gated settlement (docs/TRUST-CHAIN.md): the ONLY authority field is
+ * `outcome_receipt_hash`. `decision_id` and `proof_binding` are forbidden
+ * authority fields in V1 — a raw VerificationDecision cannot authorize settlement.
+ */
 export const SettlementInstructionSchema = z.object({
   schema_version: z.literal("settlement.v1"),
   settlement_id: UUIDSchema,
   escrow_ref: z.string().min(1),
-  milestone_id: UUIDSchema,
-  decision_id: UUIDSchema,
-  proof_binding: HashSchema,
+  outcome_receipt_hash: HashSchema,
   nonce: U64Schema,
   outputs: z.array(SettlementOutputSchema).min(1),
   total_amount: DecimalSchema,
   expires_at: TimestampSchema.optional(),
   content_hash: HashSchema.optional(),
-}).strict();
+}).strict().superRefine((v, ctx) => {
+  // R5: total_amount must be the EXACT decimal sum of outputs (no floats).
+  if (decimalSum(v.outputs.map((o) => o.amount)) !== v.total_amount) {
+    ctx.addIssue({ code: "custom", message: "total_amount does not equal exact sum of outputs", path: ["total_amount"] });
+  }
+  // R12: V1 settlement is single-asset; every output must reference the same asset triple.
+  const assetKey = (a: { network: string; asset: string; decimals: number }) => `${a.network}|${a.asset}|${a.decimals}`;
+  const first = assetKey(v.outputs[0]!.asset);
+  for (const [i, o] of v.outputs.entries()) {
+    if (assetKey(o.asset) !== first) {
+      ctx.addIssue({ code: "custom", message: "multi-asset settlement is not allowed in V1", path: ["outputs", i, "asset"] });
+    }
+  }
+  // R12: amount scale may not exceed asset decimals (unit closure).
+  const maxScale = v.outputs[0]!.asset.decimals;
+  for (const [i, o] of v.outputs.entries()) {
+    if (decimalScale(o.amount) > maxScale) {
+      ctx.addIssue({ code: "custom", message: "amount has more fractional digits than asset.decimals", path: ["outputs", i, "amount"] });
+    }
+  }
+  if (decimalScale(v.total_amount) > maxScale) {
+    ctx.addIssue({ code: "custom", message: "total_amount has more fractional digits than asset.decimals", path: ["total_amount"] });
+  }
+});
 export type SettlementInstruction = z.infer<typeof SettlementInstructionSchema>;
 
 // ---------------------------------------------------------------- Seal helpers
@@ -202,9 +372,11 @@ function stripDerived<T extends Hashable>(o: T): Omit<T, "content_hash" | "signa
 const DOMAINS = {
   "intent.v1": Domain.Intent,
   "criterion.v1": Domain.Intent, // Criterion is hashed inside its parent IntentContract
+  "milestone.v1": Domain.Milestone,
   "artifact.v1": Domain.EvidenceArtifact,
   "bundle.v1": Domain.EvidenceBundle,
   "decision.v1": Domain.VerificationDecision,
+  "outcome-receipt.v1": Domain.OutcomeReceipt,
   "settlement.v1": Domain.SettlementInstruction,
 } as const;
 

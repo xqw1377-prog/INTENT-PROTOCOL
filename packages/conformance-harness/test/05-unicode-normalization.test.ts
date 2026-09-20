@@ -43,16 +43,15 @@ describe("[C-05] unicode normalization", () => {
     expect(canonicalize(astralFirst2)).toBe(refCanonicalize(astralFirst2));
   });
 
-  test("[C-05-05] an object holding BOTH the NFC and NFD spelling of one key must not produce ambiguous canonical JSON", () => {
-    // If two raw keys collapse onto the same normalized key, canonical output
-    // contains duplicate keys — not a valid, unambiguous canonical form. The
-    // reference rejects this; the SUT emits `{"é":…,"é":…}` (duplicate keys).
+  test("[C-05-05] an object holding BOTH the NFC and NFD spelling of one key is REJECTED (IPC-JSON-1: keys must already be NFC — never silently normalized, never merged)", () => {
+    // Remediation-18 polarity fix: the frozen profile REJECTS this input. The
+    // old assertion expected the canonical form to preserve both spellings as
+    // distinct keys — the pre-freeze stance, reversed against IPC-JSON-1 R3/R8.
     const obj: Record<string, number> = {};
     obj["\u00e9"] = 1;   // NFC key
     obj["e\u0301"] = 2;  // NFD key, distinct own property
-    const out = canonicalize(obj);
-    const reparsed = JSON.parse(out) as Record<string, unknown>;
-    expect(Object.keys(reparsed).length, `canonical text has duplicate keys: ${out}`).toBe(2);
+    expect(() => refCanonicalize(obj)).toThrow(); // oracle rejects
+    expect(() => canonicalize(obj)).toThrow();    // SUT must reject too — emitting `{"é":…,"é":…}` (duplicate keys) is the finding
   });
 
 

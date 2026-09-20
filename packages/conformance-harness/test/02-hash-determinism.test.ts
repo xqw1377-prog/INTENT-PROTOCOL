@@ -91,17 +91,15 @@ describe("[C-02] hash determinism", () => {
   });
 
   test("[C-02-09] settlementKey: SUT === independent reference over the FROZEN receipt-keyed preimage (TRUST-CHAIN @ e28a22e); differs per nonce/escrow", () => {
-    const p = { proof_binding: fakeHash("11"), escrow_id: "escrow:sim-0001", settlement_nonce: 7n };
-    // FROZEN formula: domain-prefixed, keyed by outcome_receipt_hash. The same key
-    // material is fed to both sides; a SUT still computing the superseded
-    // proof_binding-keyed preimage fails here — that is the finding.
-    const expected = refSettlementKey({ outcome_receipt_hash: p.proof_binding, escrow_ref: p.escrow_id, nonce: p.settlement_nonce });
+    // FROZEN parameterization (remediation-18): outcome_receipt_hash / escrow_ref / nonce.
+    const p = { outcome_receipt_hash: fakeHash("11"), escrow_ref: "escrow:sim-0001", nonce: 7n };
+    const expected = refSettlementKey({ ...p });
     expect(settlementKey(p), "SUT settlement_key must equal the frozen formula (domain-prefixed, receipt-keyed)").toBe(expected);
     expect(settlementKey(p)).toBe(expected); // idempotent
-    expect(settlementKey({ ...p, settlement_nonce: 8n })).not.toBe(expected);
-    expect(settlementKey({ ...p, escrow_id: "escrow:sim-0002" })).not.toBe(expected);
+    expect(settlementKey({ ...p, nonce: 8n })).not.toBe(expected);
+    expect(settlementKey({ ...p, escrow_ref: "escrow:sim-0002" })).not.toBe(expected);
     // u64 boundary accepted
-    expect(settlementKey({ ...p, settlement_nonce: 0xffffffffffffffffn })).toMatch(/^sha256:[0-9a-f]{64}$/);
-    expect(() => settlementKey({ ...p, settlement_nonce: 2n ** 64n })).toThrow();
+    expect(settlementKey({ ...p, nonce: 0xffffffffffffffffn })).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(() => settlementKey({ ...p, nonce: 2n ** 64n })).toThrow();
   });
 });

@@ -9,7 +9,7 @@ describe("[C-08] unknown fields / unsupported version", () => {
   const objects: Array<[string, Record<string, unknown>]> = [
     ["IntentContract", validIntent()],
     ["EvidenceArtifact", validArtifact()],
-    ["EvidenceBundle", validBundle({ merkle_root: "sha256:" + "ab".repeat(32), sealed_at: "2026-09-17T01:00:00.000Z" })],
+    ["EvidenceBundle", validBundle()], // carries the CORRECT recomputed merkle_root (remediation-18: a fabricated root is no legal positive control under the SEALED merkle rule)
     ["VerificationDecision", validDecision()],
     ["SettlementInstruction", validReceiptSettlement()],
     ["Criterion", (validIntent() as { success_criteria: Array<Record<string, unknown>> }).success_criteria[0]!],
@@ -41,6 +41,7 @@ describe("[C-08] unknown fields / unsupported version", () => {
     expect(() => S.IntentContractSchema.parse(validIntent({ budget: { asset: { network: "sim:local", asset: "USD", decimals: 2, note: "x" }, total: "1", execution_cap: "1" } }))).toThrow();
     expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({
       outputs: [{ recipient: "agent:builder-a", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "1", reason: "r", memo: "x" }],
+      total_amount: "1", // remediation-18: keep the input sum-consistent so the ONLY violation is the unknown `memo` field
     }))).toThrow();
     expect(() => S.IntentContractSchema.parse(validIntent({
       signature: { scheme: "ed25519", signer: "user:alice", key_id: "k1", value: "sig", vendor: "x" },
