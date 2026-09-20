@@ -89,10 +89,13 @@ These gates are a vertical product slice after G1. They do not reopen or alter G
 PASS requires:
 - `docs/GOLDEN-PATH-V1.md` exists on the default branch;
 - GP-001 is the only authorized demo scenario;
-- exact task facts, acceptance criteria, opaque AssetRef, reward, verification policy, and settlement uniqueness model are frozen;
+- the GP-001 Task Freeze Record contract is frozen, including required fields and `max_attempts = 3`;
+- the claimant is immutably recorded at CLAIM time in a ClaimRecord;
+- GP-001 settlement payee authorization is frozen as: exactly one output, `recipient == ClaimRecord.claimant`, reward `"10"`, frozen asset triple;
+- prose ACCEPT maps only to frozen G1 `VerificationDecisionV1.result == "VALID"`;
 - economic exactly-once release is enforced by unique key `(escrow_ref, outcome_receipt_hash)`;
 - `settlement_key` remains instruction-level idempotency only;
-- Proof Pack requires full objects + evidence + reproduction script, not hashes alone;
+- Proof Pack requires Task Freeze Record + ClaimRecord + full G1 objects + evidence + reproduction script;
 - Builder D independently audits the contract as machine-testable and non-contradictory;
 - no G1 wire/hash semantic modification.
 
@@ -111,6 +114,8 @@ PASS requires:
 ## GP2 — G3 Execution + Evidence
 
 PASS requires:
+- committed `packages/golden-path/fixtures/gp-001-task.json` exists and satisfies the frozen Task Freeze Record contract;
+- Builder D verifies the exact-file `task_freeze_hash` and field equality against Intent/Milestone/runtime inputs;
 - isolated Agent execution on frozen GP-001;
 - real patch commit from frozen base SHA;
 - exact acceptance/build commands reproducible;
@@ -122,7 +127,7 @@ PASS requires:
 
 PASS requires:
 - two distinct verifier identities;
-- frozen 2-of-2 acceptance policy;
+- frozen 2-of-2 policy where both VerificationDecisionV1 wire results equal `"VALID"`;
 - each verifier independently recomputes R9 proof_binding;
 - both accepted decisions target the same frozen milestone/bundle/policy;
 - single-verifier/rejected paths cannot form OutcomeReceipt;
@@ -132,6 +137,9 @@ PASS requires:
 
 PASS requires:
 - OutcomeReceipt-gated local settlement;
+- exactly one GP-001 settlement output whose recipient equals the immutable ClaimRecord claimant;
+- that output amount is `"10"` and asset equals the frozen `solana-devnet / USDC-test / 6` triple;
+- wrong-recipient settlement is rejected before ELIGIBLE;
 - economic release uniqueness on `(escrow_ref, outcome_receipt_hash)`;
 - instruction idempotency on `settlement_key`;
 - exact instruction replay cannot double release;
@@ -149,18 +157,20 @@ PASS requires a complete GP-001 run through the same runtime success path used o
 ```
 Intent
 -> Milestone
+-> immutable ClaimRecord
 -> Agent execution
 -> SEALED EvidenceBundle
 -> Verifier A ACCEPT
 -> Verifier B ACCEPT
 -> OutcomeReceipt
--> SettlementInstruction
--> escrow RELEASED exactly once
+-> SettlementInstruction with recipient == recorded claimant
+-> escrow RELEASED exactly once to that claimant
 -> replay / changed-nonce second release blocked
 -> self-verifiable Proof Pack
 ```
 
 Additional PASS requirements:
+- actual released payee equals the immutable ClaimRecord claimant;
 - no demo/admin verification or release bypass;
 - black-box proof that unverified submissions cannot create OutcomeReceipt or RELEASE;
 - Proof Pack includes full objects, raw evidence necessary for recomputation, settlement history, and a one-command verifier;
