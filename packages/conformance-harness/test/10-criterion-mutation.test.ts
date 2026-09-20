@@ -37,15 +37,18 @@ describe("[C-10] criterion mutation", () => {
       .not.toBe(contentHash(sealIntent(validIntent({ success_criteria: t2 }))));
   });
 
-  test("[C-10-03] FAIL: schema admits thresholds that canonicalization rejects (2^53 is integer but not safe) — schema-valid object cannot be sealed", () => {
-    // z.number().int() accepts 2^53; the frozen canonical rule 4 rejects
-    // non-safe integers. Protocol requirement under test: every schema-valid
-    // object must be sealable. The SUT accepts the parse and then blows up at
-    // hashing time, splitting validation from canonicalization.
+  test("[C-10-03] schema must reject unsafe integers (2^53) at parse — every schema-valid object must be sealable (canonical rule 4)", () => {
+    // Remediation-18: the old FAIL-shaped assertion assumed the schema ADMITS
+    // 2^53 ("z.number().int() accepts it") and only sealing throws. That
+    // assumption is stale: the protocol requirement is that validation and
+    // canonicalization agree — the schema itself must reject what the canonical
+    // form rejects, so no schema-valid object can be unsealable.
     const t = [...criteria()];
-    t[0] = { ...t[0]!, threshold: 9007199254740992 };
-    const parsed = IntentContractSchema.parse(validIntent({ success_criteria: t })); // accepted by schema
-    expect(() => sealIntent(parsed)).not.toThrow(); // required: sealable — actually throws
+    t[0] = { ...t[0]!, threshold: 9007199254740992 }; // 2^53: integer, NOT safe
+    expect(() => IntentContractSchema.parse(validIntent({ success_criteria: t }))).toThrow(); // rejected at parse
+    const safe = [...criteria()];
+    safe[0] = { ...safe[0]!, threshold: 9007199254740991 }; // 2^53-1: safe boundary
+    expect(() => sealIntent(IntentContractSchema.parse(validIntent({ success_criteria: safe })))).not.toThrow(); // control: safe int parses AND seals
   });
 
   test("[C-10-04] reordering criteria changes the hash (array order is semantic)", () => {
@@ -71,5 +74,5 @@ describe("[C-10] criterion mutation", () => {
     expect(contentHash(sealIntent(validIntent({ success_criteria: mutated })))).not.toBe(H0);
   });
 
-  test.todo("[C-10-08][GAP] Milestone acceptance-criteria immutability (Milestone object documented in arch doc §6 but NOT delivered in the S0 snapshot)");
+  test.todo("[C-10-08][GAP] Milestone lifecycle MUTATION machinery (revision bump / acceptance transition) — S1 scope. SUPERSEDED premise (remediation-18): MilestoneV1 IS delivered on the frozen wire (TRUST-CHAIN.md @ e28a22e); content immutability is enforced by the digest (every required field incl. criterion_ids feeds content_hash — asserted by S-MS-WIRE/S-MS-HASH), so only the transition machinery remains deferred");
 });

@@ -44,7 +44,7 @@ describe("[C-15] invalid state transitions", () => {
     expect(Object.values(sut.states.EvidenceBundleState.enum).sort()).toEqual([...delivered].sort());
   });
 
-  test.todo("[C-15-06][GAP] Milestone state machine PLANNED->EXECUTING->SUBMITTED->VERIFIED/DISPUTED/FAILED (arch doc §7) — no object, no enum, no engine delivered");
+  test.todo("[C-15-06][GAP] Milestone state machine PLANNED->EXECUTING->SUBMITTED->VERIFIED/DISPUTED/FAILED (arch doc §7) — no state enum or transition engine delivered (reconciliation-18: the Milestone OBJECT itself IS delivered on the frozen wire @ e28a22e; only lifecycle machinery is missing, S1 scope)");
   test.todo("[C-15-07][GAP] Settlement state machine LOCKED->ELIGIBLE->...->RELEASED/REFUNDED (arch doc §7) — SettlementInstruction carries no state field at all in S0");
   test.todo("[C-15-08][GAP] Intent state machine DRAFT->FROZEN->ACTIVE->... (arch doc §7) — not delivered");
   test.todo("[C-15-09][GAP] G0 gate 'illegal transitions 100% blocked' cannot be evaluated: no state-machine code exists in the delivered snapshot (@intent/intent-core absent)");

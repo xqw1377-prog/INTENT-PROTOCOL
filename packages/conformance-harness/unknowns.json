@@ -3,8 +3,8 @@
   "unknowns": {
     "PKG-ENTRY-01": {
       "kind": "blocked",
-      "rationale": "Live package barrel/@intent/protocol-schema entry import was not evaluated against the frozen snapshot: Builder A edited the live tree twice during verification (missing events.js -> fixed; Milestone/Plan/Run/Grant/Edge/Dispute objects removed; artifact content_hash renamed payload_hash; SubjectRef charset widened). Re-run scripts/capture-sut.mjs to pin a newer SUT.",
-      "blocked_by": "SUT churn"
+      "rationale": "Reconciliation-18: the original blocker (Builder A editing the live tree during verification) is CLOSED — every capture is pinned at a pushed SHA from the git object database (mode=git-sha, capture.json). The barrel/entry-point import remains unevaluated because packaging is outside S0 gate scope; re-opens with S1 packaging.",
+      "blocked_by": "packaging layer out of S0 scope"
     },
     "C-07-04": {
       "kind": "gap_documented",
@@ -23,13 +23,8 @@
     },
     "C-08-06": {
       "kind": "blocked",
-      "rationale": "Unknown-field strictness for Milestone/Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase cannot be tested: objects documented in arch doc §6 are absent from the delivered S0 snapshot.",
-      "blocked_by": "undelivered objects"
-    },
-    "C-09-08": {
-      "kind": "gap_documented",
-      "rationale": "EvidenceArtifact carries no self content_hash field; a received artifact cannot prove its own metadata integrity the way a sealed Intent can (payload_hash covers CAS bytes only).",
-      "blocked_by": "schema design"
+      "rationale": "Reconciliation-18: the Milestone half is CLOSED — MilestoneV1 is delivered on the frozen wire (TRUST-CHAIN.md @ e28a22e) and its strict alias/unknown-field rejection is asserted by S-MS-WIRE-01. Plan/ExecutionRun/CapabilityGrant/ContributionEdge/DisputeCase remain outside the delivered G1 scope.",
+      "blocked_by": "objects outside G1 scope"
     },
     "C-09-09": {
       "kind": "gap_documented",
@@ -38,8 +33,8 @@
     },
     "C-10-08": {
       "kind": "blocked",
-      "rationale": "Milestone acceptance-criteria immutability cannot be tested: Milestone object absent from the delivered S0 snapshot.",
-      "blocked_by": "undelivered object"
+      "rationale": "SUPERSEDED PREMISE (remediation-18, PR #5 review): MilestoneV1 IS delivered on the frozen wire (TRUST-CHAIN.md @ e28a22e) and content immutability is enforced by the digest (every required field incl. criterion_ids feeds content_hash — asserted by S-MS-WIRE / S-MS-HASH). Only the lifecycle MUTATION machinery (revision bump / acceptance transition) remains undelivered; that is S1 scope.",
+      "blocked_by": "S1 lifecycle machinery"
     },
     "C-12-06": {
       "kind": "gap_documented",
@@ -50,16 +45,6 @@
       "kind": "gap_documented",
       "rationale": "Same bundle_id with a different artifact set is representable; no uniqueness/append-only constraint exists in the schema layer.",
       "blocked_by": "ledger/service layer undelivered"
-    },
-    "C-13-02c": {
-      "kind": "gap_documented",
-      "rationale": "SubjectRef id charset was widened to include '@' during verification; lookalike principal ids (alice@evil) are now valid. Commander ruling OQ-5 (2026-09-17): SubjectRef V1 is accepted as a shape but '@' must be REMOVED; once Builder A lands it, this check must flip to assert rejection.",
-      "blocked_by": "uncoordinated live edit"
-    },
-    "C-13-09b": {
-      "kind": "gap_documented",
-      "rationale": "UUID schema accepts any RFC version and uppercase; intent ids are not pinned to a single version/canonical form.",
-      "blocked_by": "spec silent"
     },
     "C-13-12": {
       "kind": "blocked",
@@ -80,17 +65,12 @@
       "freeze_blocking": false,
       "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
     },
-    "C-14-04": {
-      "kind": "gap_documented",
-      "rationale": "The SUPERSEDED decision-gated settlement wire permits a dangling decision_id and arbitrary proof_binding (demonstrated against the delivered SUT via the negative sample). The frozen receipt-gated wire forbids these authority fields entirely; see S-GATE-AUTH. Cross-object referential existence is separately deferred to S1.",
-      "blocked_by": "settlement gate undelivered",
-      "freeze_blocking": false,
-      "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
-    },
     "C-14-05": {
       "kind": "gap_documented",
-      "rationale": "decision.milestone_id / bundle.milestone_id can dangle; no Milestone object is delivered at all.",
-      "blocked_by": "undelivered object"
+      "rationale": "decision.milestone_id / bundle.milestone_id can dangle; no schema-layer existence check exists (the Milestone object itself IS delivered on the frozen wire — remediation-18 corrected the stale 'not delivered' premise). Existence enforcement is deferred with the other cross-object referential checks.",
+      "blocked_by": "referential-integrity layer undelivered",
+      "freeze_blocking": false,
+      "commander_ruling": "Commander ruling 2026-09-18 (PR #3 round 5): cross-object referential existence is DEFERRED to S1 — not a G1 blocker. Schema-level acceptance of dangling refs remains recorded as UNKNOWN."
     },
     "C-14-06": {
       "kind": "gap_documented",
@@ -124,8 +104,8 @@
     },
     "C-15-06": {
       "kind": "blocked",
-      "rationale": "Milestone state machine (arch doc §7) not delivered.",
-      "blocked_by": "undelivered"
+      "rationale": "Reconciliation-18: the Milestone OBJECT is delivered on the frozen wire; only the lifecycle machinery (state enum + transition engine, arch doc §7) is undelivered — S1 scope, same deferral class as C-10-08.",
+      "blocked_by": "S1 lifecycle machinery"
     },
     "C-15-07": {
       "kind": "blocked",

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { ARTIFACT_HASHES, fakeHash, POLICY_HASH, validDecision, validIntent } from "../src/lib/fixtures.js";
+import { ARTIFACT_HASHES, fakeHash, IDS, POLICY_HASH, validDecision, validIntent } from "../src/lib/fixtures.js";
 import { sut, sealWith, contentHashOf } from "../src/sut.js";
 
 const { IntentContractSchema, VerificationDecisionSchema, EvidenceBundleSchema } = sut.objects;
@@ -8,9 +8,13 @@ const { proofBinding, settlementKey } = sut.hash;
 
 /** AREA 12 — Replay of the same bundle: binding must be revision/policy-bound and idempotent. */
 describe("[C-12] replay of the same bundle", () => {
+  // FROZEN R9 six-field parameterization (milestone_id + bundle_id are bound;
+  // remediation-18: the old 4-field SUT API is superseded).
   const inputs = {
     intent_hash: fakeHash("ab"),
+    milestone_id: IDS.milestone,
     milestone_revision: 1,
+    bundle_id: IDS.bundle,
     evidence_root: fakeHash("cd"),
     policy_hash: POLICY_HASH,
   };
@@ -43,11 +47,13 @@ describe("[C-12] replay of the same bundle", () => {
     expect(() => IntentContractSchema.parse(validIntent({ version: 2, parent_hash: fakeHash("ab") }))).toThrow();
   });
 
-  test("[C-12-05] settlement double-spend key: same (binding, escrow, nonce) -> same key; retried with new nonce -> new key", () => {
-    const p = { proof_binding: proofBinding(inputs), escrow_id: "escrow:sim-0001", settlement_nonce: 7n };
+  test("[C-12-05] settlement double-spend key: same (receipt, escrow, nonce) -> same key; retried with new nonce -> new key", () => {
+    // FROZEN receipt-keyed parameterization (TRUST-CHAIN @ e28a22e;
+    // remediation-18: proof_binding/escrow_id/settlement_nonce names are superseded).
+    const p = { outcome_receipt_hash: fakeHash("11"), escrow_ref: "escrow:sim-0001", nonce: 7n };
     const k1 = settlementKey(p);
     expect(settlementKey(p)).toBe(k1);
-    expect(settlementKey({ ...p, settlement_nonce: 8n })).not.toBe(k1);
+    expect(settlementKey({ ...p, nonce: 8n })).not.toBe(k1);
   });
 
   test("[C-12-06][GAP] a decision may reference a bundle that is OPEN (unsealed) — no cross-check in the schema layer", () => {

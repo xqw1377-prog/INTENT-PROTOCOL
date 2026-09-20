@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { refHashBytes, refMerkleRoot, refVerifyMerkleProof } from "../src/reference/index.js";
-import { ARTIFACT_HASHES, RAW_ARTIFACTS, validArtifact } from "../src/lib/fixtures.js";
-import { sut, contentHashOf } from "../src/sut.js";
+import { ARTIFACT_HASHES, RAW_ARTIFACTS, fakeHash, validArtifact } from "../src/lib/fixtures.js";
+import { sut, contentHashOf, sealWith } from "../src/sut.js";
 
 const { merkleRoot, merkleProof, verifyMerkleProof } = sut.merkle;
 const { hashBytes, hashObject, Domain } = sut.hash;
@@ -73,13 +73,17 @@ describe("[C-09] evidence tampering", () => {
     expect(h0).toBe(hashObject(Domain.EvidenceArtifact, "artifact.v1", payload0));
   });
 
-  test("[C-09-08][GAP] EvidenceArtifact has no self-declared content_hash field — metadata tampering cannot be caught by comparing a declared digest (only by re-hashing the object)", () => {
-    // payload_hash covers the CAS bytes only; the artifact object's own digest
-    // is not a field, so a received artifact cannot prove its own integrity
-    // the way a sealed Intent can. Detection = consumer recomputes contentHash.
-    const parsed = EvidenceArtifactSchema.parse(validArtifact());
-    expect("content_hash" in parsed).toBe(false);
-    expect(() => EvidenceArtifactSchema.parse(validArtifact({ content_hash: "sha256:" + "ab".repeat(32) }))).toThrow(); // unknown key
+  test("[C-09-08] artifact self content_hash: optional declared digest; a WRONG declared digest is rejected on seal (metadata tampering caught by digest comparison)", () => {
+    // Remediation-18: the old [GAP] premise ("EvidenceArtifact has no
+    // self-declared content_hash; adding it throws as an unknown key") was
+    // superseded — the artifact now carries an optional self content_hash like
+    // every other hashable object, so tamper detection by declared-digest
+    // comparison IS representable and is asserted here.
+    const sealed = sealWith(EvidenceArtifactSchema, validArtifact());
+    expect(sealed.content_hash).toMatch(/^sha256:[0-9a-f]{64}$/);
+    const back = JSON.parse(JSON.stringify(sealed)) as Record<string, unknown>;
+    expect(sealWith(EvidenceArtifactSchema, back).content_hash).toBe(sealed.content_hash); // idempotent round-trip
+    expect(() => sealWith(EvidenceArtifactSchema, { ...back, content_hash: fakeHash("ff") })).toThrow(); // lying declared digest rejected
   });
 
   test("[C-09-09][GAP] artifact.payload_hash is only FORMAT-checked by the schema; (bytes, hash) binding needs CAS recomputation outside the delivered layer", () => {

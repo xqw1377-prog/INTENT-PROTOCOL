@@ -50,5 +50,5 @@ describe("SUT loadability", () => {
     );
   });
 
-  test.todo("[PKG-ENTRY-01][GAP] live package barrel + `@intent/protocol-schema` import: NOT evaluated against the frozen snapshot — Builder A edits the live tree concurrently (drift observed twice during verification); re-run scripts/capture-sut.mjs and add an entry-point suite once the SUT stabilizes");
+  test.todo("[PKG-ENTRY-01][GAP] live package barrel + `@intent/protocol-schema` import: NOT evaluated — packaging-layer concern outside S0 gate scope (reconciliation-18: the original live-tree-drift blocker is CLOSED; the SUT is pinned at a pushed SHA captured from the git object database in mode=git-sha, so no concurrent-edit vector exists)");
 });

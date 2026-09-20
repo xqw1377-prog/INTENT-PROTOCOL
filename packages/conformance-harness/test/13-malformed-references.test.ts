@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { validDecision, validIntent, validReceiptSettlement } from "../src/lib/fixtures.js";
+import { validBundle, validDecision, validIntent, validReceiptSettlement } from "../src/lib/fixtures.js";
 import { sut } from "../src/sut.js";
 
 const S = sut.objects;
@@ -115,6 +115,21 @@ describe("[C-13] malformed references", () => {
     ["g hex digit", "g1111111-1111-4111-8111-111111111111"],
   ])("[C-13-09] UUID rejects: %s", (_label, bad) => {
     expect(() => S.IntentContractSchema.parse(validIntent({ intent_id: bad }))).toThrow();
+  });
+
+  test("[C-13-02c] SubjectRef rejects '@' on every principal slot — no lookalike email-form principal ids (OQ-5; formerly UNKNOWN, executable since the charset was remediated)", () => {
+    expect(() => S.VerificationDecisionSchema.parse(validDecision({ verifier_id: "verifier:independent-b" }))).not.toThrow(); // control
+    expect(() => S.VerificationDecisionSchema.parse(validDecision({ verifier_id: "verifier:independent-b@evil" }))).toThrow();
+    expect(() => S.EvidenceBundleSchema.parse(validBundle({ submitter: "agent:builder-a@evil" }))).toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(validReceiptSettlement({
+      outputs: [{ recipient: "agent:builder-a@evil", asset: { network: "sim:local", asset: "USD", decimals: 2 }, amount: "300", reason: "r" }],
+    }))).toThrow();
+  });
+
+  test("[C-13-09b] UUID canonical form pinned: lowercase hyphenated text, version-agnostic (formerly UNKNOWN, executable since the regex was remediated)", () => {
+    expect(() => S.EvidenceBundleSchema.parse(validBundle())).not.toThrow(); // control: canonical fixture
+    expect(() => S.EvidenceBundleSchema.parse(validBundle({ bundle_id: "00000000-0000-1000-8000-000000000000" }))).not.toThrow(); // v1-shaped lowercase is canonical (version-agnostic)
+    expect(() => S.EvidenceBundleSchema.parse(validBundle({ bundle_id: "abcdefab-cdef-4abc-8abc-abcdefabcdef".toUpperCase() }))).toThrow(); // uppercase rejected
   });
 
 

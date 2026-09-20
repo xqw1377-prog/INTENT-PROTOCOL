@@ -1,18 +1,25 @@
 {
-  "captured_at": "2026-09-17T14:25:58.822Z",
-  "source_git_head": "d2ddb961c4aa287a6aa0c56eebfdcbeebd143296",
+  "mode": "git-sha",
+  "pinned_sha": "602eac434a836a84d6fc16fc89caccd4fd225706",
+  "remote_url": "https://github.com/xqw1377-prog/INTENT-PROTOCOL.git",
+  "remote_refs_containing": [
+    "origin/devin/p0-s0-schema-remediation"
+  ],
+  "zod_version_source": "pinned-lockfile",
+  "captured_at": "2026-09-20T04:43:37.971Z",
+  "source_git_head": "dc76ae9efe45e4f3c5414a5e0d9a4375276a5f56",
   "source_dir": "packages/protocol-schema/src",
   "zod_version": "3.25.76",
   "files": [
     {
       "file": "packages/protocol-schema/src/canonical.ts",
-      "sha256": "ac18d0ede9911f2f9b07b4ec392e6930322e8f8a7ab4eda1332c39fd843180c6",
-      "bytes": 2709
+      "sha256": "79e33168621f8be14ed7b6e24b7352043529d116cce340cd72d96c2acac203c6",
+      "bytes": 4206
     },
     {
       "file": "packages/protocol-schema/src/hash.ts",
-      "sha256": "6906b26324d957bde11d50636e6fdc6811da3dfe54085c79fb4f5006ea36bcba",
-      "bytes": 4188
+      "sha256": "dc0f8d1693219a4a3999e4ad24a0ab15f62cbd1b23f3be59b0376f0cd89fa6b4",
+      "bytes": 6206
     },
     {
       "file": "packages/protocol-schema/src/index.ts",
@@ -26,13 +33,13 @@
     },
     {
       "file": "packages/protocol-schema/src/objects.ts",
-      "sha256": "98deea2dc38a0b2b14bdbae3b214cef3d53f05e5a346726e5b17ec006b12eb84",
-      "bytes": 9352
+      "sha256": "0c9e8a9d14b97d38d479067b6560653bb99049c09c60dc710fdd5f00b90b88e1",
+      "bytes": 17356
     },
     {
       "file": "packages/protocol-schema/src/primitives.ts",
-      "sha256": "53ccfbd30c4bc82a8bb561950c3a434ea0c63ac4af713e58e2285d17c5866d0f",
-      "bytes": 2777
+      "sha256": "e80ba6a7607f542a6d096dab516f3c6c4d68b0ec4b3df8fe0b1804099dae18ef",
+      "bytes": 3705
     },
     {
       "file": "packages/protocol-schema/src/states.ts",
@@ -40,5 +47,5 @@
       "bytes": 729
     }
   ],
-  "note": "Verbatim copy of Builder A's protocol-schema source at capture time. The harness imports ONLY this snapshot; the live tree is never loaded by tests."
+  "note": "Verbatim copy of Builder A's protocol-schema source. The harness imports ONLY this snapshot; the live tree is never loaded by tests. Anchor of validity = pinned_sha (git-sha mode) or the recorded file digests (worktree mode)."
 }

@@ -1,10 +1,30 @@
 import { describe, expect, test } from "vitest";
 import { ARTIFACT_HASHES, POLICY_HASH, validBundle, validDecision, validIntent, supersededDecisionGatedSettlement } from "../src/lib/fixtures.js";
+import { refProofBinding } from "../src/reference/hash.js";
 import { sut, sealWith, contentHashOf } from "../src/sut.js";
 
 const S = sut.objects;
 const { merkleRoot, verifyMerkleProof, merkleProof } = sut.merkle;
 const fabricated = (c: string) => `sha256:${c.repeat(32)}` as `sha256:${string}`;
+
+/**
+ * Binding-consistent decision overrides (remediation-18): the delivered SUT
+ * recomputes proof_binding at parse time, so every mutated R9-bound field MUST
+ * carry a recomputed binding — otherwise the GAP below would trip the binding
+ * rule instead of demonstrating the dangling REFERENCE it is about.
+ */
+function decisionWith(fields: Record<string, unknown>): Record<string, unknown> {
+  const merged = { ...validDecision(), ...fields };
+  const proof_binding = refProofBinding({
+    intent_hash: merged.intent_hash as string,
+    milestone_id: merged.milestone_id as string,
+    milestone_revision: merged.milestone_revision as number,
+    bundle_id: merged.bundle_id as string,
+    evidence_root: merged.evidence_root as string,
+    policy_hash: merged.policy_hash as string,
+  });
+  return { ...merged, ...fields, proof_binding };
+}
 
 /**
  * AREA 14 — Cross-object referential integrity.
@@ -26,7 +46,8 @@ describe("[C-14] cross-object referential integrity", () => {
   });
 
   test("[C-14-02][GAP] decision.intent_hash may be a fabricated hash bound to no Intent object", () => {
-    expect(() => S.VerificationDecisionSchema.parse(validDecision({ intent_hash: fabricated("99") }))).not.toThrow();
+    // binding recomputed over the fabricated value: only the DANGLING reference is under test
+    expect(() => S.VerificationDecisionSchema.parse(decisionWith({ intent_hash: fabricated("99") }))).not.toThrow();
   });
 
   test("[C-14-03][GAP] decision.evidence_root is not required to equal merkleRoot(bundle.artifact_hashes)", () => {
@@ -34,20 +55,26 @@ describe("[C-14] cross-object referential integrity", () => {
       merkle_root: merkleRoot([ARTIFACT_HASHES.a1, ARTIFACT_HASHES.a2, ARTIFACT_HASHES.a3]),
       sealed_at: "2026-09-17T01:00:00.000Z",
     }));
-    const inconsistent = validDecision({ bundle_id: bundle.bundle_id, evidence_root: fabricated("77") });
+    const inconsistentRoot = fabricated("77");
+    const inconsistent = decisionWith({ bundle_id: bundle.bundle_id, evidence_root: inconsistentRoot });
     expect(() => S.VerificationDecisionSchema.parse(inconsistent)).not.toThrow();
     expect(inconsistent.evidence_root).not.toBe(bundle.merkle_root); // contradiction is representable
   });
 
-  test("[C-14-04][GAP] the SUPERSEDED decision-gated wire permits a dangling decision_id and arbitrary proof_binding (frozen wire forbids these fields)", () => {
+  test("[C-14-04] the SUPERSEDED decision-gated wire (decision_id + proof_binding authorization) is REJECTED by the frozen receipt-gated contract — decision authority is unrepresentable on a settlement (S-GATE-AUTH)", () => {
+    // remediation-18 (superseded-GAP class): the old [GAP] asserted the delivered
+    // wire PERMITS a dangling decision_id — true of the pre-freeze SUT, reversed
+    // against the frozen contract. Authority-boundary enforcement is asserted
+    // here; the dangling-REFERENCE class stays with C-14-02/03/05 (S1-deferred).
     const s = supersededDecisionGatedSettlement({ decision_id: "deadbeef-dead-4ead-8ead-deaddeadbead", proof_binding: fabricated("88") });
-    expect(() => S.SettlementInstructionSchema.parse(s)).not.toThrow();
+    expect(() => S.SettlementInstructionSchema.parse(s)).toThrow();
   });
 
-  test("[C-14-05][GAP] decision.milestone_id / bundle.milestone_id may dangle (no Milestone object delivered at all)", () => {
-    expect(() => S.VerificationDecisionSchema.parse(validDecision({ milestone_id: "00000000-0000-4000-8000-000000000000" }))).not.toThrow();
+  test("[C-14-05][GAP] decision.milestone_id / bundle.milestone_id may dangle — no existence check in the schema layer (deferred to S1; Milestone IS delivered on the frozen wire)", () => {
+    const danglingMilestone = "00000000-0000-4000-8000-000000000000";
+    expect(() => S.VerificationDecisionSchema.parse(decisionWith({ milestone_id: danglingMilestone }))).not.toThrow();
     expect(() => S.EvidenceBundleSchema.parse(validBundle({
-      state: "OPEN", milestone_id: "00000000-0000-4000-8000-000000000000",
+      state: "OPEN", milestone_id: danglingMilestone,
     }))).not.toThrow();
   });
 

@@ -89,10 +89,13 @@ describe("[SPEC] R9–R14 normative assertions", () => {
 
   // ------------------------------------------------------------------ UUID
   test("[S-UUID] UUID canonical form = lowercase hyphenated text; version-agnostic; uppercase rejected", () => {
-    // v1-shaped lowercase IS canonical (ruling does not pin a version)
-    expect(() => IntentContractSchema.parse(validIntent({ intent_id: "11111111-1111-1111-1111-111111111111" }))).not.toThrow();
+    // remediation-18: the uppercase probe must contain hex LETTERS — the old
+    // digit-only probe made toUpperCase() a no-op (it tested nothing).
+    const letterUuid = "abcdefab-cdef-4abc-8abc-abcdefabcdef";
+    expect(() => IntentContractSchema.parse(validIntent({ intent_id: letterUuid }))).not.toThrow(); // lowercase control
+    expect(() => IntentContractSchema.parse(validIntent({ intent_id: letterUuid.toUpperCase() }))).toThrow(); // genuinely uppercase
+    expect(() => IntentContractSchema.parse(validIntent({ intent_id: "11111111-1111-1111-1111-111111111111" }))).not.toThrow(); // v1-shaped lowercase is canonical (version-agnostic)
     expect(() => IntentContractSchema.parse(validIntent({ intent_id: "11111111-1111-4111-8111-111111111111" }))).not.toThrow(); // control
-    expect(() => IntentContractSchema.parse(validIntent({ intent_id: "11111111-1111-4111-8111-111111111111".toUpperCase() }))).toThrow();
   });
 
   // ------------------------------------------------------------------ assets
