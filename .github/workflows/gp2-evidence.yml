@@ -1,0 +1,114 @@
+name: GP2 Evidence (Builder D)
+
+# Formal machine evidence for the GP2 gate. Same entry-point discipline as the
+# G1/GP1 evidence workflows: manual dispatch on the DEFAULT branch with an
+# exact 40-hex pushed target SHA; harness and SUT pinned separately; stale
+# evidence purged BEFORE npm ci so nothing old can masquerade; artifacts
+# uploaded on PASS and FAIL alike; faithful gate exit. Read-only permissions;
+# actions pinned to the same full SHAs as conformance-evidence.yml.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: "Exact GP2 SUT commit SHA (full 40 hex, must be pushed to origin)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  gp2-formal-replay:
+    name: GP2 formal evidence replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # actions/checkout v4.1.7
+      - name: Check out verifier tooling (NOT the SUT)
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          fetch-depth: 0
+
+      - name: Resolve and pin inputs
+        env:
+          RAW_TARGET_SHA: ${{ inputs.target_sha }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$RAW_TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::target_sha must be a FULL 40-hex commit SHA, got: $RAW_TARGET_SHA"
+            exit 1
+          fi
+          git fetch origin "$RAW_TARGET_SHA" --depth=2 2>/dev/null || true
+          TARGET_SHA=$(git rev-parse "${RAW_TARGET_SHA}^{commit}")
+          if [ "$TARGET_SHA" != "$RAW_TARGET_SHA" ]; then
+            echo "::error::resolved SHA $TARGET_SHA does not equal input $RAW_TARGET_SHA"
+            exit 1
+          fi
+          echo "TARGET_SHA=$TARGET_SHA" >> "$GITHUB_ENV"
+          echo "HARNESS_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Purge stale verifier evidence BEFORE dependency install
+        run: |
+          rm -rf packages/gp2-verifier/report packages/gp2-verifier/target-snapshot
+          echo "stale capture/report purged"
+
+      # actions/setup-node v4.0.2
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version: 22
+
+      - name: Install harness dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Capture GP2 SUT at target SHA (refuses unpinned / local-only SHAs)
+        run: node packages/gp2-verifier/scripts/capture-gp2-target.mjs --sha "$TARGET_SHA"
+
+      - name: G1 frozen-surface regression (199-check conformance harness)
+        run: npx vitest run packages/conformance-harness || { echo "::error::G1 guard red"; exit 1; }
+
+      - name: GP1 oracle regression (frozen state-machine oracle selftests)
+        run: npx vitest run packages/gp1-verifier/test/gp1-oracle-selftest.test.ts || { echo "::error::GP1 oracle red"; exit 1; }
+
+      - name: GP2 formal replay + report (exit deferred past report write)
+        working-directory: packages/gp2-verifier
+        run: |
+          set +e
+          node scripts/gp2-report.mjs
+          CODE=$?
+          set -e
+          echo "GP2_REPLAY_EXIT=$CODE" >> "$GITHUB_ENV"
+          echo "formal replay exit: $CODE (deferred to the gate step)"
+
+      - name: Write Job Summary
+        if: always()
+        env:
+          TARGET_SHA: ${{ env.TARGET_SHA }}
+          HARNESS_SHA: ${{ env.HARNESS_SHA }}
+          GP2_REPLAY_EXIT: ${{ env.GP2_REPLAY_EXIT }}
+        run: |
+          {
+            echo "# GP2 Formal Replay — Job Summary"
+            echo "- Formal target (SUT): \`$TARGET_SHA\`"
+            echo "- Verifier tooling head: \`$HARNESS_SHA\`"
+            echo "- Replay exit code: $GP2_REPLAY_EXIT"
+            echo "- Machine gate: see report artifact (machine READY is NEVER an automatic GP2 PASS)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # actions/upload-artifact v4.4.3
+      - name: Upload evidence artifact (PASS and FAIL alike)
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        with:
+          name: gp2-evidence-${{ env.TARGET_SHA }}
+          path: |
+            packages/gp2-verifier/report/
+            packages/gp2-verifier/target-snapshot/capture.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Gate exit (any FAIL/UNKNOWN/scope violation fails the job)
+        if: ${{ env.GP2_REPLAY_EXIT != '0' }}
+        run: |
+          echo "::error::GP2 formal replay exited $GP2_REPLAY_EXIT. Evidence uploaded; job fails per Commander order."
+          exit 1

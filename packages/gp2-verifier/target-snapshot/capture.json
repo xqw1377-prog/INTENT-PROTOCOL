@@ -1,0 +1,100 @@
+{
+  "mode": "git-sha",
+  "pinned_sha": "b0d7f39f6033612b094b44189b03253306c0c5ab",
+  "parent_sha": "d4c685bc82a77cfefde6724856f1927fe353c83f",
+  "expected_parent": "d4c685bc82a77cfefde6724856f1927fe353c83f",
+  "remote_url": "https://github.com/xqw1377-prog/INTENT-PROTOCOL.git",
+  "remote_refs_containing": [
+    "origin/zcode/gp2-execution-evidence-v4"
+  ],
+  "changed_paths_vs_parent": [
+    "package-lock.json",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/artifacts.json",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/bundle.json",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/manifest.json",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/agent-patch.bin",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/base-acceptance.bin",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/build.bin",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/execution-manifest.bin",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/patched-acceptance.bin",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/policy-boundary.bin",
+    "packages/gp-execution/package.json",
+    "packages/gp-execution/report/gp2-candidate.json",
+    "packages/gp-execution/scripts/build-gp2-candidate.mjs",
+    "packages/gp-execution/src/evidence.ts",
+    "packages/gp-execution/src/runner.ts",
+    "packages/gp-execution/src/task.ts",
+    "packages/gp-execution/test/gp2-build-report.test.ts",
+    "packages/gp-execution/test/gp2-execution.test.ts",
+    "packages/gp-execution/tsconfig.json"
+  ],
+  "evidence_run_id": "9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
+  "captured_at": "2026-09-21T16:36:50.558Z",
+  "files": [
+    {
+      "file": "packages/gp-execution/report/gp2-candidate.json",
+      "sha256": "13f01dfa9036aaafc7b8c5f26864607a42a6de268e2515fd0f34029ed736b9c8",
+      "bytes": 3950
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/bundle.json",
+      "sha256": "1d5518c592f331d86d1d19d6366c6128450daba0384dae63582c65893f246bf3",
+      "bytes": 1125
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/artifacts.json",
+      "sha256": "5fb28a831fa1cbb7670393227380892954664fd991105d033be9e1e0509e7ea0",
+      "bytes": 4368
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/manifest.json",
+      "sha256": "68780b763a88f53d61da752f4181564105eb99e5315835cadb89db8bc4f7d9cf",
+      "bytes": 2080
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/base-acceptance.bin",
+      "sha256": "e11c67fd72580d05c640aad4898404f48976aee5df02fec7c0390c0cbe7bdc13",
+      "bytes": 3324
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/agent-patch.bin",
+      "sha256": "d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+      "bytes": 754
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/patched-acceptance.bin",
+      "sha256": "fdfc04d406995482688ed0f93e593b7fb915b0633d01f074faebab010e1b2fa2",
+      "bytes": 2486
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/build.bin",
+      "sha256": "3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+      "bytes": 8
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/policy-boundary.bin",
+      "sha256": "6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab",
+      "bytes": 441
+    },
+    {
+      "file": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/raw/execution-manifest.bin",
+      "sha256": "68780b763a88f53d61da752f4181564105eb99e5315835cadb89db8bc4f7d9cf",
+      "bytes": 2080
+    },
+    {
+      "file": "packages/gp-execution/src/task.ts",
+      "sha256": "fdd98c2f14d9d02bf06a435103743e4bd2517ca723c572e79be9bda21e86b22b",
+      "bytes": 5909
+    },
+    {
+      "file": "packages/gp-execution/src/runner.ts",
+      "sha256": "99ed79fb02cdf27bb89836c82c260ec47d40571ddd8d97abf1de91a1f213e321",
+      "bytes": 14082
+    },
+    {
+      "file": "packages/gp-execution/src/evidence.ts",
+      "sha256": "3d80f3347742bd850325c0c6b831f306b1c74a7dc325102e22b82ae102ddb060",
+      "bytes": 8198
+    }
+  ]
+}
