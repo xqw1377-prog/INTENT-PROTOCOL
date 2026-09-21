@@ -40,7 +40,9 @@ jobs:
             echo "::error::target_sha must be a FULL 40-hex commit SHA, got: $RAW_TARGET_SHA"
             exit 1
           fi
-          git fetch origin "$RAW_TARGET_SHA" --depth=1 2>/dev/null || true
+          # depth=2: the capture step resolves <sha>^ for the parent-diff scope
+          # audit; a depth=1 fetch leaves the parent unknown and kills capture.
+          git fetch origin "$RAW_TARGET_SHA" --depth=2 2>/dev/null || true
           TARGET_SHA=$(git rev-parse "${RAW_TARGET_SHA}^{commit}")
           if [ "$TARGET_SHA" != "$RAW_TARGET_SHA" ]; then
             echo "::error::resolved SHA $TARGET_SHA does not equal input $RAW_TARGET_SHA"
