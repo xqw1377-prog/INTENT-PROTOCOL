@@ -1,0 +1,6464 @@
+{
+  "generator": "traces.ts@gp1-verifier",
+  "seeds": [
+    20260921,
+    20260922,
+    20260923,
+    20260924,
+    20260925,
+    20260926,
+    20260927,
+    20260928
+  ],
+  "opsPerTrace": 48,
+  "traces": [
+    {
+      "seed": 20260921,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260921, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:00Z"
+        },
+        {
+          "command_id": "cmd-0000",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:01Z"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:02Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:03Z"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:04Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:05Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-000000002839",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283901352839013528390135283901352839013528390135283901352839",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:06Z"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:07Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:08Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:10Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:11Z"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:13Z"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:14Z"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:16Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:18Z"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:19Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:20Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:22Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:25Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:27Z"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:28Z"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:30Z"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:32Z"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:33Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:36Z"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:37Z"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:40Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:44Z"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:47Z"
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0000",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0003",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "prerequisite-required"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000e",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0011",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0015",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0019",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0022",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": true,
+          "to": "CLOSED"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        }
+      ]
+    },
+    {
+      "seed": 20260922,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260922, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:00Z"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:01Z"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:02Z",
+          "prerequisite": {
+            "kind": "sealed-evidence-ref",
+            "ref": "op:gp1.sealed-evidence-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:03Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "OP-INVALID-SHORT!"
+          }
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:04Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:05Z"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:06Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283a",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283a0135283a0135283a0135283a0135283a0135283a0135283a0135283a",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:07Z"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:08Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:10Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:11Z",
+          "prerequisite": {
+            "kind": "sealed-evidence-ref",
+            "ref": "op:gp1.sealed-evidence-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:13Z"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:14Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:16Z"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:18Z"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:19Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:20Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283a",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283a0135283a0135283a0135283a0135283a0135283a0135283a0135283a",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:22Z"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:25Z"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:27Z"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:28Z"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:30Z"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:32Z"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:33Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:36Z"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:37Z"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:40Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:44Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:47Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283a",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283a0135283a0135283a0135283a0135283a0135283a0135283a0135283a",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "ACCEPTED"
+        },
+        {
+          "command_id": "cmd-0001",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0009",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "prerequisite-wrong-kind"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0011",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0014",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": true,
+          "to": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0022",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0025",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0027",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "ACCEPTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002c",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": true,
+          "to": "CLAIMED"
+        }
+      ]
+    },
+    {
+      "seed": 20260923,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260923, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:00Z"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:01Z"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:02Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:03Z"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:04Z"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:05Z"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:06Z"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:07Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:08Z"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:10Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:11Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:13Z"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:14Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:16Z"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:18Z"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:19Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:20Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:22Z"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:25Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283b",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283b0135283b0135283b0135283b0135283b0135283b0135283b0135283b",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:27Z"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:28Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283b",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283b0135283b0135283b0135283b0135283b0135283b0135283b0135283b",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:30Z"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:32Z"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:33Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:36Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283b",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283b0135283b0135283b0135283b0135283b0135283b0135283b0135283b",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:37Z",
+          "prerequisite": {
+            "kind": "sealed-evidence-ref",
+            "ref": "op:gp1.sealed-evidence-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:40Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283b",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283b0135283b0135283b0135283b0135283b0135283b0135283b0135283b",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:44Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "VERIFIED",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:47Z"
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "prerequisite-required"
+        },
+        {
+          "command_id": "cmd-0007",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000b",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0014",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0017",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001c",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "prerequisite-required"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": true,
+          "to": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "prerequisite-wrong-kind"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-002d",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED"
+        }
+      ]
+    },
+    {
+      "seed": 20260924,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260924, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:00Z"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:01Z"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:02Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:03Z"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:04Z"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:05Z"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:06Z"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:07Z"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:08Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:10Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:11Z"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:13Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:14Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:16Z"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:18Z"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:19Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:20Z"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:22Z"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:25Z"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:27Z"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:28Z"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:30Z"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:32Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283c",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283c0135283c0135283c0135283c0135283c0135283c0135283c0135283c",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:33Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:36Z"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:37Z"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:40Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:44Z"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:47Z"
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": true,
+          "to": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0013",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": true,
+          "to": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002d",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        }
+      ]
+    },
+    {
+      "seed": 20260925,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260925, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:00Z"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:01Z"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:02Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:03Z"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:04Z"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:05Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283d",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283d0135283d0135283d0135283d0135283d0135283d0135283d0135283d",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:06Z"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:07Z"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:08Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:10Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:11Z",
+          "prerequisite": {
+            "kind": "sealed-evidence-ref",
+            "ref": "op:gp1.sealed-evidence-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:13Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:14Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:16Z"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:18Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283d",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283d0135283d0135283d0135283d0135283d0135283d0135283d0135283d",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:19Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:20Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:22Z"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:25Z"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:27Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283d",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283d0135283d0135283d0135283d0135283d0135283d0135283d0135283d",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:28Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:30Z"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:32Z"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:33Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283d",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283d0135283d0135283d0135283d0135283d0135283d0135283d0135283d",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:36Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:37Z"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:40Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:44Z"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:47Z"
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0001",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0006",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "REJECTED"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-000a",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000d",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-000f",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-000f",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": true,
+          "to": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": true,
+          "to": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001a",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0021",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0023",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0023",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": true,
+          "to": "EXECUTING"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0029",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002e",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "EXECUTING"
+        }
+      ]
+    },
+    {
+      "seed": 20260926,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260926, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:00Z"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:01Z"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:02Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:03Z"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:04Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "OP-INVALID-SHORT!"
+          }
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:05Z"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:06Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:07Z"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:08Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:10Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:11Z"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:13Z"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:14Z"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:16Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:18Z"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:19Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:20Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:22Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:25Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "VERIFIED",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:27Z"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:28Z"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:30Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283e",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283e0135283e0135283e0135283e0135283e0135283e0135283e0135283e",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:32Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:33Z"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:36Z"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:37Z"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:40Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:44Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:47Z"
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "prerequisite-invalid-shape"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "prerequisite-wrong-kind"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": false,
+          "reason": "prerequisite-required"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0010",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-0012",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0016",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-0016",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0018",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": true,
+          "to": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001e",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": true,
+          "to": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": true,
+          "to": "EXECUTING"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002b",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002e",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "EXECUTING"
+        }
+      ]
+    },
+    {
+      "seed": 20260927,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260927, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:00Z",
+          "prerequisite": {
+            "kind": "policy-satisfied-ref",
+            "ref": "op:gp1.policy-satisfied-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:01Z"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:02Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:03Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283f",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283f0135283f0135283f0135283f0135283f0135283f0135283f0135283f",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:04Z"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "VERIFIED",
+          "at": "2026-09-21T00:00:05Z"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:06Z"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:07Z"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:08Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:10Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:11Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:13Z"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:14Z"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:16Z"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:18Z"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:19Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:20Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:22Z"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:25Z"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:27Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:28Z"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:30Z"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:32Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-00000000283f",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135283f0135283f0135283f0135283f0135283f0135283f0135283f0135283f",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:33Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:36Z"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:37Z"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:40Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:44Z"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:47Z"
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": false,
+          "reason": "prerequisite-wrong-kind"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": true,
+          "to": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": true,
+          "to": "EXECUTING"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "EXECUTING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-0009",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-000b",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0010",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0015",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-001b",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0020",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": true,
+          "to": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0023",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "SUBMITTED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        }
+      ]
+    },
+    {
+      "seed": 20260928,
+      "description": "seeded mixed legal/illegal/idempotent/conflict/terminal trace (seed 20260928, 48 ops)",
+      "commands": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "ELIGIBLE",
+          "at": "2026-09-21T00:00:00Z",
+          "prerequisite": {
+            "kind": "accepted-receipt-ref",
+            "ref": "op:gp1.accepted-receipt-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:01Z",
+          "prerequisite": {
+            "kind": "release-observed-ref",
+            "ref": "op:gp1.release-observed-ref.seed-token-0123"
+          }
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:02Z"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:03Z"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:04Z"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:05Z"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:06Z"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CREATED",
+          "at": "2026-09-21T00:00:07Z"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:08Z"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "FUNDED",
+          "at": "2026-09-21T00:00:09Z"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "RUNNING",
+          "at": "2026-09-21T00:00:10Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:11Z"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "VERIFIED",
+          "at": "2026-09-21T00:00:12Z"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:13Z"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:14Z"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:15Z"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:16Z"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:17Z"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:18Z"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:19Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "CLAIMED",
+          "at": "2026-09-21T00:00:20Z",
+          "claim": {
+            "schema_version": "gp-claim.v1",
+            "claim_id": "aaaaaaaa-0000-4000-8000-000000002840",
+            "bounty_id": "GP-001",
+            "claimant": "agent:gp-agent",
+            "task_freeze_hash": "sha256:0135284001352840013528400135284001352840013528400135284001352840",
+            "claimed_at": "2026-09-21T00:00:00Z"
+          }
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:21Z"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:22Z"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:23Z"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:24Z"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:25Z"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SUBMITTED",
+          "at": "2026-09-21T00:00:26Z"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "PENDING",
+          "at": "2026-09-21T00:00:27Z"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:28Z"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:29Z"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:30Z"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:31Z"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:32Z"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:33Z"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:34Z"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:35Z"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:36Z"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:37Z"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "ACCEPTED",
+          "at": "2026-09-21T00:00:38Z"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:39Z"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:40Z"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "op": "transition",
+          "to": "CLOSED",
+          "at": "2026-09-21T00:00:41Z"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:42Z"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "EXECUTING",
+          "at": "2026-09-21T00:00:43Z"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "LOCKED",
+          "at": "2026-09-21T00:00:44Z"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "op": "transition",
+          "to": "REJECTED",
+          "at": "2026-09-21T00:00:45Z"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "op": "transition",
+          "to": "RELEASED",
+          "at": "2026-09-21T00:00:46Z"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "op": "transition",
+          "to": "SETTLED",
+          "at": "2026-09-21T00:00:47Z"
+        }
+      ],
+      "expected": [
+        {
+          "command_id": "cmd-0000",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "LOCKED",
+          "accepted": true,
+          "to": "ELIGIBLE"
+        },
+        {
+          "command_id": "cmd-0001",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "ELIGIBLE",
+          "accepted": true,
+          "to": "RELEASED"
+        },
+        {
+          "command_id": "cmd-0002",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0003",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0004",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0005",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "PENDING",
+          "accepted": true,
+          "to": "REJECTED"
+        },
+        {
+          "command_id": "cmd-0006",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0007",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0008",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "RUNNING"
+        },
+        {
+          "command_id": "cmd-0009",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CREATED",
+          "accepted": true,
+          "to": "FUNDED"
+        },
+        {
+          "command_id": "cmd-000a",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-000b",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000b",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED"
+        },
+        {
+          "command_id": "cmd-000d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000c",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-000f",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "RUNNING",
+          "accepted": true,
+          "to": "SUBMITTED"
+        },
+        {
+          "command_id": "cmd-0010",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0011",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0012",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0013",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0014",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "FUNDED",
+          "accepted": true,
+          "to": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0015",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0014",
+          "accepted": false,
+          "reason": "conflicting-command",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED"
+        },
+        {
+          "command_id": "cmd-0017",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0018",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "SUBMITTED",
+          "accepted": true,
+          "to": "CLOSED"
+        },
+        {
+          "command_id": "cmd-0019",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001a",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-001b",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001d",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-001f",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0020",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": false,
+          "reason": "illegal-pair"
+        },
+        {
+          "command_id": "cmd-0021",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0022",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0023",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0024",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0025",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0026",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0027",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0028",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-0029",
+          "machine": "execution",
+          "entity": "exec-1",
+          "from": "CLOSED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002a",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002b",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "CLAIMED",
+          "accepted": true,
+          "to": "EXECUTING"
+        },
+        {
+          "command_id": "cmd-002c",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002d",
+          "machine": "verification",
+          "entity": "verif-1",
+          "from": "REJECTED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002e",
+          "machine": "settlement",
+          "entity": "settle-1",
+          "from": "RELEASED",
+          "accepted": false,
+          "reason": "terminal-source"
+        },
+        {
+          "command_id": "cmd-002f",
+          "machine": "bounty",
+          "entity": "GP-001",
+          "from": "EXECUTING",
+          "accepted": false,
+          "reason": "illegal-pair"
+        }
+      ]
+    }
+  ]
+}
