@@ -1,0 +1,10 @@
+{
+  "name": "@intent/gp-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Golden Path runtime (GP1 scope only): state machines, append-only journal, idempotency, crash/reload, immutable ClaimRecord, GP1-R1 typed opaque prerequisites. No GP2+ capabilities by contract.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/gp-runtime"
+  }
+}
