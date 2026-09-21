@@ -94,7 +94,7 @@ describe("[GP1-A] model oracle", () => {
         const setupEdge = edgeFor(machine as MachineName, cur, next);
         const setupKind = setupEdge ? prerequisiteKindOf(setupEdge.authority) : undefined;
         const c = cmd({ command_id: `setup-${n}-${i}`, machine: machine as MachineName, entity: "x", to: next, ...(setupKind ? { prerequisite: token(setupKind) } : {}) });
-        if (c.to === "CLAIMED" && machine === "bounty") c.claim = validClaim();
+        if (c.to === "CLAIMED" && machine === "bounty") c.claim = validClaim("x");
         const d = rt2.submit(c);
         if (!d.accepted) break;
         i++;
