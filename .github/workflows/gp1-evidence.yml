@@ -50,6 +50,11 @@ jobs:
           echo "HARNESS_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "HARNESS_LOCKFILE_SHA256=$(sha256sum package-lock.json | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
+      - name: Purge stale evidence BEFORE dependency install
+        run: |
+          rm -rf packages/gp1-verifier/sut-snapshot packages/gp1-verifier/report
+          echo "stale snapshot/report purged before npm ci"
+
       # actions/setup-node v4.0.2
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -57,11 +62,6 @@ jobs:
 
       - name: Install harness dependencies
         run: npm ci --no-audit --no-fund
-
-      - name: Purge stale evidence
-        run: |
-          rm -rf packages/gp1-verifier/sut-snapshot packages/gp1-verifier/report
-          echo "stale snapshot/report purged"
 
       - name: Capture GP1 SUT at target SHA (refuses unpinned / local-only SHAs)
         run: node packages/gp1-verifier/scripts/capture-gp1-sut.mjs --sha "$TARGET_SHA"
