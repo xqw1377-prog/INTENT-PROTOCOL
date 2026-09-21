@@ -85,7 +85,11 @@ describe("[GP1-A] model oracle", () => {
       let i = 0;
       while (rt2.stateOf(machine as MachineName, "x") !== from && i < states.length) {
         const cur = rt2.stateOf(machine as MachineName, "x");
-        const next = states[states.indexOf(cur) + 1];
+        // Prefer a direct legal edge to the desired source state (needed for
+        // branch siblings such as verification PENDING -> REJECTED);
+        // otherwise advance one state along the declared chain.
+        const direct = edgeFor(machine as MachineName, cur, from);
+        const next = direct ? from : states[states.indexOf(cur) + 1];
         if (!next || !isLegalPair(machine as MachineName, cur, next)) break;
         const setupEdge = edgeFor(machine as MachineName, cur, next);
         const setupKind = setupEdge ? prerequisiteKindOf(setupEdge.authority) : undefined;
@@ -95,7 +99,7 @@ describe("[GP1-A] model oracle", () => {
         if (!d.accepted) break;
         i++;
       }
-      if (rt2.stateOf(machine as MachineName, "x") !== from) continue; // unreachable source — pair legality still asserted below
+      expect(rt2.stateOf(machine as MachineName, "x"), `source state must be reachable for exhaustive probe: ${machine}:${from}`).toBe(from);
       const d = rt2.submit(cmd({ command_id: `probe-${n}`, machine: machine as MachineName, entity: "x", to }));
       expect(d.accepted, `illegal pair must be rejected: ${machine} ${from}->${to}`).toBe(false);
       // from a terminal source the rejection is MORE specific (terminal-source); otherwise exactly illegal-pair
@@ -104,6 +108,7 @@ describe("[GP1-A] model oracle", () => {
       n++;
     }
     expect(illegalPairs().length).toBe(70);
+    expect(n, "all 70 illegal pairs must be behaviorally probed, not only enumerated").toBe(70);
   });
 
   test("[GP1-A4] terminal states reject every outgoing attempt", () => {
