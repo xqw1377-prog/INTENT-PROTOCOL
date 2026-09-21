@@ -3,8 +3,15 @@
  *
  *   hash_input     = DOMAIN || 0x00 || schema_version || 0x00 || canonical_json(payload)
  *   content_hash   = SHA256(hash_input)
- *   proof_binding  = SHA256(intent_hash || milestone_revision(u32 BE) || evidence_root || policy_hash)
- *   settlement_key = SHA256(proof_binding || escrow_id || 0x00 || settlement_nonce(u64 BE))
+ *   proof_binding  = SHA256("intent-protocol/v1/proof-binding" || 0x00 ||
+ *                           intent_hash || milestone_id(16-byte UUID) || milestone_revision(u32 BE) ||
+ *                           bundle_id(16-byte UUID) || evidence_root || policy_hash)
+ *                    (R9: binds the *identity* of milestone and bundle, not just revision/root;
+ *                     UUIDs enter the preimage as their 16 binary bytes, not UTF-8 text)
+ *   settlement_key = SHA256("intent-protocol/v1/settlement-key" || 0x00 ||
+ *                           outcome_receipt_hash || UTF8(escrow_ref) || 0x00 || nonce(u64 BE))
+ *                    (receipt-gated: binds the OutcomeReceipt — settlement authority —
+ *                     never a raw VerificationDecision / proof_binding)
  *
  * All hashes are rendered as `sha256:<64 lowercase hex>`.
  */
@@ -27,6 +34,7 @@ export const Domain = {
   VerificationPolicy: "intent-protocol/v1/verification-policy",
   SettlementPolicy: "intent-protocol/v1/settlement-policy",
   VerificationDecision: "intent-protocol/v1/verification-decision",
+  OutcomeReceipt: "intent-protocol/v1/outcome-receipt",
   SettlementInstruction: "intent-protocol/v1/settlement-instruction",
   ContributionEdge: "intent-protocol/v1/contribution-edge",
   DisputeCase: "intent-protocol/v1/dispute-case",
@@ -88,17 +96,60 @@ export function u64be(n: bigint | number): Uint8Array {
   return b;
 }
 
-/** Binds a decision to one frozen intent version, milestone revision, evidence root and policy (threat: Proof Replay). */
+const PROOF_BINDING_DOMAIN = Buffer.concat([enc.encode("intent-protocol/v1/proof-binding"), SEP]);
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** Canonical lowercase-hyphenated UUID → its 16 binary bytes (R9/B1: never UTF-8 text). */
+function uuidBytes16(uuid: string): Uint8Array {
+  if (!UUID_RE.test(uuid)) throw new Error(`malformed canonical (lowercase hyphenated) UUID: ${uuid}`);
+  return new Uint8Array(Buffer.from(uuid.replace(/-/g, ""), "hex"));
+}
+
+/**
+ * Binds a decision to one frozen intent version, a specific milestone (id + revision),
+ * a specific evidence bundle (id + root) and a specific policy (threat: Proof Replay, R9).
+ * milestone_id / bundle_id enter the preimage as 16-byte binary UUIDs (B1), not UTF-8 text.
+ */
 export function proofBinding(p: {
   intent_hash: Hash;
+  milestone_id: string;
   milestone_revision: number;
+  bundle_id: string;
   evidence_root: Hash;
   policy_hash: Hash;
 }): Hash {
-  return toHash(sha256(fromHash(p.intent_hash), u32be(p.milestone_revision), fromHash(p.evidence_root), fromHash(p.policy_hash)));
+  return toHash(sha256(
+    PROOF_BINDING_DOMAIN,
+    fromHash(p.intent_hash),
+    uuidBytes16(p.milestone_id),
+    u32be(p.milestone_revision),
+    uuidBytes16(p.bundle_id),
+    fromHash(p.evidence_root),
+    fromHash(p.policy_hash),
+  ));
 }
 
-/** Idempotency key for one settlement effect (threat: Settlement Double Spend). */
-export function settlementKey(p: { proof_binding: Hash; escrow_id: string; settlement_nonce: bigint | number }): Hash {
-  return toHash(sha256(fromHash(p.proof_binding), enc.encode(p.escrow_id), SEP, u64be(p.settlement_nonce)));
+const SETTLEMENT_KEY_DOMAIN = Buffer.concat([enc.encode("intent-protocol/v1/settlement-key"), SEP]);
+
+/** Frozen parameterization (docs/TRUST-CHAIN.md): keyed by the OutcomeReceipt commitment. */
+export interface SettlementKeyInput {
+  outcome_receipt_hash: Hash;
+  escrow_ref: string;
+  nonce: bigint | number;
+}
+/**
+ * Idempotency key for one settlement effect (threat: Settlement Double Spend).
+ * FROZEN byte protocol: the key binds `outcome_receipt_hash` — the receipt is the
+ * settlement authority; a raw decision / proof_binding never is. The preimage is
+ * injective: UTF8(escrow_ref) is 0x00-terminated before the fixed-width u64 nonce.
+ */
+export function settlementKey(p: SettlementKeyInput): Hash {
+  return toHash(sha256(
+    SETTLEMENT_KEY_DOMAIN,
+    fromHash(p.outcome_receipt_hash),
+    enc.encode(p.escrow_ref),
+    SEP,
+    u64be(p.nonce),
+  ));
 }
