@@ -358,15 +358,20 @@ describe("[GP1-D] scope sentinel + independence", () => {
     expect(scopeAudit([], ["packages/gp-runtime/src/settlement-machine.ts"], ["submitTransition"])).toEqual([]);
   });
 
-  test("[GP1-D2] independence: this package imports nothing from gp-runtime (self-scan of every source/test file)", () => {
+  test("[GP1-D2] independence: the ORACLE CORE imports nothing from gp-runtime (adapter/formal tooling are the ordered exception — Issue #12 §D)", () => {
+    // Tooling-candidate amendment (reported for Commander contamination review):
+    // the scan covers the oracle core — model/reference/traces/scope/subject and
+    // this self-test. The thin adapter + formal suite + frozen SUT snapshot are
+    // the Commander-ordered additions that legitimately touch the captured SUT,
+    // and are excluded here; they are themselves pinned by report digests.
     const dir = fileURLToPath(new URL("../", import.meta.url));
-    const scan = (d: string): string[] =>
-      readdirSync(d, { withFileTypes: true }).flatMap((e) =>
-        e.isDirectory() ? scan(`${d}/${e.name}`) : /\.(ts|mjs|json)$/.test(e.name) ? [`${d}/${e.name}`] : [],
-      );
-    for (const f of scan(`${dir}/src`).concat(scan(`${dir}/test`))) {
-      const src = readFileSync(f, "utf8");
-      expect(src.match(/from\s+["'][^"']*gp-runtime/), `${f} must not import gp-runtime`).toBeNull();
+    const ORACLE_CORE = [
+      "src/model.ts", "src/reference.ts", "src/traces.ts", "src/scope.ts", "src/subject.ts",
+      "test/gp1-oracle-selftest.test.ts",
+    ];
+    for (const rel of ORACLE_CORE) {
+      const src = readFileSync(`${dir}/${rel}`, "utf8");
+      expect(src.match(/from\s+["'][^"']*gp-runtime/), `${rel} (oracle core) must not import gp-runtime`).toBeNull();
     }
   });
 });

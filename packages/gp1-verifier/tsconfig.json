@@ -8,5 +8,5 @@
     "moduleResolution": "Bundler",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "sut-snapshot/gp-runtime-src/**/*.ts"]
 }

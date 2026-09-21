@@ -1,0 +1,29 @@
+{
+  "mode": "git-sha",
+  "pinned_sha": "fc87aa9e09f9ecf72b4bf8e005c3c865a6450999",
+  "remote_url": "https://github.com/xqw1377-prog/INTENT-PROTOCOL.git",
+  "remote_refs_containing": [
+    "origin/zcode/golden-path-implementation"
+  ],
+  "parent_sha": "ba0bcd59ee49ad003a15a4841aba33424e7f3450",
+  "changed_paths_vs_parent": [
+    "packages/gp-runtime/package.json",
+    "packages/gp-runtime/src/machines.ts",
+    "packages/gp-runtime/src/runtime.ts",
+    "packages/gp-runtime/test/gp1-runtime.test.ts",
+    "packages/gp-runtime/tsconfig.json"
+  ],
+  "captured_at": "2026-09-21T07:19:54.891Z",
+  "files": [
+    {
+      "file": "packages/gp-runtime/src/machines.ts",
+      "sha256": "9c960e348bcd36f6a965b0d9d158acda032b076ef508f950ea2c44c52d94d81e",
+      "bytes": 5193
+    },
+    {
+      "file": "packages/gp-runtime/src/runtime.ts",
+      "sha256": "112a2ab4affebe6610ea6ba92c6f27bca4bfb3972bf3cf42b9c6fab41acc5019",
+      "bytes": 7108
+    }
+  ]
+}
