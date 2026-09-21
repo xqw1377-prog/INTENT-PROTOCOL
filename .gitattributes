@@ -1,1 +1,2 @@
 packages/golden-path/fixtures/gp-001-task.json -text
+packages/golden-path/** -text
