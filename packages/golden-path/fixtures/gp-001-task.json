@@ -1,0 +1,28 @@
+{
+  "schema_version": "gp-task-freeze.v1",
+  "bounty_id": "GP-001",
+  "repository_url": "https://github.com/xqw1377-prog/INTENT-PROTOCOL",
+  "package_path": "packages/golden-path/demo",
+  "base_commit_sha": "af08fdfacf7e594537969fd04b894c82de756428",
+  "allowed_paths": [
+    "packages/golden-path/demo/src/**"
+  ],
+  "forbidden_paths": [
+    "packages/golden-path/demo/test/**",
+    "packages/golden-path/demo/package.json",
+    "packages/golden-path/demo/tsconfig.json",
+    "packages/golden-path/fixtures/**"
+  ],
+  "acceptance_suite_path": "packages/golden-path/demo/test/acceptance.test.ts",
+  "acceptance_suite_sha256": "sha256:2357f37db27841204960d44c3a14b5e4976539a6cb9c3d5a805d21e9663db31c",
+  "max_attempts": 3,
+  "deadline": "2026-10-31T23:59:59Z",
+  "escrow_ref": "escrow:gp-001-local",
+  "asset": {
+    "network": "solana-devnet",
+    "asset": "USDC-test",
+    "decimals": 6
+  },
+  "reward": "10",
+  "verification_policy": "2-of-2"
+}
