@@ -9,7 +9,7 @@
  *
  * Derived only from GP-V1 §3 + GATES GP1 bullets. No Builder C code.
  */
-import { authorityAvailableInGP1, edgeFor, isTerminal, MACHINES, type MachineName } from "./model.js";
+import { edgeFor, isTerminal, MACHINES, prerequisiteKindOf, prerequisiteShapeViolations, type MachineName, type PrerequisiteRef } from "./model.js";
 import { claimRecordShapeViolations, type ClaimRecord } from "./subject.js";
 
 export const INITIAL_STATE: Record<MachineName, string> = {
@@ -27,6 +27,8 @@ export interface Command {
   to: string;
   /** Required only for bounty FUNDED->CLAIMED (GP-V1 §3 Claim binding). */
   claim?: ClaimRecord;
+  /** Typed opaque prerequisite ref for future-authority edges (GP1-R1). */
+  prerequisite?: PrerequisiteRef;
   /** Caller-supplied logical time (GATES GP1 determinism; wall-clock is not evidence). */
   at: string;
 }
@@ -36,7 +38,9 @@ export type Rejection =
   | "illegal-pair"
   | "not-current-state"
   | "terminal-source"
-  | "missing-authority"
+  | "prerequisite-required"
+  | "prerequisite-wrong-kind"
+  | "prerequisite-invalid-shape"
   | "claim-required"
   | "invalid-claim-shape"
   | "claim-record-immutable"
@@ -60,11 +64,13 @@ export interface JournalEntry {
   payloadFingerprint: string;
   /** Committed side-effect: the ClaimRecord appended by an accepted FUNDED->CLAIMED edge. */
   claim?: ClaimRecord;
+  /** Committed prerequisite ref consumed by an accepted future-authority edge (GP1-R1, replay-stable). */
+  prerequisite?: PrerequisiteRef;
 }
 
 /** Stable fingerprint of a command's EFFECTIVE payload (command_id excluded). */
 export function fingerprint(c: Command): string {
-  return JSON.stringify([c.machine, c.entity, c.op, c.to, c.claim ?? null]);
+  return JSON.stringify([c.machine, c.entity, c.op, c.to, c.claim ?? null, c.prerequisite ?? null]);
 }
 
 const entityKey = (machine: MachineName, entity: string): string => `${machine}:${entity}`;
@@ -107,11 +113,18 @@ export class ReferenceRuntime {
     const edge = edgeFor(c.machine, from, c.to);
     if (!edge) return this.commit(c, reject("illegal-pair"), from);
 
-    // authority guards (contract-cited, see model.ts)
-    if (!authorityAvailableInGP1(edge.authority)) {
-      // GP1 scope: sealed-bundle / accepted-receipt authorities cannot exist (GATES GP1)
-      return this.commit(c, reject("missing-authority"), from);
+    // prerequisite guards (GP1-R1): typed opaque refs — existence/kind/shape only,
+    // never semantic validity; consumed refs are recorded replay-stable in the journal.
+    const needed = prerequisiteKindOf(edge.authority);
+    if (needed) {
+      if (!c.prerequisite) return this.commit(c, reject("prerequisite-required"), from);
+      const shape = prerequisiteShapeViolations(c.prerequisite);
+      if (shape.length > 0) return this.commit(c, reject("prerequisite-invalid-shape"), from);
+      if (c.prerequisite.kind !== needed) return this.commit(c, reject("prerequisite-wrong-kind"), from);
+      // NOTE (GP1-R1): ELIGIBLE->RELEASED and VERIFIED->SETTLED stop at ledger state.
+      // No real escrow/payment side effect exists in this runtime by construction.
     }
+
     if (edge.authority === "claim-record") {
       if (!c.claim) return this.commit(c, reject("claim-required"), from);
       const shape = claimRecordShapeViolations(c.claim);
@@ -128,11 +141,15 @@ export class ReferenceRuntime {
     }
 
     this.states.set(entityKey(c.machine, c.entity), c.to);
-    return this.commit(c, { ...base, accepted: true, to: c.to }, from);
+    return this.commit(c, { ...base, accepted: true, to: c.to }, from, undefined, c.prerequisite);
   }
 
-  private commit(c: Command, decision: Decision, _from: string, claim?: ClaimRecord): Decision {
-    const entry: JournalEntry = { seq: this.journal.length + 1, at: c.at, decision, payloadFingerprint: fingerprint(c), ...(claim ? { claim: { ...claim } } : {}) };
+  private commit(c: Command, decision: Decision, _from: string, claim?: ClaimRecord, prerequisite?: PrerequisiteRef): Decision {
+    const entry: JournalEntry = {
+      seq: this.journal.length + 1, at: c.at, decision, payloadFingerprint: fingerprint(c),
+      ...(claim ? { claim: { ...claim } } : {}),
+      ...(prerequisite ? { prerequisite: { ...prerequisite } } : {}),
+    };
     this.journal.push(entry);
     this.byCommandId.set(c.command_id, entry);
     return decision;

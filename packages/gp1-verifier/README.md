@@ -1,6 +1,6 @@
 # GP1 Independent Verifier (Builder D)
 
-Status: **GP1 VERIFIER ORACLE READY / AWAITING COMMANDER TARGET**
+Status: **GP1 VERIFIER ORACLE R1 READY / AWAITING COMMANDER TARGET**
 
 Branch `zcode/gp1-independent-replay`, base `main@ac4d1d4e98cb101dd3d4a2548b8c37c095ffd04b`.
 Order: Issue #12. Derived ONLY from `docs/GOLDEN-PATH-V1.md` @ a1d9749, `docs/GATES.md`
@@ -25,16 +25,25 @@ Four contract state graphs with authority guards and per-edge citations:
 Counts (asserted in [GP1-A1]): **4 machines / 17 states / 13 legal edges /
 70 illegal ordered pairs / 5 terminal negatives**.
 
-Authority guards (contract-cited):
-- `FUNDED→CLAIMED` requires the immutable ClaimRecord append (GP-V1 §3 Claim binding);
-- `SUBMITTED→VERIFIED` and `PENDING→ACCEPTED` require a SEALED EvidenceBundle —
-  **impossible inside GP1 scope** ⇒ negative-only at GP1 (GATES GP1 invariant);
-- `VERIFIED→SETTLED`, `LOCKED→ELIGIBLE`, `ELIGIBLE→RELEASED` require an accepted
-  OutcomeReceipt — **impossible inside GP1 scope** ⇒ negative-only at GP1.
+### GP1-R1 (Commander ruling): Reachability ≠ Authority Implementation
 
-Consequence the adapter will enforce: a GP1 runtime that ever accepts
-VERIFIED / ACCEPTED / ELIGIBLE / SETTLED / RELEASED **without the (unbuildable)
-authority** violates the frozen GATES GP1 invariants.
+All 13 legal edges are positively reachable inside GP1. Future-authority edges
+are exercised through **typed opaque prerequisite refs** — GP1 validates ONLY
+ref existence / kind / shape / replay-stability, NEVER the semantic validity of
+the referenced authority (that is GP2–GP4's job):
+
+| Edge | Prerequisite kind | Citation |
+|---|---|---|
+| `PENDING→ACCEPTED` | `sealed-evidence-ref` | §3 invariant 1 |
+| `SUBMITTED→VERIFIED` | `policy-satisfied-ref` | §3 invariant 2 |
+| `LOCKED→ELIGIBLE` | `accepted-receipt-ref` | §3 invariant 3 + §7 |
+| `ELIGIBLE→RELEASED` | `release-observed-ref` | §3/§7 — ledger reachability ONLY, zero real escrow/payment side effect |
+| `VERIFIED→SETTLED` | `release-observed-ref` | §3/§7 |
+
+Per-edge contract the adapter enforces: **missing / wrong-kind / invalid-shape
+ref ⇒ REJECT** (`prerequisite-required` / `-wrong-kind` / `-invalid-shape`);
+**correct typed opaque ref ⇒ ACCEPT**, with the consumed ref recorded
+replay-stable in the journal. Token grammar: `op:[a-z0-9._-]{8,128}`.
 
 ### B. Reference runtime + invariant oracle (`src/reference.ts`)
 
@@ -57,8 +66,9 @@ fold, and the Issue #12 §B invariant set, each machine-asserted:
 ### C. Seeded trace vectors (`src/traces.ts` + `vectors/gp1-traces.json`)
 
 8 fixed seeds × 48 ops = **384 commands** mixing legal/illegal/terminal/idempotent/
-conflict/authority-gated attempts; expected decisions computed by the reference
-runtime. Committed vectors must regenerate byte-identically ([GP1-C1]) and every
+conflict attempts AND GP1-R1 prerequisite probes (correct typed ref / missing /
+wrong kind / malformed shape on future-authority edges); expected decisions
+computed by the reference runtime. Vectors regenerated under R1 semantics. Committed vectors must regenerate byte-identically ([GP1-C1]) and every
 expected sequence reproduces from a fresh runtime ([GP1-C2]). At replay time the
 same commands are driven through the adapter against Builder C's runtime.
 

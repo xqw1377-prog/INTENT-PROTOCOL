@@ -7,7 +7,7 @@
  * the same commands against Builder C's runtime and must reproduce the same
  * decision sequence.
  */
-import { MACHINES, type MachineName } from "./model.js";
+import { edgeFor, MACHINES, prerequisiteKindOf, type MachineName, type PrerequisiteKind, type PrerequisiteRef } from "./model.js";
 import { ReferenceRuntime, type Command, type Decision } from "./reference.js";
 
 /** mulberry32 — small deterministic PRNG (no dependencies). */
@@ -58,6 +58,31 @@ function genCommand(rnd: () => number, i: number, entityId: string, machine: Mac
   return base;
 }
 
+/**
+ * GP1-R1: attach a prerequisite probe to commands targeting a future-authority
+ * edge. Deterministic mix per seed: correct typed ref (ACCEPT), missing
+ * (prerequisite-required), wrong kind (prerequisite-wrong-kind), malformed
+ * shape (prerequisite-invalid-shape). Never semantically interpreted.
+ */
+const WRONG_KINDS: Record<PrerequisiteKind, PrerequisiteKind> = {
+  "sealed-evidence-ref": "policy-satisfied-ref",
+  "policy-satisfied-ref": "accepted-receipt-ref",
+  "accepted-receipt-ref": "release-observed-ref",
+  "release-observed-ref": "sealed-evidence-ref",
+};
+
+function attachPrerequisiteProbe(rnd: () => number, machine: MachineName, to: string, from: () => string, c: Command): Command {
+  const edge = edgeFor(machine, from(), to);
+  const needed = edge ? prerequisiteKindOf(edge.authority) : undefined;
+  if (!needed) return c;
+  const roll = rnd();
+  const token = (kind: PrerequisiteKind): PrerequisiteRef => ({ kind, ref: `op:gp1.${kind}.seed-token-0123` });
+  if (roll < 0.6) return { ...c, prerequisite: token(needed) };                       // correct -> ACCEPT
+  if (roll < 0.72) return c;                                                          // missing -> prerequisite-required
+  if (roll < 0.86) return { ...c, prerequisite: token(WRONG_KINDS[needed]) };          // wrong kind
+  return { ...c, prerequisite: { kind: needed, ref: "OP-INVALID-SHORT!" } };          // invalid shape
+}
+
 export interface TraceVector {
   seed: number;
   description: string;
@@ -94,7 +119,8 @@ export function generateTrace(seed: number): TraceVector {
   for (let i = 0; i < OPS_PER_TRACE; i++) {
     const machine = MACHINE_NAMES[Math.floor(rnd() * MACHINE_NAMES.length)]!;
     const states = MACHINES[machine].states;
-    const c = genCommand(rnd, i, entityByMachine[machine], machine, states, () => rt.stateOf(machine, entityByMachine[machine]));
+    const c0 = genCommand(rnd, i, entityByMachine[machine], machine, states, () => rt.stateOf(machine, entityByMachine[machine]));
+    const c = attachPrerequisiteProbe(rnd, machine, c0.to, () => rt.stateOf(machine, entityByMachine[machine]), c0);
     // attach claim on bounty transitions targeting CLAIMED (claim-record edge)
     if (machine === "bounty" && c.to === "CLAIMED") c.claim = { ...claim };
     commands.push(c);

@@ -3,13 +3,18 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import {
   illegalPairs, isLegalPair, legalEdges, MODEL_COUNTS,
-  MACHINES, terminalNegatives, authorityAvailableInGP1, type MachineName,
+  MACHINES, terminalNegatives, edgeFor, prerequisiteKindOf,
+  type MachineName, type PrerequisiteKind, type PrerequisiteRef,
 } from "../src/model.js";
 import { MACHINES as M } from "../src/model.js";
 import { ReferenceRuntime, fingerprint, type Command } from "../src/reference.js";
 import { claimRecordShapeViolations, isSubjectRef, isTaskFreezeHash } from "../src/subject.js";
 import { generateAllTraces, generateTrace, OPS_PER_TRACE, TRACE_SEEDS } from "../src/traces.js";
 import { scopeAudit } from "../src/scope.js";
+
+const token = (kind: PrerequisiteKind): PrerequisiteRef => ({ kind, ref: "op:gp1.fixtures.token-0123" });
+const withPrereq = (id: string, machine: "bounty" | "execution" | "verification" | "settlement", entity: string, to: string, kind?: PrerequisiteKind): Command =>
+  cmd({ command_id: id, machine, entity, to, ...(kind ? { prerequisite: token(kind) } : {}) });
 
 /**
  * GP1 ORACLE SELF-TEST (Builder D, Issue #12 §A/§B/§C).
@@ -36,24 +41,38 @@ describe("[GP1-A] model oracle", () => {
     expect(MODEL_COUNTS).toEqual({ machines: 4, states: 17, legalEdges: 13, illegalPairs: 70, terminalNegatives: 5 });
   });
 
-  test("[GP1-A2] every authority-free legal edge is positively reachable through the reference runtime", () => {
-    // one entity walk per machine reaching as far as GP1 scope allows
+  test("[GP1-A2] GP1-R1: ALL 13 legal edges are positively reachable (future-authority edges via typed opaque refs)", () => {
     const rt = new ReferenceRuntime();
-    const d1 = rt.submit(cmd({ command_id: "b1", machine: "bounty", entity: "GP-001", to: "FUNDED" }));
-    const d2 = rt.submit(cmd({ command_id: "b2", machine: "bounty", entity: "GP-001", to: "CLAIMED", claim: validClaim() }));
-    const d3 = rt.submit(cmd({ command_id: "b3", machine: "bounty", entity: "GP-001", to: "EXECUTING" }));
-    const d4 = rt.submit(cmd({ command_id: "b4", machine: "bounty", entity: "GP-001", to: "SUBMITTED" }));
-    expect([d1, d2, d3, d4].every((d) => d.accepted)).toBe(true);
-    for (const e of legalEdges()) {
-      if (authorityAvailableInGP1(e.authority)) {
-        expect(isLegalPair(e.machine, e.from, e.to), `edge must be legal: ${e.machine} ${e.from}->${e.to}`).toBe(true);
-      }
+    // bounty: full chain to SETTLED
+    const bountyWalk: Array<[string, string, PrerequisiteKind?]> = [
+      ["b1", "FUNDED"],
+      ["b2", "CLAIMED"],
+      ["b3", "EXECUTING"],
+      ["b4", "SUBMITTED"],
+      ["b5", "VERIFIED", "policy-satisfied-ref"],
+      ["b6", "SETTLED", "release-observed-ref"],
+    ];
+    for (const [id, to, kind] of bountyWalk) {
+      const c = withPrereq(id, "bounty", "GP-001", to, kind);
+      if (to === "CLAIMED") c.claim = validClaim();
+      const d = rt.submit(c);
+      expect(d.accepted, `bounty -> ${to} must be reachable (${d.reason ?? "ok"})`).toBe(true);
     }
-    // execution chain fully reachable incl. terminal CLOSED
+    // execution: full chain incl. terminal CLOSED
     for (const [id, to] of [["e1", "RUNNING"], ["e2", "SUBMITTED"], ["e3", "CLOSED"]] as const) {
       expect(rt.submit(cmd({ command_id: id, machine: "execution", entity: "exec-1", to })).accepted).toBe(true);
     }
-    expect(rt.submit(cmd({ command_id: "v1", machine: "verification", entity: "verif-1", to: "REJECTED" })).accepted).toBe(true);
+    // verification: ACCEPTED (via opaque sealed-evidence ref) and REJECTED
+    expect(rt.submit(withPrereq("v1", "verification", "verif-1", "ACCEPTED", "sealed-evidence-ref")).accepted).toBe(true);
+    expect(rt.submit(cmd({ command_id: "v2", machine: "verification", entity: "verif-2", to: "REJECTED" })).accepted).toBe(true);
+    // settlement: ELIGIBLE then RELEASED (ledger reachability only)
+    expect(rt.submit(withPrereq("s1", "settlement", "st-1", "ELIGIBLE", "accepted-receipt-ref")).accepted).toBe(true);
+    const released = rt.submit(withPrereq("s2", "settlement", "st-1", "RELEASED", "release-observed-ref"));
+    expect(released.accepted, "ELIGIBLE->RELEASED is ledger reachability (GP1-R1)").toBe(true);
+    // every edge object itself is well-formed
+    for (const e of legalEdges()) {
+      expect(isLegalPair(e.machine, e.from, e.to), `edge legal: ${e.machine} ${e.from}->${e.to}`).toBe(true);
+    }
   });
 
   test("[GP1-A3] every illegal state pair is rejected (exhaustive 70)", () => {
@@ -68,13 +87,15 @@ describe("[GP1-A] model oracle", () => {
         const cur = rt2.stateOf(machine as MachineName, "x");
         const next = states[states.indexOf(cur) + 1];
         if (!next || !isLegalPair(machine as MachineName, cur, next)) break;
-        const c = cmd({ command_id: `setup-${n}-${i}`, machine: machine as MachineName, entity: "x", to: next });
+        const setupEdge = edgeFor(machine as MachineName, cur, next);
+        const setupKind = setupEdge ? prerequisiteKindOf(setupEdge.authority) : undefined;
+        const c = cmd({ command_id: `setup-${n}-${i}`, machine: machine as MachineName, entity: "x", to: next, ...(setupKind ? { prerequisite: token(setupKind) } : {}) });
         if (c.to === "CLAIMED" && machine === "bounty") c.claim = validClaim();
         const d = rt2.submit(c);
         if (!d.accepted) break;
         i++;
       }
-      if (rt2.stateOf(machine as MachineName, "x") !== from) continue; // unreachable source at GP1 (behind authority gate) — pair legality still asserted below
+      if (rt2.stateOf(machine as MachineName, "x") !== from) continue; // unreachable source — pair legality still asserted below
       const d = rt2.submit(cmd({ command_id: `probe-${n}`, machine: machine as MachineName, entity: "x", to }));
       expect(d.accepted, `illegal pair must be rejected: ${machine} ${from}->${to}`).toBe(false);
       // from a terminal source the rejection is MORE specific (terminal-source); otherwise exactly illegal-pair
@@ -102,23 +123,55 @@ describe("[GP1-A] model oracle", () => {
     expect(terminalNegatives().length).toBe(5);
   });
 
-  test("[GP1-A5] GP1-scope authority gates: ACCEPT / VERIFIED / ELIGIBLE / SETTLED / RELEASED attempts are ALL rejected at GP1", () => {
+  test("[GP1-A5] GP1-R1 per-edge prerequisite semantics: missing/wrong-kind/invalid-shape REJECT, correct typed opaque ref ACCEPT; RELEASED has zero side effects", () => {
+    type M = "bounty" | "verification" | "settlement";
+    const probe = (walk: (rt: ReferenceRuntime) => void, to: string, kind: PrerequisiteKind, entity: string, machine: M) => {
+      const wrongKind: PrerequisiteKind = kind === "sealed-evidence-ref" ? "policy-satisfied-ref" : "sealed-evidence-ref";
+      const fresh = () => {
+        const rt = new ReferenceRuntime();
+        walk(rt);
+        return rt;
+      };
+      const missing = fresh().submit(cmd({ command_id: "p-missing", machine, entity, to }));
+      expect(missing.accepted, `${machine}->${to} missing ref`).toBe(false);
+      expect(missing.reason).toBe("prerequisite-required");
+      const wrong = fresh().submit(cmd({ command_id: "p-wrong", machine, entity, to, prerequisite: token(wrongKind) }));
+      expect(wrong.reason).toBe("prerequisite-wrong-kind");
+      const badShape = fresh().submit(cmd({ command_id: "p-bad", machine, entity, to, prerequisite: { kind, ref: "NOT-VALID" } }));
+      expect(badShape.reason).toBe("prerequisite-invalid-shape");
+      const ok = fresh().submit(cmd({ command_id: "p-ok", machine, entity, to, prerequisite: token(kind) }));
+      expect(ok.accepted, `${machine}->${to} accepts correct typed opaque ref`).toBe(true);
+    };
+    const walkBountyTo = (target: string) => (rt: ReferenceRuntime) => {
+      const chain: Array<[string, string, PrerequisiteKind?]> = [
+        ["w1", "FUNDED"], ["w2", "CLAIMED"], ["w3", "EXECUTING"], ["w4", "SUBMITTED"], ["w5", "VERIFIED", "policy-satisfied-ref"],
+      ];
+      for (const [id, to, kind] of chain) {
+        if (MACHINES.bounty.states.indexOf(to) > MACHINES.bounty.states.indexOf(target)) break;
+        const c = withPrereq(id, "bounty", "GP-001", to, kind);
+        if (to === "CLAIMED") c.claim = validClaim();
+        rt.submit(c);
+      }
+    };
+    const walkEligible = (rt: ReferenceRuntime) => {
+      rt.submit(withPrereq("we1", "settlement", "s1", "ELIGIBLE", "accepted-receipt-ref"));
+    };
+    probe(() => {}, "ACCEPTED", "sealed-evidence-ref", "v1", "verification");
+    probe(walkBountyTo("SUBMITTED"), "VERIFIED", "policy-satisfied-ref", "GP-001", "bounty");
+    probe(walkBountyTo("VERIFIED"), "SETTLED", "release-observed-ref", "GP-001", "bounty");
+    probe(() => {}, "ELIGIBLE", "accepted-receipt-ref", "s1", "settlement");
+    probe(walkEligible, "RELEASED", "release-observed-ref", "s1", "settlement");
+    // RELEASED side-effect discipline: the committed entry records ONLY ledger semantics
     const rt = new ReferenceRuntime();
-    const verifAccept = rt.submit(cmd({ command_id: "va", machine: "verification", entity: "v", to: "ACCEPTED" }));
-    expect(verifAccept.accepted).toBe(false);
-    expect(verifAccept.reason).toBe("missing-authority"); // no SEALED EvidenceBundle can exist in GP1
-    // walk bounty to SUBMITTED, then VERIFIED must be authority-rejected
-    rt.submit(cmd({ command_id: "b1", machine: "bounty", entity: "GP-001", to: "FUNDED" }));
-    rt.submit(cmd({ command_id: "b2", machine: "bounty", entity: "GP-001", to: "CLAIMED", claim: validClaim() }));
-    rt.submit(cmd({ command_id: "b3", machine: "bounty", entity: "GP-001", to: "EXECUTING" }));
-    rt.submit(cmd({ command_id: "b4", machine: "bounty", entity: "GP-001", to: "SUBMITTED" }));
-    const verified = rt.submit(cmd({ command_id: "b5", machine: "bounty", entity: "GP-001", to: "VERIFIED" }));
-    expect(verified.reason).toBe("missing-authority");
-    // settlement ELIGIBLE / RELEASED authority-rejected from LOCKED / ELIGIBLE sources
-    const elig = rt.submit(cmd({ command_id: "s1", machine: "settlement", entity: "st", to: "ELIGIBLE" }));
-    expect(elig.reason).toBe("missing-authority");
-    const rel = rt.submit(cmd({ command_id: "s2", machine: "settlement", entity: "st", to: "RELEASED" }));
-    expect(rel.reason).toBe("illegal-pair"); // LOCKED->RELEASED is not an edge at all
+    walkEligible(rt);
+    const before = rt.journalSnapshot().length;
+    rt.submit(withPrereq("rel", "settlement", "s1", "RELEASED", "release-observed-ref"));
+    const entry = rt.journalSnapshot()[before]!;
+    expect(entry.decision.to).toBe("RELEASED");
+    expect(entry.prerequisite).toEqual(token("release-observed-ref"));
+    expect(Object.keys(entry).sort(), "no payment/escrow side-effect fields exist (GP1-R1)").toEqual(["at", "decision", "payloadFingerprint", "prerequisite", "seq"]);
+    // LOCKED->RELEASED (skipping ELIGIBLE) is still not an edge at all
+    expect(new ReferenceRuntime().submit(cmd({ command_id: "skip", machine: "settlement", entity: "s2", to: "RELEASED", prerequisite: token("release-observed-ref") })).reason).toBe("illegal-pair");
   });
 });
 
