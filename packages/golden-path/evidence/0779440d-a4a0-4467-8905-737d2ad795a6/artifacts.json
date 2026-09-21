@@ -1,0 +1,98 @@
+[
+  {
+    "key": "base-acceptance",
+    "artifact": {
+      "schema_version": "artifact.v1",
+      "artifact_id": "78878867-3eeb-4e82-8b3c-ff674ac7e3ec",
+      "kind": "acceptance-suite-run",
+      "level": "E1",
+      "source": "runner:gp-execution",
+      "subject": "commit:af08fdfacf7e#base",
+      "captured_at": "2026-09-21T10:00:01.000Z",
+      "payload_hash": "sha256:ebf905b7aba698cc15ff057778784a3c547119e11d06f85fbfc9c82c4a516bd9",
+      "locator": "cas://gp2/0779440d-a4a0-4467-8905-737d2ad795a6/base-acceptance",
+      "privacy_class": "INTERNAL"
+    },
+    "payload_hash": "sha256:ebf905b7aba698cc15ff057778784a3c547119e11d06f85fbfc9c82c4a516bd9"
+  },
+  {
+    "key": "agent-patch",
+    "artifact": {
+      "schema_version": "artifact.v1",
+      "artifact_id": "95e701cd-9026-4a0c-8ab6-fa1ce6791c28",
+      "kind": "agent-patch-diff",
+      "level": "E2",
+      "source": "runner:gp-execution",
+      "subject": "patch:d70bbeb2b65e",
+      "captured_at": "2026-09-21T10:00:02.000Z",
+      "payload_hash": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+      "locator": "cas://gp2/0779440d-a4a0-4467-8905-737d2ad795a6/agent-patch",
+      "privacy_class": "INTERNAL"
+    },
+    "payload_hash": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87"
+  },
+  {
+    "key": "patched-acceptance",
+    "artifact": {
+      "schema_version": "artifact.v1",
+      "artifact_id": "61d59cc9-ceeb-4ade-8bb2-e12e3fa09506",
+      "kind": "acceptance-suite-run",
+      "level": "E1",
+      "source": "runner:gp-execution",
+      "subject": "commit:af08fdfacf7e#patched",
+      "captured_at": "2026-09-21T10:00:04.000Z",
+      "payload_hash": "sha256:1318fcfd0e941342de381a9239aec9834fffdac31297b8079fa1922f40c87e58",
+      "locator": "cas://gp2/0779440d-a4a0-4467-8905-737d2ad795a6/patched-acceptance",
+      "privacy_class": "INTERNAL"
+    },
+    "payload_hash": "sha256:1318fcfd0e941342de381a9239aec9834fffdac31297b8079fa1922f40c87e58"
+  },
+  {
+    "key": "build",
+    "artifact": {
+      "schema_version": "artifact.v1",
+      "artifact_id": "ea37ee3c-0557-4f07-8d17-2dac7f16f1b9",
+      "kind": "build-typecheck",
+      "level": "E1",
+      "source": "runner:gp-execution",
+      "subject": "commit:af08fdfacf7e#patched",
+      "captured_at": "2026-09-21T10:00:06.000Z",
+      "payload_hash": "sha256:3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+      "locator": "cas://gp2/0779440d-a4a0-4467-8905-737d2ad795a6/build",
+      "privacy_class": "INTERNAL"
+    },
+    "payload_hash": "sha256:3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e"
+  },
+  {
+    "key": "policy-boundary",
+    "artifact": {
+      "schema_version": "artifact.v1",
+      "artifact_id": "66c978e7-ac11-4c02-84de-17671e0ff687",
+      "kind": "policy-boundary-report",
+      "level": "E2",
+      "source": "runner:gp-execution",
+      "subject": "patch:d70bbeb2b65e",
+      "captured_at": "2026-09-21T10:00:07.000Z",
+      "payload_hash": "sha256:6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab",
+      "locator": "cas://gp2/0779440d-a4a0-4467-8905-737d2ad795a6/policy-boundary",
+      "privacy_class": "INTERNAL"
+    },
+    "payload_hash": "sha256:6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab"
+  },
+  {
+    "key": "execution-manifest",
+    "artifact": {
+      "schema_version": "artifact.v1",
+      "artifact_id": "53ca3f1b-2dc4-4fa7-89af-c35255df6a8f",
+      "kind": "execution-manifest",
+      "level": "E1",
+      "source": "runner:gp-execution",
+      "subject": "execution:1a921d98-3d10-4e4b-81c4-175d3bc01a32",
+      "captured_at": "2026-09-21T10:00:08.000Z",
+      "payload_hash": "sha256:9c57b0cf2631039e96cc1e797275c8118860c3115d1479ed506be545d716186d",
+      "locator": "cas://gp2/0779440d-a4a0-4467-8905-737d2ad795a6/execution-manifest",
+      "privacy_class": "INTERNAL"
+    },
+    "payload_hash": "sha256:9c57b0cf2631039e96cc1e797275c8118860c3115d1479ed506be545d716186d"
+  }
+]
