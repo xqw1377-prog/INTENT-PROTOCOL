@@ -1,0 +1,132 @@
+{
+  "report_kind": "gp1-formal-replay",
+  "generated_at": "2026-09-21T08:33:35.601Z",
+  "formal_target": "fc87aa9e09f9ecf72b4bf8e005c3c865a6450999",
+  "harness": {
+    "head": "4d221938de6dea64dc996b0bfced56bc421062ee",
+    "adapter_sha256": "7e8240f570e41eb70d1303fd3d2a8ea607ca30c121e1eb1e2d9ecc31b341054b",
+    "formal_suite_sha256": "b83fafe62fc12e0354122a8bc58349a54a1e56ea73bbc1470bda14b6e72bd7b9"
+  },
+  "sut": {
+    "pinned_sha": "fc87aa9e09f9ecf72b4bf8e005c3c865a6450999",
+    "parent_sha": "ba0bcd59ee49ad003a15a4841aba33424e7f3450",
+    "remote_refs_containing": [
+      "origin/zcode/golden-path-implementation"
+    ],
+    "snapshot_files": [
+      {
+        "file": "packages/gp-runtime/src/machines.ts",
+        "sha256": "9c960e348bcd36f6a965b0d9d158acda032b076ef508f950ea2c44c52d94d81e",
+        "bytes": 5193
+      },
+      {
+        "file": "packages/gp-runtime/src/runtime.ts",
+        "sha256": "112a2ab4affebe6610ea6ba92c6f27bca4bfb3972bf3cf42b9c6fab41acc5019",
+        "bytes": 7108
+      }
+    ],
+    "changed_paths_vs_parent": [
+      "packages/gp-runtime/package.json",
+      "packages/gp-runtime/src/machines.ts",
+      "packages/gp-runtime/src/runtime.ts",
+      "packages/gp-runtime/test/gp1-runtime.test.ts",
+      "packages/gp-runtime/tsconfig.json"
+    ]
+  },
+  "coverage": {
+    "trace_vectors": 384,
+    "legal_edges": 13,
+    "illegal_pairs": 70,
+    "prerequisite_probes": "4-state x 5 future-authority edges",
+    "crash_prefixes": "every prefix of a 5-commit durable journal"
+  },
+  "summary": {
+    "total_checks": 11,
+    "counts": {
+      "PASS": 11,
+      "FAIL": 0,
+      "UNKNOWN": 0
+    },
+    "machine_gate": "READY"
+  },
+  "freeze_declaration": "NONE — machine READY is never an automatic GP1 PASS; the final signature belongs to the Commander.",
+  "checks": [
+    {
+      "check_id": "F0.1",
+      "status": "PASS",
+      "title": "[F0.1] the frozen SUT snapshot is pinned to the Commander-published formal target",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 1.8990999999999758
+    },
+    {
+      "check_id": "F1.1",
+      "status": "PASS",
+      "title": "[F1.1] every seeded trace decision sequence reproduces through the adapter, field-for-field",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 22.128600000000006
+    },
+    {
+      "check_id": "F2.1",
+      "status": "PASS",
+      "title": "[F2.1] all 13 legal edges positively reachable through the adapter",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 1.1064000000000078
+    },
+    {
+      "check_id": "F2.2",
+      "status": "PASS",
+      "title": "[F2.2] exhaustive 70 illegal pairs rejected (branch-sibling sources reached via direct-jump walk)",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 3.862500000000068
+    },
+    {
+      "check_id": "F2.3",
+      "status": "PASS",
+      "title": "[F2.3] prerequisite 4-state probes on every future-authority edge: missing / wrong-kind / invalid-shape REJECT, correct ACCEPT",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 1.9872000000000298
+    },
+    {
+      "check_id": "F3.1",
+      "status": "PASS",
+      "title": "[F3.1] same command_id+payload: identical decision, single journal event; different payload: conflicting-command, no event",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 0.7948999999999842
+    },
+    {
+      "check_id": "F3.2",
+      "status": "PASS",
+      "title": "[F3.2] ClaimRecord: required at CLAIMED, shape-invalid never appends, immutable after append",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 1.0968000000000302
+    },
+    {
+      "check_id": "F4.1",
+      "status": "PASS",
+      "title": "[F4.1] journal-file crash at every prefix converges; retry after crash-after-commit is a no-op duplicate-free reload",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 17.906399999999962
+    },
+    {
+      "check_id": "F5.1",
+      "status": "PASS",
+      "title": "[F5.1] scope audit: target diff touches no frozen surface, adds no GP2+ artifact, exports stay clean",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 2.4833999999999605
+    },
+    {
+      "check_id": "F5.2",
+      "status": "PASS",
+      "title": "[F5.2] wall-clock independence: SUT sources contain no wall-clock access",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 0.5108000000000175
+    },
+    {
+      "check_id": "F5.3",
+      "status": "PASS",
+      "title": "[F5.3] no-payment side effects: no network/escrow/payment surface; a full run to RELEASED writes ONLY the journal file",
+      "test_file": "packages/gp1-verifier/formal/test/gp1-formal-replay.test.ts",
+      "duration_ms": 9.020899999999983
+    }
+  ]
+}

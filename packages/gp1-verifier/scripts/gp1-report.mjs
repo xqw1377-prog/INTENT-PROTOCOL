@@ -57,7 +57,7 @@ const counts = { PASS: 0, FAIL: 0, UNKNOWN: 0 };
 for (const c of checks) counts[c.status]++;
 
 const adapterDigest = createHash("sha256").update(readFileSync(path.join(pkgDir, "formal/adapter.ts"))).digest("hex");
-const formalDigest = createHash("sha256").update(readFileSync(path.join(pkgDir, "test/gp1-formal-replay.test.ts"))).digest("hex");
+const formalDigest = createHash("sha256").update(readFileSync(path.join(pkgDir, "formal/test/gp1-formal-replay.test.ts"))).digest("hex");
 
 const report = {
   report_kind: "gp1-formal-replay",
