@@ -1,0 +1,76 @@
+{
+  "schema_version": "gp-execution-manifest.v1",
+  "execution_ref": "b53969f9-da5b-4a85-8d63-1b0887de5bee",
+  "execution_fingerprint": "1d626618-4506-4ed3-8af3-839aacc658cf",
+  "run_id": "2719256d-e9a3-480d-9d8e-ea0b53382581",
+  "bounty_id": "GP-001",
+  "task_freeze_hash": "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5",
+  "base_commit_sha": "af08fdfacf7e594537969fd04b894c82de756428",
+  "package_path": "packages/golden-path/demo",
+  "patch_sha256": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+  "changed_paths": [
+    "packages/golden-path/demo/src/retry.ts"
+  ],
+  "attempt": 1,
+  "max_attempts": 3,
+  "commands": [
+    {
+      "id": "base-acceptance",
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        ".",
+        "packages/golden-path/demo/test/acceptance.test.ts",
+        "--reporter=json"
+      ],
+      "cwd": "workdir-root",
+      "exit_code": 1,
+      "at": "2026-09-21T10:00:00.000Z"
+    },
+    {
+      "id": "patched-acceptance",
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        ".",
+        "packages/golden-path/demo/test/acceptance.test.ts",
+        "--reporter=json"
+      ],
+      "cwd": "workdir-root",
+      "exit_code": 0,
+      "at": "2026-09-21T10:00:03.000Z"
+    },
+    {
+      "id": "build",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "packages/golden-path/demo/tsconfig.json",
+        "--noEmit"
+      ],
+      "cwd": "workdir-root",
+      "exit_code": 0,
+      "at": "2026-09-21T10:00:05.000Z"
+    }
+  ],
+  "toolchain": {
+    "node": "v24.14.1",
+    "npm": "unknown",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7",
+    "os": "win32/x64"
+  },
+  "started_at": "2026-09-21T10:00:00.000Z",
+  "ended_at": "2026-09-21T10:00:08.000Z",
+  "outcomes": {
+    "base_acceptance_seeded_red": true,
+    "patched_acceptance_all_green": true,
+    "build_typecheck_ok": true,
+    "patch_policy_clean": true
+  }
+}

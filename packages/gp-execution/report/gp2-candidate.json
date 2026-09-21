@@ -1,0 +1,80 @@
+{
+  "report_kind": "gp2-implementation-candidate",
+  "generated_at": "2026-09-21T15:28:27.565Z",
+  "base_main_sha": "d4c685bc82a77cfefde6724856f1927fe353c83f",
+  "parent_base_sha": "0a532e400c05e4e7378f377d559d363090704967",
+  "live_schema_subtree": "bb14d9375c92d64072f3e8c2f2dd65d794008422",
+  "live_schema_subtree_verified": true,
+  "task_freeze_hash": "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5",
+  "frozen_base_commit": "af08fdfacf7e594537969fd04b894c82de756428",
+  "acceptance_suite_sha256": "sha256:2357f37db27841204960d44c3a14b5e4976539a6cb9c3d5a805d21e9663db31c",
+  "execution_ref": "b53969f9-da5b-4a85-8d63-1b0887de5bee",
+  "execution_fingerprint": "1d626618-4506-4ed3-8af3-839aacc658cf",
+  "execution_id": "2719256d-e9a3-480d-9d8e-ea0b53382581",
+  "attempt_count": 1,
+  "max_attempts": 3,
+  "actual_changed_paths": [
+    "packages/golden-path/demo/src/retry.ts"
+  ],
+  "patch_sha256": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+  "outcomes": {
+    "base_acceptance_seeded_red": true,
+    "patched_acceptance_all_green": true,
+    "build_typecheck_ok": true,
+    "patch_policy_clean": true
+  },
+  "evidence_artifacts": [
+    {
+      "key": "base-acceptance",
+      "artifact_id": "64074de4-f442-4a9f-8bf6-9bfd2ec47120",
+      "payload_hash": "sha256:30d38c69e1401477fe15e8a244ecf43f61fd7f0e05fceb9e2e6ece29fbef3630",
+      "locator": "cas://gp2/2719256d-e9a3-480d-9d8e-ea0b53382581/base-acceptance/30d38c69e1401477fe15e8a244ecf43f61fd7f0e05fceb9e2e6ece29fbef3630"
+    },
+    {
+      "key": "agent-patch",
+      "artifact_id": "24b59d96-c656-4e63-8bcb-e7ab36b2a452",
+      "payload_hash": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+      "locator": "cas://gp2/2719256d-e9a3-480d-9d8e-ea0b53382581/agent-patch/d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87"
+    },
+    {
+      "key": "patched-acceptance",
+      "artifact_id": "83a27a19-279c-4f2d-840f-f17a54c575a9",
+      "payload_hash": "sha256:b039e1b458bda2e1c9e3ff7ce7bb7d78e469cd70ad3e7e71897068724987356f",
+      "locator": "cas://gp2/2719256d-e9a3-480d-9d8e-ea0b53382581/patched-acceptance/b039e1b458bda2e1c9e3ff7ce7bb7d78e469cd70ad3e7e71897068724987356f"
+    },
+    {
+      "key": "build",
+      "artifact_id": "82b96e5f-d814-47fe-8988-834921dcdfdd",
+      "payload_hash": "sha256:3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+      "locator": "cas://gp2/2719256d-e9a3-480d-9d8e-ea0b53382581/build/3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e"
+    },
+    {
+      "key": "policy-boundary",
+      "artifact_id": "1bb77be9-f398-41bd-89d6-d8fcfc5ddae4",
+      "payload_hash": "sha256:6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab",
+      "locator": "cas://gp2/2719256d-e9a3-480d-9d8e-ea0b53382581/policy-boundary/6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab"
+    },
+    {
+      "key": "execution-manifest",
+      "artifact_id": "4dd64160-e6b8-4607-800a-4e0998cf140d",
+      "payload_hash": "sha256:d4835fa9e0775d9449c06889f0eb14d033eff58a857254a7a35d93ebc87d0126",
+      "locator": "cas://gp2/2719256d-e9a3-480d-9d8e-ea0b53382581/execution-manifest/d4835fa9e0775d9449c06889f0eb14d033eff58a857254a7a35d93ebc87d0126"
+    }
+  ],
+  "evidence_root": "sha256:5beff512d4a1014107260cfcfab214981df6e8f5aab5f8d714ee1aae16341e84",
+  "bundle": {
+    "bundle_id": "119e1a57-54eb-42c9-846d-635459805245",
+    "content_hash": "sha256:d70a441e452ccb5de42c2ac3c639483b6414fd3c49fc1bea9c3cc149c9ccbec4",
+    "state": "SEALED",
+    "artifact_count": 6
+  },
+  "evidence_dir": "packages/golden-path/evidence/2719256d-e9a3-480d-9d8e-ea0b53382581",
+  "test_counts": {
+    "passed": 23,
+    "failed": 0,
+    "total": 23
+  },
+  "tamper_negative_count": 9,
+  "gp3_plus_implemented": false,
+  "declaration": "CANDIDATE ONLY — not a PASS claim. GP3+ capabilities are absent by construction (scope self-scan in suite)."
+}
