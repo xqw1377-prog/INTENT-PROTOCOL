@@ -3,7 +3,10 @@
  *
  *   hash_input     = DOMAIN || 0x00 || schema_version || 0x00 || canonical_json(payload)
  *   content_hash   = SHA256(hash_input)
- *   proof_binding  = SHA256(intent_hash || milestone_revision(u32 BE) || evidence_root || policy_hash)
+ *   proof_binding  = SHA256("intent-protocol/v1/proof-binding" || 0x00 ||
+ *                           intent_hash || milestone_id || milestone_revision(u32 BE) ||
+ *                           bundle_id || evidence_root || policy_hash)
+ *                    (R9: binds the *identity* of milestone and bundle, not just revision/root)
  *   settlement_key = SHA256(proof_binding || escrow_id || 0x00 || settlement_nonce(u64 BE))
  *
  * All hashes are rendered as `sha256:<64 lowercase hex>`.
@@ -88,14 +91,30 @@ export function u64be(n: bigint | number): Uint8Array {
   return b;
 }
 
-/** Binds a decision to one frozen intent version, milestone revision, evidence root and policy (threat: Proof Replay). */
+const PROOF_BINDING_DOMAIN = Buffer.concat([enc.encode("intent-protocol/v1/proof-binding"), SEP]);
+
+/**
+ * Binds a decision to one frozen intent version, a specific milestone (id + revision),
+ * a specific evidence bundle (id + root) and a specific policy (threat: Proof Replay, R9).
+ * milestone_id / bundle_id are canonical lowercase UUID strings hashed as UTF-8.
+ */
 export function proofBinding(p: {
   intent_hash: Hash;
+  milestone_id: string;
   milestone_revision: number;
+  bundle_id: string;
   evidence_root: Hash;
   policy_hash: Hash;
 }): Hash {
-  return toHash(sha256(fromHash(p.intent_hash), u32be(p.milestone_revision), fromHash(p.evidence_root), fromHash(p.policy_hash)));
+  return toHash(sha256(
+    PROOF_BINDING_DOMAIN,
+    fromHash(p.intent_hash),
+    enc.encode(p.milestone_id),
+    u32be(p.milestone_revision),
+    enc.encode(p.bundle_id),
+    fromHash(p.evidence_root),
+    fromHash(p.policy_hash),
+  ));
 }
 
 /** Idempotency key for one settlement effect (threat: Settlement Double Spend). */

@@ -3,11 +3,12 @@
  * generated digests are stable across runs and machines (G0 evidence).
  */
 import {
-  Domain, hashObject, hashBytes, merkleRoot, proofBinding, settlementKey,
+  Domain, hashObject, hashBytes, merkleRoot, proofBinding,
 } from "../dist/index.js";
 
 const T = "2026-09-17T00:00:00.000Z";
-export const H = (n) => "sha256:" + n.toString(16).padStart(2, "0").repeat(32); // deterministic fake hashes for refs
+/** Deterministic fake hash for reference fields: sha256:<hex of n, zero-padded to 64>. */
+export const H = (n) => "sha256:" + n.toString(16).padStart(64, "0");
 export const U = (s) => `00000000-0000-4000-8000-${s.padStart(12, "0")}`;
 
 export const POLICY_REF = { uri: "policy://software-delivery/v1", hash: H(0xa0) };
@@ -41,7 +42,7 @@ export function intent(overrides = {}) {
     constraints: [
       { constraint_id: "c1", kind: "FORBIDDEN_ACTION", statement: "never touch merchant payment keys" },
     ],
-    budget: { asset: ASSET, total: "20000.00", execution_cap: "2000.00" },
+    budget: { asset: ASSET, total: "20000", execution_cap: "2000" },
     deadline: "2026-10-17T00:00:00.000Z",
     verification_policy_ref: POLICY_REF,
     settlement_policy_ref: SETTLEMENT_REF,
@@ -59,7 +60,7 @@ export function artifact(id, subject, contentHash) {
     source: "ci:github-actions",
     subject,
     captured_at: T,
-    content_hash: contentHash,
+    payload_hash: contentHash,
     locator: "cas://sha256/" + contentHash.slice(7, 20),
     privacy_class: "INTERNAL",
   };
@@ -102,7 +103,14 @@ export function decision(overrides = {}) {
     bundle_id: U("3"),
     evidence_root: b.merkle_root,
     policy_hash: POLICY_REF.hash,
-    proof_binding: proofBinding({ intent_hash: ih, milestone_revision: 1, evidence_root: b.merkle_root, policy_hash: POLICY_REF.hash }),
+    proof_binding: proofBinding({
+      intent_hash: ih,
+      milestone_id: U("2"),
+      milestone_revision: 1,
+      bundle_id: U("3"),
+      evidence_root: b.merkle_root,
+      policy_hash: POLICY_REF.hash,
+    }),
     result: "VALID",
     reason_codes: ["TESTS_PASS", "DEPLOY_REACHABLE"],
     replay_digest: hashBytes(new TextEncoder().encode("replay-trace-v1")),
@@ -122,20 +130,11 @@ export function settlement(overrides = {}) {
     proof_binding: d.proof_binding,
     nonce: "0",
     outputs: [
-      { recipient: "agent:executor_01", asset: ASSET, amount: "1500.00", reason: "milestone-1 completion" },
-      { recipient: "org:platform", asset: ASSET, amount: "150.00", reason: "settlement fee 10%" },
+      { recipient: "agent:executor_01", asset: ASSET, amount: "1500", reason: "milestone-1 completion" },
+      { recipient: "org:platform", asset: ASSET, amount: "150", reason: "settlement fee 10%" },
     ],
-    total_amount: "1650.00",
+    total_amount: "1650",
     expires_at: "2026-11-01T00:00:00.000Z",
     ...overrides,
   };
 }
-
-export const SCHEMAS = {
-  "intent.v1": "IntentContractSchema",
-  "criterion.v1": "CriterionSchema",
-  "artifact.v1": "EvidenceArtifactSchema",
-  "bundle.v1": "EvidenceBundleSchema",
-  "decision.v1": "VerificationDecisionSchema",
-  "settlement.v1": "SettlementInstructionSchema",
-};

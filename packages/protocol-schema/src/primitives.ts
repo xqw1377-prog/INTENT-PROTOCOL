@@ -1,15 +1,29 @@
 import { z } from "zod";
-import { HASH_RE } from "./hash.js";
+import { HASH_RE, type Hash } from "./hash.js";
 
-/** `sha256:<64 hex>` */
-export const HashSchema = z.string().regex(HASH_RE, "expected sha256:<64 lowercase hex>");
-export const UUIDSchema = z.string().uuid();
-/** RFC 3339 UTC timestamp with millisecond precision, e.g. 2026-09-17T00:00:00.000Z */
-export const TimestampSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "expected ISO-8601 UTC ms timestamp");
-/** Monetary/decimal values are strings to keep hashing cross-language stable. */
-export const DecimalSchema = z.string().regex(/^-?(0|[1-9]\d*)(\.\d+)?$/, "expected decimal string");
+/** `sha256:<64 hex>` — parses to the branded `Hash` template type. */
+export const HashSchema = z.string().regex(HASH_RE, "expected sha256:<64 lowercase hex>").transform((s) => s as Hash);
+/** UUID in canonical form: lowercase hex, standard hyphenated 8-4-4-4-12 (R11). */
+export const UUIDSchema = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/, "expected lowercase hyphenated UUID");
+/** RFC 3339 UTC timestamp with millisecond precision and a real calendar date, e.g. 2026-09-17T00:00:00.000Z */
+export const TimestampSchema = z.string()
+  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, "expected ISO-8601 UTC ms timestamp")
+  .refine((s) => {
+    const d = new Date(s);
+    return !Number.isNaN(d.getTime()) && d.toISOString() === s;
+  }, "calendar-invalid timestamp");
+/**
+ * Monetary/decimal values are strings in NON-NEGATIVE CANONICAL form
+ * (Commander ruling): unique representation only —
+ * legal:  "0", "10", "1.1", "0.01"
+ * illegal: "1.10", "1.0", "-0", "00", "01", ".5", "1."
+ * Regex: integer part has no leading zeros; optional fraction must not end in 0.
+ */
+export const DecimalSchema = z.string().regex(/^(0|[1-9]\d*)(\.\d*[1-9])?$/, "expected non-negative canonical decimal");
 export const U32Schema = z.number().int().min(0).max(0xffffffff);
-export const U64Schema = z.string().regex(/^(0|[1-9]\d*)$/, "expected u64 as decimal string");
+/** u64 as decimal string, range-checked (must be hashable via u64be). */
+export const U64Schema = z.string().regex(/^(0|[1-9]\d*)$/, "expected u64 as decimal string")
+  .refine((s) => BigInt(s) <= 0xffffffffffffffffn, "u64 overflow");
 
 /**
  * SubjectRef: `<kind>:<id>` — the only way protocol objects reference a principal (§13).
@@ -17,7 +31,7 @@ export const U64Schema = z.string().regex(/^(0|[1-9]\d*)$/, "expected u64 as dec
  */
 export const SubjectKind = z.enum(["user", "org", "agent", "verifier", "arbitrator", "service", "operator"]);
 export type SubjectKind = z.infer<typeof SubjectKind>;
-export const SubjectRefSchema = z.string().regex(/^(user|org|agent|verifier|arbitrator|service|operator):[A-Za-z0-9._-]{1,128}$/);
+export const SubjectRefSchema = z.string().regex(/^(user|org|agent|verifier|arbitrator|service|operator):[A-Za-z0-9._@-]{1,128}$/);
 export type SubjectRef = z.infer<typeof SubjectRefSchema>;
 
 /** Reference to a content-addressed policy document. */
