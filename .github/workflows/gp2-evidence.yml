@@ -30,6 +30,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: PURGE stale verifier evidence (first action after checkout)
+        run: |
+          rm -rf packages/gp2-verifier/report packages/gp2-verifier/target-snapshot
+          echo "stale capture/report purged before anything else can run"
+
       - name: Resolve and pin inputs
         env:
           RAW_TARGET_SHA: ${{ inputs.target_sha }}
@@ -47,11 +52,6 @@ jobs:
           fi
           echo "TARGET_SHA=$TARGET_SHA" >> "$GITHUB_ENV"
           echo "HARNESS_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-
-      - name: Purge stale verifier evidence BEFORE dependency install
-        run: |
-          rm -rf packages/gp2-verifier/report packages/gp2-verifier/target-snapshot
-          echo "stale capture/report purged"
 
       # actions/setup-node v4.0.2
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8

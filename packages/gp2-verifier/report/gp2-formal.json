@@ -1,9 +1,9 @@
 {
   "report_kind": "gp2-formal-replay",
-  "generated_at": "2026-09-21T16:38:31.406Z",
+  "generated_at": "2026-09-22T08:10:20.623Z",
   "target_sha": "b0d7f39f6033612b094b44189b03253306c0c5ab",
   "parent_sha": "d4c685bc82a77cfefde6724856f1927fe353c83f",
-  "verifier_head": "d4c685bc82a77cfefde6724856f1927fe353c83f",
+  "verifier_head": "f5e435c997805edfec220e75c960a78fb3e737ad",
   "formal_suite_sha256": "sha256:68e6602a2169c0e98d6ca3c1721182f4fe705b2ec751ea59d3d4b13759f268d1",
   "run_id": "9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
   "execution_fingerprint": "1d626618-4506-4ed3-8af3-839aacc658cf",
@@ -56,9 +56,9 @@
   "fails": [],
   "unknowns": [],
   "summary": {
-    "total_checks": 16,
+    "total_checks": 17,
     "counts": {
-      "PASS": 16,
+      "PASS": 17,
       "FAIL": 0,
       "UNKNOWN": 0
     },

@@ -18,11 +18,16 @@ const resultsFile = path.join(pkgDir, "report", "gp2-vitest-results.json");
 mkdirSync(path.join(pkgDir, "report"), { recursive: true });
 rmSync(resultsFile, { force: true });
 
-const out = execFileSync(process.execPath, [
+// P3: tolerate a RED vitest run — the vitest process may exit non-zero with
+// failures while still writing its JSON; the report must be generated either
+// way, and the FAITHFUL exit happens after the report is written.
+import { spawnSync } from "node:child_process";
+const vt = spawnSync(process.execPath, [
   vitestBin, "run", "--root", "../..", "--reporter=json",
   "--outputFile=packages/gp2-verifier/report/gp2-vitest-results.json",
-  "packages/gp2-verifier/formal/test/gp2-formal-replay.test.ts",
-], { cwd: pkgDir, encoding: "utf8", maxBuffer: 64 * 1024 * 1028 });
+  "packages/gp2-verifier/formal/test",
+], { cwd: pkgDir, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+void vt;
 
 if (!existsSync(resultsFile)) {
   console.error("vitest produced no results — refusing stale report");
@@ -88,4 +93,5 @@ const md = [
 ].join("\n") + "\n";
 writeFileSync(path.join(pkgDir, "report/gp2-formal.md"), md);
 console.log(`report: ${counts.PASS} PASS / ${counts.FAIL} FAIL / ${counts.UNKNOWN} UNKNOWN -> report/gp2-formal.{json,md} (machine gate ${formal.summary.machine_gate})`);
-void out;
+// P3 FAITHFUL EXIT: FAIL>0 or UNKNOWN>0 => non-zero AFTER the report exists
+if (counts.FAIL > 0 || counts.UNKNOWN > 0) process.exit(1);

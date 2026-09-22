@@ -1,9 +1,9 @@
 # GP2 Formal Black-Box Replay Report
 
-- Generated: 2026-09-21T16:38:31.406Z
+- Generated: 2026-09-22T08:10:20.623Z
 - Target: `b0d7f39f6033612b094b44189b03253306c0c5ab` (parent `d4c685bc`)
 - Run: `9f6610dc-24e9-4e6c-b7c1-67574064d2ae` / fingerprint `1d626618-4506-4ed3-8af3-839aacc658cf`
-- Checks: **16 PASS / 0 FAIL / 0 UNKNOWN**
+- Checks: **17 PASS / 0 FAIL / 0 UNKNOWN**
 - Machine gate: **READY** — machine READY != GP2 PASS — Commander signs.
 
 | id | status | title |
@@ -24,3 +24,4 @@
 | F9.1 | PASS | [F9.1] task hash drift / base drift / suite drift are all detected by recompute |
 | F9.2 | PASS | [F9.2] forbidden-path patch + post-seal bundle mutation rejected |
 | F10.1 | PASS | [F10.1] no verifier/decision/receipt/settlement/payment/devnet implementation in target gp-execution |
+| UNCATALOGUED | PASS | [R.1] run the real reproduction and record observed facts |
