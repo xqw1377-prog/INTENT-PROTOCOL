@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { canonicalize, EvidenceArtifactSchema, EvidenceBundleSchema, hashObject, Domain, merkleRoot, seal, HASH_RE } from "@intent/protocol-schema";
 import type { Hash } from "@intent/protocol-schema";
-import { deriveUuid, git, gitShow, loadCapture, repoRoot, sha256, snapFile, snapJson, SNAP, UUID_RE } from "../../src/indep.js";
+import { deriveUuid, git, gitShow, loadCapture, repoRoot, sha256, snapJson, targetFile, SNAP, UUID_RE } from "../../src/indep.js";
 import { reproduceFrozenTask, ReplayError, type ReplayResult } from "../../src/replay.js";
 
 /**
@@ -18,6 +18,7 @@ const REQUIRED_LIVE_SUBTREE = "bb14d9375c92d64072f3e8c2f2dd65d794008422";
 const SUPERSEDED_RUNS = ["0779440d-a4a0-4467-8905-737d2ad795a6", "2719256d-e9a3-480d-9d8e-ea0b53382581"];
 
 const cap = loadCapture();
+const EVID = `packages/golden-path/evidence/${cap.evidence_run_id}`;
 const report = snapJson<Record<string, any>>("candidate-report.json");
 const bundle = snapJson<Record<string, any>>("evidence/bundle.json");
 const artifactsDoc = snapJson<{ key: string; artifact: Record<string, any>; payload_hash: string }[]>("evidence/artifacts.json");
@@ -30,7 +31,7 @@ beforeAll(() => {
     baseCommit: taskRecord.base_commit_sha,
     packagePath: taskRecord.package_path,
     maxAttempts: taskRecord.max_attempts,
-    committedPatch: snapFile("evidence/raw/agent-patch.bin"),
+    committedPatch: targetFile(cap.pinned_sha, `${EVID}/raw/agent-patch.bin`),
   });
 }, 240_000);
 afterAll(() => {
@@ -87,7 +88,7 @@ describe("[F3] raw evidence exact bytes", () => {
     expect(artifactsDoc).toHaveLength(6);
     const ids = new Set<string>();
     for (const a of artifactsDoc) {
-      const raw = snapFile(`evidence/raw/${a.key}.bin`);
+      const raw = targetFile(cap.pinned_sha, `${EVID}/raw/${a.key}.bin`);
       expect(sha256(raw), `${a.key} raw bytes hash`).toBe(a.payload_hash);
       expect(String(a.artifact.locator), `${a.key} locator suffix`).toBe(`cas://gp2/${report.execution_id}/${a.key}/${a.payload_hash.slice(7)}`);
       EvidenceArtifactSchema.parse(a.artifact);
@@ -115,7 +116,7 @@ describe("[F4] bundle independently recomputed (live wire)", () => {
     expect(report.bundle.content_hash).toBe(bundle.content_hash);
     expect(report.bundle.bundle_id).toBe(bundle.bundle_id);
     // one-byte raw mutation breaks payload hash + root
-    const mutated = Buffer.from(snapFile("evidence/raw/agent-patch.bin"));
+    const mutated = Buffer.from(targetFile(cap.pinned_sha, `${EVID}/raw/agent-patch.bin`));
     mutated[mutated.length - 2]! ^= 0x01;
     const mHash = sha256(mutated);
     expect(mHash).not.toBe(artifactsDoc.find((a) => a.key === "agent-patch")!.payload_hash);
@@ -126,7 +127,7 @@ describe("[F4] bundle independently recomputed (live wire)", () => {
 
 describe("[F5] GP2-R2 identity model (independent recompute)", () => {
   test("[F5.1] fingerprint from frozen inputs; run_id fresh & canonical; run-scoped artifacts; payload-bound locators", () => {
-    const patchSha = sha256(snapFile("evidence/raw/agent-patch.bin"));
+    const patchSha = sha256(targetFile(cap.pinned_sha, `${EVID}/raw/agent-patch.bin`));
     const expectedFingerprint = deriveUuid(`gp2:fingerprint:${report.task_freeze_hash}:${taskRecord.base_commit_sha}:${patchSha}:1`);
     expect(manifest.execution_fingerprint).toBe(expectedFingerprint);
     expect(report.execution_fingerprint).toBe(expectedFingerprint);
@@ -185,7 +186,7 @@ describe("[F7] independent task reproduction (observed, not trusted)", () => {
     expect(replay.max_attempts_observed).toBe(3);
     expect(replay.non429_no_retry).toBe(true);
     expect(replay.changed_paths).toEqual(["packages/golden-path/demo/src/retry.ts"]);
-    const committedPatchSha = sha256(snapFile("evidence/raw/agent-patch.bin"));
+    const committedPatchSha = sha256(targetFile(cap.pinned_sha, `${EVID}/raw/agent-patch.bin`));
     expect(replay.derived_patch_sha256, "independently derived fix == committed patch").toBe(committedPatchSha);
     expect(committedPatchSha).toBe("sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87");
   });
@@ -200,7 +201,7 @@ describe("[F8] manifest consistency (vs independently observed facts)", () => {
   test("[F8.1] task/base/patch/attempt/commands/outcomes agree", () => {
     expect(manifest.task_freeze_hash).toBe(report.task_freeze_hash);
     expect(manifest.base_commit_sha).toBe(taskRecord.base_commit_sha);
-    expect(manifest.patch_sha256).toBe(sha256(snapFile("evidence/raw/agent-patch.bin")));
+    expect(manifest.patch_sha256).toBe(sha256(targetFile(cap.pinned_sha, `${EVID}/raw/agent-patch.bin`)));
     expect(manifest.attempt).toBe(1);
     expect(manifest.max_attempts).toBe(3);
     expect(manifest.changed_paths).toEqual(replay.changed_paths);
