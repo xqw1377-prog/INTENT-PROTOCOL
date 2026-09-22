@@ -1,0 +1,68 @@
+{
+  "report_kind": "gp2-formal-replay",
+  "generated_at": "2026-09-22T08:10:20.623Z",
+  "target_sha": "b0d7f39f6033612b094b44189b03253306c0c5ab",
+  "parent_sha": "d4c685bc82a77cfefde6724856f1927fe353c83f",
+  "verifier_head": "f5e435c997805edfec220e75c960a78fb3e737ad",
+  "formal_suite_sha256": "sha256:68e6602a2169c0e98d6ca3c1721182f4fe705b2ec751ea59d3d4b13759f268d1",
+  "run_id": "9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
+  "execution_fingerprint": "1d626618-4506-4ed3-8af3-839aacc658cf",
+  "raw_hash_checks": [
+    {
+      "key": "base-acceptance",
+      "payload_hash": "sha256:e11c67fd72580d05c640aad4898404f48976aee5df02fec7c0390c0cbe7bdc13",
+      "verified": true
+    },
+    {
+      "key": "agent-patch",
+      "payload_hash": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+      "verified": true
+    },
+    {
+      "key": "patched-acceptance",
+      "payload_hash": "sha256:fdfc04d406995482688ed0f93e593b7fb915b0633d01f074faebab010e1b2fa2",
+      "verified": true
+    },
+    {
+      "key": "build",
+      "payload_hash": "sha256:3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+      "verified": true
+    },
+    {
+      "key": "policy-boundary",
+      "payload_hash": "sha256:6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab",
+      "verified": true
+    },
+    {
+      "key": "execution-manifest",
+      "payload_hash": "sha256:68780b763a88f53d61da752f4181564105eb99e5315835cadb89db8bc4f7d9cf",
+      "verified": true
+    }
+  ],
+  "bundle_recomputed": {
+    "merkle_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+    "content_hash": "sha256:aafd6d806ab5fb2fb8ccdc1495fe7c0c8fcab336495b843b10535cf75fe34b5e",
+    "bundle_id": "f5290727-3457-41d1-8eb3-2190e0ab6103",
+    "state": "SEALED"
+  },
+  "reproduction": "independent clean-checkout replay: base 2F/2P seeded-red, patched 4/4 green, build 0, patch independently re-derived byte-identical",
+  "identity_negatives": [
+    "reorder(root-same/id+content-change)",
+    "policy-hash(id-change)",
+    "omit(root+id-change)"
+  ],
+  "tamper_results": "F9 matrix PASS",
+  "scope_findings": [],
+  "fails": [],
+  "unknowns": [],
+  "summary": {
+    "total_checks": 17,
+    "counts": {
+      "PASS": 17,
+      "FAIL": 0,
+      "UNKNOWN": 0
+    },
+    "machine_gate": "READY"
+  },
+  "declaration": "machine READY != GP2 PASS — Commander signs."
+}

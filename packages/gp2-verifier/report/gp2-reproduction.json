@@ -1,0 +1,27 @@
+{
+  "report_kind": "gp2-reproduction-evidence",
+  "generated_at": "2026-09-22T08:10:20.040Z",
+  "target_sha": "b0d7f39f6033612b094b44189b03253306c0c5ab",
+  "run_id": "9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
+  "method": "independent clean-checkout replay (verifier executor, zero gp-execution imports); committed patch bytes applied verbatim after independent re-derivation",
+  "observed": {
+    "base_acceptance": {
+      "passed": 2,
+      "failed": 2
+    },
+    "patched_acceptance": {
+      "passed": 4,
+      "failed": 0
+    },
+    "build_exit": 0,
+    "derived_patch_sha256": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+    "committed_patch_sha256": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+    "changed_paths": [
+      "packages/golden-path/demo/src/retry.ts"
+    ],
+    "retry_after_2000ms_semantics_observed": true,
+    "max_attempts_observed": 3,
+    "non429_no_retry_observed": true
+  },
+  "note": "observed values only — conclusions are drawn by the formal checks in gp2-formal-replay.test.ts, not by this file"
+}

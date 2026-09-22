@@ -1,0 +1,10 @@
+{
+  "name": "@intent/gp2-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GP2 formal verifier: independent replay of the frozen GP-001 execution + evidence target. No gp-execution imports; evidence read as data, reproduction via isolated checkout.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/gp2-verifier"
+  }
+}
