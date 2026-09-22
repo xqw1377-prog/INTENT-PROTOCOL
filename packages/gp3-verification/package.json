@@ -1,0 +1,10 @@
+{
+  "name": "@intent/gp3-verification",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GP3 Independent Verification + OutcomeReceipt: functional + policy verifiers over the frozen GP2 evidence, frozen R9 proof_binding, 2-of-2 VALID receipt engine. No settlement/payment/devnet (GP4 authority) by contract.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/gp3-verification"
+  }
+}
