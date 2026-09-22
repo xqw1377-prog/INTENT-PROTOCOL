@@ -1,2 +1,3 @@
 packages/golden-path/fixtures/gp-001-task.json -text
 packages/golden-path/evidence/** -text
+packages/gp2-verifier/target-snapshot/** -text

@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
-import { gitShow, loadCapture, sha256, snapFile, snapJson } from "../../src/indep.js";
+import { gitShow, loadCapture, sha256, snapJson, targetFile } from "../../src/indep.js";
 import { reproduceFrozenTask, type ReplayResult } from "../../src/replay.js";
 
 /**
@@ -25,7 +25,7 @@ describe("[F7-REC] reproduction evidence recorder", () => {
       baseCommit: task.base_commit_sha,
       packagePath: task.package_path,
       maxAttempts: task.max_attempts,
-      committedPatch: snapFile("evidence/raw/agent-patch.bin"),
+      committedPatch: targetFile(cap.pinned_sha, `packages/golden-path/evidence/${cap.evidence_run_id}/raw/agent-patch.bin`),
     });
     try {
       const taskBytes = gitShow(`${cap.pinned_sha}:packages/golden-path/fixtures/gp-001-task.json`);
@@ -47,7 +47,7 @@ describe("[F7-REC] reproduction evidence recorder", () => {
           patched_acceptance: replay.patched_counts,
           build_exit: replay.build_exit,
           derived_patch_sha256: replay.derived_patch_sha256,
-          committed_patch_sha256: sha256(snapFile("evidence/raw/agent-patch.bin")),
+          committed_patch_sha256: sha256(targetFile(cap.pinned_sha, `packages/golden-path/evidence/${cap.evidence_run_id}/raw/agent-patch.bin`)),
           changed_paths: replay.changed_paths,
           retry_after_2000ms_semantics_observed: replay.retry_2000ms_semantics,
           max_attempts_observed: replay.max_attempts_observed,

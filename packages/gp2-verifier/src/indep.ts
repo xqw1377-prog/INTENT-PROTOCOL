@@ -40,6 +40,17 @@ export function loadCapture(): Capture {
   return JSON.parse(readFileSync(path.join(SNAP, "capture.json"), "utf8")) as Capture;
 }
 
+/**
+ * BYTE-EXACT evidence access (V3 hardening): captured evidence blobs MUST be
+ * read from the git OBJECT DATABASE at the pinned target SHA. Working-tree
+ * copies can be smudged by checkout EOL conversion (observed: LF blob checked
+ * out as CRLF on Windows), which breaks git-apply and could silently alter
+ * hashed bytes. The snapshot directory remains a human-readable convenience
+ * copy only.
+ */
+export function targetFile(pinnedSha: string, rel: string): Buffer {
+  return gitBuf(["show", `${pinnedSha}:${rel}`]);
+}
 export const snapFile = (rel: string): Buffer => readFileSync(path.join(SNAP, rel));
 export const snapJson = <T>(rel: string): T => JSON.parse(snapFile(rel).toString("utf8")) as T;
 

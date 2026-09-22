@@ -51,6 +51,29 @@ for (const tr of vj.testResults) {
     });
   }
 }
+// Surface collection/process failures as UNKNOWN checks so a report can never
+// say "0 FAIL / 0 UNKNOWN" while the Vitest process itself is red.
+for (const tr of vj.testResults ?? []) {
+  if (tr.status === "failed" && (!tr.assertionResults || tr.assertionResults.length === 0)) {
+    checks.push({
+      check_id: "PROCESS",
+      status: "UNKNOWN",
+      title: `collection failure: ${tr.name ?? "unknown test file"}`,
+      duration_ms: null,
+      failure_messages: tr.message ? [String(tr.message)] : [],
+    });
+  }
+}
+if (vt.status !== 0 && !checks.some((x) => x.check_id === "PROCESS")) {
+  checks.push({
+    check_id: "PROCESS",
+    status: "UNKNOWN",
+    title: `vitest process exited non-zero (${vt.status})`,
+    duration_ms: null,
+    failure_messages: vt.error ? [String(vt.error)] : [],
+  });
+}
+
 const counts = { PASS: 0, FAIL: 0, UNKNOWN: 0 };
 for (const c of checks) counts[c.status]++;
 
@@ -59,6 +82,9 @@ const formal = {
   generated_at: new Date().toISOString(),
   target_sha: cap.pinned_sha,
   parent_sha: cap.parent_sha,
+  vitest_exit_code: vt.status,
+  vitest_signal: vt.signal ?? null,
+  vitest_spawn_error: vt.error ? String(vt.error) : null,
   verifier_head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim(),
   formal_suite_sha256: "sha256:" + createHash("sha256").update(readFileSync(path.join(pkgDir, "formal/test/gp2-formal-replay.test.ts"))).digest("hex"),
   run_id: report.execution_id,
