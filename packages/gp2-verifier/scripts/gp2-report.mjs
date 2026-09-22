@@ -4,7 +4,7 @@
  * suite -> report/gp2-formal.{json,md}. Faithful exit code; machine READY is
  * never a GP2 PASS claim.
  */
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
@@ -21,7 +21,6 @@ rmSync(resultsFile, { force: true });
 // P3: tolerate a RED vitest run — the vitest process may exit non-zero with
 // failures while still writing its JSON; the report must be generated either
 // way, and the FAITHFUL exit happens after the report is written.
-import { spawnSync } from "node:child_process";
 const vt = spawnSync(process.execPath, [
   vitestBin, "run", "--root", "../..", "--reporter=json",
   "--outputFile=packages/gp2-verifier/report/gp2-vitest-results.json",
@@ -36,6 +35,9 @@ if (!existsSync(resultsFile)) {
 const vj = JSON.parse(readFileSync(resultsFile, "utf8"));
 const cap = JSON.parse(readFileSync(path.join(pkgDir, "target-snapshot/capture.json"), "utf8"));
 const report = JSON.parse(readFileSync(path.join(pkgDir, "target-snapshot/candidate-report.json"), "utf8"));
+const reproductionFile = path.join(pkgDir, "report", "gp2-reproduction.json");
+const reproductionExists = existsSync(reproductionFile);
+const reproduction = reproductionExists ? JSON.parse(readFileSync(reproductionFile, "utf8")) : null;
 
 const checks = [];
 for (const tr of vj.testResults) {
@@ -63,7 +65,13 @@ const formal = {
   execution_fingerprint: report.execution_fingerprint,
   raw_hash_checks: report.evidence_artifacts.map((a) => ({ key: a.key, payload_hash: a.payload_hash, verified: true })),
   bundle_recomputed: { merkle_root: report.evidence_root, content_hash: report.bundle.content_hash, bundle_id: report.bundle.bundle_id, state: "SEALED" },
-  reproduction: "independent clean-checkout replay: base 2F/2P seeded-red, patched 4/4 green, build 0, patch independently re-derived byte-identical",
+  reproduction: reproductionExists ? {
+    evidence_file: "gp2-reproduction.json",
+    report_kind: reproduction.report_kind,
+    target_sha: reproduction.target_sha,
+    run_id: reproduction.run_id,
+    observed: reproduction.observed,
+  } : null,
   identity_negatives: ["reorder(root-same/id+content-change)", "policy-hash(id-change)", "omit(root+id-change)"],
   tamper_results: "F9 matrix PASS",
   scope_findings: [],
@@ -72,7 +80,7 @@ const formal = {
   summary: {
     total_checks: checks.length,
     counts,
-    machine_gate: counts.FAIL === 0 && counts.UNKNOWN === 0 ? "READY" : "NOT_READY",
+    machine_gate: vt.status === 0 && counts.FAIL === 0 && counts.UNKNOWN === 0 && reproductionExists ? "READY" : "NOT_READY",
   },
   declaration: "machine READY != GP2 PASS — Commander signs.",
 };
@@ -93,5 +101,6 @@ const md = [
 ].join("\n") + "\n";
 writeFileSync(path.join(pkgDir, "report/gp2-formal.md"), md);
 console.log(`report: ${counts.PASS} PASS / ${counts.FAIL} FAIL / ${counts.UNKNOWN} UNKNOWN -> report/gp2-formal.{json,md} (machine gate ${formal.summary.machine_gate})`);
-// P3 FAITHFUL EXIT: FAIL>0 or UNKNOWN>0 => non-zero AFTER the report exists
-if (counts.FAIL > 0 || counts.UNKNOWN > 0) process.exit(1);
+// P3 FAITHFUL EXIT: process RED, FAIL, UNKNOWN, or missing reproduction evidence
+// must exit non-zero AFTER the report exists.
+if (vt.status !== 0 || counts.FAIL > 0 || counts.UNKNOWN > 0 || !reproductionExists) process.exit(1);
