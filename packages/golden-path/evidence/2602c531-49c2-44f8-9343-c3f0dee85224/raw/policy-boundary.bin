@@ -1,0 +1,16 @@
+{
+  "changed_paths": [
+    "packages/golden-path/demo/src/retry.ts"
+  ],
+  "allowed": [
+    "packages/golden-path/demo/src/**"
+  ],
+  "forbidden": [
+    "packages/golden-path/demo/test/**",
+    "packages/golden-path/demo/package.json",
+    "packages/golden-path/demo/tsconfig.json",
+    "packages/golden-path/fixtures/**"
+  ],
+  "violations": [],
+  "patch_sha256": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87"
+}

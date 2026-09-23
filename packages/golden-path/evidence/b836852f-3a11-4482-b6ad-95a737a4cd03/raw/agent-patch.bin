@@ -1,0 +1,13 @@
+diff --git a/packages/golden-path/demo/src/retry.ts b/packages/golden-path/demo/src/retry.ts
+index 6b895db..7ef5161 100644
+--- a/packages/golden-path/demo/src/retry.ts
++++ b/packages/golden-path/demo/src/retry.ts
+@@ -59,7 +59,7 @@ export async function retryFetch(url: string, opts: RetryOptions): Promise<Retry
+     const parsed = header !== undefined && /^\d+$/.test(header) ? Number(header) : null;
+     // SEEDED BUG: Retry-After is SECONDS; the value must be multiplied by 1000
+     // before requesting a delay. As shipped, "2" requests a 2 ms delay.
+-    const delayMs = parsed !== null ? parsed : DEFAULT_RETRY_DELAY_MS;
++    const delayMs = parsed !== null ? parsed * 1000 : DEFAULT_RETRY_DELAY_MS;
+     await opts.clock.sleep(delayMs);
+   }
+ }

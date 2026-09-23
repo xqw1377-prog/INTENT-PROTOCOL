@@ -1,0 +1,130 @@
+{
+  "schema_version": "intent.v1",
+  "intent_id": "62b2ed5d-d984-4591-8630-98213d2d1d20",
+  "version": 1,
+  "owner_subject": "operator:gp-001",
+  "goal": {
+    "statement": "Fix the GP-001 seeded retryFetch bug: on HTTP 429, honor Retry-After seconds as an exact millisecond delay before retrying.",
+    "target_state": "The frozen acceptance suite passes on the patched code with build/typecheck green.",
+    "domain": "software-delivery"
+  },
+  "success_criteria": [
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-1-retry-after-2000ms",
+      "kind": "MACHINE",
+      "assertion": "HTTP 429 + Retry-After: \"2\" causes a 2000 ms retry delay, then retries.",
+      "verifier_ref": "verifier:gp3-functional",
+      "evidence_requirements": [
+        { "kind": "acceptance-suite-block-A1", "min_level": "E1", "source": "repo:golden-path/demo", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 1, "expected_delay_ms": 2000, "suite_test": "A1" }
+    },
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-2-subsequent-200",
+      "kind": "MACHINE",
+      "assertion": "A subsequent HTTP 200 is returned to the caller.",
+      "verifier_ref": "verifier:gp3-functional",
+      "evidence_requirements": [
+        { "kind": "acceptance-suite-block-A1", "min_level": "E1", "source": "repo:golden-path/demo", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 2, "expected_status": 200, "suite_test": "A1" }
+    },
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-3-max-attempts-3",
+      "kind": "MACHINE",
+      "assertion": "Retry count obeys the frozen max_attempts = 3 policy.",
+      "verifier_ref": "verifier:gp3-functional",
+      "evidence_requirements": [
+        { "kind": "acceptance-suite-block-A2", "min_level": "E1", "source": "repo:golden-path/demo", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 3, "max_attempts": 3, "suite_test": "A2" }
+    },
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-4-non429-no-retry-path",
+      "kind": "MACHINE",
+      "assertion": "Non-429 non-success responses do not enter the 429 retry path.",
+      "verifier_ref": "verifier:gp3-functional",
+      "evidence_requirements": [
+        { "kind": "acceptance-suite-block-A3", "min_level": "E1", "source": "repo:golden-path/demo", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 4, "attempts_on_non429": 1, "suite_test": "A3" }
+    },
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-5-existing-tests-pass",
+      "kind": "MACHINE",
+      "assertion": "Existing package tests pass.",
+      "verifier_ref": "verifier:gp3-functional",
+      "evidence_requirements": [
+        { "kind": "existing-test-suite", "min_level": "E1", "source": "repo:golden-path/demo", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 5, "exit_code": 0 }
+    },
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-6-build-typecheck",
+      "kind": "MACHINE",
+      "assertion": "Build/typecheck passes.",
+      "verifier_ref": "verifier:gp3-functional",
+      "evidence_requirements": [
+        { "kind": "build-output", "min_level": "E1", "source": "runner:gp-execution", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 6, "command": "tsc -p tsconfig.json --noEmit", "exit_code": 0 }
+    },
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-7-allowed-paths-only",
+      "kind": "MACHINE",
+      "assertion": "Agent patch changes only allowed implementation paths.",
+      "verifier_ref": "verifier:gp3-policy",
+      "evidence_requirements": [
+        { "kind": "policy-boundary-report", "min_level": "E2", "source": "runner:gp-execution", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 7, "allowed_paths": ["packages/golden-path/demo/src/**"], "forbidden_paths": ["packages/golden-path/demo/test/**", "packages/golden-path/demo/package.json", "packages/golden-path/demo/tsconfig.json", "packages/golden-path/fixtures/**"] }
+    },
+    {
+      "schema_version": "criterion.v1",
+      "criterion_id": "crit-GP0-8-suite-unchanged",
+      "kind": "MACHINE",
+      "assertion": "The acceptance suite itself is unchanged from the frozen base.",
+      "verifier_ref": "verifier:gp3-policy",
+      "evidence_requirements": [
+        { "kind": "suite-sha256-check", "min_level": "E2", "source": "repo:golden-path/demo", "required": true }
+      ],
+      "threshold": { "gp0_criterion": 8, "acceptance_suite_sha256": "sha256:2357f37db27841204960d44c3a14b5e4976539a6cb9c3d5a805d21e9663db31c" }
+    }
+  ],
+  "constraints": [
+    {
+      "constraint_id": "cons-GP0-scope",
+      "kind": "SCOPE",
+      "statement": "No changes outside the frozen allowed_paths; the frozen acceptance suite, package config, and fixtures are forbidden.",
+      "max_risk_level": "L1"
+    },
+    {
+      "constraint_id": "cons-GP0-time",
+      "kind": "TIME",
+      "statement": "Deadline 2026-10-31T23:59:59Z; execution attempts capped at the frozen max_attempts=3.",
+      "max_risk_level": "L1"
+    }
+  ],
+  "budget": {
+    "asset": { "network": "solana-devnet", "asset": "USDC-test", "decimals": 6 },
+    "total": "10",
+    "execution_cap": "0"
+  },
+  "deadline": "2026-10-31T23:59:59.000Z",
+  "verification_policy_ref": {
+    "uri": "ipfs://gp-001-verification-policy-2of2-v1",
+    "hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d"
+  },
+  "settlement_policy_ref": {
+    "uri": "ipfs://gp-001-settlement-hold-v1",
+    "hash": "sha256:78f775b8d711b734648baa08dd91553ad41f69f96296df9bb879f1da665b64fe"
+  },
+  "created_at": "2026-09-22T23:56:59.000Z"
+}

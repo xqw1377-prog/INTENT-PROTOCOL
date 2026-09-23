@@ -1,0 +1,91 @@
+{
+  "$comment": "GP-ID-R1 V2 provenance: all IntentContractV1/MilestoneV1 fields frozen (UNRESOLVED_FIELDS = []). materialization_timing = POST_GP2_REMEDIATION disclosed everywhere.",
+  "materialization_timing": "POST_GP2_REMEDIATION",
+  "commander_freeze_source": "Issue #33 V2 freeze table + addendum (independently recomputed intent_id + settlement HOLD hash)",
+  "intent_contract_v1": {
+    "intent_id": {
+      "value": "62b2ed5d-d984-4591-8630-98213d2d1d20",
+      "source": "Commander frozen; derived via deriveUuid('gp001:intent:' + task_freeze_hash), independently recomputed and matching"
+    },
+    "owner_subject": {
+      "value": "operator:gp-001",
+      "source": "Commander frozen"
+    },
+    "goal.domain": {
+      "value": "software-delivery",
+      "source": "Commander frozen"
+    },
+    "goal.statement/target_state": {
+      "source": "GP0 contract docs/GOLDEN-PATH-V1.md §1 acceptance criteria 1-4 (verbatim) + gp-001-task.json"
+    },
+    "success_criteria": {
+      "count": 8,
+      "source": "GP0 contract §1 'At minimum' list items 1-8, one CriterionV1 each; kind/verifier_ref/evidence_requirements/threshold all Commander-frozen. Functional verifier owns criteria 1-6; Policy verifier owns criteria 7-8."
+    },
+    "constraints": {
+      "source": "gp-001-task.json forbidden_paths + max_attempts + deadline; kinds SCOPE/TIME Commander-frozen; risk L1."
+    },
+    "budget.asset": {
+      "source": "gp-001-task.json asset triple (solana-devnet/USDC-test/6)"
+    },
+    "budget.total": {
+      "value": "10",
+      "source": "gp-001-task.json reward"
+    },
+    "budget.execution_cap": {
+      "value": "0",
+      "source": "Commander frozen (no execution overhead authorized)"
+    },
+    "deadline": {
+      "source": "gp-001-task.json deadline 2026-10-31T23:59:59Z → TimestampSchema .000Z"
+    },
+    "verification_policy_ref.hash": {
+      "value": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d",
+      "source": "PASSED GP2 bundle.policy_hash (frozen anchor at main@3fbef70)"
+    },
+    "verification_policy_ref.uri": {
+      "value": "ipfs://gp-001-verification-policy-2of2-v1",
+      "source": "Commander frozen"
+    },
+    "settlement_policy_ref": {
+      "hash": "sha256:78f775b8d711b734648baa08dd91553ad41f69f96296df9bb879f1da665b64fe",
+      "uri": "ipfs://gp-001-settlement-hold-v1",
+      "source": "Commander frozen HOLD policy; SHA-256 independently recomputed from policies/gp-001-settlement-hold-v1.json (IPC-JSON-1 canonical bytes match)"
+    },
+    "created_at": {
+      "value": "2026-09-22T23:56:59.000Z",
+      "source": "Commander frozen (Issue #33 remediation creation time — NOT a fabricated pre-GP2 timestamp)"
+    }
+  },
+  "milestone_v1": {
+    "milestone_id": {
+      "source": "PASSED GP2 bundle.milestone_id fb024dfb-66a4-4ffb-899a-96a04f7db211"
+    },
+    "intent_hash": {
+      "source": "== sealed IntentContractV1.content_hash"
+    },
+    "milestone_revision": {
+      "source": "PASSED GP2 bundle.milestone_revision = 1"
+    },
+    "criterion_ids": {
+      "source": "== intent success_criteria criterion_ids (8, same order)"
+    },
+    "verification_policy_hash": {
+      "source": "PASSED GP2 bundle.policy_hash"
+    },
+    "settlement_policy_hash": {
+      "source": "== intent.settlement_policy_ref.hash (HOLD policy)"
+    },
+    "allocation": {
+      "source": "gp-001-task.json asset triple + reward"
+    }
+  },
+  "UNRESOLVED_FIELDS": [],
+  "committed_files": {
+    "intent.json_sha256": "sha256:20ed3df09288c4574907e20f47c982a967c78b0e191bf3a4575ede2a9e9dede6",
+    "milestone.json_sha256": "sha256:69176b20fcf96ae18331cc2832f1e76d94103c1c54796c44676b1dc4f36d5487",
+    "gp-001-settlement-hold-v1.json_sha256": "sha256:dc19d63adba3be0480d897d93dad2f99b850b7a2406874556a3b317fb45ae8a0",
+    "sealed_intent_content_hash": "sha256:368c26eb7f57bc80229e6219fafd52811db2349bdfbabd7c4aa7dd49201200f9",
+    "sealed_milestone_content_hash": "sha256:967d8ef336c4418473d52eaa7230718da462c14e259a27f479b3edc30d324176"
+  }
+}
