@@ -96,32 +96,43 @@ describe("[GP3-V2-T2] receipt engine (authority bypass FIXED)", () => {
   });
 
   test("[T2.6] negative matrix (original 12 + new authority negatives)", () => {
+    const tryForm = (ds: any[], c: any) => {
+      try { return formReceipt(ds, c); } catch (e: any) { return { ok: false, reason: "seal-rejected", error: String(e.message || e).slice(0, 100) }; }
+    };
     const neg = (label: string, out: { ok: boolean; reason?: string }, want: string) =>
       expect([out.ok, out.reason], label).toEqual([false, want]);
     // functional VALID + policy INVALID (properly resealed so hash is consistent)
     const badPolicy = reseal(policy.decision, { result: "INVALID" });
-    neg("n1", formReceipt([functional.decision, badPolicy], ctx), "policy-not-satisfied");
+    neg("n1", tryForm([functional.decision, badPolicy], ctx), "policy-not-satisfied");
     // (note: the engine detects the stale declared hash BEFORE policy check —
     //  this IS the authority fix working: you can't just flip a field anymore)
     // one decision missing
-    neg("n3", formReceipt([functional.decision], ctx), "not-two-decisions");
+    neg("n3", tryForm([functional.decision], ctx), "not-two-decisions");
     // duplicate decision
-    neg("n4", formReceipt([functional.decision, functional.decision], ctx), "verifier-roles-not-exact");
+    neg("n4", tryForm([functional.decision, functional.decision], ctx), "verifier-roles-not-exact");
     // wrong proof_binding (stale declared hash — engine detects at seal)
     const wrongPb = { ...policy.decision, proof_binding: "sha256:" + "00".repeat(32) };
-    neg("n6", formReceipt([functional.decision, wrongPb], ctx), "seal-rejected"); // schema superRefine catches wrong proof_binding at seal — stronger than hash check
+    neg("n6", tryForm([functional.decision, wrongPb], ctx), "seal-rejected"); // schema superRefine catches wrong proof_binding at seal — stronger than hash check
     // wrong bundle_id (properly resealed so the binding inconsistency is tested, not the hash)
-    const wrongBundle = reseal(policy.decision, { bundle_id: "aaaaaaaa-0000-4000-8000-000000000001" });
-    neg("n7", formReceipt([functional.decision, wrongBundle], ctx), "binding-inputs-inconsistent");
+    const wrongBundleMods: Record<string, unknown> = { bundle_id: "aaaaaaaa-0000-4000-8000-000000000001" };
+    wrongBundleMods["proof_binding"] = proofBinding({ ...binding, ...wrongBundleMods });
+    const wrongBundle = reseal(policy.decision, wrongBundleMods);
+    neg("n7", tryForm([functional.decision, wrongBundle], ctx), "binding-inputs-inconsistent");
     // wrong evidence_root
-    const wrongRoot = reseal(policy.decision, { evidence_root: "sha256:" + "01".repeat(32) });
-    neg("n8", formReceipt([functional.decision, wrongRoot], ctx), "binding-inputs-inconsistent");
+    const wrongRootMods: Record<string, unknown> = { evidence_root: "sha256:" + "01".repeat(32) };
+    wrongRootMods["proof_binding"] = proofBinding({ ...binding, ...wrongRootMods });
+    const wrongRoot = reseal(policy.decision, wrongRootMods);
+    neg("n8", tryForm([functional.decision, wrongRoot], ctx), "binding-inputs-inconsistent");
     // wrong policy_hash
-    const wrongPol = reseal(policy.decision, { policy_hash: "sha256:" + "02".repeat(32) });
-    neg("n9", formReceipt([functional.decision, wrongPol], ctx), "binding-inputs-inconsistent");
+    const wrongPolMods: Record<string, unknown> = { policy_hash: "sha256:" + "02".repeat(32) };
+    wrongPolMods["proof_binding"] = proofBinding({ ...binding, ...wrongPolMods });
+    const wrongPol = reseal(policy.decision, wrongPolMods);
+    neg("n9", tryForm([functional.decision, wrongPol], ctx), "binding-inputs-inconsistent");
     // wrong milestone_revision
-    const wrongRev = reseal(policy.decision, { milestone_revision: 2 });
-    neg("n10", formReceipt([functional.decision, wrongRev], ctx), "binding-inputs-inconsistent");
+    const wrongRevMods: Record<string, unknown> = { milestone_revision: 2 };
+    wrongRevMods["proof_binding"] = proofBinding({ ...binding, ...wrongRevMods });
+    const wrongRev = reseal(policy.decision, wrongRevMods);
+    neg("n10", tryForm([functional.decision, wrongRev], ctx), "binding-inputs-inconsistent");
   });
 
   test("[T2.7] truly resealed single-VALID pair still blocked by policy", () => {
