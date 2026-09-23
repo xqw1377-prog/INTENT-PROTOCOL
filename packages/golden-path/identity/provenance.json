@@ -1,0 +1,46 @@
+{
+  "$comment": "GP-ID-R1 V3 provenance. Every field maps to FROZEN_SOURCE_DERIVATION or COMMANDER_FREEZE_POST_GP2. UNRESOLVED_FIELDS = []. materialization_timing = POST_GP2_REMEDIATION.",
+  "materialization_timing": "POST_GP2_REMEDIATION",
+  "commander_freeze_source": "Issue #33 comment 3 (CriterionV1 Exact Freeze Table) + V3 review comment 2 (B1-B7)",
+  "intent_contract_v1": {
+    "schema_version": { "category": "FROZEN_SOURCE_DERIVATION", "source": "G1 frozen schema literal" },
+    "intent_id": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 addendum: deriveUuid('gp001:intent:' + task_freeze_hash) = 62b2ed5d-d984-4591-8630-98213d2d1d20" },
+    "version": { "category": "FROZEN_SOURCE_DERIVATION", "source": "GP-001 is single-version (no amendment in frozen task record); v1 requires no parent_hash" },
+    "owner_subject": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3: operator:gp-001" },
+    "goal.statement": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3 review B2: exact text" },
+    "goal.target_state": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3 review B2: exact text" },
+    "goal.domain": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3: software-delivery" },
+    "success_criteria[0-7]": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 comment 3: CriterionV1 Exact Freeze Table (all 8: criterion_id, assertion, verifier_ref, evidence_requirements.kind/min_level/source/required, threshold — exact field-by-field)" },
+    "constraints[0-2]": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3 review B4: exact 3 IDs + kinds (SCOPE/OTHER/TIME), no max_risk_level; statements transcribed from GP-001 task frozen facts" },
+    "budget.asset": { "category": "FROZEN_SOURCE_DERIVATION", "source": "gp-001-task.json asset triple (solana-devnet / USDC-test / 6)" },
+    "budget.total": { "category": "FROZEN_SOURCE_DERIVATION", "source": "gp-001-task.json reward = 10" },
+    "budget.execution_cap": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3: 0" },
+    "deadline": { "category": "FROZEN_SOURCE_DERIVATION", "source": "gp-001-task.json deadline → TimestampSchema .000Z" },
+    "verification_policy_ref.uri": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3 review B2: urn:sha256:b8933eb4..." },
+    "verification_policy_ref.hash": { "category": "FROZEN_SOURCE_DERIVATION", "source": "PASSED GP2 bundle.policy_hash" },
+    "settlement_policy_ref.uri": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3 review B2: urn:sha256:78f775b8..." },
+    "settlement_policy_ref.hash": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 addendum: HOLD policy canonical hash" },
+    "created_at": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "Issue #33 V3: 2026-09-22T23:56:59.000Z" },
+    "content_hash": { "category": "FROZEN_SOURCE_DERIVATION", "source": "seal(IntentContractSchema, intent) recomputation" }
+  },
+  "milestone_v1": {
+    "milestone_id": { "category": "FROZEN_SOURCE_DERIVATION", "source": "PASSED GP2 bundle.milestone_id" },
+    "intent_hash": { "category": "FROZEN_SOURCE_DERIVATION", "source": "== sealed IntentContractV1.content_hash" },
+    "milestone_revision": { "category": "FROZEN_SOURCE_DERIVATION", "source": "PASSED GP2 bundle.milestone_revision = 1" },
+    "criterion_ids": { "category": "FROZEN_SOURCE_DERIVATION", "source": "== intent success_criteria criterion_ids (8, canonical order)" },
+    "verification_policy_hash": { "category": "FROZEN_SOURCE_DERIVATION", "source": "PASSED GP2 bundle.policy_hash" },
+    "settlement_policy_hash": { "category": "COMMANDER_FREEZE_POST_GP2", "source": "== intent.settlement_policy_ref.hash (HOLD)" },
+    "allocation": { "category": "FROZEN_SOURCE_DERIVATION", "source": "gp-001-task.json asset + reward" },
+    "content_hash": { "category": "FROZEN_SOURCE_DERIVATION", "source": "seal(MilestoneSchema, milestone) recomputation" }
+  },
+  "settlement_hold_policy": {
+    "file": "policies/gp-001-settlement-hold-v1.json",
+    "canonical_sha256": "sha256:78f775b8d711b734648baa08dd91553ad41f69f96296df9bb879f1da665b64fe",
+    "category": "COMMANDER_FREEZE_POST_GP2"
+  },
+  "sealed_hashes": {
+    "intent_content_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+    "milestone_content_hash": "sha256:89c2fc53393781b20403fe13d5cf4847fde85b1636935c09339a4487e13d898c"
+  },
+  "UNRESOLVED_FIELDS": []
+}
