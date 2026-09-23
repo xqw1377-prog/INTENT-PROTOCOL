@@ -1,0 +1,63 @@
+{
+  "$comment": "GP-ID-R1 provenance map: every IntentContractV1 / MilestoneV1 field traced to its frozen source, or explicitly listed as UNRESOLVED. materialization_timing = POST_GP2_REMEDIATION is disclosed everywhere; nothing pretends these objects existed before GP2 execution.",
+  "materialization_timing": "POST_GP2_REMEDIATION",
+  "intent_contract_v1": {
+    "schema_version": { "value": "intent.v1", "source": "G1 frozen schema literal (TRUST-CHAIN.md @ e28a22e)" },
+    "intent_id": { "value": "d3dce9be-1111-4222-8333-444455556666", "source": "UNRESOLVED — deterministic UUID derived from task_freeze_hash (convention: deriveUuid('gp001:intent:' + task_freeze_hash)). Commander must freeze this derivation or assign a specific UUID." },
+    "version": { "value": 1, "source": "GP-001 is a single-version intent (no amendment history exists in the frozen task record). Version 1 requires no parent_hash." },
+    "owner_subject": { "value": "user:commander", "source": "UNRESOLVED — the frozen task record names no bounty sponsor. GP0 contract §11 says the Commander owns scope; this must be Commander-frozen." },
+    "goal": {
+      "statement": { "value": "Fix the GP-001 seeded retryFetch bug: on HTTP 429, honor Retry-After seconds as an exact millisecond delay before retrying.", "source": "Frozen GP-001 task spec (docs/GOLDEN-PATH-V1.md §1 + gp-001-task.json acceptance criteria 1-4, transcribed verbatim)." },
+      "target_state": { "value": "The frozen acceptance suite passes on the patched code with build/typecheck green.", "source": "gp-001-task.json acceptance_suite_path + acceptance criteria 5-6." },
+      "domain": { "value": "software-delivery", "source": "UNRESOLVED — domain label not present in any frozen source. Commander must freeze." }
+    },
+    "success_criteria": {
+      "source": "Derived from gp-001-task.json acceptance criteria 1-8 + acceptance_suite_sha256. Each criterion maps to one frozen acceptance-suite test block (A1-A4) or a runner-enforced rule (A5: allowed-paths, A6: build). Criterion semantics follow the G1 CriterionV1 wire exactly.",
+      "criterion_ids": ["crit-A1-retry-after-2000ms", "crit-A2-max-attempts-3", "crit-A3-non429-no-retry", "crit-A4-immediate-200", "crit-A5-allowed-paths-only", "crit-A6-build-typecheck"]
+    },
+    "constraints": {
+      "source": "Derived from gp-001-task.json forbidden_paths + max_attempts + deadline. Each constraint maps to a frozen fact.",
+      "constraint_ids": ["cons-forbidden-paths", "cons-max-attempts-3", "cons-deadline"]
+    },
+    "budget": {
+      "asset": { "source": "gp-001-task.json asset triple (solana-devnet / USDC-test / 6, exact copy)." },
+      "total": { "value": "10", "source": "gp-001-task.json reward = 10." },
+      "execution_cap": { "value": "10", "source": "UNRESOLVED — no frozen source distinguishes execution_cap from total. Set equal to total (zero execution overhead); Commander must confirm or adjust." }
+    },
+    "deadline": { "source": "gp-001-task.json deadline 2026-10-31T23:59:59Z, converted to TimestampSchema format 2026-10-31T23:59:59.000Z." },
+    "verification_policy_ref": { "source": "UNRESOLVED — HashRefSchema requires {uri, hash}. The GP2 bundle policy_hash (sha256:b8933eb4...) is derivable, but the URI (where the 2-of-2 policy document lives) has no frozen source. Commander must provide the policy document URI." },
+    "settlement_policy_ref": { "source": "UNRESOLVED — HashRefSchema requires {uri, hash}. No settlement policy document exists yet (GP4 = HOLD). Commander must provide or defer." },
+    "parent_hash": { "source": "absent — version 1 requires no parent_hash (G1 schema rule)." },
+    "change_reason": { "source": "absent — version 1 requires no change_reason." },
+    "created_at": { "source": "UNRESOLVED — no frozen timestamp for intent creation. The GP-001 task freeze was committed at af08fdfa (2026-09-21). The honest value is the task-freeze commit's author date, but it must be Commander-frozen, not silently assigned." }
+  },
+  "milestone_v1": {
+    "schema_version": { "value": "milestone.v1", "source": "G1 frozen schema literal" },
+    "milestone_id": { "value": "fb024dfb-66a4-4ffb-899a-96a04f7db211", "source": "PASSED GP2 bundle.milestone_id (frozen anchor at 3fbef70, object-database bytes). Milestone MUST use the same UUID." },
+    "intent_hash": { "source": "MUST equal the sealed IntentContractV1.content_hash (check #5). Not derivable until the Intent is sealed." },
+    "milestone_revision": { "value": 1, "source": "PASSED GP2 bundle.milestone_revision (frozen anchor)." },
+    "criterion_ids": { "source": "MUST match the Intent's success_criteria criterion_ids (same UUIDs, same canonical order)." },
+    "verification_policy_hash": { "source": "MUST equal PASSED GP2 bundle.policy_hash sha256:b8933eb4... (check #8)." },
+    "settlement_policy_hash": { "source": "UNRESOLVED — no settlement policy exists (GP4 = HOLD). If the Intent's settlement_policy_ref.hash is Commander-frozen, the Milestone must reference the same value. If deferred, this field blocks materialization." },
+    "allocation": {
+      "asset": { "source": "gp-001-task.json asset triple (exact copy)." },
+      "amount": { "value": "10", "source": "gp-001-task.json reward = 10 (check #9)." }
+    }
+  },
+  "UNRESOLVED_FIELDS": [
+    "intent.owner_subject — no frozen bounty-sponsor identity",
+    "intent.goal.domain — no frozen domain label",
+    "intent.budget.execution_cap — no frozen split from total",
+    "intent.verification_policy_ref.uri — no frozen policy-document URI",
+    "intent.settlement_policy_ref.{uri,hash} — no settlement policy exists (GP4 HOLD)",
+    "intent.created_at — no frozen intent-creation timestamp",
+    "intent.intent_id — derivation convention proposed but needs Commander freeze",
+    "milestone.settlement_policy_hash — same blocker as intent.settlement_policy_ref.hash"
+  ],
+  "frozen_sources_used": [
+    "packages/golden-path/fixtures/gp-001-task.json (immutable, task_freeze_hash sha256:95ca98eb...)",
+    "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/bundle.json (PASSED GP2 anchor at main@3fbef70, object-database bytes)",
+    "docs/GOLDEN-PATH-V1.md @ a1d9749 §1 acceptance criteria + §2 frozen asset",
+    "packages/protocol-schema/src (LIVE G1 wire, subtree bb14d937...)"
+  ]
+}
