@@ -149,14 +149,8 @@ describe("[GP-ID-R1-V3] identity materialization", () => {
     }
   });
 
-  test("[V3.12] B5: test execution leaves the worktree clean (READ-ONLY verification)", () => {
-    const status = spawnSync("git", ["status", "--porcelain"], { cwd: repoRoot, encoding: "utf8" });
-    const dirty = (status.stdout || "").split("\n").filter((l) => l.trim().length > 0);
-    // this test itself is running; vitest may create .vite cache — filter those
-    // B5: tests must not MUTATE already-committed files. New untracked files
-    // that are part of this candidate (identity/**) are expected; anything
-    // else — especially ` M ` modifications to committed GP2 surfaces — fails.
-    const mutations = dirty.filter((l) => l.startsWith(" M ") || l.startsWith("M  "));
-    expect(mutations, `no already-committed file may be modified: ${mutations.join("; ")}`).toEqual([]);
+  test("[V3.12] B5: test execution leaves the entire worktree clean", () => {
+    const status = gitOut(["status", "--porcelain"]);
+    expect(status).toBe("");
   });
 });
