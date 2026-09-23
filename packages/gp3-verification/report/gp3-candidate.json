@@ -1,0 +1,39 @@
+{
+  "report_kind": "gp3-implementation-candidate",
+  "generated_at": "2026-09-22T16:49:06.066Z",
+  "base_main_sha": "3fbef701165a86d3ad6fd95af695b78ebe74fee7",
+  "evidence_source": "3fbef701165a86d3ad6fd95af695b78ebe74fee7",
+  "verified_run_id": "9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
+  "binding": {
+    "intent_hash": "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5",
+    "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+    "milestone_revision": 1,
+    "bundle_id": "f5290727-3457-41d1-8eb3-2190e0ab6103",
+    "evidence_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+    "policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d"
+  },
+  "proof_binding": "sha256:9162f31a0c8bf1cbdac777edc51cfb4b88f8ecf33460b7585d01c61817f7ceb1",
+  "functional": {
+    "result": "VALID",
+    "content_hash": "sha256:4a57d05c20a720142f09629070c25b94d25278d0ef8b6e28b7cf0470992dbbe7",
+    "checks": 9,
+    "failed": 0
+  },
+  "policy": {
+    "result": "VALID",
+    "content_hash": "sha256:81d6ac3b71deaffded59bc28025e6bde1575f0be27c159f7051b1b898d4374fb",
+    "checks": 12,
+    "failed": 0
+  },
+  "receipt": {
+    "formed": true,
+    "receipt_hash": "sha256:b28137da8dff8aa75ca78102413d16a2770c8955dea3e0b7111c41b32a475292",
+    "decision_hashes": [
+      "sha256:4a57d05c20a720142f09629070c25b94d25278d0ef8b6e28b7cf0470992dbbe7",
+      "sha256:81d6ac3b71deaffded59bc28025e6bde1575f0be27c159f7051b1b898d4374fb"
+    ]
+  },
+  "negative_matrix_count": 13,
+  "gp4_plus_implemented": false,
+  "declaration": "CANDIDATE ONLY — not a PASS claim. No settlement/payment/devnet capability exists in this package (scope self-scan)."
+}

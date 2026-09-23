@@ -1,0 +1,36 @@
+{
+  "report_kind": "gp3-v2-implementation-candidate",
+  "generated_at": "2026-09-23T13:26:54.961Z",
+  "identity_source": "5a72525413431dc04f039df9cf01842083bb8db0",
+  "evidence_source": "3fbef701165a86d3ad6fd95af695b78ebe74fee7",
+  "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+  "binding": {
+    "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+    "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+    "milestone_revision": 1,
+    "bundle_id": "f5290727-3457-41d1-8eb3-2190e0ab6103",
+    "evidence_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+    "policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d"
+  },
+  "proof_binding": "sha256:c64ecfa1757abde1edd34e780f276ef26e1a3508d6351478fc9e0df633727fc4",
+  "functional": {
+    "result": "VALID",
+    "content_hash": "sha256:dd07594fe380036fc457c5b713300fd9d47305037ab116817339ed347e710ac3"
+  },
+  "policy": {
+    "result": "VALID",
+    "content_hash": "sha256:6dd9a1ff8de3860da8daf3c2f41f98a41252c1490033ab20bc8e82d4cb05ce69"
+  },
+  "receipt": {
+    "formed": true,
+    "receipt_hash": "sha256:55aa5f11a3db7e0b290f010f21ddc1e3ef0a0001abdd535a1af60bcf18f28e3e",
+    "decision_hashes": [
+      "sha256:6dd9a1ff8de3860da8daf3c2f41f98a41252c1490033ab20bc8e82d4cb05ce69",
+      "sha256:dd07594fe380036fc457c5b713300fd9d47305037ab116817339ed347e710ac3"
+    ]
+  },
+  "authority_bypass_fixed": true,
+  "verifier_roles_exact": true,
+  "gp4_plus_implemented": false,
+  "declaration": "CANDIDATE ONLY — not a PASS claim."
+}
