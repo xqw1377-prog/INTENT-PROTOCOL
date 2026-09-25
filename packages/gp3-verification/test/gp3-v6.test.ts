@@ -41,7 +41,7 @@ try {
   committedNegatives = readdirSync(negativesDir).filter((f) => f.endsWith(".json")).map((f) => readJson(negativesDir, f));
 } catch { /* emit-mode first run */ }
 
-const tryForm = (ds: any[], c: any) => { try { return formReceipt(ds, c); } catch { return { ok: false, reason: "seal-rejected" as const }; } };
+const tryForm = (ds: any[], c: any) => { try { return formReceipt(ds, c); } catch (e: any) { if (process.env.GP3_DEBUG) console.error("tryForm CAUGHT:", String(e.message ?? e).slice(0, 300)); return { ok: false, reason: "seal-rejected" as const }; } };
 const neg = (l: string, out: { ok: boolean; reason?: string }, want: string) => expect([out.ok, out.reason], l).toEqual([false, want]);
 
 // F3: EXACT gate map — each negative fixture MUST produce this specific rejection
@@ -52,8 +52,8 @@ const EXPECTED_GATES: Record<string, string> = {
   "wrong-policy-hash": "binding-inputs-inconsistent",
   "wrong-milestone-revision": "binding-inputs-inconsistent",
   "second-functional": "verifier-roles-not-exact",
-  "attacker-verifier": "seal-rejected", // no registered key for unknown verifier
-  "copied-signature": "seal-rejected", // signature is for a different hash
+  "attacker-verifier": "signature-invalid", // no registered key for unknown verifier
+  "copied-signature": "signature-invalid", // signature is for a different hash
 };
 
 function buildSignedNegative(base: Record<string, any>, mods: Record<string, any>, role: string): Record<string, any> {
@@ -131,7 +131,8 @@ describe("[GP3-V6]", () => {
       const expectedGate = EXPECTED_GATES[name];
       expect(expectedGate, `${name}: must have an expected gate`).toBeDefined();
       const partner = fixture._pair_with === "functional" ? committedFunctional : committedPolicy;
-      const result = tryForm([committedFunctional, committedPolicy].includes(partner) && fixture._pair_with === "functional" ? [partner, fixture] : [fixture, partner], ctx);
+      const { _fixture_name: _fn, _pair_with: _pw, ...cleanFixture } = fixture; void _fn; void _pw;
+      const result = tryForm(fixture._pair_with === "functional" ? [partner, cleanFixture] : [cleanFixture, partner], ctx);
       expect(result.ok, `${name}: must be rejected`).toBe(false);
       expect(result.reason, `${name}: must hit exactly "${expectedGate}"`).toBe(expectedGate);
     }
