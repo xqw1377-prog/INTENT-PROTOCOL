@@ -7,12 +7,12 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync, readFileSyn
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { IntentContractSchema, MilestoneSchema, EvidenceBundleSchema, seal, merkleRoot } from "@intent/protocol-schema";
+import { IntentContractSchema, MilestoneSchema, EvidenceBundleSchema, seal, merkleRoot, canonicalize } from "@intent/protocol-schema";
 import type { Hash } from "@intent/protocol-schema";
 import { computeDecision, sha256Hex, repoRoot, type Check } from "./compute.js";
 
 const parseCounts = (j: string) => { const s = j.indexOf("{"); if (s < 0) return { passed: 0, failed: 0 }; try { const o = JSON.parse(j.slice(s)); return { passed: o.numPassedTests ?? 0, failed: o.numFailedTests ?? 0 }; } catch { return { passed: 0, failed: 0 }; } };
-const run = (cmd: string[], cwd: string) => { const r = spawnSync(cmd[0]!, cmd.slice(1), { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); return { ok: (r.status ?? -1) === 0, stdout: r.stdout ?? "" }; };
+const run = (cmd: string[], cwd: string) => { const r = spawnSync(cmd[0]!, cmd.slice(1), { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, shell: process.platform === "win32" }); return { ok: (r.status ?? -1) === 0, stdout: r.stdout ?? "" }; };
 export const diffPaths = (d: string) => [...d.matchAll(/^diff --git a\/(\S+) b\/(\S+)$/gm)].map((m) => m[2]!);
 const glob = (g: string, c: string) => new RegExp("^" + g.split("/").map((s) => s === "**" ? "(?:.*)" : s.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*")).join("/") + "/?$").test(c);
 
@@ -24,7 +24,7 @@ export function computeFunctional(ev: any, binding: any) {
   mkdirSync(workdir, { recursive: true });
   try {
     // materialize exact base
-    const archive = execFileSync("git", ["archive", ev.task.base_commit_sha], { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024 });
+    const archive = execFileSync("git", ["archive", ev.task.base_commit_sha], { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024, shell: process.platform === "win32" });
     writeFileSync(path.join(tmpRoot, "a.tar"), archive);
     execFileSync("tar", ["-xf", "../a.tar"], { cwd: workdir });
     execFileSync("git", ["init", "--quiet"], { cwd: workdir });
@@ -33,13 +33,21 @@ export function computeFunctional(ev: any, binding: any) {
 
     // B2: clean install from frozen lockfile (NOT symlink)
     // Use npm ci in the isolated dir to prove the lockfile works
-    // B2: attempt clean install from the frozen lockfile (informational —
-    // the authoritative proof runs in CI where network is available)
-    const install = spawnSync("npm", ["ci", "--no-audit", "--no-fund"], { cwd: workdir, encoding: "utf8", timeout: 120_000, maxBuffer: 64 * 1024 * 1024 });
+    // B2/V5: REAL clean install from the frozen lockfile — no fallback.
+    // npm ci fails => F-install-from-frozen-lock = FAIL => Functional != VALID.
+    const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+    const install = spawnSync(npmCmd, ["ci", "--no-audit", "--no-fund", "--ignore-scripts"], { cwd: workdir, encoding: "utf8", timeout: 180_000, maxBuffer: 64 * 1024 * 1024, shell: process.platform === "win32" });
     const installOk = (install.status ?? -1) === 0;
-    checks.push({ id: "F-install-from-frozen-lock", pass: true, detail: `install_exit=${install.status ?? "timeout"} (CI-verified; local fallback=repo-pinned)` });
+    checks.push({ id: "F-install-from-frozen-lock", pass: installOk, detail: "exit=" + String(install.status) + " err=" + String(install.stderr ?? "").slice(0, 300) });
     if (!installOk) {
-      symlinkSync(path.join(repoRoot, "node_modules"), path.join(workdir, "node_modules"), "junction");
+      rmSync(tmpRoot, { recursive: true, force: true });
+      return computeDecision({
+        verifierId: "verifier:gp3-functional",
+        digestSeed: "gp3:v5:functional",
+        binding, result: "INVALID",
+        checks: [ ...checks ],
+        seed: `gp3:v5:functional:${binding.bundle_id}:install-fail`,
+      });
     }
 
     const vitest = ["node", "node_modules/vitest/vitest.mjs", "run", "--root", ".", "packages/golden-path/demo/test/acceptance.test.ts", "--reporter=json"];
@@ -88,25 +96,50 @@ export function computePolicy(ev: any, binding: any, identity: any) {
   const checks: Check[] = [];
   const task = ev.task;
 
-  // identity re-seal
+  // B3/V5: HARD GATES on frozen identity + HOLD (all from frozen identity source SHA, NOT working tree)
+  const identitySha = "5a72525413431dc04f039df9cf01842083bb8db0";
+  const showFrozen = (rel: string) => execFileSync("git", ["show", `${identitySha}:${rel}`], { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024, shell: process.platform === "win32" });
+
+  // intent re-seal
   const iBody = { ...identity.intent }; delete iBody.content_hash; delete iBody.signature;
   const ri = seal(IntentContractSchema as never, iBody) as any;
   checks.push({ id: "P-intent-reseal", pass: String(ri.content_hash) === String(identity.intent.content_hash) });
+  checks.push({ id: "P-intent-hash-exact", pass: String(identity.intent.content_hash) === "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e" });
+
+  // milestone re-seal + hard gates
   const mBody = { ...identity.milestone }; delete mBody.content_hash; delete mBody.signature;
   const rm = seal(MilestoneSchema as never, mBody) as any;
   checks.push({ id: "P-milestone-reseal", pass: String(rm.content_hash) === String(identity.milestone.content_hash) });
+  checks.push({ id: "P-milestone-hash-exact", pass: String(identity.milestone.content_hash) === "sha256:89c2fc53393781b20403fe13d5cf4847fde85b1636935c09339a4487e13d898c" });
+  checks.push({ id: "P-milestone-intent-link", pass: String(identity.milestone.intent_hash) === String(identity.intent.content_hash) });
+  checks.push({ id: "P-milestone-anchor", pass:
+    binding.milestone_id === String(ev.bundle.milestone_id) &&
+    binding.milestone_revision === Number(ev.bundle.milestone_revision) &&
+    String(identity.milestone.milestone_id) === String(ev.bundle.milestone_id) &&
+    Number(identity.milestone.milestone_revision) === Number(ev.bundle.milestone_revision) });
+  checks.push({ id: "P-milestone-policy-hash", pass:
+    String(identity.milestone.verification_policy_hash) === String(ev.bundle.policy_hash) &&
+    binding.policy_hash === String(identity.milestone.verification_policy_hash) });
 
-  // binding
-  checks.push({ id: "P-intent-hash-binding", pass: binding.intent_hash === String(identity.intent.content_hash) });
-  checks.push({ id: "P-milestone-anchor", pass: binding.milestone_id === String(ev.bundle.milestone_id) && binding.milestone_revision === Number(ev.bundle.milestone_revision) });
-
-  // HOLD policy
-  const hold = JSON.parse(readFileSync(path.join(repoRoot, "packages/golden-path/identity/policies/gp-001-settlement-hold-v1.json"), "utf8"));
+  // HOLD from frozen identity source (NOT working tree)
+  const holdBytes = showFrozen("packages/golden-path/identity/policies/gp-001-settlement-hold-v1.json");
+  const hold = JSON.parse(holdBytes.toString("utf8"));
+  const holdCanonical = canonicalize(hold);
+  const holdHash = sha256Hex(holdCanonical);
   checks.push({ id: "P-hold-policy", pass: hold.release_enabled === false && hold.gp4_gate === "PASS_REQUIRED" });
+  checks.push({ id: "P-hold-hash-exact", pass: holdHash === "sha256:78f775b8d711b734648baa08dd91553ad41f69f96296df9bb879f1da665b64fe" });
+  checks.push({ id: "P-milestone-hold-binding", pass: String(identity.milestone.settlement_policy_hash) === holdHash });
+  checks.push({ id: "P-intent-hold-binding", pass: String(identity.intent.settlement_policy_ref.hash) === holdHash });
+
+  // provenance from frozen identity source
+  const provBytes = showFrozen("packages/golden-path/identity/provenance.json");
+  const prov = JSON.parse(provBytes.toString("utf8"));
+  checks.push({ id: "P-provenance-timing", pass: prov.materialization_timing === "POST_GP2_REMEDIATION" });
+  checks.push({ id: "P-unresolved-empty", pass: Array.isArray(prov.UNRESOLVED_FIELDS) && prov.UNRESOLVED_FIELDS.length === 0 });
 
   // task truth (V2-restored)
   checks.push({ id: "P-task-freeze-hash", pass: ev.taskFreezeHash === "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5" });
-  const suiteBytes = execFileSync("git", ["show", `${ev.task.base_commit_sha}:${task.acceptance_suite_path}`], { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024 });
+  const suiteBytes = execFileSync("git", ["show", `${ev.task.base_commit_sha}:${task.acceptance_suite_path}`], { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024, shell: process.platform === "win32" });
   checks.push({ id: "P-suite-sha", pass: sha256Hex(suiteBytes) === task.acceptance_suite_sha256 });
   checks.push({ id: "P-max-attempts", pass: task.max_attempts === 3 });
 
