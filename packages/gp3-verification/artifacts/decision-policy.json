@@ -20,7 +20,7 @@
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-policy",
-    "key_id": "gp3-gp3-policy-ed25519-v1",
-    "value": "UN4cEroPMNzQNpQSQHA4dN0RPeRURWnOTji0IV9Ojlcqzh28jUolfcLlGIMy9iNmOusU6F/5AFQTjOKfNFWQAQ=="
+    "key_id": "gp3-gp3-policy-ed25519-v3",
+    "value": "XvxkIEJDe/9yfBah/QOu9FsBCcelTKSrdvZaRKP6NBlJp6gFcAB6bYqxtVATEgkkLJwYsPudjbe/BXN1xx38AQ=="
   }
 }

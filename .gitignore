@@ -10,3 +10,4 @@ out/
 cache/
 broadcast/
 packages/gp3-verification/keys/private/
+*.pem

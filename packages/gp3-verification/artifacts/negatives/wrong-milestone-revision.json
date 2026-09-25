@@ -20,8 +20,8 @@
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-policy",
-    "key_id": "gp3-gp3-policy-ed25519-v1",
-    "value": "EHy6HfcY4dSm7K2Ja+3/rG2N1Gmc0Dou5pXHa2S6smOMMoYVVsO318C1nVk93lz8fnfwpTnI4Gr2pVbMN0fECw=="
+    "key_id": "gp3-gp3-policy-ed25519-v3",
+    "value": "RQMXGlnmPIN2pGowXRp0KXkFhmD5JVTAGRqNr8AcgQ/G8rkAU22kIKK7evjHv34JnJWHe9VIsZUdq5YYvbBeCQ=="
   },
   "_fixture_name": "wrong-milestone-revision",
   "_pair_with": "functional"
