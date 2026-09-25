@@ -1,0 +1,10 @@
+{
+  "name": "@intent/gp3-verification",
+  "version": "0.2.0",
+  "private": true,
+  "description": "GP3 V3: Independent Verification + OutcomeReceipt with Ed25519 verifier authenticity, frozen key registry, clean-environment functional reproduction, and exact frozen identity binding.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/gp3-verification"
+  }
+}

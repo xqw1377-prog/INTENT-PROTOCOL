@@ -1,0 +1,23 @@
+{
+  "schema_version": "bundle.v1",
+  "bundle_id": "4d53aabf-9929-4ca8-832f-4413b2109f60",
+  "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+  "milestone_revision": 1,
+  "run_ids": [
+    "1c5949f3-673f-4949-a1e3-004a285c1eb2"
+  ],
+  "artifact_hashes": [
+    "sha256:bca4344f9b6011db260caa5f2ea82acf5564fe8baae5d6356594a2cd918b19a7",
+    "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
+    "sha256:92798b8d8e119ab8982d3b3c8e501a2e020d4c945223418cce743fa51c90331a",
+    "sha256:3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
+    "sha256:6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab",
+    "sha256:ca8cc1a5725c07ee63525e247b269711daa151d51ea2b08739176426c4fc070b"
+  ],
+  "merkle_root": "sha256:a5ae0b07c14bea5f37e44470332801642abf493ca7878f694b39c7ee9eca1ec7",
+  "submitter": "agent:gp-execution-runner",
+  "policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d",
+  "sealed_at": "2026-09-21T10:00:08.000Z",
+  "state": "SEALED",
+  "content_hash": "sha256:a2050728fdac9888e08a5a329e230eac0a7aaf9e8b90bf184942adca729d0695"
+}

@@ -1,0 +1,50 @@
+{
+  "report_kind": "gp3-v3-implementation-candidate",
+  "generated_at": "2026-09-25T05:20:18.607Z",
+  "base_main_sha": "5a72525413431dc04f039df9cf01842083bb8db0",
+  "identity_source": "5a72525413431dc04f039df9cf01842083bb8db0",
+  "evidence_source": "3fbef701165a86d3ad6fd95af695b78ebe74fee7",
+  "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+  "binding": {
+    "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+    "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+    "milestone_revision": 1,
+    "bundle_id": "f5290727-3457-41d1-8eb3-2190e0ab6103",
+    "evidence_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+    "policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d"
+  },
+  "proof_binding": "sha256:c64ecfa1757abde1edd34e780f276ef26e1a3508d6351478fc9e0df633727fc4",
+  "b1_verifier_authenticity": {
+    "ed25519": true,
+    "registry": "keys/verifier-registry.json",
+    "private_keys_gitignored": true,
+    "signature_verified": true
+  },
+  "b2_functional_completeness": {
+    "clean_environment": true,
+    "acceptance_suite": true,
+    "existing_tests": true,
+    "build_typecheck": true
+  },
+  "b3_policy_identity_binding": {
+    "intent_reseal": true,
+    "milestone_reseal": true,
+    "intent_hash": "sha256:88a2ff855c...",
+    "milestone_hash": "sha256:89c2fc53...",
+    "hold_release_enabled": false
+  },
+  "functional": {
+    "result": "VALID",
+    "content_hash": "sha256:17b2da8e57891cfa0f5ed709026baba39524a4c4626119aa7d1e25fcc98263ea"
+  },
+  "policy": {
+    "result": "VALID",
+    "content_hash": "sha256:9d30ba46ca0629b33382a6bff3eb777fd4be1690e63aa90f8cb10ec6a8285f7a"
+  },
+  "receipt": {
+    "formed": true,
+    "receipt_hash": "sha256:cfd5b4b72721f7b878185d93d92b0f23a1200d918340f24435094404093e91bc"
+  },
+  "gp4_plus_implemented": false,
+  "declaration": "CANDIDATE ONLY — not a PASS claim."
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "outcome-receipt.v1",
+  "receipt_id": "1192e17a-3f8f-49e4-80dd-42f08d2de848",
+  "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+  "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+  "milestone_revision": 1,
+  "evidence_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+  "verification_policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d",
+  "decision_hashes": [
+    "sha256:17b2da8e57891cfa0f5ed709026baba39524a4c4626119aa7d1e25fcc98263ea",
+    "sha256:9d30ba46ca0629b33382a6bff3eb777fd4be1690e63aa90f8cb10ec6a8285f7a"
+  ],
+  "accepted_result": "ACCEPTED",
+  "issued_at": "2026-09-24T10:00:01.000Z",
+  "content_hash": "sha256:cfd5b4b72721f7b878185d93d92b0f23a1200d918340f24435094404093e91bc"
+}
