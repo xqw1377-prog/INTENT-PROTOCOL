@@ -3,17 +3,17 @@
   "keys": [
     {
       "verifier_id": "verifier:gp3-functional",
-      "key_id": "gp3-gp3-functional-ed25519-v1",
-      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAX6PXZEYrchKwjTfpnwHyOFMG0PdrtFfRlPU+20szqP8=\n-----END PUBLIC KEY-----\n",
+      "key_id": "gp3-gp3-functional-ed25519-v2",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAmmt5lCXCI6I1MkdSI5vPWiolsWkrPAASMTDmVW8I2GM=\n-----END PUBLIC KEY-----\n",
       "algorithm": "ed25519",
-      "frozen_at": "2026-09-25T08:35:38.429Z"
+      "frozen_at": "2026-09-25T12:21:32.482Z"
     },
     {
       "verifier_id": "verifier:gp3-policy",
-      "key_id": "gp3-gp3-policy-ed25519-v1",
-      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAXbLEK92wNW+biqUdbY1fm8RDqm3LT5SQsVt/OsBB32o=\n-----END PUBLIC KEY-----\n",
+      "key_id": "gp3-gp3-policy-ed25519-v2",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAX3N3+Fuo3fiff/SYc6+ECfaCbL9NwvHQbMrNwha9Xbs=\n-----END PUBLIC KEY-----\n",
       "algorithm": "ed25519",
-      "frozen_at": "2026-09-25T08:35:38.439Z"
+      "frozen_at": "2026-09-25T12:21:32.492Z"
     }
   ]
 }
