@@ -1,0 +1,19 @@
+{
+  "schema_version": "gp3-verifier-keys.v1",
+  "keys": [
+    {
+      "verifier_id": "verifier:gp3-functional",
+      "key_id": "gp3-gp3-functional-ed25519-v1",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAX6PXZEYrchKwjTfpnwHyOFMG0PdrtFfRlPU+20szqP8=\n-----END PUBLIC KEY-----\n",
+      "algorithm": "ed25519",
+      "frozen_at": "2026-09-25T08:35:38.429Z"
+    },
+    {
+      "verifier_id": "verifier:gp3-policy",
+      "key_id": "gp3-gp3-policy-ed25519-v1",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAXbLEK92wNW+biqUdbY1fm8RDqm3LT5SQsVt/OsBB32o=\n-----END PUBLIC KEY-----\n",
+      "algorithm": "ed25519",
+      "frozen_at": "2026-09-25T08:35:38.439Z"
+    }
+  ]
+}

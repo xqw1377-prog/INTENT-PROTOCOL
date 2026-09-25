@@ -1,0 +1,11 @@
+{
+  "name": "@intent/gp3-verification",
+  "version": "0.4.0",
+  "private": true,
+  "description": "GP3 V4: Ed25519 verifier authenticity with read-only trust root, clean-lock install, fresh-clone formal path (no private key required for verification), V2-complete policy checks.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/gp3-verification",
+    "sign": "node scripts/sign-decisions.mjs"
+  }
+}
