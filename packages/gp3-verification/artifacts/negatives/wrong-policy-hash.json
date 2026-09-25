@@ -14,14 +14,14 @@
   "reason_codes": [
     "ALL_CHECKS_PASSED"
   ],
-  "replay_digest": "sha256:dfc2606098319f437a0ab3e439d3238ec3376dbfc5c789e90d23e192b8b530e3",
+  "replay_digest": "sha256:8f824b9fd10001612c7fe1a9ea1b54b9a1ac4128c74eb252bad30ca3f483c24f",
   "decided_at": "2026-09-24T10:00:00.000Z",
-  "content_hash": "sha256:0a88178a79564760952baa57774b7c7a2445f5973ae188b5aec69a1dec5d9de3",
+  "content_hash": "sha256:011912d5de4fbf244e7b4c531448536b4530ea48f79049cf1808bbb37e2a5ba4",
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-policy",
     "key_id": "gp3-gp3-policy-ed25519-v1",
-    "value": "1mn99vUi32QyqjThRzdEw/x0532kHRGYUuC4smE9agLtvhJa1BDTgCe6xaq/0jDrRloNgZCz1o3yS+NA1xyOCA=="
+    "value": "ykpoQXtV5DIEbfOPitTyuxafgiPWsNjCqAoXoR/ZKSeEeHTW2n61lAz0q29vzlfSyDkX7Vx4SLVPkTBN2zSjDQ=="
   },
   "_fixture_name": "wrong-policy-hash",
   "_pair_with": "functional"

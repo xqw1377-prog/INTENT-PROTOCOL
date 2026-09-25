@@ -14,13 +14,13 @@
   "reason_codes": [
     "ALL_CHECKS_PASSED"
   ],
-  "replay_digest": "sha256:c86e6b6bb9ad217402c255c2ffe426c2284f883d434e99eaff4a3d734abe9d08",
+  "replay_digest": "sha256:00ac866b78989dbc6d47102288e293516adccf0d6f42e91f095917e69ee12f6a",
   "decided_at": "2026-09-24T10:00:00.000Z",
-  "content_hash": "sha256:6abae2a22f36e85e4daf4a56e203e71b356e33f7d2fecd03d952dbe1e5e884bf",
+  "content_hash": "sha256:7ddb250fe9e29d2d471854f09ca2ea27b466948d94e23e35b49f1e256dce4ffd",
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-functional",
     "key_id": "gp3-gp3-functional-ed25519-v1",
-    "value": "xIXLa+qcCJacOul8sfs7uybdV9GOlM9tox95p1ICJEkwHwrNIGBCA5CkJEYhiyOm6PtMSDVNY7c7xeGQW8VcCw=="
+    "value": "Wketh7PfU7L/SfRevCZd6FcSYzHQGNMVL27AcUOv5l2pDNBaODp6M+gYKVzXjh6zsz1h1AIAoIORYEzK2qzXAg=="
   }
 }

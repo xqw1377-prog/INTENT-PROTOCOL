@@ -14,14 +14,14 @@
   "reason_codes": [
     "ALL_CHECKS_PASSED"
   ],
-  "replay_digest": "sha256:dfc2606098319f437a0ab3e439d3238ec3376dbfc5c789e90d23e192b8b530e3",
+  "replay_digest": "sha256:8f824b9fd10001612c7fe1a9ea1b54b9a1ac4128c74eb252bad30ca3f483c24f",
   "decided_at": "2026-09-24T10:00:00.000Z",
-  "content_hash": "sha256:c9fe8998a08c1d3ece3762da0abeb4b04ff20bfea2cdec87fff8692ad04bba2b",
+  "content_hash": "sha256:5a28b0a5a5ab3627a060e9b8b33a6bc00532e9836f09c8529602051a4f6eadf7",
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-policy",
     "key_id": "gp3-gp3-policy-ed25519-v1",
-    "value": "4tHuJS5sPNBVPwhFuwBsRjPC6EgypH1i4rPIi3K3PiqbG3lZXTh35dr3C/I6YxJT6vsyVmFoAvrP/+M77wY3Cw=="
+    "value": "SKtNzPg9mPD4W1SOCM5waBEfhEi0rhHQFukb4MNBZuxL8w4CUbwh+XiaFNTwTCzOipPq1tM4E2IM5PpqyT1kDg=="
   },
   "_fixture_name": "wrong-evidence-root",
   "_pair_with": "functional"

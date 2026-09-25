@@ -14,14 +14,14 @@
   "reason_codes": [
     "ALL_CHECKS_PASSED"
   ],
-  "replay_digest": "sha256:dfc2606098319f437a0ab3e439d3238ec3376dbfc5c789e90d23e192b8b530e3",
+  "replay_digest": "sha256:8f824b9fd10001612c7fe1a9ea1b54b9a1ac4128c74eb252bad30ca3f483c24f",
   "decided_at": "2026-09-24T10:00:00.000Z",
-  "content_hash": "sha256:9c21b87accaab6b61077182783de1fd5b2df491d43c0474148e55d42549dfab6",
+  "content_hash": "sha256:8a8298a5813b5e79f657da968ce8bd50c2c496e19283e67059bf1a0e127a12b0",
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-policy",
     "key_id": "gp3-gp3-policy-ed25519-v1",
-    "value": "vhMEjcgNppp1Ic9T4jcJWdqhHXG2w4DZhRrOXeFzk+dqJ0r/OwGvV/DeINqgurbmb/Ns+6K7VFWENBk7teRQDw=="
+    "value": "EHy6HfcY4dSm7K2Ja+3/rG2N1Gmc0Dou5pXHa2S6smOMMoYVVsO318C1nVk93lz8fnfwpTnI4Gr2pVbMN0fECw=="
   },
   "_fixture_name": "wrong-milestone-revision",
   "_pair_with": "functional"

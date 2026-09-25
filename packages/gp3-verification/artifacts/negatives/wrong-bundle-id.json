@@ -14,14 +14,14 @@
   "reason_codes": [
     "ALL_CHECKS_PASSED"
   ],
-  "replay_digest": "sha256:dfc2606098319f437a0ab3e439d3238ec3376dbfc5c789e90d23e192b8b530e3",
+  "replay_digest": "sha256:8f824b9fd10001612c7fe1a9ea1b54b9a1ac4128c74eb252bad30ca3f483c24f",
   "decided_at": "2026-09-24T10:00:00.000Z",
-  "content_hash": "sha256:f92cf6642591386d7cde8a8bcf4e2bed51f2091c8cd3226ec9b799193a1909bf",
+  "content_hash": "sha256:65ed8d54a5a2daaab345e5d86af324e815c4afd4e606498d1ccdb4c4d8853e3c",
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-policy",
     "key_id": "gp3-gp3-policy-ed25519-v1",
-    "value": "clV4TTO+Co+nErbJjVF1cnp3beHCv3tP48IXpllFE8TSeBhzxxcLoPK8E16ynXuN/k5p0zfb2JoaTcRTgG/GAw=="
+    "value": "moqn7qGQ2yAeGtcBFtUu9fXBx/Moxw02DCXyMcnw+iedtloZeOHIzngkvjUbR25B+FoMezrkXwcTbRndXo3AAQ=="
   },
   "_fixture_name": "wrong-bundle-id",
   "_pair_with": "functional"

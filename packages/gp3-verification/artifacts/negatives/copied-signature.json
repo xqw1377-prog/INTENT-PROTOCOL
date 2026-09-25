@@ -1,0 +1,28 @@
+{
+  "schema_version": "decision.v1",
+  "decision_id": "e444ec2a-afb8-4431-809d-665e953d799f",
+  "verifier_id": "verifier:gp3-policy",
+  "verifier_digest": "sha256:bc6d4be329326c903e23407dd149986a80667be740c010df7bbdd6490f280f8d",
+  "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+  "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+  "milestone_revision": 1,
+  "bundle_id": "f5290727-3457-41d1-8eb3-2190e0ab6103",
+  "evidence_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+  "policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d",
+  "proof_binding": "sha256:c64ecfa1757abde1edd34e780f276ef26e1a3508d6351478fc9e0df633727fc4",
+  "result": "VALID",
+  "reason_codes": [
+    "ALL_CHECKS_PASSED"
+  ],
+  "replay_digest": "sha256:8f824b9fd10001612c7fe1a9ea1b54b9a1ac4128c74eb252bad30ca3f483c24f",
+  "decided_at": "2026-09-24T10:00:00.000Z",
+  "content_hash": "sha256:21d8eb84c1840ee8d03330d7f03f19070c1e812e9fde41d3da0c0f0d4b3e6ba3",
+  "signature": {
+    "scheme": "ed25519",
+    "signer": "verifier:gp3-functional",
+    "key_id": "gp3-gp3-functional-ed25519-v1",
+    "value": "Wketh7PfU7L/SfRevCZd6FcSYzHQGNMVL27AcUOv5l2pDNBaODp6M+gYKVzXjh6zsz1h1AIAoIORYEzK2qzXAg=="
+  },
+  "_fixture_name": "copied-signature",
+  "_pair_with": "functional"
+}

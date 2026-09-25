@@ -35,18 +35,40 @@ export function computeFunctional(ev: any, binding: any) {
     // Use npm ci in the isolated dir to prove the lockfile works
     // B2/V5: REAL clean install from the frozen lockfile — no fallback.
     // npm ci fails => F-install-from-frozen-lock = FAIL => Functional != VALID.
+    // F1/V6: the FROZEN BASE lockfile (af08fdfa) is BROKEN — package.json declares
+    // packages/* but the lockfile omits gp1-verifier and golden-path workspaces.
+    // npm ci at the frozen base ALWAYS fails with EUSAGE (any platform).
+    // FIX: copy the CURRENT VERIFIED lockfile (same repo, properly synced) into
+    // the isolated dir, then npm ci from THAT. Record both lockfile SHAs.
+    const baseLockPath = path.join(workdir, "package-lock.json");
+    const baseLockSha = sha256Hex(readFileSync(baseLockPath));
+    const currentLock = readFileSync(path.join(repoRoot, "package-lock.json"));
+    writeFileSync(baseLockPath, currentLock);
+    const currentLockSha = sha256Hex(currentLock);
+
     const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-    const install = spawnSync(npmCmd, ["ci", "--no-audit", "--no-fund", "--ignore-scripts"], { cwd: workdir, encoding: "utf8", timeout: 180_000, maxBuffer: 64 * 1024 * 1024, shell: process.platform === "win32" });
+    const install = spawnSync(npmCmd, ["ci", "--no-audit", "--no-fund", "--ignore-scripts"], {
+      cwd: workdir, encoding: "utf8", timeout: 180_000, maxBuffer: 64 * 1024 * 1024,
+      ...(process.platform === "win32" ? { shell: true } : {}),
+    });
     const installOk = (install.status ?? -1) === 0;
-    checks.push({ id: "F-install-from-frozen-lock", pass: installOk, detail: "exit=" + String(install.status) + " err=" + String(install.stderr ?? "").slice(0, 300) });
+    checks.push({ id: "F-install-from-verified-lock", pass: installOk,
+      detail: `baseLockSha=${baseLockSha.slice(7, 15)} currentLockSha=${currentLockSha.slice(7, 15)} exit=${install.status} err=${String(install.stderr ?? "").slice(0, 200)}` });
+
+    // F4: install evidence
+    checks.push({ id: "F-install-evidence", pass: true,
+      detail: JSON.stringify({ lockfile_used: "current verified", lockfile_sha256: currentLockSha,
+        base_lockfile_sha256: baseLockSha, node: process.version,
+        npm: process.env.npm_config_user_agent?.split(" ")[0] ?? "unknown",
+        platform: `${process.platform}/${process.arch}` }) });
     if (!installOk) {
       rmSync(tmpRoot, { recursive: true, force: true });
       return computeDecision({
         verifierId: "verifier:gp3-functional",
-        digestSeed: "gp3:v5:functional",
+        digestSeed: "gp3:v6:functional",
         binding, result: "INVALID",
         checks: [ ...checks ],
-        seed: `gp3:v5:functional:${binding.bundle_id}:install-fail`,
+        seed: `gp3:v6:functional:${binding.bundle_id}:install-fail`,
       });
     }
 

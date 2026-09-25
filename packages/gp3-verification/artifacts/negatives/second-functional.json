@@ -14,14 +14,14 @@
   "reason_codes": [
     "ALL_CHECKS_PASSED"
   ],
-  "replay_digest": "sha256:c86e6b6bb9ad217402c255c2ffe426c2284f883d434e99eaff4a3d734abe9d08",
+  "replay_digest": "sha256:00ac866b78989dbc6d47102288e293516adccf0d6f42e91f095917e69ee12f6a",
   "decided_at": "2026-09-24T10:00:00.000Z",
-  "content_hash": "sha256:dc41ef1f0c842bbe3a936d698f727f54270d48b36849988601665e7740f81d83",
+  "content_hash": "sha256:d45ce3ffa06fa44886a11edf4fe1cf84e3429ee629a1a46536f5bb1a56ea7f74",
   "signature": {
     "scheme": "ed25519",
     "signer": "verifier:gp3-functional",
     "key_id": "gp3-gp3-functional-ed25519-v1",
-    "value": "5M8LHh6yswbcFF21wBFJ2477DLAAmezHgSedP4j2NAdraOu6mVKkvvvrgV620/qFFA0qenQC5lQt0ZMpxkSgCw=="
+    "value": "uaVKBw0Zi1ppt5Ctz5gBMJuuoDQ2hS2qwLm7WkTWYYyPLKiJCadzL7rLcPboDjp6KONgWhtjm7NKRLgkMfoVBA=="
   },
   "_fixture_name": "second-functional",
   "_pair_with": "functional"
