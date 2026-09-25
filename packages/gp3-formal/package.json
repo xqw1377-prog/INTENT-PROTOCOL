@@ -1,0 +1,10 @@
+{
+  "name": "@intent/gp3-formal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GP3 independent formal verifier: black-box replay of the frozen GP3 SUT target f6926835. Reads SUT as evidence (object database), independently recomputes all decisions/receipt/signatures. No gp3-verification imports.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/gp3-formal"
+  }
+}
