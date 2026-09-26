@@ -98,8 +98,9 @@ if (mode === "generate") {
 }
 
 if (mode === "promote") {
-  if (!args.candidate) usage("--candidate FILE is required");
-  if (!existsSync(candidatePath)) usage(`candidate not found: ${candidatePath}`);
+  // candidate: explicit --candidate FILE, or the default candidate produced
+  // by a prior `generate` in the same keys-dir. It must EXIST.
+  if (!existsSync(candidatePath)) usage(`candidate not found: ${candidatePath} (run generate first, or pass --candidate FILE)`);
   if (!args["expect-current-sha256"] && !args["expect-current-version"]) {
     usage("promote requires --expect-current-sha256 (and/or --expect-current-version) pinning the trust root being replaced");
   }
