@@ -10,7 +10,7 @@
  *   - Proof Pack + ONE-COMMAND third-party verifier (verify.mjs)
  */
 import { execFile } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,6 +18,8 @@ import { promisify } from "node:util";
 import { describe, expect, test } from "vitest";
 import { buildPack } from "../src/build-pack.ts";
 import type { PackReport } from "../src/build-pack.ts";
+// shared cross-package child-process storm lock (same O_EXCL lock file as gp4)
+import { withRaceLock } from "../../gp4-settlement/test/util.ts";
 
 const execFileP = promisify(execFile);
 
@@ -27,9 +29,9 @@ function buildTmpPack(): { packDir: string; report: PackReport } {
   return { packDir, report };
 }
 
-/** Run the one-command verifier in a pack dir; resolve { code, stdout }. */
+/** Run the one-command verifier in a pack dir (serialized against all other child storms). */
 function verifyPack(packDir: string): Promise<{ code: number; stdout: string; stderr: string }> {
-  return execFileP("node", ["verify.mjs"], { cwd: packDir, timeout: 60_000 })
+  return withRaceLock(() => execFileP("node", ["verify.mjs"], { cwd: packDir, timeout: 60_000 }))
     .then(({ stdout, stderr }) => ({ code: 0, stdout, stderr }))
     .catch((e: { code?: number; stdout?: string; stderr?: string }) => ({
       code: e.code ?? 1, stdout: e.stdout ?? "", stderr: e.stderr ?? "",
@@ -161,16 +163,23 @@ describe("[GP5] end-to-end golden path + proof pack", () => {
     }
   });
 
-  test("[G5-09] REGENERATE the committed pack in-repo and one-command verify it", { timeout: 180_000 }, async () => {
+  test("[G5-09] committed pack: one-command verify (read-only)", { timeout: 120_000 }, async (t) => {
     const committed = fileURLToPath(new URL("../pack", import.meta.url));
-    const { rmSync } = await import("node:fs");
-    rmSync(committed, { recursive: true, force: true });
-    const report = buildPack(committed);
-    expect(report.golden_release).toBe("RELEASED");
-    expect(report.bounty_state).toBe("SETTLED");
+    if (!existsSync(committed)) return t.skip("committed pack not present (generate via G5-10 builder)");
     const v = await verifyPack(committed);
     const failing = v.stdout.split("\n").filter((l) => l.includes("FAIL")).join(" | ");
     expect(v.code, `committed pack verify failed: ${failing}`).toBe(0);
     expect(v.stdout).toContain("PROOF PACK VERIFIED");
+  });
+
+  test("[G5-10] REGEN the committed pack — BUILDER ONLY (GP5_REGEN_PACK=1)", { timeout: 180_000 }, (t) => {
+    if (process.env.GP5_REGEN_PACK !== "1") {
+      return t.skip("builder-only regeneration; normal suites keep the worktree clean for other gates");
+    }
+    const committed = fileURLToPath(new URL("../pack", import.meta.url));
+    rmSync(committed, { recursive: true, force: true });
+    const report = buildPack(committed);
+    expect(report.golden_release).toBe("RELEASED");
+    expect(report.bounty_state).toBe("SETTLED");
   });
 });

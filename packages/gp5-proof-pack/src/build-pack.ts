@@ -22,7 +22,7 @@ import { GPRuntime } from "../../gp-runtime/src/runtime.ts";
 import type { Command } from "../../gp-runtime/src/runtime.ts";
 import type { ClaimRecord } from "../../gp-runtime/src/machines.ts";
 import {
-  LocalVerificationLedger, buildSettlementEvidence, sealEvidence, receiptAuthority, claimAuthority,
+  LocalVerificationLedger, buildSettlementEvidence, receiptAuthority, claimAuthority,
 } from "../../gp4-settlement/src/index.ts";
 import { frozenSeal } from "../../gp4-settlement/src/frozen.ts";
 import { OutcomeReceiptSchema, SettlementInstructionSchema } from "@intent/protocol-schema";
@@ -155,7 +155,7 @@ export function buildPack(packDir: string): PackReport {
   }));
   if (!s2.accepted || !d6.accepted) throw new Error("post-release runtime walk rejected");
 
-  const evidence = buildSettlementEvidence(vl, FROZEN.escrowRef, { receipt, claim_record: claim });
+  const evidence = buildSettlementEvidence(vl, FROZEN.escrowRef, { receipt, claim_record: claim }, () => 1_700_000_000);
 
   // ————————————— 3. compose the pack
   const put = (rel: string, data: string | Buffer): void => {
@@ -183,7 +183,7 @@ export function buildPack(packDir: string): PackReport {
   for (const f of readdirSync(path.join(escrowDir, "instructions"))) {
     put(`settlement/journal/${f}`, readFileSync(path.join(escrowDir, "instructions", f)));
   }
-  put("settlement/settlement-evidence.json", JSON.stringify(sealEvidence({ ...evidence, produced_at: 1_700_000_000 }), null, 2) + "\n");
+  put("settlement/settlement-evidence.json", JSON.stringify(evidence, null, 2) + "\n");
   put("runtime-journal.jsonl", readFileSync(path.join(rtDir, "journal.jsonl")));
 
   // vendored frozen G1 wire library (byte-copy of the built dist) + its one

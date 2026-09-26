@@ -158,7 +158,7 @@ describe("[GP4-B] atomic economic release guard", () => {
     expect(releaseFiles(root)).toHaveLength(1);
   });
 
-  test("[B-13] MULTI-PROCESS race (10 concurrent OS processes, distinct nonces) → exactly one RELEASED", { timeout: 90_000 }, async () => {
+  test("[B-13] MULTI-PROCESS race (10 concurrent OS processes, distinct nonces) → exactly one RELEASED", { timeout: 180_000 }, async () => {
     const { root } = enabledLedger();
     const scriptPath = fileURLToPath(new URL("../scripts/attempt-release.ts", import.meta.url));
     const receiptPath = fileURLToPath(new URL("../../../packages/gp3-verification/artifacts/receipt.json", import.meta.url));

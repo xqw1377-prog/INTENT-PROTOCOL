@@ -49,13 +49,14 @@ jobs:
       - name: GP5 typecheck
         run: npx tsc -p packages/gp5-proof-pack
 
-      - name: GP5 suite (E2E golden path + proof pack + tamper matrix; regenerates the committed pack)
+      - name: GP5 suite (E2E golden path + proof pack + tamper matrix)
         run: npx vitest run packages/gp5-proof-pack
 
-      - name: Committed pack must be byte-stable after regeneration (clean tree)
+      - name: Regenerate the committed pack (builder mode) and require byte-stability
         shell: bash
         run: |
           set -euo pipefail
+          GP5_REGEN_PACK=1 npx vitest run packages/gp5-proof-pack -t "G5-10"
           if ! git diff --stat -- packages/gp5-proof-pack/pack | grep -q .; then
             echo "committed pack byte-stable"
           else

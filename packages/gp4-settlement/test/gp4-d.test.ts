@@ -149,7 +149,7 @@ describe("[GP4-D] crash / restart / response-loss recovery", () => {
     }
   });
 
-  test("[D-09] REAL kill race: 8 children contend, 3 killed mid-flight → exactly one economic release", { timeout: 120_000 }, async () => {
+  test("[D-09] REAL kill race: 8 children contend, 3 killed mid-flight → exactly one economic release", { timeout: 240_000 }, async () => {
     const { root } = enabledLedger();
     const scriptPath = fileURLToPath(new URL("../scripts/attempt-release.ts", import.meta.url));
     const receiptPath = fileURLToPath(new URL("../../../packages/gp3-verification/artifacts/receipt.json", import.meta.url));
