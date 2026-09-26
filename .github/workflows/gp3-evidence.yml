@@ -1,0 +1,114 @@
+name: GP3 Evidence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gp3-evidence.yml"
+      - "packages/gp3-formal/**"
+      - "packages/protocol-schema/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gp3-formal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FORMAL_TARGET: 2dfd5963e73ea81d98a6d3d1c029914dcd19fc8e
+      EXPECTED_G1_SUBTREE: bb14d9375c92d64072f3e8c2f2dd65d794008422
+      EXPECTED_TARGET_LOCK_SHA256: fcf3cec903ee82f4a96bf2e75ca586e85bb9e18c21ee4d0a31903c31e2e02337
+      EXPECTED_FUNCTIONAL_HASH: 7ddb250fe9e29d2d471854f09ca2ea27b466948d94e23e35b49f1e256dce4ffd
+      EXPECTED_POLICY_HASH: 21d8eb84c1840ee8d03330d7f03f19070c1e812e9fde41d3da0c0f0d4b3e6ba3
+      EXPECTED_RECEIPT_HASH: da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380
+
+    steps:
+      - name: Checkout verifier main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Verify pinned objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${FORMAL_TARGET}^{commit}"
+          test "$(git rev-parse HEAD:packages/protocol-schema)" = "${EXPECTED_G1_SUBTREE}"
+          target_lock_sha="$(git show "${FORMAL_TARGET}:package-lock.json" | sha256sum | awk '{print $1}')"
+          test "${target_lock_sha}" = "${EXPECTED_TARGET_LOCK_SHA256}"
+
+      - name: Fresh install verifier main
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund 2>&1 | tee gp3-main-install.log
+
+      - name: Run GP3 Formal V4
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --workspace @intent/gp3-formal test 2>&1 | tee gp3-formal-test.log
+
+      - name: Typecheck GP3 Formal
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx tsc -p packages/gp3-formal/tsconfig.json --noEmit 2>&1 | tee gp3-formal-typecheck.log
+
+      - name: Build evidence manifest
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p gp3-evidence
+          cp gp3-main-install.log gp3-evidence/ 2>/dev/null || true
+          cp gp3-formal-test.log gp3-evidence/ 2>/dev/null || true
+          cp gp3-formal-typecheck.log gp3-evidence/ 2>/dev/null || true
+
+          MAIN_SHA="$(git rev-parse HEAD)"
+          G1_SUBTREE="$(git rev-parse HEAD:packages/protocol-schema)"
+          TARGET_LOCK_SHA="$(git show "${FORMAL_TARGET}:package-lock.json" | sha256sum | awk '{print $1}')"
+          TARGET_PACKAGE_SHA="$(git show "${FORMAL_TARGET}:package.json" | sha256sum | awk '{print $1}')"
+          MAIN_LOCK_SHA="$(sha256sum package-lock.json | awk '{print $1}')"
+          NODE_VERSION="$(node --version)"
+          NPM_VERSION="$(npm --version)"
+
+          cat > gp3-evidence/manifest.json <<EOF
+          {
+            "schema_version": "gp3-formal-evidence.v1",
+            "verifier_main_sha": "${MAIN_SHA}",
+            "formal_target_sha": "${FORMAL_TARGET}",
+            "g1_subtree": "${G1_SUBTREE}",
+            "target_package_sha256": "sha256:${TARGET_PACKAGE_SHA}",
+            "target_lock_sha256": "sha256:${TARGET_LOCK_SHA}",
+            "verifier_main_lock_sha256": "sha256:${MAIN_LOCK_SHA}",
+            "node_version": "${NODE_VERSION}",
+            "npm_version": "${NPM_VERSION}",
+            "expected_functional_hash": "sha256:${EXPECTED_FUNCTIONAL_HASH}",
+            "expected_policy_hash": "sha256:${EXPECTED_POLICY_HASH}",
+            "expected_receipt_hash": "sha256:${EXPECTED_RECEIPT_HASH}",
+            "workflow_run_id": "${GITHUB_RUN_ID}",
+            "workflow_run_attempt": "${GITHUB_RUN_ATTEMPT}"
+          }
+          EOF
+
+          sha256sum gp3-evidence/* > gp3-evidence/SHA256SUMS.txt
+
+      - name: Upload GP3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gp3-formal-evidence
+          path: gp3-evidence/
+          if-no-files-found: error
+          retention-days: 30
