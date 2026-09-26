@@ -1,0 +1,8 @@
+{
+  "name": "@intent/gp3-formal",
+  "version": "0.4.0",
+  "private": true,
+  "description": "GP3 V4 formal verifier: clean base main@4e1a942, target 2dfd596 (V3 keys). Real manifest+lock replay, independent re-seal, exact-gate negative replay, G1 subtree guard.",
+  "type": "module",
+  "scripts": { "test": "vitest run --root ../.. packages/gp3-formal" }
+}
