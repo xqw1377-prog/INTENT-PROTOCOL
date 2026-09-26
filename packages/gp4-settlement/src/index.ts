@@ -13,12 +13,14 @@ export { atomicPublish, atomicReplace, sweepTemp } from "./guard.ts";
 export type { PublishResult } from "./guard.ts";
 export { receiptAuthority } from "./receipt.ts";
 export type { ReceiptAuthority } from "./receipt.ts";
+export { claimAuthority, claimRecordHash } from "./claim.ts";
+export type { ClaimAuthority } from "./claim.ts";
 export {
   ESCROW_REF_RE, SETTLEMENT_EDGES, FROZEN_ASSET_TRIPLE,
-  EscrowEntrySchema, ReleaseRecordSchema, SettlementPolicySchema,
-  frozenAssetTripleOk, hashBody, settlementEdge,
+  EscrowEntrySchema, ReleaseRecordSchema, InstructionRecordSchema, ClaimRecordSchema, SettlementPolicySchema,
+  frozenAssetTripleOk, hashBody, refDir, settlementEdge,
 } from "./schema.ts";
-export type { AssetTriple, EscrowEntry, EscrowState, ReleaseRecord, SettlementPolicy } from "./schema.ts";
+export type { AssetTriple, ClaimRecord, EscrowEntry, EscrowState, InstructionRecord, ReleaseRecord, SettlementPolicy } from "./schema.ts";
 export { EscrowLedger, LedgerCorruptError } from "./ledger.ts";
 export type { CreateEscrowInput, ReleaseResult, ReleaseStatus } from "./ledger.ts";
 export { LocalVerificationLedger } from "./verification.ts";

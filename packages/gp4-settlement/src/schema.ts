@@ -21,12 +21,20 @@
 import { z } from "zod";
 
 /**
- * escrow_ref charset: path-safe, lowercase, bounded. This is the namespace of
- * the escrow ledger directory tree — anything outside this grammar NEVER
- * reaches a path operation (defense against traversal via untrusted
- * SettlementInstruction.escrow_ref, which G1 only constrains to min(1)).
+ * escrow_ref grammar. GP4-C: the frozen GP-001 task fixture pins
+ * escrow_ref = "escrow:gp-001-local", so ':' is a legal character in the
+ * NAMESPACE — but it is NOT a legal filename character (NTFS), so directory
+ * names use refDir() percent-encoding (injective: '%' never appears raw).
+ * Traversal-safe by construction: '/', '\', and absolute forms are rejected
+ * by the charset; anything outside the charset NEVER reaches a path op.
  */
-export const ESCROW_REF_RE = /^[a-z0-9][a-z0-9._-]{0,63}$/;
+export const ESCROW_REF_RE = /^[a-z0-9][a-z0-9:._-]{0,63}$/;
+
+/** Percent-encode a escrow_ref into a filesystem-safe directory name. */
+export function refDir(ref: string): string {
+  if (!ESCROW_REF_RE.test(ref)) throw new Error(`malformed escrow_ref: ${ref}`);
+  return ref.replace(/[^a-z0-9._-]/g, (c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"));
+}
 
 const HASH_BODY_RE = /^[0-9a-f]{64}$/;
 const DECIMAL_RE = /^(0|[1-9]\d*)(\.\d{1,18})?$/;
@@ -70,18 +78,19 @@ export const EscrowStateSchema = z.enum(["LOCKED", "ELIGIBLE", "RELEASED"]);
 export type EscrowState = z.infer<typeof EscrowStateSchema>;
 
 /**
- * EscrowEntryV1 — created atomically (link-publish) at funding time.
- * `outcome_receipt_hash` binds the escrow to EXACTLY ONE accepted receipt:
- * the frozen GP3 receipt authority, never a second identity.
- * `release_enabled` DEFAULTS TO FALSE (hold-by-default; GP-001 ships under
- * policies/gp-001-settlement-hold-v1.json).
+ * EscrowEntryV2 (GP4-C) — created atomically (link-publish) at funding time.
+ * `outcome_receipt_hash` binds the escrow to EXACTLY ONE accepted receipt.
+ * `claim_record_hash` binds it to EXACTLY ONE immutable ClaimRecord: the
+ * payee authorization source (GATES.md GP4: recipient == ClaimRecord.claimant).
+ * `release_enabled` DEFAULTS TO FALSE (hold-by-default).
  */
 export const EscrowEntrySchema = z.object({
-  schema_version: z.literal("gp4-escrow.v1"),
+  schema_version: z.literal("gp4-escrow.v2"),
   escrow_ref: z.string().regex(ESCROW_REF_RE),
   asset: AssetTripleSchema,
   amount: z.string().regex(DECIMAL_RE).refine((s) => s !== "0", "amount must be positive"),
   outcome_receipt_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  claim_record_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
   state: EscrowStateSchema,
   release_enabled: z.boolean().default(false),
   created_at: UnixSeconds,
@@ -111,13 +120,45 @@ export const ReleaseRecordSchema = z.object({
 }).strict();
 export type ReleaseRecord = z.infer<typeof ReleaseRecordSchema>;
 
-// NOTE (P1-A remediation): the settlement_key instruction idempotency LEDGER
-// (InstructionRecordV1, instructions/<settlement_key>.json) is GP4-C scope and
-// is deliberately NOT implemented in GP4-A/B. The settlement_key is still
-// re-derived by the engine (frozen G1 settlementKey) and returned in results,
-// but no instruction persistence exists in this package. Exact-instruction
-// replay is subsumed by the economic guard for release purposes:
-// same settlement_key ⇒ same receipt ⇒ same (escrow_ref, receipt) pair.
+// NOTE (P1-A remediation, superseded by GP4-C): the settlement_key
+// instruction idempotency ledger is implemented in GP4-C — see
+// InstructionRecordSchema below. It remains the INSTRUCTION layer only;
+// the economic uniqueness authority stays with the
+// (escrow_ref, outcome_receipt_hash) release guard. The two layers never
+// merge.
+
+/**
+ * InstructionRecordV1 — settlement_key instruction journal (GP4-C part A).
+ * Advisory idempotency/audit layer: records accepted (winning) instructions.
+ * NEVER an economic authority.
+ */
+export const InstructionRecordSchema = z.object({
+  schema_version: z.literal("gp4-instruction.v1"),
+  settlement_key: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  escrow_ref: z.string().regex(ESCROW_REF_RE),
+  outcome_receipt_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  nonce: z.string().regex(/^(0|[1-9]\d*)$/),
+  first_seen_at: UnixSeconds,
+}).strict();
+export type InstructionRecord = z.infer<typeof InstructionRecordSchema>;
+
+/**
+ * ClaimRecordV1 (GP4-C part B) — the immutable payee authorization source.
+ * Grammar transcribed from the FROZEN GP1 machine contract
+ * (packages/gp-runtime/src/machines.ts claimRecordShapeViolations —
+ * transcribed, not imported, because gp-runtime has no package exports and
+ * MUST NOT be modified). Identity binding hash: sha256 of IPC-JSON-1
+ * canonical bytes (a ledger-side runtime binding, not a G1 domain object).
+ */
+export const ClaimRecordSchema = z.object({
+  schema_version: z.literal("gp-claim.v1"),
+  claim_id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/),
+  bounty_id: z.string().min(1),
+  claimant: z.string().regex(/^(user|org|agent|verifier|arbitrator|service|operator):[A-Za-z0-9._-]{1,128}$/),
+  task_freeze_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  claimed_at: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/),
+}).strict();
+export type ClaimRecord = z.infer<typeof ClaimRecordSchema>;
 
 /**
  * Frozen settlement state machine, transcribed from GOLDEN-PATH-V1.md §3

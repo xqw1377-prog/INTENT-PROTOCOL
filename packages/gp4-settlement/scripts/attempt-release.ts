@@ -1,24 +1,24 @@
 /**
- * GP4-B multi-process race child.
+ * GP4-B/C multi-process race child.
  *
  * Run by test/gp4-b-guard.test.ts as:
  *   node --experimental-strip-types attempt-release.ts \
- *        <ledgerRoot> <escrowRef> <receiptPath> <nonce> <amount> <network> <asset> <decimals>
+ *        <ledgerRoot> <escrowRef> <receiptPath> <claimPath> <nonce> <amount> <network> <asset> <decimals>
  *
  * Prints ONE line of JSON — the attemptRelease result — and exits 0.
- * Uses the REAL engine (no reimplementation): this script imports the same
- * EscrowLedger the in-process tests use.
+ * Uses the REAL engine (no reimplementation).
  */
 import { readFileSync } from "node:fs";
 import { EscrowLedger } from "../src/index.ts";
 
-const [, , ledgerRoot, escrowRef, receiptPath, nonce, amount, network, asset, decimals] = process.argv;
-if (!ledgerRoot || !escrowRef || !receiptPath || !nonce || !amount || !network || !asset || !decimals) {
+const [, , ledgerRoot, escrowRef, receiptPath, claimPath, nonce, amount, network, asset, decimals] = process.argv;
+if (!ledgerRoot || !escrowRef || !receiptPath || !claimPath || !nonce || !amount || !network || !asset || !decimals) {
   process.stdout.write(JSON.stringify({ status: "USAGE_ERROR" }));
   process.exit(0);
 }
 
 const receipt: unknown = JSON.parse(readFileSync(receiptPath, "utf8"));
+const claim: unknown = JSON.parse(readFileSync(claimPath, "utf8"));
 const receiptHash = (receipt as { content_hash?: string }).content_hash ?? "";
 
 const instruction = {
@@ -31,11 +31,11 @@ const instruction = {
     recipient: "agent:gp-001-demo",
     asset: { network, asset, decimals: Number(decimals) },
     amount,
-    reason: "gp4-b multi-process race attempt",
+    reason: "gp4 multi-process race attempt",
   }],
   total_amount: amount,
 };
 
 const ledger = EscrowLedger.open(ledgerRoot);
-const r = ledger.attemptRelease({ receipt, instruction });
+const r = ledger.attemptRelease({ receipt, instruction, claim_record: claim });
 process.stdout.write(JSON.stringify({ status: r.status, settlement_key: r.settlement_key ?? null, reason: r.reason ?? null }));

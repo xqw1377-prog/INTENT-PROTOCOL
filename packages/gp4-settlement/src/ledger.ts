@@ -1,30 +1,27 @@
 /**
- * GP4-B — local escrow ledger with the atomic economic release guard.
+ * GP4-B/C — local escrow ledger: atomic economic release guard + payee
+ * authorization + instruction journal.
  *
- * ECONOMIC exactly-once (GOLDEN-PATH-V1.md §4A): one release file per
- * (escrow_ref, outcome_receipt_hash) — enforced by kernel-atomic link() in
- * guard.ts:atomicPublish. Same pair + different nonce (different
- * settlement_key) MUST NOT and CANNOT release twice.
+ * ECONOMIC exactly-once (§4A): one release file per
+ * (escrow_ref, outcome_receipt_hash) — kernel-atomic link() in
+ * guard.ts:atomicPublish. Same pair + different nonce cannot release twice.
  *
- * HOLD AUTHORITY ISOLATION (R1 remediation): the production API
- * (EscrowLedger.createEscrow) has NO parameter that can enable release —
- * every production escrow is created with release_enabled=false and every
- * attemptRelease on it returns REJECTED_HOLD. The ONLY way to create a
- * release-enabled escrow is the explicit, separately-named verification
- * entry point LocalVerificationLedger.createEscrowForVerification()
- * (verification.ts) for local gate testing. A plain caller passing
- * `release_enabled` to the production API is REJECTED_INVALID.
+ * INSTRUCTION idempotency (§4B, GP4-C part A): one journal record per
+ * settlement_key (same primitive). Advisory layer only — NEVER merged with
+ * the economic authority.
  *
- * TRANSACTION BOUNDARY (R3 remediation): the linkSync() that publishes the
- * release file is the FIRST authoritative mutation of attemptRelease.
- * Before it: read-only validation — NO escrow.json state is persisted, and
- * ELIGIBLE is an in-attempt LOGICAL state of the frozen state-machine walk,
- * never a crash-visible persisted authority before the guard. After it:
- * idempotent cache bookkeeping only (escrow.json state → RELEASED via
- * atomic rename-replace), repaired by open() after a crash. The guard file
- * is the authority; escrow.json state is a cache.
+ * PAYEE AUTHORIZATION (GP4-C part B): escrow binds ONE immutable
+ * claim_record_hash at funding; attemptRelease consumes the ClaimRecord as
+ * untrusted input and enforces recipient == claimant BEFORE the state walk
+ * and BEFORE the guard (zero-write rejection).
  *
- * INSTRUCTION LEDGER: intentionally absent (GP4-C scope, P1-A remediation).
+ * HOLD AUTHORITY ISOLATION (R1): production createEscrow has no enable
+ * field; the only enable path is LocalVerificationLedger
+ * .createEscrowForVerification() (verification.ts).
+ *
+ * TRANSACTION BOUNDARY (R3): the release-file linkSync() is the FIRST
+ * authoritative mutation. Before it: read-only validation. After it:
+ * idempotent cache bookkeeping (state RELEASED + instruction journal).
  */
 import { existsSync, readFileSync } from "node:fs";
 import * as path from "node:path";
@@ -33,17 +30,22 @@ import type { Hash, SettlementInstruction } from "@intent/protocol-schema";
 import { frozenSeal } from "./frozen.ts";
 import { atomicPublish, atomicReplace } from "./guard.ts";
 import {
-  ESCROW_REF_RE, EscrowEntrySchema, ReleaseRecordSchema,
-  frozenAssetTripleOk, hashBody, settlementEdge,
+  ESCROW_REF_RE, EscrowEntrySchema, InstructionRecordSchema, ReleaseRecordSchema,
+  frozenAssetTripleOk, hashBody, refDir, settlementEdge,
 } from "./schema.ts";
-import type { EscrowEntry, EscrowState, ReleaseRecord } from "./schema.ts";
+import type { EscrowEntry, EscrowState, InstructionRecord, ReleaseRecord } from "./schema.ts";
 import { receiptAuthority } from "./receipt.ts";
+import { claimAuthority } from "./claim.ts";
 
 export type ReleaseStatus =
   | "RELEASED"
   | "ALREADY_RELEASED"
   | "REJECTED_INVALID_RECEIPT"
   | "REJECTED_INVALID_INSTRUCTION"
+  | "REJECTED_INVALID_CLAIM"
+  | "REJECTED_CLAIM_MISMATCH"
+  | "REJECTED_CLAIMANT"
+  | "REJECTED_OUTPUT_COUNT"
   | "REJECTED_UNKNOWN_ESCROW"
   | "REJECTED_RECEIPT_MISMATCH"
   | "REJECTED_HOLD"
@@ -67,6 +69,7 @@ export interface CreateEscrowInput {
   asset: { network: string; asset: string; decimals: number };
   amount: string;
   outcome_receipt_hash: string;
+  claim_record_hash: string;
 }
 
 export class LedgerCorruptError extends Error {
@@ -94,8 +97,7 @@ export class EscrowLedger {
    *
    * Repair rules — the guard file is the authority, escrow.json is a cache:
    *   guard file present  + state ≠ RELEASED → state re-synced to RELEASED
-   *   guard file absent   + state = ELIGIBLE (legacy/torn) → demoted to LOCKED:
-   *     no guard ⇒ no economic release ever happened ⇒ the escrow is LOCKED.
+   *   guard file absent   + state = ELIGIBLE (legacy/torn) → demoted to LOCKED
    *
    * open() deliberately does NOT sweep `.tmp-*` files: a concurrent publisher
    * in another process owns its in-flight temp (proven by the multi-process
@@ -107,7 +109,7 @@ export class EscrowLedger {
     return ledger;
   }
 
-  /** Re-open an existing EscrowLedger (constructor does not repair). */
+  /** Re-run the open-time repair (constructor does not repair). */
   reopen(): void {
     this.repairStates();
   }
@@ -115,9 +117,9 @@ export class EscrowLedger {
   protected repairStates(): void {
     const escrowsDir = this.escrowsDir();
     if (!existsSync(escrowsDir)) return;
-    for (const ref of readdirEscrows(escrowsDir)) {
+    for (const dirName of readdirEscrows(escrowsDir)) {
       try {
-        const raw = this.readEscrowRaw(ref);
+        const raw = this.readEscrowRawByDir(dirName);
         if (!raw) continue;
         const normalized = this.normalizeState(raw);
         if (normalized.state !== raw.state) {
@@ -132,17 +134,21 @@ export class EscrowLedger {
   private escrowsDir(): string {
     return path.join(this.root, "escrows");
   }
-  escrowDir(ref: string): string {
-    return path.join(this.escrowsDir(), ref);
+  private escrowDir(ref: string): string {
+    return path.join(this.escrowsDir(), refDir(ref));
   }
   releasesDir(ref: string): string {
     return path.join(this.escrowDir(ref), "releases");
+  }
+  instructionsDir(ref: string): string {
+    return path.join(this.escrowDir(ref), "instructions");
   }
 
   /**
    * PRODUCTION escrow creation — release_enabled is ALWAYS false.
    * The input has no field that can enable release; passing one is rejected.
-   * Only the frozen GP-001 asset triple is accepted (R2).
+   * Only the frozen GP-001 asset triple is accepted (R2). The escrow binds
+   * BOTH authorities at funding: outcome_receipt_hash + claim_record_hash.
    */
   createEscrow(input: CreateEscrowInput):
     | { status: "CREATED"; entry: EscrowEntry }
@@ -164,11 +170,12 @@ export class EscrowLedger {
     }
     const at = this.now();
     const parsed = EscrowEntrySchema.safeParse({
-      schema_version: "gp4-escrow.v1",
+      schema_version: "gp4-escrow.v2",
       escrow_ref: input.escrow_ref,
       asset: input.asset,
       amount: input.amount,
       outcome_receipt_hash: input.outcome_receipt_hash,
+      claim_record_hash: input.claim_record_hash,
       state: "LOCKED",
       release_enabled: releaseEnabled,
       created_at: at,
@@ -186,40 +193,39 @@ export class EscrowLedger {
     return { status: "CREATED", entry };
   }
 
-  /** Raw (un-normalized) escrow entry, or null for unknown/unsafe refs. */
-  private readEscrowRaw(ref: string): EscrowEntry | null {
-    if (!ESCROW_REF_RE.test(ref)) return null; // traversal grammar guard
-    const file = path.join(this.escrowDir(ref), "escrow.json");
+  /** Raw (un-normalized) escrow entry by directory name, or null if absent. */
+  private readEscrowRawByDir(dirName: string): EscrowEntry | null {
+    const file = path.join(this.escrowsDir(), dirName, "escrow.json");
     if (!existsSync(file)) return null;
     let raw: unknown;
     try {
       raw = JSON.parse(readFileSync(file, "utf8"));
     } catch (e) {
-      throw new LedgerCorruptError(`escrow.json unparseable for ${ref}: ${(e as Error).message}`);
+      throw new LedgerCorruptError(`escrow.json unparseable for ${dirName}: ${(e as Error).message}`);
     }
     const parsed = EscrowEntrySchema.safeParse(raw);
     if (!parsed.success) {
-      throw new LedgerCorruptError(`escrow.json schema violation for ${ref}: ${parsed.error.issues[0]?.message ?? ""}`);
+      throw new LedgerCorruptError(`escrow.json schema violation for ${dirName}: ${parsed.error.issues[0]?.message ?? ""}`);
     }
     return parsed.data;
   }
 
+  /** Read an escrow entry. Returns null for unknown/unsafe refs. */
+  readEscrow(ref: string): EscrowEntry | null {
+    if (!ESCROW_REF_RE.test(ref)) return null; // traversal grammar guard
+    const raw = this.readEscrowRawByDir(refDir(ref));
+    return raw ? this.normalizeState(raw) : null;
+  }
+
   /**
    * Normalized state: the guard file is the authority. ELIGIBLE is never a
-   * legal persisted state under the R3 boundary — it is demoted to LOCKED
-   * when no guard file exists (no guard ⇒ no release), and promoted to
-   * RELEASED when one does.
+   * legal persisted state under the R3 boundary — demoted to LOCKED when no
+   * guard exists, promoted to RELEASED when one does.
    */
   private normalizeState(entry: EscrowEntry): EscrowEntry {
     if (entry.state !== "ELIGIBLE") return entry;
     const guardExists = existsSync(path.join(this.releasesDir(entry.escrow_ref), `${hashBody(entry.outcome_receipt_hash)}.json`));
     return { ...entry, state: guardExists ? "RELEASED" : "LOCKED" };
-  }
-
-  /** Read an escrow entry with state normalized against the guard file. */
-  readEscrow(ref: string): EscrowEntry | null {
-    const raw = this.readEscrowRaw(ref);
-    return raw ? this.normalizeState(raw) : null;
   }
 
   /** Read the release record for (ref, receiptHash), or null. */
@@ -229,19 +235,27 @@ export class EscrowLedger {
     return ReleaseRecordSchema.parse(JSON.parse(readFileSync(file, "utf8")));
   }
 
+  /** Read the instruction journal record for a settlement_key, or null. */
+  readInstruction(ref: string, settlementKeyHash: string): InstructionRecord | null {
+    const file = path.join(this.instructionsDir(ref), `${hashBody(settlementKeyHash)}.json`);
+    if (!existsSync(file)) return null;
+    return InstructionRecordSchema.parse(JSON.parse(readFileSync(file, "utf8")));
+  }
+
   listReleaseFiles(ref: string): string[] {
-    const dir = this.releasesDir(ref);
-    if (!existsSync(dir)) return [];
-    return readdirSorted(dir).filter((f) => f.endsWith(".json"));
+    return listJsonFiles(this.releasesDir(ref));
+  }
+
+  listInstructionFiles(ref: string): string[] {
+    return listJsonFiles(this.instructionsDir(ref));
   }
 
   /**
    * ATOMIC ECONOMIC RELEASE.
    *
-   * Validation order is normative. Steps 1–9 are READ-ONLY (no persisted
-   * mutation): every rejection below leaves the on-disk ledger byte-identical
-   * (proven by the rejection-path snapshot test). Step 10 is the FIRST
-   * authoritative mutation — the transaction boundary.
+   * Steps 1–11 are READ-ONLY (zero persisted mutation; proven by the
+   * treeDigest zero-write test). Step 12 is the FIRST authoritative
+   * mutation — the transaction boundary.
    *   1. frozen-G1 seal of the receipt            → REJECTED_INVALID_RECEIPT
    *   2. frozen-G1 seal of the instruction        → REJECTED_INVALID_INSTRUCTION
    *   3. instruction binds the same receipt       → REJECTED_RECEIPT_MISMATCH
@@ -249,13 +263,18 @@ export class EscrowLedger {
    *   5. release_enabled (production = never)     → REJECTED_HOLD
    *   6. frozen asset triple (R2)                 → DENIED_ASSET
    *   7. amount / asset triple equality           → REJECTED_AMOUNT_MISMATCH / REJECTED_ASSET_MISMATCH
-   *   8. settlement_key derived by the ENGINE (never trusted from input)
-   *   9. LOGICAL state walk LOCKED→ELIGIBLE→RELEASED over the frozen edges —
-   *      ELIGIBLE is never persisted before the guard (R3)
-   *  10. GUARD: atomicPublish(releases/<hex>.json) — TRANSACTION BOUNDARY
-   *  11. post-commit idempotent cache bookkeeping (state → RELEASED)
+   *   8. CLAIM payee authorization (GP4-C/B):
+   *      claim shape                              → REJECTED_INVALID_CLAIM
+   *      claim_record_hash binding                → REJECTED_CLAIM_MISMATCH
+   *      outputs.length == 1                      → REJECTED_OUTPUT_COUNT
+   *      recipient == claimant                    → REJECTED_CLAIMANT
+   *   9. settlement_key derived by the ENGINE (never trusted from input)
+   *  10. LOGICAL state walk LOCKED→ELIGIBLE→RELEASED (frozen edges, no write)
+   *  11. (reserved ordering anchor: all above is read-only)
+   *  12. GUARD: atomicPublish(releases/<hex>.json) — TRANSACTION BOUNDARY
+   *  13. post-commit idempotent bookkeeping: state RELEASED + instruction journal
    */
-  attemptRelease(input: { receipt: unknown; instruction: unknown }): ReleaseResult {
+  attemptRelease(input: { receipt: unknown; instruction: unknown; claim_record: unknown }): ReleaseResult {
     // 1 — canonical receipt authority (frozen seal; tamper-checked inside)
     let rh: Hash;
     try {
@@ -277,7 +296,7 @@ export class EscrowLedger {
       return { status: "REJECTED_RECEIPT_MISMATCH", outcome_receipt_hash: rh, reason: "instruction.outcome_receipt_hash differs from sealed receipt" };
     }
 
-    // 4 — escrow lookup (readEscrowRaw grammar-guards the ref against traversal)
+    // 4 — escrow lookup (grammar-guarded against traversal)
     let entry: EscrowEntry;
     try {
       const found = this.readEscrow(inst.escrow_ref);
@@ -290,12 +309,12 @@ export class EscrowLedger {
       return { status: "REJECTED_RECEIPT_MISMATCH", outcome_receipt_hash: rh, reason: "escrow is bound to a different receipt" };
     }
 
-    // 5 — hold-by-construction gate (production escrows can never pass this)
+    // 5 — hold-by-construction gate
     if (!entry.release_enabled) {
       return { status: "REJECTED_HOLD", outcome_receipt_hash: rh, reason: "release_enabled=false (hold policy; no production API can set it)" };
     }
 
-    // 6 — frozen asset triple closure (R2): MAINNET and every other label DENIED
+    // 6 — frozen asset triple closure (R2)
     if (!frozenAssetTripleOk(entry.asset)) {
       return { status: "DENIED_ASSET", outcome_receipt_hash: rh, reason: `escrow asset ${entry.asset.network}/${entry.asset.asset}/${entry.asset.decimals} is not the frozen GP-001 triple solana-devnet/USDC-test/6` };
     }
@@ -310,7 +329,27 @@ export class EscrowLedger {
       return { status: "REJECTED_ASSET_MISMATCH", outcome_receipt_hash: rh, reason: "instruction asset triple differs from escrow asset" };
     }
 
-    // 8 — settlement_key is DERIVED, never accepted from the caller
+    // 8 — CLAIM PAYEE AUTHORIZATION (GP4-C part B): all read-only, all
+    // BEFORE the logical walk and the guard — a wrong recipient can never
+    // reach ELIGIBLE or the release file (GATES.md GP4).
+    let claimant: string;
+    try {
+      const ca = claimAuthority(input.claim_record);
+      if (ca.claim_record_hash !== entry.claim_record_hash) {
+        return { status: "REJECTED_CLAIM_MISMATCH", outcome_receipt_hash: rh, reason: "claim_record_hash does not match the escrow's immutable claim binding" };
+      }
+      claimant = ca.claim.claimant;
+    } catch (e) {
+      return { status: "REJECTED_INVALID_CLAIM", outcome_receipt_hash: rh, reason: (e as Error).message };
+    }
+    if (inst.outputs.length !== 1) {
+      return { status: "REJECTED_OUTPUT_COUNT", outcome_receipt_hash: rh, reason: `GP-001 settlement must have exactly one output, got ${inst.outputs.length}` };
+    }
+    if (inst.outputs[0]!.recipient !== claimant) {
+      return { status: "REJECTED_CLAIMANT", outcome_receipt_hash: rh, reason: `output recipient ${inst.outputs[0]!.recipient} != immutable ClaimRecord.claimant ${claimant}` };
+    }
+
+    // 9 — settlement_key is DERIVED, never accepted from the caller
     let sk: Hash;
     try {
       sk = settlementKey({ outcome_receipt_hash: rh, escrow_ref: entry.escrow_ref, nonce: BigInt(inst.nonce) });
@@ -318,9 +357,7 @@ export class EscrowLedger {
       return { status: "REJECTED_INVALID_INSTRUCTION", outcome_receipt_hash: rh, reason: `nonce not representable as u64: ${(e as Error).message}` };
     }
 
-    // 9 — LOGICAL frozen-machine walk. entry.state is normalized (LOCKED or
-    // RELEASED — ELIGIBLE never persists under the R3 boundary). LOCKED walks
-    // LOCKED→ELIGIBLE→RELEASED in logic only; no write happens here.
+    // 10 — LOGICAL frozen-machine walk (no persisted ELIGIBLE, ever)
     if (entry.state === "LOCKED") {
       if (!settlementEdge("LOCKED", "ELIGIBLE") || !settlementEdge("ELIGIBLE", "RELEASED")) {
         return { status: "LEDGER_CORRUPT", outcome_receipt_hash: rh, reason: "frozen settlement machine lacks LOCKED→ELIGIBLE→RELEASED walk" };
@@ -329,7 +366,7 @@ export class EscrowLedger {
       return { status: "LEDGER_CORRUPT", outcome_receipt_hash: rh, reason: `unknown escrow state ${entry.state}` };
     }
 
-    // 10 — ECONOMIC GUARD: the FIRST authoritative mutation. One link() per
+    // 12 — ECONOMIC GUARD: the FIRST authoritative mutation. One link() per
     // (escrow_ref, outcome_receipt_hash) — the transaction boundary.
     const record: ReleaseRecord = {
       schema_version: "gp4-release.v1",
@@ -355,15 +392,24 @@ export class EscrowLedger {
       if (existing.escrow_ref !== entry.escrow_ref || existing.outcome_receipt_hash !== rh) {
         return { status: "LEDGER_CORRUPT", outcome_receipt_hash: rh, settlement_key: sk, reason: "release guard pair mismatch" };
       }
-      // Idempotent replay — INCLUDING a different settlement_key/nonce:
-      // the pair (escrow_ref, outcome_receipt_hash) already consumed the
-      // single economic release. No second transfer can ever be created.
+      // Idempotent replay — INCLUDING a different settlement_key/nonce.
       this.markReleased(entry);
       return { status: "ALREADY_RELEASED", outcome_receipt_hash: rh, settlement_key: sk, existing };
     }
 
-    // 11 — post-commit cache bookkeeping (idempotent; repaired by open() if torn)
+    // 13 — post-commit bookkeeping (idempotent; repaired by open() if torn):
+    // cache state, then the instruction journal (link-atomic, advisory).
     this.markReleased(entry);
+    const journal: InstructionRecord = {
+      schema_version: "gp4-instruction.v1",
+      settlement_key: sk,
+      escrow_ref: entry.escrow_ref,
+      outcome_receipt_hash: rh,
+      nonce: inst.nonce,
+      first_seen_at: this.now(),
+    };
+    atomicPublish(this.instructionsDir(entry.escrow_ref), `${hashBody(sk)}.json`, canonicalBytes(journal));
+
     return { status: "RELEASED", outcome_receipt_hash: rh, settlement_key: sk, release: record };
   }
 
@@ -385,12 +431,12 @@ import { mkdirSync, readdirSync } from "node:fs";
 
 function readdirEscrows(escrowsDir: string): string[] {
   if (!existsSync(escrowsDir)) return [];
-  return readdirSorted(escrowsDir);
+  return readdirSync(escrowsDir).sort();
 }
 
-function readdirSorted(dir: string): string[] {
-  mkdirRecursive(dir);
-  return readdirSync(dir).sort();
+function listJsonFiles(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).filter((f) => f.endsWith(".json")).sort();
 }
 
 function mkdirRecursive(dir: string): void {
