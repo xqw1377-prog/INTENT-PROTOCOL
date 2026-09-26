@@ -17,7 +17,7 @@ import { EscrowLedger, receiptAuthority } from "../src/index.ts";
 import {
   ESCROW_REF, FROZEN_ASSET, FROZEN_CLAIM_HASH, FROZEN_RH, enabledLedger, forgeEscrow,
   frozenClaim, frozenReceipt, instructionFiles, makeInstruction, productionLedger,
-  releaseFiles, treeDigest,
+  releaseFiles, treeDigest, withRaceLock,
 } from "./util.ts";
 
 const execFileP = promisify(execFile);
@@ -177,11 +177,11 @@ describe("[GP4-B] atomic economic release guard", () => {
       },
     );
 
-    const results = await Promise.all(nonces.map(run));
+    const results = await withRaceLock(() => Promise.all(nonces.map(run)));
     expect(results.filter((r) => r.status === "RELEASED")).toHaveLength(1);
     expect(results.filter((r) => r.status === "ALREADY_RELEASED")).toHaveLength(9);
     expect(releaseFiles(root)).toHaveLength(1);
-    const wave2 = await Promise.all(nonces.map((n) => run(n + 100)));
+    const wave2 = await withRaceLock(() => Promise.all(nonces.map((n) => run(n + 100))));
     expect(wave2.every((r) => r.status === "ALREADY_RELEASED")).toBe(true);
     expect(releaseFiles(root)).toHaveLength(1);
   });

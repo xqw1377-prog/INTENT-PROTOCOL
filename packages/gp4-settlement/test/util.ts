@@ -1,6 +1,6 @@
 /** Shared GP4 test fixtures (imported by test files; not a test module). */
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { canonicalize } from "@intent/protocol-schema";
@@ -94,6 +94,39 @@ export function forgeEscrow(root: string, over?: {
 /** canonical-bytes sha256 of an arbitrary value (test-side oracle). */
 export function canonHash(v: unknown): string {
   return "sha256:" + createHash("sha256").update(canonicalize(v), "utf8").digest("hex");
+}
+
+/**
+ * Cross-file mutex for the heavy multi-process race tests (B-13, D-09):
+ * vitest runs test files in parallel workers and two simultaneous 8-10
+ * process spawn storms starve each other. O_EXCL lock file, same kernel
+ * atomicity argument as the ledger guard; stale after 180s.
+ */
+export async function withRaceLock<T>(fn: () => Promise<T>): Promise<T> {
+  const lockDir = path.join(tmpdir(), "gp4-race-lock");
+  const lockFile = path.join(lockDir, "lock");
+  mkdirSync(lockDir, { recursive: true });
+  const deadline = Date.now() + 150_000;
+  let acquired = false;
+  while (Date.now() < deadline) {
+    try {
+      writeFileSync(lockFile, String(process.pid), { flag: "wx" });
+      acquired = true;
+      break;
+    } catch {
+      try {
+        const st = statSync(lockFile);
+        if (Date.now() - st.mtimeMs > 180_000) unlinkSync(lockFile); // stale holder
+      } catch { /* lock vanished — retry immediately */ }
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  if (!acquired) throw new Error("gp4 race lock: acquisition timeout");
+  try {
+    return await fn();
+  } finally {
+    try { unlinkSync(lockFile); } catch { /* already gone */ }
+  }
 }
 
 /**

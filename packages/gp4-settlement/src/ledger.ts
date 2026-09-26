@@ -218,14 +218,17 @@ export class EscrowLedger {
   }
 
   /**
-   * Normalized state: the guard file is the authority. ELIGIBLE is never a
-   * legal persisted state under the R3 boundary — demoted to LOCKED when no
-   * guard exists, promoted to RELEASED when one does.
+   * Normalized state: the guard file is the authority, unconditionally.
+   *   guard present  + state ≠ RELEASED (LOCKED or legacy ELIGIBLE — a crash
+   *                   between guard and cache write) → RELEASED
+   *   guard absent   + state ELIGIBLE (legacy/torn) → LOCKED:
+   *                   no guard ⇒ no release ever happened
    */
   private normalizeState(entry: EscrowEntry): EscrowEntry {
-    if (entry.state !== "ELIGIBLE") return entry;
     const guardExists = existsSync(path.join(this.releasesDir(entry.escrow_ref), `${hashBody(entry.outcome_receipt_hash)}.json`));
-    return { ...entry, state: guardExists ? "RELEASED" : "LOCKED" };
+    if (guardExists) return entry.state === "RELEASED" ? entry : { ...entry, state: "RELEASED" };
+    if (entry.state === "ELIGIBLE") return { ...entry, state: "LOCKED" };
+    return entry;
   }
 
   /** Read the release record for (ref, receiptHash), or null. */
