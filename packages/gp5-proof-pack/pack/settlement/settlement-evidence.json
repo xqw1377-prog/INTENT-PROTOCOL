@@ -1,0 +1,48 @@
+{
+  "schema_version": "gp4-evidence.v1",
+  "escrow_ref": "escrow:gp-001-local",
+  "asset": {
+    "network": "solana-devnet",
+    "asset": "USDC-test",
+    "decimals": 6
+  },
+  "amount": "10",
+  "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+  "claim_record_hash": "sha256:c80e0c34b63c986109a804b6cd32e57fac80ecaa60f0733393e0a937c903be0c",
+  "escrow_state": "RELEASED",
+  "release": {
+    "schema_version": "gp4-release.v1",
+    "escrow_ref": "escrow:gp-001-local",
+    "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+    "settlement_key": "sha256:e95efcc3657d5ec6204074716ed8a0f4afc0dd7ea607c5b6f593aadffc537678",
+    "amount": "10",
+    "asset": {
+      "network": "solana-devnet",
+      "asset": "USDC-test",
+      "decimals": 6
+    },
+    "released_at": 1700000000
+  },
+  "instructions": [
+    {
+      "schema_version": "gp4-instruction.v1",
+      "settlement_key": "sha256:e95efcc3657d5ec6204074716ed8a0f4afc0dd7ea607c5b6f593aadffc537678",
+      "escrow_ref": "escrow:gp-001-local",
+      "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+      "nonce": "1",
+      "first_seen_at": 1700000000
+    }
+  ],
+  "links": {
+    "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+    "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+    "milestone_revision": 1,
+    "evidence_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+    "verification_policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d",
+    "task_freeze_hash": "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5",
+    "bounty_id": "GP-001",
+    "claimant": "agent:gp-001-demo"
+  },
+  "produced_at": 1700000000,
+  "evidence_hash": "sha256:ec345ddbe0acd16f1a1dc0c7038a33bd08afe6249d7227895c7b5942ca743776"
+}

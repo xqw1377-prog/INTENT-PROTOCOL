@@ -1,0 +1,27 @@
+{
+  "schema_version": "milestone.v1",
+  "milestone_id": "fb024dfb-66a4-4ffb-899a-96a04f7db211",
+  "intent_hash": "sha256:88a2ff855c145c95db613297441a5588094a83b349cd3d6e6fd3ea7112e9b35e",
+  "milestone_revision": 1,
+  "criterion_ids": [
+    "crit-01-retry-after-2000ms",
+    "crit-02-subsequent-200-returned",
+    "crit-03-max-attempts-3",
+    "crit-04-non429-no-retry",
+    "crit-05-existing-tests-pass",
+    "crit-06-build-typecheck-pass",
+    "crit-07-allowed-paths-only",
+    "crit-08-acceptance-suite-unchanged"
+  ],
+  "verification_policy_hash": "sha256:b8933eb4f466c8994cc3f0648b80f72d3f1c2ab50bdcb1eb3907f4100fb9510d",
+  "settlement_policy_hash": "sha256:78f775b8d711b734648baa08dd91553ad41f69f96296df9bb879f1da665b64fe",
+  "allocation": {
+    "asset": {
+      "network": "solana-devnet",
+      "asset": "USDC-test",
+      "decimals": 6
+    },
+    "amount": "10"
+  },
+  "content_hash": "sha256:89c2fc53393781b20403fe13d5cf4847fde85b1636935c09339a4487e13d898c"
+}

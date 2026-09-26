@@ -1,0 +1,75 @@
+name: GP5 Evidence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gp5-evidence.yml"
+      - "packages/gp5-proof-pack/**"
+      - "packages/gp4-settlement/**"
+      - "packages/protocol-schema/**"
+      - "packages/golden-path/**"
+      - "packages/gp3-verification/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gp5-proof-pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      EXPECTED_G1_SUBTREE: bb14d9375c92d64072f3e8c2f2dd65d794008422
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Verify pinned frozen objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD:packages/protocol-schema)" = "${EXPECTED_G1_SUBTREE}"
+
+      - name: Fresh install
+        run: npm ci
+
+      - name: Build protocol-schema dist
+        run: npm run build
+
+      - name: GP5 typecheck
+        run: npx tsc -p packages/gp5-proof-pack
+
+      - name: GP5 suite (E2E golden path + proof pack + tamper matrix; regenerates the committed pack)
+        run: npx vitest run packages/gp5-proof-pack
+
+      - name: Committed pack must be byte-stable after regeneration (clean tree)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --stat -- packages/gp5-proof-pack/pack | grep -q .; then
+            echo "committed pack byte-stable"
+          else
+            echo "committed pack DRIFTED after regeneration:"; git diff --stat -- packages/gp5-proof-pack/pack
+            exit 1
+          fi
+
+      - name: Standalone one-command verify (simulated third party)
+        run: node verify.mjs
+        working-directory: packages/gp5-proof-pack/pack
+
+      - name: Upload GP5 Proof Pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: gp5-proof-pack
+          path: packages/gp5-proof-pack/pack
+          if-no-files-found: error

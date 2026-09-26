@@ -1,0 +1,1 @@
+{"amount":"10","asset":{"asset":"USDC-test","decimals":6,"network":"solana-devnet"},"escrow_ref":"escrow:gp-001-local","outcome_receipt_hash":"sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380","released_at":1700000000,"schema_version":"gp4-release.v1","settlement_key":"sha256:e95efcc3657d5ec6204074716ed8a0f4afc0dd7ea607c5b6f593aadffc537678"}

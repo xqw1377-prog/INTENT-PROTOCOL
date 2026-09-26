@@ -11,3 +11,7 @@ cache/
 broadcast/
 packages/gp3-verification/keys/private/
 *.pem
+
+# GP5 Proof Pack: vendored frozen-lib runtime deps are part of the sealed evidence artifact
+!packages/gp5-proof-pack/pack/frozen-lib/node_modules/
+!packages/gp5-proof-pack/pack/frozen-lib/node_modules/**

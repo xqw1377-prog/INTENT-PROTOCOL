@@ -1,0 +1,11 @@
+{
+  "name": "@intent/gp5-proof-pack",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GP5 end-to-end golden path driver + self-verifiable Proof Pack (verify.mjs recomputes the complete chain from the frozen G1 wire library vendored into the pack).",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/gp5-proof-pack",
+    "typecheck": "tsc -p ."
+  }
+}
