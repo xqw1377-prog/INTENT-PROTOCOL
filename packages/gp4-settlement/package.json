@@ -2,7 +2,7 @@
   "name": "@intent/gp4-settlement",
   "version": "0.1.0",
   "private": true,
-  "description": "GP4-A settlement identity + persistence schema; GP4-B atomic economic release guard. EconomicReleaseKey=(escrow_ref,outcome_receipt_hash) enforced by kernel-atomic hardlink publish; settlement_key instruction idempotency via the same primitive.",
+  "description": "GP4-A settlement identity + persistence schema; GP4-B atomic economic release guard. EconomicReleaseKey=(escrow_ref,outcome_receipt_hash) enforced by kernel-atomic hardlink publish; settlement_key instruction idempotency ledger is GP4-C scope and NOT implemented here.",
   "type": "module",
   "scripts": {
     "test": "vitest run --root ../.. packages/gp4-settlement",
