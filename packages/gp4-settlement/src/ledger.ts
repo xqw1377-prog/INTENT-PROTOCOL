@@ -134,6 +134,10 @@ export class EscrowLedger {
   private escrowsDir(): string {
     return path.join(this.root, "escrows");
   }
+  /** Filesystem directory of one escrow (GP4-F evidence sealing writes here). */
+  escrowDirPath(ref: string): string {
+    return this.escrowDir(ref);
+  }
   private escrowDir(ref: string): string {
     return path.join(this.escrowsDir(), refDir(ref));
   }

@@ -143,6 +143,38 @@ export const InstructionRecordSchema = z.object({
 export type InstructionRecord = z.infer<typeof InstructionRecordSchema>;
 
 /**
+ * SettlementEvidenceV1 (GP4-F) — the sealed settlement evidence record with
+ * the full reverse-traceability chain. Sealed via canonical-bytes sha256
+ * (runtime ledger binding; `evidence_hash` is excluded from its own
+ * preimage). Every `links` field MUST resolve to a committed frozen
+ * artifact (verified by tests + scripts/gp4-evidence.ts).
+ */
+export const SettlementEvidenceSchema = z.object({
+  schema_version: z.literal("gp4-evidence.v1"),
+  escrow_ref: z.string().regex(ESCROW_REF_RE),
+  asset: AssetTripleSchema,
+  amount: z.string().regex(DECIMAL_RE),
+  outcome_receipt_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  claim_record_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  escrow_state: EscrowStateSchema,
+  release: ReleaseRecordSchema.nullable(),
+  instructions: z.array(InstructionRecordSchema),
+  links: z.object({
+    intent_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    milestone_id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/),
+    milestone_revision: z.number().int().min(1),
+    evidence_root: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    verification_policy_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    task_freeze_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    bounty_id: z.string().min(1),
+    claimant: z.string().min(1),
+  }).strict(),
+  produced_at: UnixSeconds,
+  evidence_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/).optional(),
+}).strict();
+export type SettlementEvidence = z.infer<typeof SettlementEvidenceSchema>;
+
+/**
  * ClaimRecordV1 (GP4-C part B) — the immutable payee authorization source.
  * Grammar transcribed from the FROZEN GP1 machine contract
  * (packages/gp-runtime/src/machines.ts claimRecordShapeViolations —

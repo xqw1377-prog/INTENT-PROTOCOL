@@ -15,12 +15,14 @@ export { receiptAuthority } from "./receipt.ts";
 export type { ReceiptAuthority } from "./receipt.ts";
 export { claimAuthority, claimRecordHash } from "./claim.ts";
 export type { ClaimAuthority } from "./claim.ts";
+export { buildSettlementEvidence, sealEvidence, sealSettlementEvidence, verifySettlementEvidence } from "./trace.ts";
+export type { EvidenceInputs } from "./trace.ts";
 export {
   ESCROW_REF_RE, SETTLEMENT_EDGES, FROZEN_ASSET_TRIPLE,
-  EscrowEntrySchema, ReleaseRecordSchema, InstructionRecordSchema, ClaimRecordSchema, SettlementPolicySchema,
+  EscrowEntrySchema, ReleaseRecordSchema, InstructionRecordSchema, ClaimRecordSchema, SettlementEvidenceSchema, SettlementPolicySchema,
   frozenAssetTripleOk, hashBody, refDir, settlementEdge,
 } from "./schema.ts";
-export type { AssetTriple, ClaimRecord, EscrowEntry, EscrowState, InstructionRecord, ReleaseRecord, SettlementPolicy } from "./schema.ts";
+export type { AssetTriple, ClaimRecord, EscrowEntry, EscrowState, InstructionRecord, ReleaseRecord, SettlementEvidence, SettlementPolicy } from "./schema.ts";
 export { EscrowLedger, LedgerCorruptError } from "./ledger.ts";
 export type { CreateEscrowInput, ReleaseResult, ReleaseStatus } from "./ledger.ts";
 export { LocalVerificationLedger } from "./verification.ts";

@@ -1,0 +1,76 @@
+name: GP4 Evidence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/gp4-evidence.yml"
+      - "packages/gp4-settlement/**"
+      - "packages/protocol-schema/**"
+      - "packages/golden-path/**"
+      - "packages/gp3-verification/artifacts/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gp4-settlement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPECTED_G1_SUBTREE: bb14d9375c92d64072f3e8c2f2dd65d794008422
+      EXPECTED_RECEIPT_HASH: da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380
+      EXPECTED_CLAIM_HASH: c80e0c34b63c986109a804b6cd32e57fac80ecaa60f0733393e0a937c903be0c
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Verify pinned frozen objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD:packages/protocol-schema)" = "${EXPECTED_G1_SUBTREE}"
+
+      - name: Fresh install
+        run: npm ci
+
+      - name: Build protocol-schema dist
+        run: npm run build
+
+      - name: GP4 typecheck
+        run: npx tsc -p packages/gp4-settlement
+
+      - name: GP4 full suite (A/B/C/D/E/F incl. multi-process races)
+        run: npx vitest run packages/gp4-settlement
+
+      - name: GP4 official evidence (golden release + adversarial replay + seal)
+        run: node --experimental-strip-types packages/gp4-settlement/scripts/gp4-evidence.ts gp4-artifacts
+
+      - name: Evidence digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(jq -r .golden_release gp4-artifacts/report.json)" = "RELEASED"
+          test "$(jq -r .different_nonce_replay gp4-artifacts/report.json)" = "ALREADY_RELEASED"
+          test "$(jq -r .wrong_payee gp4-artifacts/report.json)" = "REJECTED_CLAIMANT"
+          test "$(jq -r .post_restart_replay gp4-artifacts/report.json)" = "ALREADY_RELEASED"
+          echo "settlement_evidence_sha256=$(sha256sum gp4-artifacts/settlement-evidence.json | awk '{print $1}')"
+
+      - name: Upload GP4 evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gp4-evidence
+          path: |
+            gp4-artifacts/report.json
+            gp4-artifacts/settlement-evidence.json
+          if-no-files-found: error
