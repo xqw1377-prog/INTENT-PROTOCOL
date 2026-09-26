@@ -7,12 +7,21 @@ Intent Protocol is a Verifiable Outcome Protocol: a system for turning a human i
 ## Project status
 
 ```text
-COMMAND            = ACTIVE
+COMMAND             = ACTIVE
 WHITEPAPER          = V0.1
 TECH ARCHITECTURE   = V0.1
-IMPLEMENTATION      = NOT-STARTED
-CURRENT GATE        = G0 / REPOSITORY BASELINE
-NEXT TARGET         = P0-S0 / SCHEMA FREEZE
+
+G0/G1               = PASS / FROZEN
+GP0/GP1/GP2/GP3     = PASS / FROZEN
+GP4-A/GP4-B         = PASS / FROZEN
+GP4-C/D/E/F         = HOLD
+GP5+                 = HOLD
+
+CURRENT GATE        = GP4 / LOCAL SETTLEMENT
+NEXT TARGET         = GP4-C / INSTRUCTION IDEMPOTENCY + PAYEE AUTHORIZATION
+
+LOCAL SETTLEMENT    = PARTIAL / NOT GP4 PASS
+TESTNET             = DENIED UNTIL G5
 MAINNET             = DENIED
 TOKEN               = NOT-IN-SCOPE
 10K MERGE           = FORBIDDEN
