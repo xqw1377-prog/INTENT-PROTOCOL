@@ -53,6 +53,12 @@ jobs:
           set -euo pipefail
           npm ci --no-audit --no-fund 2>&1 | tee gp3-main-install.log
 
+      - name: Build protocol dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx tsc -b tsconfig.json --force 2>&1 | tee gp3-protocol-build.log
+
       - name: Run GP3 Formal V4
         shell: bash
         run: |
@@ -72,6 +78,7 @@ jobs:
           set -euo pipefail
           mkdir -p gp3-evidence
           cp gp3-main-install.log gp3-evidence/ 2>/dev/null || true
+          cp gp3-protocol-build.log gp3-evidence/ 2>/dev/null || true
           cp gp3-formal-test.log gp3-evidence/ 2>/dev/null || true
           cp gp3-formal-typecheck.log gp3-evidence/ 2>/dev/null || true
 
