@@ -11,9 +11,8 @@
  *   escrows/<escrow_ref>/escrow.json                          EscrowEntryV1
  *   escrows/<escrow_ref>/releases/<receipt-hash-hex>.json     ReleaseRecordV1   ← ECONOMIC GUARD
  *
- *   escrows/<escrow_ref>/instructions/<settlement-key-hex>.json
- *     InstructionRecordV1 — GP4-C SCOPE, NOT IMPLEMENTED in GP4-A/B.
- *     Not an authority and not an idempotency ledger here; do not create.
+ * (There is deliberately NO instructions/ tree and no InstructionRecord:
+ * instruction idempotency is GP4-C scope — see the note below.)
  *
  * On-disk names use the bare 64-hex-char body of a `sha256:<hex>` hash:
  * ':' is not a legal filename character on NTFS. Parsed records always carry
