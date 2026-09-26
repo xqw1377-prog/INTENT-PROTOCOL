@@ -36,14 +36,18 @@ export function hashBody(h: string): string {
 }
 
 /**
- * GP4 local settlement network allowlist (GOLDEN-PATH-V1.md §2: opaque labels;
- * GP4 proves deterministic LOCAL settlement with the frozen asset triple).
- * MAINNET = DENIED: any label not listed here refuses release.
+ * THE frozen GP-001 asset triple (GOLDEN-PATH-V1.md §2 — the ONLY asset GP4
+ * may settle; opaque, case-sensitive V1 labels). R2 remediation: no second
+ * asset domain (no "local-ledger"), no generalization. Any other triple —
+ * different network, different asset label, or different decimals — is
+ * DENIED at release and rejected at escrow creation.
  */
-export const ALLOWED_NETWORKS: readonly string[] = ["solana-devnet", "local-ledger"];
+export const FROZEN_ASSET_TRIPLE = { network: "solana-devnet", asset: "USDC-test", decimals: 6 } as const;
 
-export function networkAllowed(network: string): boolean {
-  return ALLOWED_NETWORKS.includes(network);
+export function frozenAssetTripleOk(asset: { network: string; asset: string; decimals: number }): boolean {
+  return asset.network === FROZEN_ASSET_TRIPLE.network
+    && asset.asset === FROZEN_ASSET_TRIPLE.asset
+    && asset.decimals === FROZEN_ASSET_TRIPLE.decimals;
 }
 
 export const AssetTripleSchema = z.object({
@@ -105,19 +109,13 @@ export const ReleaseRecordSchema = z.object({
 }).strict();
 export type ReleaseRecord = z.infer<typeof ReleaseRecordSchema>;
 
-/**
- * InstructionRecordV1 — settlement_key instruction idempotency ledger
- * (contract §4B). Instruction-layer only: NEVER the economic guard.
- */
-export const InstructionRecordSchema = z.object({
-  schema_version: z.literal("gp4-instruction.v1"),
-  settlement_key: z.string().regex(/^sha256:[0-9a-f]{64}$/),
-  escrow_ref: z.string().regex(ESCROW_REF_RE),
-  outcome_receipt_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
-  nonce: z.string().regex(/^(0|[1-9]\d*)$/),
-  first_seen_at: UnixSeconds,
-}).strict();
-export type InstructionRecord = z.infer<typeof InstructionRecordSchema>;
+// NOTE (P1-A remediation): the settlement_key instruction idempotency LEDGER
+// (InstructionRecordV1, instructions/<settlement_key>.json) is GP4-C scope and
+// is deliberately NOT implemented in GP4-A/B. The settlement_key is still
+// re-derived by the engine (frozen G1 settlementKey) and returned in results,
+// but no instruction persistence exists in this package. Exact-instruction
+// replay is subsumed by the economic guard for release purposes:
+// same settlement_key ⇒ same receipt ⇒ same (escrow_ref, receipt) pair.
 
 /**
  * Frozen settlement state machine, transcribed from GOLDEN-PATH-V1.md §3

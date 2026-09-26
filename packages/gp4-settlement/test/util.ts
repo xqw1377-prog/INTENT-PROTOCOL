@@ -1,18 +1,36 @@
 /** Shared GP4 test fixtures (imported by both test files; not a test module). */
-import { mkdtempSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
-import { EscrowLedger } from "../src/index.ts";
+import { EscrowLedger, LocalVerificationLedger } from "../src/index.ts";
 
 /** Frozen GP3 OutcomeReceipt content_hash (GP3 closed ledger). */
 export const FROZEN_RH = "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380";
 
-/** Frozen GP-001 asset triple (GOLDEN-PATH-V1.md §2). */
+/** Frozen GP-001 asset triple (GOLDEN-PATH-V1.md §2) — the ONLY releasable triple. */
 export const FROZEN_ASSET = { network: "solana-devnet", asset: "USDC-test", decimals: 6 } as const;
 
-export function freshLedger(): { ledger: EscrowLedger; root: string } {
-  const root = mkdtempSync(path.join(tmpdir(), "gp4-ledger-"));
+/** Production ledger — hold-by-construction (no way to enable release). */
+export function productionLedger(): { ledger: EscrowLedger; root: string } {
+  const root = mkdtempSync(path.join(tmpdir(), "gp4-prod-"));
   return { ledger: EscrowLedger.open(root, { now: () => 1_700_000_000 }), root };
+}
+
+/** Local verification ledger — the EXPLICIT release-enabled override (R1). */
+export function verificationLedger(): { ledger: LocalVerificationLedger; root: string } {
+  const root = mkdtempSync(path.join(tmpdir(), "gp4-verify-"));
+  return { ledger: LocalVerificationLedger.open(root, { now: () => 1_700_000_000 }), root };
+}
+
+/** Verification ledger with one release-enabled escrow already created. */
+export function enabledLedger(): { ledger: LocalVerificationLedger; root: string } {
+  const { ledger, root } = verificationLedger();
+  const r = ledger.createEscrowForVerification({
+    escrow_ref: "gp-001-escrow-1", asset: FROZEN_ASSET, amount: "10", outcome_receipt_hash: FROZEN_RH,
+  });
+  if (r.status !== "CREATED") throw new Error(`verification escrow not created: ${JSON.stringify(r)}`);
+  return { ledger, root };
 }
 
 /** The frozen canonical receipt artifact (GP2/GP3 output) as untrusted data. */
@@ -31,4 +49,55 @@ export function makeInstruction(over?: Record<string, unknown>): Record<string, 
     total_amount: "10",
     ...over,
   };
+}
+
+/**
+ * Hand-forge an escrow.json straight to disk (bypassing every API) — used to
+ * prove the RELEASE-layer gates (e.g. DENIED_ASSET) independently of the
+ * creation-layer gates.
+ */
+export function forgeEscrow(root: string, over?: {
+  escrow_ref?: string; asset?: { network: string; asset: string; decimals: number };
+  amount?: string; outcome_receipt_hash?: string; state?: string; release_enabled?: boolean;
+}): void {
+  const ref = over?.escrow_ref ?? "gp-001-escrow-1";
+  const dir = path.join(root, "escrows", ref);
+  const entry = {
+    schema_version: "gp4-escrow.v1",
+    escrow_ref: ref,
+    asset: over?.asset ?? FROZEN_ASSET,
+    amount: over?.amount ?? "10",
+    outcome_receipt_hash: over?.outcome_receipt_hash ?? FROZEN_RH,
+    state: over?.state ?? "LOCKED",
+    release_enabled: over?.release_enabled ?? true,
+    created_at: 1_700_000_000,
+    updated_at: 1_700_000_000,
+  };
+  mkdirSync(path.join(dir, "releases"), { recursive: true });
+  writeFileSync(path.join(dir, "escrow.json"), JSON.stringify(entry));
+}
+
+/**
+ * Byte-exact digest of an entire ledger tree (paths + contents) — the
+ * zero-write oracle for the guard-前 read-only proof (R3).
+ */
+export function treeDigest(root: string): string {
+  const h = createHash("sha256");
+  if (!existsSync(root)) return "empty";
+  const walk = (dir: string): void => {
+    const entries = readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1));
+    for (const e of entries) {
+      const p = path.join(dir, e.name);
+      h.update(p.slice(root.length).replaceAll("\\", "/"));
+      if (e.isDirectory()) walk(p);
+      else h.update(readFileSync(p));
+    }
+  };
+  walk(root);
+  return h.digest("hex");
+}
+
+export function releaseFiles(root: string, ref = "gp-001-escrow-1"): string[] {
+  const dir = path.join(root, "escrows", ref, "releases");
+  return existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".json")).sort() : [];
 }
