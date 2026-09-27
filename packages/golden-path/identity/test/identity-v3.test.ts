@@ -128,13 +128,31 @@ describe("[GP-ID-R1-V3] identity materialization", () => {
     expect(provenance.materialization_timing).toBe("POST_GP2_REMEDIATION");
   });
 
-  test("[V3.11] B1: full git diff vs 3fbef70 matches the EXACT allowlist (identity only)", () => {
-    const changed = gitOut(["diff", "--name-only", `${BASE}...HEAD`]).split("\n").filter(Boolean);
+  test("[V3.11] B1: identity materialization diff matches the EXACT allowlist (identity only)", () => {
+    // The scope property belongs to the commit that MATERIALIZED the identity
+    // (545cb43), not to "everything merged since the GP2 anchor". While HEAD is
+    // that materialization commit the original audit applies verbatim
+    // (BASE...HEAD). Once HEAD has moved past it (normal main regression), the
+    // naive BASE...HEAD diff would drag in every later GP3/GP4/GP5 change, so
+    // the diff is pinned back to the materialization commit instead of
+    // loosening the assertion.
+    const MATERIALIZATION = "545cb43b0e7c614b00589ede8fb3b83b3d458417";
+    const head = gitOut(["rev-parse", "HEAD"]);
+    // the frozen identity must genuinely live in this history; a rewritten or
+    // detached history goes RED (no vacuous pass)
+    expect(spawnSync("git", ["merge-base", "--is-ancestor", MATERIALIZATION, head], { cwd: repoRoot, encoding: "utf8" }).status).toBe(0);
+    const scope = head === MATERIALIZATION ? `${BASE}...HEAD` : `${BASE}...${MATERIALIZATION}`;
+    const changed = gitOut(["diff", "--name-only", scope]).split("\n").filter(Boolean);
     const allowlist = [
       "packages/golden-path/identity/intent.json",
       "packages/golden-path/identity/milestone.json",
       "packages/golden-path/identity/provenance.json",
       "packages/golden-path/identity/policies/gp-001-settlement-hold-v1.json",
+      // AMEND-001 (docs/AMENDMENTS.md): .gitattributes is a repository
+      // byte-integrity control classified as a NON-SEMANTIC governance artifact
+      // — no protocol semantics, no wire bytes, no hashes. Admitted here
+      // explicitly; the allowlist is never widened silently.
+      ".gitattributes",
     ];
     // test files also allowed (start with packages/golden-path/identity/test/)
     for (const p of changed) {

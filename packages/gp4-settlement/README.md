@@ -1,11 +1,19 @@
-# @intent/gp4-settlement — GP4-A + GP4-B (R1/R2/R3 remediated)
+# @intent/gp4-settlement — local settlement (GP4-A..F built)
 
-GP4 local settlement, scope of this package per the Commander GP4 order:
+GP4 local settlement. Ledger status (Commander ledger):
 
-- **GP4-A** — settlement identity + persistence schema
-- **GP4-B** — atomic economic release guard
+- **GP4-A** — settlement identity + persistence schema → **PASS / FROZEN**
+- **GP4-B** — atomic economic release guard → **PASS / FROZEN**
+- **GP4-C** — settlement instruction persistence / idempotency ledger
+  → BUILT / AWAITING COMMANDER REVIEW
+- **GP4-D** — crash/restart matrix → BUILT / AWAITING COMMANDER REVIEW
+- **GP4-E** — 12-case adversarial matrix → BUILT / AWAITING COMMANDER REVIEW
+- **GP4-F** — SettlementEvidenceV1, reverse traceability, evidence sealing,
+  tamper verification → BUILT / AWAITING COMMANDER REVIEW
 
-GP4-C..F and GP5+ are **NOT IMPLEMENTED** here (HOLD). MAINNET is **DENIED**.
+**GP4 overall = NOT SIGNED.** Sections 1–8 below document the GP4-A/B baseline
+in detail; the C/D/E/F surfaces are implemented but not yet Commander-signed.
+GP5+ is out of scope here. MAINNET is **DENIED**.
 
 ## 1. Schema (GP4-A)
 
@@ -27,10 +35,11 @@ escrows/<escrow_ref>/releases/<receipt-hash-hex>.json   ReleaseRecordV1   ← EC
 - `ReleaseRecordV1` (`gp4-release.v1`): the economic release fact —
   escrow_ref, outcome_receipt_hash, settlement_key, amount, asset,
   released_at.
-- **NO instruction persistence** (P1-A): the settlement_key instruction
-  idempotency ledger (`InstructionRecordV1`, `instructions/` tree) is GP4-C
-  scope and is deliberately absent. The settlement_key is still re-derived
-  by the engine (frozen G1 `settlementKey`) and returned in results.
+- Instruction persistence (P1-A): the settlement_key instruction idempotency
+  ledger (`InstructionRecordV1`, `instructions/` tree) is GP4-C scope — present
+  in the current tree (BUILT / awaiting Commander review) and absent from the
+  GP4-A/B baseline described here. The settlement_key is always re-derived by
+  the engine (frozen G1 `settlementKey`) and returned in results.
 - On-disk names use the bare 64-hex body (`:` is illegal on NTFS).
 
 ## 2. HOLD authority isolation (R1)
