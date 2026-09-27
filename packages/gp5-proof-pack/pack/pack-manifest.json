@@ -2515,7 +2515,7 @@
     },
     {
       "file": "frozen-lib/package.json",
-      "sha256": "sha256:6c537d7809e16bf2d421d3baa54ae99c9d58ba0c7de8a378461f7db16e098b4f"
+      "sha256": "sha256:31262ed957235cb4e29464a121e47e982203ea73ab190e5a38d6880cd2fc80d5"
     },
     {
       "file": "frozen-lib/primitives.d.ts",
@@ -2595,7 +2595,7 @@
     },
     {
       "file": "verify.mjs",
-      "sha256": "sha256:571ff2a2574918054ebca4c6e1368ab77741c835afdf7011cb599d777032ca96"
+      "sha256": "sha256:e23a3baf184159d38f4a42ebda1ff5ba889eee8633e59fb450166d01f37c2fd8"
     }
   ]
 }

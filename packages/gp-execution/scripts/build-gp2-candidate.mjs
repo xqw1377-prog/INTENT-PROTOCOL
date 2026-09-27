@@ -19,5 +19,5 @@ if ((vj.numFailedTests ?? 0) > 0) { console.error(`suite has failures — report
 rmSync(path.join(repoRoot, "packages/golden-path/evidence"), { recursive: true, force: true });
 execFileSync(process.execPath, [vitest, "run", "--root", "../..", "packages/gp-execution"], {
   cwd: pkgDir, stdio: "inherit",
-  env: { ...process.env, GP2_TESTS_PASSED: String(vj.numPassedTests ?? 0), GP2_TESTS_FAILED: String(vj.numFailedTests ?? 0) },
+  env: { ...process.env, GP2_REGEN_EVIDENCE: "1", GP2_TESTS_PASSED: String(vj.numPassedTests ?? 0), GP2_TESTS_FAILED: String(vj.numFailedTests ?? 0) },
 });

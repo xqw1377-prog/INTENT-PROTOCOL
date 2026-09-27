@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -15,6 +16,15 @@ import { buildSealedBundle, packageArtifacts, persistEvidence } from "../src/evi
  */
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = path.resolve(pkgDir, "../..");
+/**
+ * Builder mode (GP2_REGEN_EVIDENCE=1) writes the committed candidate report and
+ * the in-repo evidence tree. The DEFAULT suite run must leave the worktree
+ * clean: tests must never mutate a tracked artifact, and must never create dirs
+ * under packages/golden-path/evidence (that is what made [V3.12] / [T3.1] flaky
+ * and order-dependent). Default runs therefore write into a private temp root.
+ */
+const BUILDER = process.env.GP2_REGEN_EVIDENCE === "1";
+const outRoot = BUILDER ? repoRoot : mkdtempSync(path.join(tmpdir(), "gp2-candidate-"));
 
 describe("[GP2-REPORT] candidate proof", () => {
   test("[R.1] build gp2-candidate.json from a real isolated execution", () => {
@@ -24,7 +34,7 @@ describe("[GP2-REPORT] candidate proof", () => {
     try {
       const artifacts = packageArtifacts(exec.manifest, exec.raw);
       const bundle = buildSealedBundle(exec.manifest, artifacts, pf.task_freeze_hash, pf.record.verification_policy);
-      const evidenceDir = path.join(repoRoot, "packages/golden-path/evidence", exec.manifest.run_id);
+      const evidenceDir = path.join(outRoot, "packages/golden-path/evidence", exec.manifest.run_id);
       rmSync(evidenceDir, { recursive: true, force: true });
       persistEvidence(evidenceDir, exec.manifest, artifacts, bundle);
 
@@ -59,8 +69,9 @@ describe("[GP2-REPORT] candidate proof", () => {
         gp3_plus_implemented: false,
         declaration: "CANDIDATE ONLY — not a PASS claim. GP3+ capabilities are absent by construction (scope self-scan in suite).",
       };
-      mkdirSync(path.join(pkgDir, "report"), { recursive: true });
-      writeFileSync(path.join(pkgDir, "report/gp2-candidate.json"), JSON.stringify(report, null, 2) + "\n");
+      const reportDir = BUILDER ? path.join(pkgDir, "report") : outRoot;
+      mkdirSync(reportDir, { recursive: true });
+      writeFileSync(path.join(reportDir, "gp2-candidate.json"), JSON.stringify(report, null, 2) + "\n");
       // self-checks: the report must reflect a fully green execution
       expect(report.outcomes.base_acceptance_seeded_red).toBe(true);
       expect(report.outcomes.patched_acceptance_all_green).toBe(true);

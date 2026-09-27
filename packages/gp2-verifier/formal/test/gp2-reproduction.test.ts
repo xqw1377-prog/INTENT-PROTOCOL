@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -12,6 +13,15 @@ import { reproduceFrozenTask, type ReplayResult } from "../../src/replay.js";
  * (the file must reflect an actually-executed replay).
  */
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+/**
+ * Builder mode (GP2_REGEN_EVIDENCE=1) writes report/gp2-reproduction.json into
+ * the repo, which the GP2 evidence builder script then uploads. The DEFAULT
+ * suite run must leave the worktree clean, so it writes into a private temp dir
+ * instead: a test must never mutate a tracked artifact nor share a writable
+ * directory with other test files (the cause of the flaky [V3.12] / [T3.1]).
+ */
+const BUILDER = process.env.GP2_REGEN_EVIDENCE === "1";
+const outDir = BUILDER ? path.join(pkgDir, "report") : mkdtempSync(path.join(tmpdir(), "gp2-repro-"));
 const cap = loadCapture();
 const report = snapJson<{ execution_id: string }>("candidate-report.json");
 const task = JSON.parse(gitShow(`${cap.pinned_sha}:packages/golden-path/fixtures/gp-001-task.json`).toString("utf8")) as {
@@ -55,8 +65,8 @@ describe("[F7-REC] reproduction evidence recorder", () => {
         },
         note: "observed values only — conclusions are drawn by the formal checks in gp2-formal-replay.test.ts, not by this file",
       };
-      mkdirSync(path.join(pkgDir, "report"), { recursive: true });
-      writeFileSync(path.join(pkgDir, "report/gp2-reproduction.json"), JSON.stringify(observed, null, 2) + "\n");
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(path.join(outDir, "gp2-reproduction.json"), JSON.stringify(observed, null, 2) + "\n");
       expect(observed.observed.patched_acceptance).toBeDefined();
       expect(observed.observed.build_exit).toBeDefined();
       expect(observed.frozen_truth.task_freeze_hash).toBe("sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5");

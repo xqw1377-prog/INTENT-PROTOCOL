@@ -14,7 +14,7 @@
  * Black-box negatives recorded in report.json (§9): unverified submission
  * cannot reach VERIFIED; changed-nonce and wrong-payee cannot release.
  */
-import { cpSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -158,12 +158,41 @@ export function buildPack(packDir: string): PackReport {
   const evidence = buildSettlementEvidence(vl, FROZEN.escrowRef, { receipt, claim_record: claim }, () => 1_700_000_000);
 
   // ————————————— 3. compose the pack
+  // Pack byte-contract: every text artifact enters the pack as canonical LF.
+  // Binary artifacts (NUL byte) are byte-copied untouched. A CR byte in any
+  // text source aborts the regen LOUDLY — silent CRLF ingestion is what made
+  // the committed pack's manifest drift from fresh checkouts (GP5 CI FAIL).
+  // Never normalize silently: a CR byte means the working tree is not
+  // byte-clean and the operator must fix the checkout, not paper over it.
+  const canonicalLf = (rel: string, data: Buffer): Buffer => {
+    if (data.includes(0)) return data; // binary: no line-ending contract
+    if (data.includes(0x0d)) {
+      throw new Error(
+        `GP5 pack regen aborted: text source '${rel}' contains CR bytes (CRLF). ` +
+        `Compose the pack from a byte-clean LF checkout; do not normalize silently.`,
+      );
+    }
+    return data;
+  };
   const put = (rel: string, data: string | Buffer): void => {
     const file = path.join(packDir, rel);
     mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, data);
+    writeFileSync(file, canonicalLf(rel, Buffer.isBuffer(data) ? data : Buffer.from(data, "utf8")));
   };
-  const copyRepo = (rel: string, dest: string): void => cpSync(path.join(REPO_ROOT, rel), path.join(packDir, dest), { recursive: true });
+  const copyRepo = (rel: string, dest: string): void => {
+    const src = path.join(REPO_ROOT, rel);
+    const dst = path.join(packDir, dest);
+    if (statSync(src).isFile()) { put(dest.replaceAll("\\", "/"), readFileSync(src)); return; }
+    const walkCopy = (s: string, d: string): void => {
+      for (const e of readdirSync(s, { withFileTypes: true })) {
+        const sp = path.join(s, e.name);
+        const dp = path.join(d, e.name);
+        if (e.isDirectory()) { mkdirSync(dp, { recursive: true }); walkCopy(sp, dp); }
+        else put(path.relative(packDir, dp).replaceAll("\\", "/"), readFileSync(sp));
+      }
+    };
+    walkCopy(src, dst);
+  };
 
   put("objects/intent.json", JSON.stringify(intent, null, 2) + "\n");
   put("objects/milestone.json", JSON.stringify(milestone, null, 2) + "\n");
@@ -191,7 +220,7 @@ export function buildPack(packDir: string): PackReport {
   copyRepo("packages/protocol-schema/dist", "frozen-lib");
   copyRepo("packages/protocol-schema/package.json", "frozen-lib/package.json");
   copyRepo("node_modules/zod", "frozen-lib/node_modules/zod");
-  cpSync(path.join(PACKAGE_ROOT, "verify.mjs"), path.join(packDir, "verify.mjs"));
+  put("verify.mjs", readFileSync(path.join(PACKAGE_ROOT, "verify.mjs")));
 
   // sealed receipt sanity: the frozen GP3 artifact still seals (wire exact)
   frozenSeal(OutcomeReceiptSchema, receipt);

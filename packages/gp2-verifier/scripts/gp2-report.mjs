@@ -25,7 +25,7 @@ const vt = spawnSync(process.execPath, [
   vitestBin, "run", "--root", "../..", "--reporter=json",
   "--outputFile=packages/gp2-verifier/report/gp2-vitest-results.json",
   "packages/gp2-verifier/formal/test",
-], { cwd: pkgDir, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+], { cwd: pkgDir, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, env: { ...process.env, GP2_REGEN_EVIDENCE: "1" } });
 void vt;
 
 if (!existsSync(resultsFile)) {
