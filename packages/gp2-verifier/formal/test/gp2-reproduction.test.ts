@@ -6,12 +6,17 @@ import { gitShow, loadCapture, sha256, snapJson, targetFile } from "../../src/in
 import { reproduceFrozenTask, type ReplayResult } from "../../src/replay.js";
 
 /**
- * P4 REPRODUCTION EVIDENCE — records the REAL F7 observations into
+ * P4 REPRODUCTION EVIDENCE — records the REAL F7 observations.
+ *
+ * TEST-HYGIENE-R1: the health suite runs the replay and asserts the observed
+ * facts WITHOUT writing anything; only the builder mode
+ * (GP2_RECORD_REPRODUCTION=1) materializes the official
  * report/gp2-reproduction.json. No hardcoded conclusions: every field is
  * written from the live replay object; the only assertions are structural
- * (the file must reflect an actually-executed replay).
+ * (the replay must actually have executed).
  */
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const BUILDER = process.env.GP2_RECORD_REPRODUCTION === "1";
 const cap = loadCapture();
 const report = snapJson<{ execution_id: string }>("candidate-report.json");
 const task = JSON.parse(gitShow(`${cap.pinned_sha}:packages/golden-path/fixtures/gp-001-task.json`).toString("utf8")) as {
@@ -55,8 +60,10 @@ describe("[F7-REC] reproduction evidence recorder", () => {
         },
         note: "observed values only — conclusions are drawn by the formal checks in gp2-formal-replay.test.ts, not by this file",
       };
-      mkdirSync(path.join(pkgDir, "report"), { recursive: true });
-      writeFileSync(path.join(pkgDir, "report/gp2-reproduction.json"), JSON.stringify(observed, null, 2) + "\n");
+      if (BUILDER) {
+        mkdirSync(path.join(pkgDir, "report"), { recursive: true });
+        writeFileSync(path.join(pkgDir, "report/gp2-reproduction.json"), JSON.stringify(observed, null, 2) + "\n");
+      }
       expect(observed.observed.patched_acceptance).toBeDefined();
       expect(observed.observed.build_exit).toBeDefined();
       expect(observed.frozen_truth.task_freeze_hash).toBe("sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5");

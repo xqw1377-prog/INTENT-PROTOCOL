@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
-import { sign as edSign } from "node:crypto";
+import { sign as edSign, createHash } from "node:crypto";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test, beforeAll } from "vitest";
@@ -147,8 +147,20 @@ describe("[GP3-V6]", () => {
     neg("no-sig", tryForm([unsigned, committedPolicy], ctx), "signature-invalid");
   });
 
-  test("[T3.1] scope", () => {
-    expect(readdirSync(path.join(repoRoot, "packages/golden-path/evidence"))).toEqual(["9f6610dc-24e9-4e6c-b7c1-67574064d2ae"]);
+  test("[T3.1] scope: the FROZEN GP2 evidence bundle is present byte-exact and every evidence dir is well-formed", () => {
+    // TEST-HYGIENE-R1 / GP2 official re-materialization: additional GP2
+    // evidence run dirs (fresh official reproductions) may exist; what GP3
+    // depends on is pinned — the frozen bundle must be byte-exact.
+    const FROZEN_GP2_RUN = "9f6610dc-24e9-4e6c-b7c1-67574064d2ae";
+    const FROZEN_BUNDLE_SHA256 = "1d5518c592f331d86d1d19d6366c6128450daba0384dae63582c65893f246bf3";
+    const evidenceRoot = path.join(repoRoot, "packages/golden-path/evidence");
+    const dirs = readdirSync(evidenceRoot);
+    expect(dirs, "frozen GP2 evidence run must exist").toContain(FROZEN_GP2_RUN);
+    const frozenBundle = readFileSync(path.join(evidenceRoot, FROZEN_GP2_RUN, "bundle.json"));
+    expect(createHash("sha256").update(frozenBundle).digest("hex")).toBe(FROZEN_BUNDLE_SHA256);
+    for (const d of dirs) {
+      expect(() => JSON.parse(readFileSync(path.join(evidenceRoot, d, "bundle.json"), "utf8")), `bundle.json in ${d}`).not.toThrow();
+    }
   });
 
   test("[T3.2] GP4+ absence", () => {

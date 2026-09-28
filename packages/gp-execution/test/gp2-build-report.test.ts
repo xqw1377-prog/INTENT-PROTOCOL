@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -8,13 +9,19 @@ import { executeIsolated } from "../src/runner.js";
 import { buildSealedBundle, packageArtifacts, persistEvidence } from "../src/evidence.js";
 
 /**
- * GP2 CANDIDATE PROOF BUILDER (Issue #25 §G).
- * Performs the one real candidate execution, persists the evidence CAS, and
- * writes packages/gp-execution/report/gp2-candidate.json. Tooling-as-test
- * (same pattern as the committed-vector bootstrap); never claims PASS.
+ * GP2 CANDIDATE PROOF BUILDER (Issue #25 §G) — TEST-HYGIENE-R1 form.
+ *
+ * Default (health suite): performs ONE real isolated execution and asserts
+ * every outcome, materializing NOTHING — evidence lands in an OS temp dir.
+ *
+ * Builder mode (GP2_BUILD_CANDIDATE=1, invoked by
+ * scripts/build-gp2-candidate.mjs): additionally writes the official
+ * packages/gp-execution/report/gp2-candidate.json and the evidence CAS under
+ * packages/golden-path/evidence/<run_id>/. Tooling-as-test; never claims PASS.
  */
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = path.resolve(pkgDir, "../..");
+const BUILDER = process.env.GP2_BUILD_CANDIDATE === "1";
 
 describe("[GP2-REPORT] candidate proof", () => {
   test("[R.1] build gp2-candidate.json from a real isolated execution", () => {
@@ -24,7 +31,12 @@ describe("[GP2-REPORT] candidate proof", () => {
     try {
       const artifacts = packageArtifacts(exec.manifest, exec.raw);
       const bundle = buildSealedBundle(exec.manifest, artifacts, pf.task_freeze_hash, pf.record.verification_policy);
-      const evidenceDir = path.join(repoRoot, "packages/golden-path/evidence", exec.manifest.run_id);
+      // TEST-HYGIENE-R1: health-suite runs persist evidence under OS temp only;
+      // only the explicit builder command materializes official evidence.
+      const evidenceRoot = BUILDER
+        ? path.join(repoRoot, "packages/golden-path/evidence")
+        : path.join(tmpdir(), "gp2-evidence-root-");
+      const evidenceDir = path.join(evidenceRoot, exec.manifest.run_id);
       rmSync(evidenceDir, { recursive: true, force: true });
       persistEvidence(evidenceDir, exec.manifest, artifacts, bundle);
 
@@ -59,8 +71,10 @@ describe("[GP2-REPORT] candidate proof", () => {
         gp3_plus_implemented: false,
         declaration: "CANDIDATE ONLY — not a PASS claim. GP3+ capabilities are absent by construction (scope self-scan in suite).",
       };
-      mkdirSync(path.join(pkgDir, "report"), { recursive: true });
-      writeFileSync(path.join(pkgDir, "report/gp2-candidate.json"), JSON.stringify(report, null, 2) + "\n");
+      if (BUILDER) {
+        mkdirSync(path.join(pkgDir, "report"), { recursive: true });
+        writeFileSync(path.join(pkgDir, "report/gp2-candidate.json"), JSON.stringify(report, null, 2) + "\n");
+      }
       // self-checks: the report must reflect a fully green execution
       expect(report.outcomes.base_acceptance_seeded_red).toBe(true);
       expect(report.outcomes.patched_acceptance_all_green).toBe(true);

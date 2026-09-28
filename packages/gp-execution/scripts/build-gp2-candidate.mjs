@@ -1,7 +1,13 @@
 #!/usr/bin/env node
-/** Wrapper: runs the full GP2 suite; the report-builder test writes gp2-candidate.json. */
+/**
+ * Official GP2 candidate evidence builder (TEST-HYGIENE-R1 form).
+ *
+ * Explicit builder command — the ONLY thing allowed to materialize
+ * gp2-candidate.json and the evidence CAS under golden-path/evidence/.
+ * Committed GP2 evidence runs (the GP3 binding inputs) are NEVER deleted;
+ * each invocation adds its own official run directory.
+ */
 import { execFileSync } from "node:child_process";
-import { rmSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -14,10 +20,14 @@ const j = execFileSync(process.execPath, [vitest, "run", "--root", "../..", "pac
 });
 const vj = JSON.parse(j.slice(j.indexOf("{")));
 if ((vj.numFailedTests ?? 0) > 0) { console.error(`suite has failures — report not rebuilt`); process.exit(1); }
-// pass-1 was itself a REAL execution instance (its CAS copy is not the
-// candidate); clear so the final tree contains exactly the reported run
-rmSync(path.join(repoRoot, "packages/golden-path/evidence"), { recursive: true, force: true });
-execFileSync(process.execPath, [vitest, "run", "--root", "../..", "packages/gp-execution"], {
+// pass 2: BUILDER MODE — the report-builder test writes gp2-candidate.json
+// and persists its evidence CAS; the hygiene gate exempts builder runs.
+execFileSync(process.execPath, [vitest, "run", "--root", "../..", "packages/gp-execution/test/gp2-build-report.test.ts"], {
   cwd: pkgDir, stdio: "inherit",
-  env: { ...process.env, GP2_TESTS_PASSED: String(vj.numPassedTests ?? 0), GP2_TESTS_FAILED: String(vj.numFailedTests ?? 0) },
+  env: {
+    ...process.env,
+    GP2_BUILD_CANDIDATE: "1",
+    GP2_TESTS_PASSED: String(vj.numPassedTests ?? 0),
+    GP2_TESTS_FAILED: String(vj.numFailedTests ?? 0),
+  },
 });
