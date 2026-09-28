@@ -10,13 +10,14 @@
  *   - Proof Pack + ONE-COMMAND third-party verifier (verify.mjs)
  */
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { describe, expect, test } from "vitest";
-import { buildPack } from "../src/build-pack.ts";
+import { buildPack, canonicalPackBytes } from "../src/build-pack.ts";
 import type { PackReport } from "../src/build-pack.ts";
 // shared cross-package child-process storm lock (same O_EXCL lock file as gp4)
 import { withRaceLock } from "../../gp4-settlement/test/util.ts";
@@ -148,7 +149,12 @@ describe("[GP5] end-to-end golden path + proof pack", () => {
     expect(v.code).toBe(0);
   });
 
-  test("[G5-08] regenerate the committed pack deterministically (repo evidence artifact)", { timeout: 180_000 }, async () => {
+  test("[G5-08] regenerate the committed pack deterministically (repo evidence artifact)", { timeout: 180_000 }, async (t) => {
+    if (process.env.GP5_REGEN_PACK === "1") {
+      // builder mode replaces the committed pack (G5-10, later in this file);
+      // a pre-replacement comparison against the OLD pack is meaningless here
+      return t.skip("builder regen mode: committed pack is being replaced by G5-10; G5-R1-03 (after G5-10) covers the post-regen comparison");
+    }
     const committed = fileURLToPath(new URL("../pack", import.meta.url));
     const fresh = mkdtempSync(path.join(tmpdir(), "gp5-determinism-"));
     const report = buildPack(fresh);
@@ -181,5 +187,65 @@ describe("[GP5] end-to-end golden path + proof pack", () => {
     const report = buildPack(committed);
     expect(report.golden_release).toBe("RELEASED");
     expect(report.bounty_state).toBe("SETTLED");
+  });
+
+  // ————————————— GP5-R1 (Commander MAIN-CLOSURE-R1): deterministic
+  // text-byte normalization — self-verifiable ≠ deterministically reproducible.
+
+  test("[G5-R1-01] fresh build TWICE → byte-identical packs (manifests equal)", { timeout: 180_000 }, () => {
+    const a = mkdtempSync(path.join(tmpdir(), "gp5-r1-a-"));
+    const b = mkdtempSync(path.join(tmpdir(), "gp5-r1-b-"));
+    expect(buildPack(a).golden_release).toBe("RELEASED");
+    expect(buildPack(b).golden_release).toBe("RELEASED");
+    const walkFiles = (root: string): Array<[string, string]> => {
+      const out: Array<[string, string]> = [];
+      const walk = (dir: string, base = ""): void => {
+        for (const e of readdirSync(dir, { withFileTypes: true }).sort((x, y) => (x.name < y.name ? -1 : 1))) {
+          const rel = base ? `${base}/${e.name}` : e.name;
+          if (e.isDirectory()) walk(path.join(dir, e.name), rel);
+          else out.push([rel, readFileSync(path.join(dir, e.name)).toString("base64")]);
+        }
+      };
+      walk(root);
+      return out;
+    };
+    expect(walkFiles(a), "two fresh builds must be byte-identical").toEqual(walkFiles(b));
+  });
+
+  test("[G5-R1-02] canonicalPackBytes: text EOL variants collapse to the same LF bytes; binaries pass through verbatim", () => {
+    const lf = Buffer.from("{\n  \"a\": 1\n}\n", "utf8");
+    const crlf = Buffer.from("{\r\n  \"a\": 1\r\n}\r\n", "utf8");
+    const mixed = Buffer.from("{\r\n  \"a\": 1\n}\r", "utf8");
+    for (const ext of [".json", ".js", ".mjs", ".ts", ".md", ".txt", ".map", ".jsonl"]) {
+      const canon = canonicalPackBytes(`dir/file${ext}`, crlf);
+      expect(canon.equals(lf), `${ext}: CRLF must normalize to LF`).toBe(true);
+      expect(canonicalPackBytes(`x${ext}`, mixed).equals(lf), `${ext}: mixed EOLs must normalize to LF`).toBe(true);
+      expect(canonicalPackBytes(`x${ext}`, lf).equals(lf), `${ext}: LF must stay LF`).toBe(true);
+    }
+    // binary inputs are NEVER transcoded, whatever bytes they carry
+    const bin = Buffer.from([0x0d, 0x0a, 0x00, 0xff, 0x0d, 0x8b]);
+    expect(canonicalPackBytes("evidence/raw/agent-patch.bin", bin).equals(bin)).toBe(true);
+    expect(canonicalPackBytes("frozen-lib/some.wasm", bin).equals(bin)).toBe(true);
+  });
+
+  test("[G5-R1-03] committed pack == fresh generated pack, BYTE-EXACT (sealed artifact, not just manifest-level)", { timeout: 180_000 }, () => {
+    const committed = fileURLToPath(new URL("../pack", import.meta.url));
+    if (!existsSync(committed)) return; // generated post-test by CI/builder
+    const fresh = mkdtempSync(path.join(tmpdir(), "gp5-r1-committed-"));
+    expect(buildPack(fresh).golden_release).toBe("RELEASED");
+    const committedManifest = JSON.parse(readFileSync(path.join(committed, "pack-manifest.json"), "utf8")) as { files: Array<{ file: string; sha256: string }> };
+    for (const { file, sha256 } of committedManifest.files) {
+      const committedBytes = readFileSync(path.join(committed, file));
+      expect(sha256, `${file}: committed manifest must match committed bytes`).toBe("sha256:" + createHash("sha256").update(committedBytes).digest("hex"));
+      const freshBytes = readFileSync(path.join(fresh, file));
+      expect(freshBytes.equals(committedBytes), `${file}: committed pack drifted from deterministic regeneration`).toBe(true);
+    }
+  });
+
+  test("[G5-R1-04] standalone verify of a FRESH pack: one command, exit 0, PROOF PACK VERIFIED", { timeout: 120_000 }, async () => {
+    const { packDir } = buildTmpPack();
+    const v = await verifyPack(packDir);
+    expect(v.code, `fresh pack verify stdout=${v.stdout.slice(-400)} stderr=${v.stderr.slice(0, 300)}`).toBe(0);
+    expect(v.stdout).toContain("PROOF PACK VERIFIED");
   });
 });

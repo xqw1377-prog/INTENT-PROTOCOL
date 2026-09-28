@@ -14,7 +14,7 @@
  * Black-box negatives recorded in report.json (§9): unverified submission
  * cannot reach VERIFIED; changed-nonce and wrong-payee cannot release.
  */
-import { cpSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -56,6 +56,19 @@ export const FROZEN = {
   nonce: "1",
   claimant: "agent:gp-001-demo",
 };
+
+/**
+ * GP5-R1 canonical pack bytes: TEXT files are emitted with LF line endings
+ * whatever EOLs the source checkout carries; everything else (raw evidence
+ * `.bin`, sealed binaries) is byte-copied verbatim. Extension-based split is
+ * safe: every text extension below is utf8 round-trippable in this pack.
+ */
+const TEXT_EXTENSIONS = new Set([".json", ".js", ".mjs", ".cjs", ".ts", ".mts", ".cts", ".md", ".txt", ".map", ".jsonl"]);
+
+export function canonicalPackBytes(rel: string, bytes: Buffer): Buffer {
+  if (!TEXT_EXTENSIONS.has(path.extname(rel))) return bytes;
+  return Buffer.from(bytes.toString("utf8").replace(/\r\n?/g, "\n"), "utf8");
+}
 
 export interface PackReport {
   schema_version: "gp5-report.v1";
@@ -158,12 +171,29 @@ export function buildPack(packDir: string): PackReport {
   const evidence = buildSettlementEvidence(vl, FROZEN.escrowRef, { receipt, claim_record: claim }, () => 1_700_000_000);
 
   // ————————————— 3. compose the pack
+  // GP5-R1 (Commander MAIN-CLOSURE-R1): the pack must be DETERMINISTICALLY
+  // reproducible — every TEXT input is canonicalized to LF bytes on output
+  // (regardless of the local checkout's line-ending state), every non-text
+  // input is byte-copied verbatim, and the manifest hashes the FINAL bytes.
+  // Self-verifiable ≠ deterministically reproducible; GP5 requires both.
   const put = (rel: string, data: string | Buffer): void => {
     const file = path.join(packDir, rel);
     mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, data);
+    writeFileSync(file, canonicalPackBytes(rel, Buffer.isBuffer(data) ? data : Buffer.from(data, "utf8")));
   };
-  const copyRepo = (rel: string, dest: string): void => cpSync(path.join(REPO_ROOT, rel), path.join(packDir, dest), { recursive: true });
+  const copyRepo = (rel: string, dest: string): void => {
+    const walk = (dir: string, base = ""): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        const relFile = base ? `${base}/${e.name}` : e.name;
+        if (e.isDirectory()) walk(path.join(dir, e.name), relFile);
+        else put(`${dest}/${relFile}`, readFileSync(path.join(dir, e.name)));
+      }
+    };
+    const src = path.join(REPO_ROOT, rel);
+    const st = statSync(src);
+    if (st.isFile()) put(dest, readFileSync(src));
+    else walk(src);
+  };
 
   put("objects/intent.json", JSON.stringify(intent, null, 2) + "\n");
   put("objects/milestone.json", JSON.stringify(milestone, null, 2) + "\n");
@@ -187,11 +217,12 @@ export function buildPack(packDir: string): PackReport {
   put("runtime-journal.jsonl", readFileSync(path.join(rtDir, "journal.jsonl")));
 
   // vendored frozen G1 wire library (byte-copy of the built dist) + its one
-  // runtime dependency (zod) so the pack is FULLY self-contained
+  // runtime dependency (zod) so the pack is FULLY self-contained; text files
+  // inside are LF-canonicalized by the GP5-R1 writer
   copyRepo("packages/protocol-schema/dist", "frozen-lib");
   copyRepo("packages/protocol-schema/package.json", "frozen-lib/package.json");
   copyRepo("node_modules/zod", "frozen-lib/node_modules/zod");
-  cpSync(path.join(PACKAGE_ROOT, "verify.mjs"), path.join(packDir, "verify.mjs"));
+  put("verify.mjs", readFileSync(path.join(PACKAGE_ROOT, "verify.mjs")));
 
   // sealed receipt sanity: the frozen GP3 artifact still seals (wire exact)
   frozenSeal(OutcomeReceiptSchema, receipt);
@@ -226,6 +257,11 @@ export function buildPack(packDir: string): PackReport {
     ],
   };
   put("report.json", JSON.stringify(report, null, 2) + "\n");
+
+  // GP5-R1 / TEST-HYGIENE: the builder's own scratch state never ships —
+  // a committed/regenerated pack directory contains ONLY pack artifacts.
+  rmSync(rtDir, { recursive: true, force: true });
+  rmSync(ledgerRoot, { recursive: true, force: true });
   return report;
 }
 
