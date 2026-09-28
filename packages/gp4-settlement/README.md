@@ -1,11 +1,15 @@
-# @intent/gp4-settlement — GP4-A + GP4-B (R1/R2/R3 remediated)
+# @intent/gp4-settlement — local settlement (GP4)
 
 GP4 local settlement, scope of this package per the Commander GP4 order:
 
-- **GP4-A** — settlement identity + persistence schema
-- **GP4-B** — atomic economic release guard
-
-GP4-C..F and GP5+ are **NOT IMPLEMENTED** here (HOLD). MAINNET is **DENIED**.
+- **GP4-A** — settlement identity + persistence schema — **PASS / FROZEN**
+- **GP4-B** — atomic economic release guard — **PASS / FROZEN**
+- **GP4-C/D/E/F** — instruction idempotency journal + immutable ClaimRecord
+  payee authorization, crash/restart/response-loss recovery matrix, adversarial
+  matrix + evidence sealing + reverse traceability — **BUILT / AWAITING
+  COMMANDER SIGN-OFF**
+- **GP4 overall = NOT SIGNED** (Commander sign-off pending). GP5 lives in its
+  own package (`gp5-proof-pack`). **MAINNET is DENIED.**
 
 ## 1. Schema (GP4-A)
 
@@ -27,10 +31,11 @@ escrows/<escrow_ref>/releases/<receipt-hash-hex>.json   ReleaseRecordV1   ← EC
 - `ReleaseRecordV1` (`gp4-release.v1`): the economic release fact —
   escrow_ref, outcome_receipt_hash, settlement_key, amount, asset,
   released_at.
-- **NO instruction persistence** (P1-A): the settlement_key instruction
-  idempotency ledger (`InstructionRecordV1`, `instructions/` tree) is GP4-C
-  scope and is deliberately absent. The settlement_key is still re-derived
-  by the engine (frozen G1 `settlementKey`) and returned in results.
+- Instruction persistence (GP4-C): the settlement_key instruction idempotency
+  ledger (`InstructionRecordV1`, `instructions/` tree) is **PRESENT** as of
+  GP4-C. It remains advisory idempotency only and is NEVER merged with the
+  economic guard authority. The settlement_key is still re-derived by the
+  engine (frozen G1 `settlementKey`) and returned in results.
 - On-disk names use the bare 64-hex body (`:` is illegal on NTFS).
 
 ## 2. HOLD authority isolation (R1)
