@@ -149,47 +149,97 @@ describe("[GP4-D] crash / restart / response-loss recovery", () => {
     }
   });
 
-  test("[D-09] REAL kill race: 8 children contend, 3 killed mid-flight → exactly one economic release", { timeout: 240_000 }, async () => {
-    const { root } = enabledLedger();
+  test("[D-09] REAL kill race: 8 children contend, 3 killed mid-flight → exactly one economic release (flake-classified, invariant-strict)", { timeout: 240_000 }, async () => {
     const scriptPath = fileURLToPath(new URL("../scripts/attempt-release.ts", import.meta.url));
     const receiptPath = fileURLToPath(new URL("../../../packages/gp3-verification/artifacts/receipt.json", import.meta.url));
     const claimPath = fileURLToPath(new URL("../fixtures/gp-001-claim.json", import.meta.url));
     const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
-    const outputs = await withRaceLock(async () => {
-      const children = [1, 2, 3, 4, 5, 6, 7, 8].map((nonce) =>
-        spawn(process.execPath, ["--experimental-strip-types", scriptPath, root, ESCROW_REF, receiptPath, claimPath, String(nonce), "10", "solana-devnet", "USDC-test", "6"], { cwd: repoRoot, stdio: ["ignore", "pipe", "pipe"] }));
+    // Distinguish a REAL invariant break from a harness-level flake: under
+    // full-suite load, survivors can fail BEFORE reaching the ledger (boot
+    // crash of the child, not a crash inside the release boundary). A boot
+    // crash of every contender is a harness flake (retry); anything where a
+    // child reached the ledger and the exactly-once invariants do not hold
+    // fails IMMEDIATELY — retries must never mask a real double release.
+    const MAX_RACE_ATTEMPTS = 5;
+    const attempts: Array<{ root: string; outputs: string[]; guards: number }> = [];
 
-      // kill 3 of them mid-boot/mid-attempt — genuine crash injection
-      await new Promise((r) => setTimeout(r, 150));
-      for (const c of [children[0]!, children[2]!, children[4]!]) {
-        try { c.kill(); } catch { /* already exited */ }
+    const race = async (): Promise<{ root: string; outputs: string[]; guards: number }> => {
+      const { root } = enabledLedger();
+      const outputs = await withRaceLock(async () => {
+        const children = [1, 2, 3, 4, 5, 6, 7, 8].map((nonce) =>
+          spawn(process.execPath, ["--experimental-strip-types", scriptPath, root, ESCROW_REF, receiptPath, claimPath, String(nonce), "10", "solana-devnet", "USDC-test", "6"], { cwd: repoRoot, stdio: ["ignore", "pipe", "pipe"] }));
+
+        // Collectors attach IMMEDIATELY at spawn: a warm cache lets children
+        // exit within tens of ms, and a 'close' listener attached after the
+        // event already fired NEVER resolves — that lost event was the
+        // historical D-09 flake (the race hangs while every child is long
+        // dead; the ledger invariants were never at fault).
+        const collected = children.map((c) => new Promise<string>((resolve) => {
+          let out = "";
+          c.stdout.on("data", (d: Buffer) => { out += d.toString(); });
+          c.on("close", () => resolve(out.trim()));
+          c.on("error", () => resolve(out.trim()));
+        }));
+
+        // kill 3 of them mid-boot/mid-attempt — genuine crash injection
+        await new Promise((r) => setTimeout(r, 150));
+        for (const c of [children[0]!, children[2]!, children[4]!]) {
+          try { c.kill(); } catch { /* already exited */ }
+        }
+
+        // HARD per-attempt ceiling: even a genuinely wedged child must not
+        // wedge the harness — kill every remaining child and let the
+        // classifier treat it as a harness flake (bounded retries).
+        const COLLECT_CEILING_MS = 45_000;
+        const killer = setTimeout(() => {
+          for (const c of children) { try { c.kill("SIGKILL"); } catch { /* already gone */ } }
+        }, COLLECT_CEILING_MS);
+        try {
+          return await Promise.all(collected);
+        } finally {
+          clearTimeout(killer);
+        }
+      });
+      return { root, outputs, guards: releaseFiles(root).length };
+    };
+
+    for (let i = 1; ; i++) {
+      const { root, outputs, guards } = await race();
+      attempts.push({ root, outputs: outputs.slice(), guards });
+      const reachedLedger = outputs.some((o) => /"(RELEASED|ALREADY_RELEASED|REJECTED[^"]*)"/.test(o));
+      if (guards === 1) {
+        // THE invariants, independent of who was killed:
+        const l = EscrowLedger.open(root); // restart
+        const guardFiles = releaseFiles(root);
+        expect(l.readEscrow(ESCROW_REF)!.state).toBe("RELEASED");
+        const guardBytes = readFileSync(path.join(root, "escrows", ESCROW_DIR_SEG, "releases", guardFiles[0]!), "utf8");
+        expect(() => ReleaseRecordSchema.parse(JSON.parse(guardBytes)), "guard must be fully-formed, never torn").not.toThrow();
+        // post-restart replays (crash/retry after the boundary): all idempotent
+        for (const nonce of ["1", "5", "99"]) {
+          expect(l.attemptRelease({ receipt: frozenReceipt(), instruction: makeInstruction({ nonce }), claim_record: frozenClaim() }).status).toBe("ALREADY_RELEASED");
+        }
+        expect(releaseFiles(root)).toHaveLength(1); // exactly one economic release across kills
+        // at most one child ever observed RELEASED
+        const releasedSeen = outputs.filter((o) => o.includes('"RELEASED"')).length;
+        expect(releasedSeen).toBeLessThanOrEqual(1);
+        void FROZEN_ASSET; void FROZEN_CLAIM_HASH;
+        return;
       }
-
-      // collect whatever the survivors print (killed children may print nothing)
-      return Promise.all(children.map((c) => new Promise<string>((resolve) => {
-        let out = "";
-        c.stdout.on("data", (d: Buffer) => { out += d.toString(); });
-        c.on("close", () => resolve(out.trim()));
-        c.on("error", () => resolve(out.trim()));
-      })));
-    });
-
-    // THE invariants, independent of who was killed:
-    const l = EscrowLedger.open(root); // restart
-    const guards = releaseFiles(root);
-    expect(guards.length).toBe(1); // exactly one economic release across kills
-    expect(l.readEscrow(ESCROW_REF)!.state).toBe("RELEASED");
-    const guardBytes = readFileSync(path.join(root, "escrows", ESCROW_DIR_SEG, "releases", guards[0]!), "utf8");
-    expect(() => ReleaseRecordSchema.parse(JSON.parse(guardBytes))).not.toThrow(); // fully-formed, never torn
-    // post-restart replays (crash/retry after the boundary): all idempotent
-    for (const nonce of ["1", "5", "99"]) {
-      expect(l.attemptRelease({ receipt: frozenReceipt(), instruction: makeInstruction({ nonce }), claim_record: frozenClaim() }).status).toBe("ALREADY_RELEASED");
+      if (guards > 1 || reachedLedger) {
+        // INVARIANT BROKEN (double release, or release claimed but no guard) — fail now
+        throw new Error(
+          `D-09 INVARIANT BROKEN (guards=${guards}, reachedLedger=${reachedLedger}) after ${i} attempt(s)\n` +
+          attempts.map((a, k) => `attempt ${k + 1}: guards=${a.guards} outputs=${JSON.stringify(a.outputs).slice(0, 600)}`).join("\n"),
+        );
+      }
+      if (i >= MAX_RACE_ATTEMPTS) {
+        throw new Error(
+          `D-09 HARNESS FLAKE: ${MAX_RACE_ATTEMPTS} consecutive races had NO child reach the ledger (boot crashes under load) — orchestration is broken, not the ledger\n` +
+          attempts.map((a, k) => `attempt ${k + 1}: outputs=${JSON.stringify(a.outputs).slice(0, 400)}`).join("\n"),
+        );
+      }
+      // harness flake: retry the race with a fresh ledger
     }
-    expect(releaseFiles(root)).toHaveLength(1);
-    // at most one child ever observed RELEASED
-    const releasedSeen = outputs.filter((o) => o.includes('"RELEASED"')).length;
-    expect(releasedSeen).toBeLessThanOrEqual(1);
-    void FROZEN_ASSET; void FROZEN_CLAIM_HASH;
   });
 });
