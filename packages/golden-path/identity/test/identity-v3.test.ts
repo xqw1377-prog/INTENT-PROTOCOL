@@ -128,8 +128,12 @@ describe("[GP-ID-R1-V3] identity materialization", () => {
     expect(provenance.materialization_timing).toBe("POST_GP2_REMEDIATION");
   });
 
-  test("[V3.11] B1: full git diff vs 3fbef70 matches the EXACT allowlist (identity only)", () => {
-    const changed = gitOut(["diff", "--name-only", `${BASE}...HEAD`]).split("\n").filter(Boolean);
+  test("[V3.11] B1: identity freeze window matches the EXACT allowlist; no identity drift since materialization", () => {
+    // GP3-FORMAL-R1 pattern: the original audit proved the window
+    // BASE(3fbef70)..materialization contained identity changes ONLY. That
+    // window is PINNED — later main history (GP3/GP4/GP5) must not reopen it.
+    const MATERIALIZED = "545cb43b0e7c614b00589ede8fb3b83b3d458417";
+    const window = gitOut(["diff", "--name-only", `${BASE}...${MATERIALIZED}`]).split("\n").filter(Boolean);
     const allowlist = [
       "packages/golden-path/identity/intent.json",
       "packages/golden-path/identity/milestone.json",
@@ -137,15 +141,21 @@ describe("[GP-ID-R1-V3] identity materialization", () => {
       "packages/golden-path/identity/policies/gp-001-settlement-hold-v1.json",
     ];
     // test files also allowed (start with packages/golden-path/identity/test/)
-    for (const p of changed) {
+    for (const p of window) {
       const ok = allowlist.includes(p) || p.startsWith("packages/golden-path/identity/test/");
-      expect(ok, `scope violation: ${p}`).toBe(true);
+      expect(ok, `scope violation in freeze window: ${p}`).toBe(true);
     }
-    // explicit: NO GP2 evidence/report/verifier changes
-    for (const p of changed) {
+    // explicit: NO GP2 evidence/report/verifier changes inside the freeze window
+    for (const p of window) {
       expect(p.startsWith("packages/golden-path/evidence/"), `no new evidence dirs: ${p}`).toBe(false);
       expect(p.startsWith("packages/gp-execution/report/"), `no GP2 report changes: ${p}`).toBe(false);
       expect(p.startsWith("packages/gp2-verifier/report/"), `no verifier report changes: ${p}`).toBe(false);
+    }
+    // frozen-regression: since materialization the identity OBJECTS are frozen;
+    // only the test file itself may evolve.
+    const since = gitOut(["diff", "--name-only", `${MATERIALIZED}...HEAD`, "--", "packages/golden-path/identity"]).split("\n").filter(Boolean);
+    for (const p of since) {
+      expect(p.startsWith("packages/golden-path/identity/test/"), `identity object drift since materialization: ${p}`).toBe(true);
     }
   });
 
