@@ -6,10 +6,10 @@ GP4 local settlement, scope of this package per the Commander GP4 order:
 - **GP4-B** — atomic economic release guard — **PASS / FROZEN**
 - **GP4-C/D/E/F** — instruction idempotency journal + immutable ClaimRecord
   payee authorization, crash/restart/response-loss recovery matrix, adversarial
-  matrix + evidence sealing + reverse traceability — **BUILT / AWAITING
-  COMMANDER SIGN-OFF**
-- **GP4 overall = NOT SIGNED** (Commander sign-off pending). GP5 lives in its
-  own package (`gp5-proof-pack`). **MAINNET is DENIED.**
+  matrix + evidence sealing + reverse traceability — **PASS / FROZEN**
+- **GP4 = PASS / FROZEN** (Commander signed 2026-09-28 on main@41c0076,
+  FINAL-CI 6/6 SUCCESS). GP5 lives in its own package (`gp5-proof-pack`).
+  **TESTNET is NOT automatically authorized by GP4/GP5 PASS; MAINNET is DENIED.**
 
 ## 1. Schema (GP4-A)
 
