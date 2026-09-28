@@ -75,6 +75,10 @@ jobs:
 
       - name: GP2 formal replay + report (exit deferred past report write)
         working-directory: packages/gp2-verifier
+        env:
+          # TEST-HYGIENE-R1: this CI evidence job IS the explicit builder
+          # command for the reproduction report (default suites write nothing)
+          GP2_RECORD_REPRODUCTION: "1"
         run: |
           set +e
           node scripts/gp2-report.mjs
