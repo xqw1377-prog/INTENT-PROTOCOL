@@ -6,7 +6,8 @@ remains with the Commander; entries below are PROPOSED until ratified.
 
 ## AMEND-001 — `.gitattributes` admitted to the GP-ID-R1 identity scope allowlist
 
-Status: PROPOSED (awaits Commander ratification)
+Status: RATIFIED (Commander, MAIN-CLOSURE-R1). Terms: no wildcard expansion, no
+directory-wide exemption, no other root artifact implied.
 
 Context:
 `packages/golden-path/identity/test/identity-v3.test.ts` [V3.11] asserts that the
