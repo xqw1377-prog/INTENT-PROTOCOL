@@ -25,7 +25,15 @@ import { fileURLToPath } from "node:url";
 // produce a nonexistent cwd and surface as spawnSync ENOENT.
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const BUILDER_MODE_FLAGS = ["GP5_REGEN_PACK", "GP2_BUILD_CANDIDATE", "GP2_RECORD_REPRODUCTION"];
+const BUILDER_MODE_FLAGS = [
+  "GP5_REGEN_PACK",
+  "GP2_BUILD_CANDIDATE",
+  "GP2_RECORD_REPRODUCTION",
+  // CI evidence jobs whose runners materialize their official vitest-results
+  // report DURING the run (uploaded as the job's evidence artifact):
+  "CONFORMANCE_RECORD_EVIDENCE",
+  "GP1_RECORD_EVIDENCE",
+];
 
 // vitest's globalSetup subprocess can run with a minimal PATH — resolve git
 // through common absolute locations before giving up.

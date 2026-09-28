@@ -80,6 +80,10 @@ jobs:
 
       - name: Run formal replay + build report (exit code deferred past report write)
         working-directory: packages/gp1-verifier
+        env:
+          # TEST-HYGIENE-R1: this CI evidence job IS the explicit builder
+          # command for report/gp1-vitest-results.json (default suites write nothing)
+          GP1_RECORD_EVIDENCE: "1"
         run: |
           set +e
           node scripts/gp1-report.mjs

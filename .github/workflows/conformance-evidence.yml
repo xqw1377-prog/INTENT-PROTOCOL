@@ -86,6 +86,10 @@ jobs:
 
       - name: Run conformance (report always built; exit code deferred, not swallowed)
         working-directory: packages/conformance-harness
+        env:
+          # TEST-HYGIENE-R1: this CI evidence job IS the explicit builder
+          # command for report/vitest-results.json (default suites write nothing)
+          CONFORMANCE_RECORD_EVIDENCE: "1"
         run: |
           set +e
           npm run conformance
