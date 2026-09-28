@@ -1,9 +1,15 @@
 {
   "report_kind": "gp2-reproduction-evidence",
-  "generated_at": "2026-09-22T08:10:20.040Z",
+  "generated_at": "2026-09-28T00:03:55.813Z",
   "target_sha": "b0d7f39f6033612b094b44189b03253306c0c5ab",
   "run_id": "9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
   "method": "independent clean-checkout replay (verifier executor, zero gp-execution imports); committed patch bytes applied verbatim after independent re-derivation",
+  "frozen_truth": {
+    "base_commit_sha": "af08fdfacf7e594537969fd04b894c82de756428",
+    "task_freeze_hash": "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5",
+    "acceptance_suite_sha256": "sha256:2357f37db27841204960d44c3a14b5e4976539a6cb9c3d5a805d21e9663db31c",
+    "frozen_acceptance_suite_sha256": "sha256:2357f37db27841204960d44c3a14b5e4976539a6cb9c3d5a805d21e9663db31c"
+  },
   "observed": {
     "base_acceptance": {
       "passed": 2,

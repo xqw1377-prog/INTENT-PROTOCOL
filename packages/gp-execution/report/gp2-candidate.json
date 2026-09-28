@@ -1,16 +1,16 @@
 {
   "report_kind": "gp2-implementation-candidate",
-  "generated_at": "2026-09-21T16:17:15.405Z",
-  "base_main_sha": "d4c685bc82a77cfefde6724856f1927fe353c83f",
-  "parent_base_sha": "0a532e400c05e4e7378f377d559d363090704967",
+  "generated_at": "2026-09-28T00:03:53.882Z",
+  "base_main_sha": "0a614b1b4c9fb8b0fc70d6131fc5191c8240043c",
+  "parent_base_sha": "ac292503705ba019041e47f2847d2724eb6320b5",
   "live_schema_subtree": "bb14d9375c92d64072f3e8c2f2dd65d794008422",
   "live_schema_subtree_verified": true,
   "task_freeze_hash": "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5",
   "frozen_base_commit": "af08fdfacf7e594537969fd04b894c82de756428",
   "acceptance_suite_sha256": "sha256:2357f37db27841204960d44c3a14b5e4976539a6cb9c3d5a805d21e9663db31c",
-  "execution_ref": "735f2913-4318-4014-8c9b-a5d837d9557c",
+  "execution_ref": "19f41c3b-934d-452e-85ce-d4a06c28ff6e",
   "execution_fingerprint": "1d626618-4506-4ed3-8af3-839aacc658cf",
-  "execution_id": "9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
+  "execution_id": "3886799a-1baf-4a1a-a2c8-e2bce0a8791c",
   "attempt_count": 1,
   "max_attempts": 3,
   "actual_changed_paths": [
@@ -26,49 +26,49 @@
   "evidence_artifacts": [
     {
       "key": "base-acceptance",
-      "artifact_id": "eb8479b3-4a14-419d-87f7-33c9d180f5fd",
-      "payload_hash": "sha256:e11c67fd72580d05c640aad4898404f48976aee5df02fec7c0390c0cbe7bdc13",
-      "locator": "cas://gp2/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/base-acceptance/e11c67fd72580d05c640aad4898404f48976aee5df02fec7c0390c0cbe7bdc13"
+      "artifact_id": "75554599-eb2d-4941-8ee8-18d74a20f0ec",
+      "payload_hash": "sha256:9b4c913fce7a5e4db25c81bcacb568b38d79e5bb261dd25588d60c58ed63ee2d",
+      "locator": "cas://gp2/3886799a-1baf-4a1a-a2c8-e2bce0a8791c/base-acceptance/9b4c913fce7a5e4db25c81bcacb568b38d79e5bb261dd25588d60c58ed63ee2d"
     },
     {
       "key": "agent-patch",
-      "artifact_id": "770bd172-3580-4e8a-8a54-6015ee476f30",
+      "artifact_id": "679562bc-95e0-4225-8c6f-4908cf452d3f",
       "payload_hash": "sha256:d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87",
-      "locator": "cas://gp2/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/agent-patch/d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87"
+      "locator": "cas://gp2/3886799a-1baf-4a1a-a2c8-e2bce0a8791c/agent-patch/d70bbeb2b65ec5057bab6b12c047c9245b39948eff065f41acc69421b3871c87"
     },
     {
       "key": "patched-acceptance",
-      "artifact_id": "de76b057-a1d7-4d3c-8fcd-d6ba093c63f3",
-      "payload_hash": "sha256:fdfc04d406995482688ed0f93e593b7fb915b0633d01f074faebab010e1b2fa2",
-      "locator": "cas://gp2/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/patched-acceptance/fdfc04d406995482688ed0f93e593b7fb915b0633d01f074faebab010e1b2fa2"
+      "artifact_id": "2915c9a0-f44f-462e-8e06-f6f82185c154",
+      "payload_hash": "sha256:5d86ddf7b57320a8fc50dce8dd6703bfdf476472076aa69d7748beff8a90111a",
+      "locator": "cas://gp2/3886799a-1baf-4a1a-a2c8-e2bce0a8791c/patched-acceptance/5d86ddf7b57320a8fc50dce8dd6703bfdf476472076aa69d7748beff8a90111a"
     },
     {
       "key": "build",
-      "artifact_id": "9909fd89-c695-493d-853d-3b98e7aeee8d",
+      "artifact_id": "31027f97-08ca-4567-8429-ee596fc32921",
       "payload_hash": "sha256:3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e",
-      "locator": "cas://gp2/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/build/3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e"
+      "locator": "cas://gp2/3886799a-1baf-4a1a-a2c8-e2bce0a8791c/build/3c696c094e2a1323fa00cf0974a861af0cd6824b1672248c1d12791a70a61e4e"
     },
     {
       "key": "policy-boundary",
-      "artifact_id": "d6c2fed3-0e2b-4947-8e2e-f66da30d1c28",
+      "artifact_id": "f25a0960-f081-4261-8d88-b4d9e14437fb",
       "payload_hash": "sha256:6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab",
-      "locator": "cas://gp2/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/policy-boundary/6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab"
+      "locator": "cas://gp2/3886799a-1baf-4a1a-a2c8-e2bce0a8791c/policy-boundary/6461f0edf7da979c6cdbeaee948e5a09092d4a39614ab2551d3dde6b132a0dab"
     },
     {
       "key": "execution-manifest",
-      "artifact_id": "d8ee0f25-bca1-4bdf-894e-05a6bc5104ec",
-      "payload_hash": "sha256:68780b763a88f53d61da752f4181564105eb99e5315835cadb89db8bc4f7d9cf",
-      "locator": "cas://gp2/9f6610dc-24e9-4e6c-b7c1-67574064d2ae/execution-manifest/68780b763a88f53d61da752f4181564105eb99e5315835cadb89db8bc4f7d9cf"
+      "artifact_id": "19d2b5cc-2287-456a-81c6-d81201c8c22c",
+      "payload_hash": "sha256:e0d102db503b77449c221fbe7b5e82e51a23f1dd7f1a4c215f2c8af3bb3d45f3",
+      "locator": "cas://gp2/3886799a-1baf-4a1a-a2c8-e2bce0a8791c/execution-manifest/e0d102db503b77449c221fbe7b5e82e51a23f1dd7f1a4c215f2c8af3bb3d45f3"
     }
   ],
-  "evidence_root": "sha256:9f1362643b1b651973d7fc92c7b9e4e50a0a32bc2ffd6c7bd81c627b13c9b71f",
+  "evidence_root": "sha256:6f02485eca9aadd809f7462eb302a1d3ae998711742adc22c00b9d6cfbc41926",
   "bundle": {
-    "bundle_id": "f5290727-3457-41d1-8eb3-2190e0ab6103",
-    "content_hash": "sha256:aafd6d806ab5fb2fb8ccdc1495fe7c0c8fcab336495b843b10535cf75fe34b5e",
+    "bundle_id": "b48fea6e-9726-4db6-8a7d-b66224b64d9c",
+    "content_hash": "sha256:fc60947e1227007bbc995935cfc8ab59152160ee95f7c8551de15f0524a522a5",
     "state": "SEALED",
     "artifact_count": 6
   },
-  "evidence_dir": "packages/golden-path/evidence/9f6610dc-24e9-4e6c-b7c1-67574064d2ae",
+  "evidence_dir": "packages/golden-path/evidence/3886799a-1baf-4a1a-a2c8-e2bce0a8791c",
   "test_counts": {
     "passed": 23,
     "failed": 0,
