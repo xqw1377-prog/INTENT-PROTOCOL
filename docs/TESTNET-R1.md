@@ -1,15 +1,31 @@
 # TESTNET-R1 — Solana Devnet Settlement Adapter Contract (T0 Freeze)
 
-Status: **AMENDED per T0-R1 (Commander, 2026-09-29) — awaiting re-adjudication**
+Status: **AMENDED per T0-R1 + T0-R2 (Commander, 2026-09-29) — awaiting re-adjudication**
 
 Amendment T0-R1 changes (docs only): (1) gate order frozen as
 **T1 → T3 → T2 → T4 → T5 → T6** — devnet materialization (mint/program/
-keys/payout binding) is pinned in T3 BEFORE the first T2 devnet transaction;
-(2) `ClaimantPayoutBindingV1` added — the authoritative claimant→address
-binding; (3) `EconomicReleaseDigest` + release-PDA derivation frozen as an
-exact byte formula; (4) `ChainReleaseV1` clarified as adapter-local fact
-record, NOT a G1 object; (5) Appendix A extended with the claimant payout
-slots.
+keys/payout binding) is pinned in T3 BEFORE the first settlement/release
+transaction; (2) `ClaimantPayoutBindingV1` added — the authoritative
+claimant→address binding; (3) `EconomicReleaseDigest` + release-PDA
+derivation frozen as an exact byte formula; (4) `ChainReleaseV1` clarified
+as adapter-local fact record, NOT a G1 object; (5) Appendix A extended with
+the claimant payout slots.
+
+Amendment T0-R2 (docs only) — program-ID materialization vs deployment:
+
+```
+Program ID       = pinned BEFORE deployment (T3)
+Program deploy   = a later, separately authorized chain action (T2)
+program id       ≠ deployment evidence
+```
+
+Boundary refined: **before T3 there is NO devnet mutation of any kind;
+after T3, program deployment MAY be authorized as a T2 bootstrap action;
+before any deployment, the actual PROGRAM_ID is already pinned** (a Solana
+program id is determined by its keypair, so it is pinnable pre-deploy).
+Accordingly, "T3 before first devnet tx" is tightened everywhere to "T3
+before the first settlement/release tx AND before program-deployment
+authorization".
 
 Base: `main @ de5ac68c591c7d952c2b143f825f79a81a1369bb`
 Authority: Commander order `TESTNET-R1 = GO` (2026-09-29). This document is
@@ -113,8 +129,9 @@ claim fixture = packages/gp4-settlement/fixtures/gp-001-claim.json (committed)
 `USDC-test` must resolve to exactly ONE frozen SPL mint pubkey before any
 transaction exists. The mint pubkey is a **required-frozen constant**:
 
-- pinned at the **T3 devnet materialization freeze**, which PRECEDES the
-  first T2 devnet transaction (gate order T1 → T3 → T2 → T4 → T5 → T6);
+- pinned at the **T3 devnet materialization freeze**, which PRECEDES every
+  devnet mutation (the first post-T3 chain action is at most the
+  T2-authorized program deployment; settlement/release txs come only after);
 - recorded in this contract's appendix (Appendix A) at pinning time;
 - machine-enforced thereafter: any other mint is rejected before tx build;
 - **until pinned, the adapter refuses every settlement** — no discovery, no
@@ -231,6 +248,9 @@ Constraints frozen now:
 - **T1 must ship JS and Rust golden vectors** for
   `EconomicReleaseDigest` and the release PDA (same input → same digest and
   same PDA in both languages) before any program is written against them.
+  The vectors use a **FIXTURE-ONLY program id, explicitly labeled as such**
+  — never presented as, nor equal to, the actual deployment program id
+  (which is pinned later, at T3).
 
 T2 must prove, on devnet:
 
@@ -262,9 +282,14 @@ return codes.
 
 A development wallet private key in `.env` does NOT count as custody.
 Under the frozen gate order (T1 → T3 → T2 → T4 → T5 → T6), T3 both
-MATERIALIZES the devnet constants (program id, mint, keys, payout binding —
-Appendix A) and HARDENS them; no T2 devnet transaction may exist before
-T3 materialization is complete.
+MATERIALIZES the devnet constants (program keypair/pubkey — i.e.
+TESTNET_R1_PROGRAM_ID —, mint, keys, payout binding; Appendix A) and
+HARDENS them. Program-ID materialization and program deployment are
+STRICTLY SEPARATE: the program id is pinnable pre-deploy (it is the program
+keypair's pubkey) and MUST be pinned at T3; **no settlement/release
+transaction and no program-deployment authorization may exist before T3
+materialization is complete** (deployment itself, when it happens, is a T2
+bootstrap action under T2 authorization).
 
 Three frozen roles:
 
@@ -488,9 +513,9 @@ MAINNET = DENIED
 | Gate | Deliverable | PASS condition |
 |---|---|---|
 | T0 | this contract | semantics untouched; minimal chain duties; mainnet hard-denied; fund caps frozen; key roles frozen; failure model frozen — Commander adjudicates |
-| T1 | `packages/solana-devnet-adapter/` interface skeleton + deployment boundary | four verbs + full input binding; every mismatch input = DENY BEFORE TX (machine-tested, no chain required); **JS + Rust golden vectors for EconomicReleaseDigest and the release PDA** |
-| T3 | devnet materialization freeze + custody/operator hardening | program id, USDC-test mint, Deployer/Operator/Treasury, ClaimantPayoutBindingV1, and caps pinned (Appendix A) — BEFORE any devnet tx; role separation enforced; rotation + unauthorized-key negatives + cap enforcement + mainnet RPC/mainnet-beta/non-frozen-mint machine-rejected |
-| T2 | on-chain exactly-once | T2-01..08 on devnet; PASS = recipient ATA balance delta exactly 10 once, via the frozen payout binding |
+| T1 | `packages/solana-devnet-adapter/` interface skeleton + deployment boundary | four verbs + full input binding; every mismatch input = DENY BEFORE TX (machine-tested, no chain required); **JS + Rust golden vectors for EconomicReleaseDigest and the release PDA, using a fixture-only program id (labeled; never the actual deployment id)** |
+| T3 | devnet materialization freeze + custody/operator hardening | program keypair/pubkey generated and **TESTNET_R1_PROGRAM_ID pinned BEFORE deployment**; USDC-test mint, Deployer/Operator/Treasury, ClaimantPayoutBindingV1, and caps pinned (Appendix A) — before any settlement/release tx AND before deployment authorization; NO payment tx yet; role separation enforced; rotation + unauthorized-key negatives + cap enforcement + mainnet RPC/mainnet-beta/non-frozen-mint machine-rejected |
+| T2 | authorized program deployment + on-chain exactly-once | deployment is a T2 bootstrap action under T2 authorization (program id already pinned at T3); then T2-01..08 on devnet; PASS = recipient ATA balance delta exactly 10 once, via the frozen payout binding |
 | T4 | failure recovery | UNKNOWN_CHAIN_STATE never auto-fails; crash/timeout/restart reconcile to on-chain truth; zero double releases |
 | T5 | `testnet-proof-pack/` + third-party verifier | pack-only reverse trace answers all three questions; independent verify = exit 0 |
 | T6 | devnet golden run | full §10 sequence once, no second payment, pack verifies |
@@ -512,11 +537,14 @@ no token, no mainnet, no real funds
 no modification of GP4/GP5 frozen surfaces
 ```
 
-## Appendix A — Frozen pinning records (materialized at T3, BEFORE the first T2 devnet tx)
+## Appendix A — Frozen pinning records (materialized at T3 — BEFORE any settlement/release transaction AND before program-deployment authorization)
 
 ```
 USDC-test mint pubkey      = <PINNED AT T3 — adapter refuses all tx until set>
-devnet program id          = <PINNED AT T1/T2 DEPLOY>
+devnet program id          = <PROGRAM PUBKEY PINNED AT T3, BEFORE DEPLOYMENT
+                             (pinnable pre-deploy: a Solana program id is its
+                             keypair's pubkey; deployment itself is a later,
+                             T2-authorized chain action)>
 Deployer pubkey            = <PINNED AT T3>
 Operator pubkey            = <PINNED AT T3>
 Treasury pubkey            = <PINNED AT T3>
