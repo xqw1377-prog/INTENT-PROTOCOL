@@ -15,3 +15,6 @@ packages/gp3-verification/keys/private/
 # GP5 Proof Pack: vendored frozen-lib runtime deps are part of the sealed evidence artifact
 !packages/gp5-proof-pack/pack/frozen-lib/node_modules/
 !packages/gp5-proof-pack/pack/frozen-lib/node_modules/**
+
+# TESTNET-R1 adapter: rust build artifacts never enter the tree (tests build into OS tmp)
+packages/solana-devnet-adapter/rust/target/

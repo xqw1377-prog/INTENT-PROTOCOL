@@ -1,0 +1,9 @@
+[package]
+name = "t1-golden-vectors"
+version = "0.1.0"
+edition = "2021"
+description = "TESTNET-R1 T1 Rust golden-vector generator: EconomicReleaseDigest + release PDA derivation, cross-verified against the JS implementation"
+
+[dependencies]
+sha2 = "0.10"
+num-bigint = "0.4"

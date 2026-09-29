@@ -1,0 +1,11 @@
+{
+  "name": "@intent/solana-devnet-adapter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TESTNET-R1 settlement adapter (T1 skeleton). Chain is a Settlement Adapter only: it consumes GP4-produced authorization, enforces DENY BEFORE TX on every input mismatch, and carries NO chain capability while Appendix A constants are unpinned. Economic uniqueness maps (escrow_ref, outcome_receipt_hash) to a deterministic release PDA via the frozen EconomicReleaseDigest formula.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --root ../.. packages/solana-devnet-adapter",
+    "typecheck": "tsc -p ."
+  }
+}
