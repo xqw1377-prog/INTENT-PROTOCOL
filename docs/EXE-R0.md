@@ -1,16 +1,17 @@
 # EXE-R0 — Execution Evidence Extension Freeze
 
-Status: **AMENDED per R0.1 (Commander, 2026-09-29) — awaiting re-adjudication**
+Status: **PASS / FROZEN (Commander, 2026-09-29, adjudicated @ 38ac0fb)**
 
-Amendment R0.1 changes (docs only): (1) the incorrect "open artifact key"
-claim removed — `ExecutionRecordV1` enters as the RAW PAYLOAD of an ordinary
-`EvidenceArtifactV1` with `kind: "execution-lineage"`, reusing
-`payload_hash` + `EvidenceBundle.artifact_hashes` verbatim; (2) `event_hash`
-frozen via the existing `hashObject(Domain.Event, "execution-event.v1", …)`
-framing — no parallel SHA256(canonical-json) formula; (3) signature wording
-precision — SignatureSchema GRAMMAR only, capture-key trust root deferred to
-EXE-R1+; (4) adapter hard constraint — normalize MUST NOT synthesize missing
-lineage.
+Frozen by Commander ruling: the four contracts (ExecutionEventV1,
+CaptureBoundaryV1, ExecutionEvidenceAdapter, ExecutionRecord→EvidenceBundle
+insertion) are frozen as amended by R0.1; key semantics frozen with them
+(event_hash via hashObject(Domain.Event, "execution-event.v1", …);
+SignatureSchema grammar reuse only, capture trust root NOT yet frozen; gaps
+MUST be explicit; normalize MUST NOT invent/repair lineage; ExecutionRecord
+= EVIDENCE ONLY ≠ VerificationDecision ≠ OutcomeReceipt ≠ Settlement
+Authority). Any EXE-R1 may implement only runtime event capture,
+signed/hash-linked lineage, and execution-lineage artifact emission — and
+may NOT reopen G1, GP4, or GP5.
 
 Base: `main @ 667d0f3` (TESTNET-R1/T0 contract head)
 Authority: Commander directive (2026-09-29): insert EXE-R0 before TESTNET-R1
