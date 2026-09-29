@@ -1,5 +1,18 @@
 # TESTNET-R1 Key Custody (T3 materialization)
 
+## Governance wording (T3-R1, exact)
+
+```
+DEVNET MATERIALIZATION WRITES = YES  (create mint, create 2 ATAs, mint supply, revoke authority)
+PROGRAM DEPLOYMENT            = NO
+SETTLEMENT TX                 = NO
+RELEASE TX                    = NO
+```
+
+These materialization transactions do not cross the T2 boundary (no program
+deployment, no payment/release), but this phase is NEVER described as
+"zero chain action".
+
 ## Where the secrets live
 
 All TESTNET-R1 secret key material is stored OUTSIDE this repository, on the
@@ -33,9 +46,11 @@ A machine test scans the package tree to keep it that way.
 ## Funding provenance
 
 - devnet SOL: 5 SOL to Treasury via faucet.solana.com (human claim).
-- USDC-test: mint created by Treasury (tx signature + slot recorded in
-  appendix-a.json); supply exactly 100 USDC-test, held entirely by the
-  Treasury ATA — the escrow cap ceiling, structurally never exceeded.
+- USDC-test: mint created by Treasury; supply exactly 100 USDC-test, then
+  the **MintTokens authority was REVOKED** (T3-R1) — `mint_authority = null`
+  on chain, so the total-supply hard cap of 100 now holds structurally.
+  All real creation/revoke transaction signatures are recorded and
+  re-verified by `scripts/t3-materialize.mjs --verify`.
 
 ## Loss policy
 

@@ -1,9 +1,14 @@
 [package]
 name = "t1-golden-vectors"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-description = "TESTNET-R1 T1 Rust golden-vector generator: EconomicReleaseDigest + release PDA derivation, cross-verified against the JS implementation"
+description = "TESTNET-R1 T1/T3 golden-vector generator + PDA-CONFORMANCE erratum closer: EconomicReleaseDigest + release PDA derivation, with the validator's own curve library (curve25519-dalek) as the authoritative on-curve oracle"
 
 [dependencies]
 sha2 = "0.10"
 num-bigint = "0.4"
+# The Solana validator runtime (agave → solana-program) decides PDA validity via
+# curve25519-dalek's CompressedEdwardsY::decompress(). Using the SAME crate here
+# is the strongest off-chain proof of SBF/validator curve semantics available
+# without deploying a program (deployment is T2-authorized only).
+curve25519-dalek = { version = "4", features = ["digest"] }

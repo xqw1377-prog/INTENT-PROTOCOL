@@ -24,6 +24,18 @@ use std::str::FromStr;
 
 const PDA_MARKER: &[u8] = b"ProgramDerivedAddress";
 
+/// PDA-CONFORMANCE-ERRATA-1 closer: the authoritative on-curve predicate is
+/// curve25519-dalek's CompressedEdwardsY::decompress() — the exact library the
+/// Solana validator runtime (agave → solana-program → create_program_address)
+/// uses. This is the runtime semantics, not another hand-rolled opinion.
+fn is_on_curve_dalek(bytes: &[u8]) -> bool {
+    use curve25519_dalek::edwards::CompressedEdwardsY;
+    match CompressedEdwardsY::from_slice(bytes) {
+        Ok(compressed) => compressed.decompress().is_some(),
+        Err(_) => false,
+    }
+}
+
 // ————————————————— base58 —————————————————
 
 const B58_ALPHABET: &[u8] = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -131,7 +143,7 @@ fn is_on_curve(bytes: &[u8]) -> bool {
     mod_pow(&x2, &exp, &p) == BigInt::from(1)
 }
 
-fn find_program_address(seeds: &[Vec<u8>], program_id: &[u8]) -> (Vec<u8>, u8) {
+fn find_program_address(seeds: &[Vec<u8>], program_id: &[u8], curve_check: fn(&[u8]) -> bool) -> (Vec<u8>, u8) {
     assert_eq!(program_id.len(), 32);
     for bump in (1..=255u8).rev() {
         let mut h = Sha256::new();
@@ -142,7 +154,7 @@ fn find_program_address(seeds: &[Vec<u8>], program_id: &[u8]) -> (Vec<u8>, u8) {
         h.update(program_id);
         h.update(PDA_MARKER);
         let candidate = h.finalize();
-        if !is_on_curve(&candidate) {
+        if !curve_check(&candidate) {
             return (candidate.to_vec(), bump);
         }
     }
@@ -153,21 +165,66 @@ fn find_program_address(seeds: &[Vec<u8>], program_id: &[u8]) -> (Vec<u8>, u8) {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    if args.len() == 3 && args[1] == "--curve-corpus" {
+        // PDA-CONFORMANCE corpus mode: for N deterministic digests, our custom
+        // num-bigint predicate MUST agree with curve25519-dalek exactly.
+        let n: usize = args[2].parse().expect("corpus size");
+        let mut mismatches = 0usize;
+        for i in 0..n {
+            let mut h = Sha256::new();
+            h.update([0x51; 1]);
+            h.update(i.to_le_bytes());
+            h.update(b"intent-protocol/testnet-r1/curve-conformance");
+            let digest = h.finalize();
+            let custom = is_on_curve(&digest);
+            let dalek = is_on_curve_dalek(&digest);
+            if custom != dalek {
+                mismatches += 1;
+                eprintln!("MISMATCH idx={} custom={} dalek={} digest={:02x?}", i, custom, dalek, digest);
+            }
+        }
+        println!("{{\"corpus\":{},\"mismatches\":{}}}", n, mismatches);
+        std::process::exit(if mismatches == 0 { 0 } else { 1 });
+    }
+    if args.len() == 5 && args[1] == "--pda-dalek" {
+        // derive the PDA with the DALEK predicate (validator semantics) and
+        // also with the custom predicate; both must agree and match the
+        // committed golden vectors.
+        let escrow_ref = &args[2];
+        let receipt = &args[3];
+        let program_id_b58 = &args[4];
+        let raw = receipt_raw32(receipt);
+        let mut h = Sha256::new();
+        h.update(b"intent-protocol/testnet-r1/economic-release");
+        h.update([0x00]);
+        h.update(escrow_ref.as_bytes());
+        h.update([0x00]);
+        h.update(raw);
+        let digest = h.finalize();
+        let program_id = base58_decode(program_id_b58);
+        let seeds: Vec<Vec<u8>> = vec![b"release".to_vec(), digest.to_vec()];
+        let (custom_addr, custom_bump) = find_program_address(&seeds, &program_id, is_on_curve);
+        let (dalek_addr, dalek_bump) = find_program_address(&seeds, &program_id, is_on_curve_dalek);
+        println!(
+            "{{\"custom\":{{\"pda\":\"{}\",\"bump\":{}}},\"dalek\":{{\"pda\":\"{}\",\"bump\":{}}},\"digest\":\"{}\",\"agree\":{}}}",
+            base58_encode(&custom_addr), custom_bump,
+            base58_encode(&dalek_addr), dalek_bump,
+            hex::encode_to_string(&digest),
+            custom_addr == dalek_addr && custom_bump == dalek_bump
+        );
+        return;
+    }
     if args.len() != 4 {
         eprintln!("usage: {} <escrow_ref> <outcome_receipt_hash> <program_id_base58>", args[0]);
+        eprintln!("       {} --curve-corpus <N>", args[0]);
+        eprintln!("       {} --pda-dalek <escrow_ref> <outcome_receipt_hash> <program_id_base58>", args[0]);
         std::process::exit(2);
     }
     let escrow_ref = &args[1];
     let receipt = &args[2];
     let program_id_b58 = &args[3];
 
-    // receipt: sha256:<64 lowercase hex> -> raw 32 bytes
-    assert!(receipt.starts_with("sha256:") && receipt.len() == 7 + 64, "malformed receipt hash");
-    let mut raw = [0u8; 32];
-    for i in 0..32 {
-        let hex_pair = &receipt[7 + i * 2..7 + i * 2 + 2];
-        raw[i] = u8::from_str_radix(hex_pair, 16).expect("invalid hex in receipt hash");
-    }
+    let raw = receipt_raw32(receipt);
 
     // EconomicReleaseDigest
     let mut h = Sha256::new();
@@ -182,7 +239,7 @@ fn main() {
     let program_id = base58_decode(program_id_b58);
     assert_eq!(program_id.len(), 32, "program id must decode to 32 bytes");
     let seeds: Vec<Vec<u8>> = vec![b"release".to_vec(), digest.to_vec()];
-    let (address, bump) = find_program_address(&seeds, &program_id);
+    let (address, bump) = find_program_address(&seeds, &program_id, is_on_curve);
 
     println!(
         "{{\"economic_release_digest\":\"{}\",\"release_pda\":\"{}\",\"bump\":{}}}",
@@ -190,6 +247,16 @@ fn main() {
         base58_encode(&address),
         bump
     );
+}
+
+fn receipt_raw32(receipt: &str) -> [u8; 32] {
+    assert!(receipt.starts_with("sha256:") && receipt.len() == 7 + 64, "malformed receipt hash");
+    let mut raw = [0u8; 32];
+    for i in 0..32 {
+        let hex_pair = &receipt[7 + i * 2..7 + i * 2 + 2];
+        raw[i] = u8::from_str_radix(hex_pair, 16).expect("invalid hex in receipt hash");
+    }
+    raw
 }
 
 // tiny hex helper (no hex crate dependency)

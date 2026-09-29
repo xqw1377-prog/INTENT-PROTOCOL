@@ -16,12 +16,24 @@
   "mint": {
     "pubkey": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
     "decimals": 6,
-    "mint_authority": "8QW7mvynD8xPwhW8mp584Yf6nmfwGWWqXtNDn194uvsv",
+    "mint_authority": null,
     "freeze_authority": null,
-    "create_tx_signature": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
+    "create_tx_signature": null,
     "supply_base_units": "100000000",
     "supply_tx_signature": "5p2aSnDEW58LsjgAuTwqinWLNsi5eqGsrR3VZmYwYgnEdhQranYSwTSCLBzzN1Arfwvnq9WJzMN2LQVuDUf3E9Ax",
-    "provenance": "created by the Treasury role for TESTNET-R1 via the SPL Token program on devnet; test-only token, zero real-fund value"
+    "provenance": "created by the Treasury role for TESTNET-R1 via the SPL Token program on devnet; test-only token, zero real-fund value",
+    "creation_tx": {
+      "slot": 505569704,
+      "signature": "5Rebc6eXngSCtLs1DorQfo82C7BXENjAwudYdt4d717kGnJFQxw27URnA83PTY1hBM1tnJnAEii5W9k6wgPSox5j",
+      "verified_at": "2026-09-29T15:23:18.752Z",
+      "method": "oldest signature in account history; tx fetched and account-key membership verified"
+    },
+    "mint_authority_revoked": {
+      "to": null,
+      "tx_signature": "yse86a2yJV35mzUAyGpxQNtbvkvkJjmAVrz6sD915kqto4NuvZCKoE7oaafkUo22TzLLCXxpepauRNNwHyuZky7",
+      "at": "2026-09-29T15:20:15.039Z",
+      "note": "supply fixed at 100 USDC-test — TOTAL SUPPLY HARD CAP now holds on chain"
+    }
   },
   "roles": {
     "deployer": {
@@ -51,8 +63,18 @@
   "token_accounts": {
     "treasury_ata": "B7zaiMDacLZr93ERW882CZ8pK2BrQdj7UP845JpFDEUm",
     "claimant_ata": "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy",
-    "treasury_ata_tx": "B7zaiMDacLZr93ERW882CZ8pK2BrQdj7UP845JpFDEUm",
-    "claimant_ata_tx": "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy"
+    "treasury_ata_tx": null,
+    "claimant_ata_tx": null,
+    "treasury_ata_creation_tx": {
+      "slot": 505569728,
+      "signature": "4C5Pj2c9mdggVnx4x1ZqvTug36nZDLjL67LtDrmGNBomQgkmNFZTiKVLqSjqC1V6JGEaVarDi1E2F2NXVYpFu7Tj",
+      "verified_at": "2026-09-29T15:23:19.093Z"
+    },
+    "claimant_ata_creation_tx": {
+      "slot": 505569740,
+      "signature": "5YRdnMC1ckutV4gfLmQt4hP1zLTdgn3TkycZtWaEL7RDdXuCSFw63gF3YR8GZM6HEe8jNQjDfPnSTJ6o3cp9DiHV",
+      "verified_at": "2026-09-29T15:23:19.460Z"
+    }
   },
   "caps": {
     "perRelease": "10",
@@ -71,5 +93,12 @@
     ],
     "permissions": "0600",
     "note": "secrets are NEVER committed; see materialization/CUSTODY.md"
-  }
+  },
+  "governance": {
+    "devnet_materialization_writes": "YES (create mint, create 2 ATAs, mint supply, revoke authority)",
+    "program_deployment": "NO",
+    "settlement_tx": "NO",
+    "release_tx": "NO"
+  },
+  "repaired_at": "2026-09-29T15:23:20.114Z"
 }

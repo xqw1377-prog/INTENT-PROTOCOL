@@ -64,6 +64,31 @@ export const CAPS = {
   cycleCumulativeMax: "100", // max cumulative release per test cycle
 } as const;
 
+/**
+ * T3-R1: caps are MACHINE-ENFORCED, not declared. Pure deterministic guard —
+ *   releaseAmount                    ≤ perRelease (10)
+ *   escrowFundedAmount               ≤ escrowTotalMax (100)
+ *   cycleReleasedSoFar+releaseAmount ≤ cycleCumulativeMax (100)
+ * (supply ≤ 100 alone cannot prove the cycle cap: tokens can flow back to
+ * Treasury and be paid again. The T2 program must re-enforce the same
+ * invariants on chain — this guard is the client-side boundary.)
+ */
+export class CapsDeniedError extends Error {}
+
+export type CapsCheck = { releaseAmount: number; escrowFundedAmount: number; cycleReleasedSoFar: number };
+
+export function assertCaps(c: CapsCheck): void {
+  const per = Number(CAPS.perRelease);
+  const esc = Number(CAPS.escrowTotalMax);
+  const cyc = Number(CAPS.cycleCumulativeMax);
+  if (!Number.isInteger(c.releaseAmount) || c.releaseAmount < 0 || !Number.isInteger(c.escrowFundedAmount) || c.escrowFundedAmount < 0 || !Number.isInteger(c.cycleReleasedSoFar) || c.cycleReleasedSoFar < 0) {
+    throw new CapsDeniedError(`caps inputs must be non-negative integers: ${JSON.stringify(c)}`);
+  }
+  if (c.releaseAmount > per) throw new CapsDeniedError(`per-release cap exceeded: ${c.releaseAmount} > ${per}`);
+  if (c.escrowFundedAmount > esc) throw new CapsDeniedError(`escrow total cap exceeded: ${c.escrowFundedAmount} > ${esc}`);
+  if (c.cycleReleasedSoFar + c.releaseAmount > cyc) throw new CapsDeniedError(`cycle cumulative cap exceeded: ${c.cycleReleasedSoFar} + ${c.releaseAmount} > ${cyc}`);
+}
+
 /** Roles derived from the pinned slots (distinctness asserted by tests). */
 export const ROLES: Readonly<{ deployer: string; operator: string; treasury: string }> = {
   deployer: PINNED.deployer!,

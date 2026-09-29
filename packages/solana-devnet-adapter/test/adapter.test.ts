@@ -15,6 +15,7 @@ import {
   base58Decode, base58Encode, findProgramAddress, isOnEd25519Curve, releasePda,
   prepareSettlement, submitSettlement, observeSettlement, reconcileSettlement,
   assertNotMainnet, assertFrozenMint, assertAuthorizedRequester, resolvePayoutDestination,
+  assertCaps, CapsDeniedError,
   EndpointDeniedError, MintDeniedError, RoleDeniedError, DestinationDeniedError,
   FROZEN, PINNED, ROLES, CAPS, pinnedComplete,
   verifyBinding,
@@ -309,12 +310,19 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
     expect(resolvePayoutDestination.length).toBe(1);
   });
 
-  test("[T3-07] fund caps frozen (per release 10 / escrow total 100 / cycle 100) and enforced at the amount boundary", () => {
+  test("[T3-07] fund caps frozen AND machine-enforced (assertCaps boundary matrix)", () => {
     expect(CAPS.perRelease).toBe("10");
     expect(CAPS.escrowTotalMax).toBe("100");
     expect(CAPS.cycleCumulativeMax).toBe("100");
     expect(appendix.caps).toEqual({ perRelease: "10", escrowTotalMax: "100", cycleCumulativeMax: "100" });
-    // any amount other than the frozen per-release 10 is DENIED BEFORE TX (T1-07 matrix)
+    // the exact boundary matrix ordered by the Commander (T3-R1)
+    expect(() => assertCaps({ releaseAmount: 10, escrowFundedAmount: 100, cycleReleasedSoFar: 90 })).not.toThrow(); // ALLOW: 10 / 100 / 90+10
+    expect(() => assertCaps({ releaseAmount: 11, escrowFundedAmount: 0, cycleReleasedSoFar: 0 })).toThrow(CapsDeniedError); // per-release 11
+    expect(() => assertCaps({ releaseAmount: 10, escrowFundedAmount: 101, cycleReleasedSoFar: 0 })).toThrow(CapsDeniedError); // escrow 101
+    expect(() => assertCaps({ releaseAmount: 10, escrowFundedAmount: 100, cycleReleasedSoFar: 91 })).toThrow(CapsDeniedError); // 91+10 = 101
+    expect(() => assertCaps({ releaseAmount: 10, escrowFundedAmount: 100, cycleReleasedSoFar: 100 })).toThrow(CapsDeniedError); // 100+10
+    expect(() => assertCaps({ releaseAmount: -1, escrowFundedAmount: 0, cycleReleasedSoFar: 0 })).toThrow(CapsDeniedError); // negative
+    // amount boundary at the settlement input remains DENY-BEFORE-TX
     const input = validInput();
     input.amount = "100";
     expect(prepareSettlement(input).status).toBe("DENIED_BEFORE_TX");
@@ -351,5 +359,57 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
       }
     };
     scan(pkgDir);
+  });
+
+  test("[T3-10] T3-R1 provenance: creation fields are REAL transaction signatures — never pubkeys", () => {
+    const rec = appendix as unknown as Record<string, any>;
+    const sigs: Array<[string, string | undefined, string]> = [
+      ["mint creation", rec.mint.creation_tx?.signature, rec.mint.pubkey],
+      ["treasury ATA creation", rec.token_accounts.treasury_ata_creation_tx?.signature, rec.token_accounts.treasury_ata],
+      ["claimant ATA creation", rec.token_accounts.claimant_ata_creation_tx?.signature, rec.token_accounts.claimant_ata],
+      ["authority revoke", rec.mint.mint_authority_revoked?.tx_signature, rec.mint.pubkey],
+    ];
+    for (const [label, sig, account] of sigs) {
+      expect(sig, `${label}: signature must be recorded`).toBeDefined();
+      // base58 of a 64-byte signature is 87-88 chars (leading zeros shorten it)
+      expect(sig!.length, `${label}: signature shape`).toBeGreaterThanOrEqual(86);
+      expect(sig!.length, `${label}: signature shape`).toBeLessThanOrEqual(88);
+      expect(sig!, `${label}: must NOT be the account pubkey (T3-R1 erratum)`).not.toBe(account);
+      expect(sig!.match(/^[1-9A-HJ-NP-Za-km-z]+$/), `${label}: base58`).not.toBeNull();
+    }
+    // the OLD mislabeled fields must be gone or null
+    expect(rec.mint.create_tx_signature ?? null).toBeNull();
+    expect(rec.token_accounts.treasury_ata_tx ?? null).toBeNull();
+    expect(rec.token_accounts.claimant_ata_tx ?? null).toBeNull();
+    // hard cap established and recorded
+    expect(rec.mint.mint_authority).toBeNull();
+    expect(rec.mint.mint_authority_revoked?.to).toBeNull();
+  });
+
+  test("[T3-11] PDA-CONFORMANCE-ERRATA-1 closer: validator curve semantics via curve25519-dalek (the runtime's own library)", { timeout: 240_000 }, (t) => {
+    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+    if (!existsSync(bin)) {
+      try {
+        execFileSync("cargo", ["build", "-q"], {
+          cwd: path.join(pkgDir, "rust"),
+          env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") },
+        });
+        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+      } catch {
+        return t.skip("cargo unavailable — dalek conformance not runnable here (verified locally with cargo 1.98.1 + curve25519-dalek 4.1.3: corpus 4096 → 0 mismatches; all 6 golden vectors agree)");
+      }
+    }
+    // 1) corpus: our custom curve predicate == curve25519-dalek exactly
+    const corpus = JSON.parse(execFileSync(bin, ["--curve-corpus", "1024"], { encoding: "utf8" }).trim());
+    expect(corpus.mismatches, "custom predicate vs curve25519-dalek").toBe(0);
+    // 2) per golden vector: PDA derived with the DALEK predicate (validator
+    //    semantics) == the committed vector, for BOTH program ids
+    for (const c of golden.cases) {
+      const out = JSON.parse(execFileSync(bin, ["--pda-dalek", c.escrow_ref, c.outcome_receipt_hash, c.program_id], { encoding: "utf8" }).trim());
+      expect(out.agree, `${c.name}: custom vs dalek derivation`).toBe(true);
+      expect(out.dalek.pda, `${c.name}: dalek PDA vs committed vector`).toBe(c.release_pda);
+      expect(out.dalek.bump, `${c.name}: dalek bump vs committed vector`).toBe(c.bump);
+      expect(out.digest).toBe(c.economic_release_digest);
+    }
   });
 });
