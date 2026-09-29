@@ -1,6 +1,16 @@
 # EXE-R0 — Execution Evidence Extension Freeze
 
-Status: **PROPOSED — awaiting Commander adjudication**
+Status: **AMENDED per R0.1 (Commander, 2026-09-29) — awaiting re-adjudication**
+
+Amendment R0.1 changes (docs only): (1) the incorrect "open artifact key"
+claim removed — `ExecutionRecordV1` enters as the RAW PAYLOAD of an ordinary
+`EvidenceArtifactV1` with `kind: "execution-lineage"`, reusing
+`payload_hash` + `EvidenceBundle.artifact_hashes` verbatim; (2) `event_hash`
+frozen via the existing `hashObject(Domain.Event, "execution-event.v1", …)`
+framing — no parallel SHA256(canonical-json) formula; (3) signature wording
+precision — SignatureSchema GRAMMAR only, capture-key trust root deferred to
+EXE-R1+; (4) adapter hard constraint — normalize MUST NOT synthesize missing
+lineage.
 
 Base: `main @ 667d0f3` (TESTNET-R1/T0 contract head)
 Authority: Commander directive (2026-09-29): insert EXE-R0 before TESTNET-R1
@@ -59,18 +69,25 @@ evidence providers instead of being competitors.
 
 ## 2. The load-bearing insertion fact
 
-The frozen G1 `EvidenceBundleV1` admits artifacts by OPEN key:
-`EvidenceArtifactV1 { key, payload_hash, locator }` — proven by GP2's six
-artifact keys (`base-acceptance … execution-manifest`). Therefore:
+The frozen G1 `EvidenceArtifactV1` carries the payload by hash —
+`{ schema_version: "artifact.v1", artifact_id, kind, level, source, subject,
+captured_at, payload_hash, locator, privacy_class }` — and `EvidenceBundleV1`
+admits artifacts as `artifact_hashes: Hash[]` covered by `merkle_root`.
+(NB: the `"key"` strings visible in GP2 reports / Proof Packs are BUILDER
+WRAPPER metadata, not G1 wire fields.) Therefore:
 
 ```
-ExecutionRecordV1 enters the EvidenceBundle as ONE new artifact key
-("execution-lineage") — ZERO G1 wire/hash/schema change.
+ExecutionRecordV1 bytes
+  → payload of ONE ordinary EvidenceArtifactV1
+      { kind: "execution-lineage", payload_hash: hash(record bytes), … }
+  → EvidenceBundle.artifact_hashes
+  → merkle_root
 ```
 
-The bundle's merkle_root covers it exactly like every other artifact. No
-Proof Pack, verifier, or settlement consumer needs modification to tolerate
-it; consumers that do not know the key ignore it (forward-compatible).
+**ZERO G1 CHANGE**: no new wire field, no new object, no schema edit — the
+existing `EvidenceArtifactV1` + `payload_hash` + `artifact_hashes` +
+`merkle_root` machinery is reused verbatim. Consumers that do not interpret
+the `kind` ignore it (forward-compatible).
 
 ## 3. ExecutionEventV1 contract
 
@@ -99,13 +116,19 @@ timestamp                capture time (logical clock preferred)
 
 capture_boundary         §5 status of THIS event's capture
 
-event_hash               sha256 over the frozen canonical JSON of the
-                         event body (all fields above; excludes event_hash
-                         and signature) — the G1 content_hash convention,
-                         REUSING the frozen canonicalize (no new serializer)
+event_hash               hashObject(Domain.Event, "execution-event.v1",
+                         event_body_without_event_hash_and_signature) —
+                         REUSING the frozen framing
+                         DOMAIN || 0x00 || schema_version || 0x00 ||
+                         canonical_json(payload) with the existing
+                         Domain.Event = "intent-protocol/v1/event";
+                         NO parallel SHA256(canonical-json) formula
 signature                capture attestation by the capturing runtime
-                         identity (ed25519, G1 key grammar) — an
-                         ATTESTATION, never a verification authority
+                         identity — REUSES the frozen SignatureSchema
+                         GRAMMAR (scheme/signer/key_id/value) ONLY;
+                         the capture-key registry / trust root is an
+                         EXE-R1+ concern and is NOT frozen by EXE-R0.
+                         An ATTESTATION, never a verification authority
 ```
 
 Three frozen invariants — the point is these, not the field list:
@@ -136,9 +159,9 @@ ExecutionRecordV1
 Entry into the protocol:
 
 ```
-ExecutionRecordV1 bytes → EvidenceArtifactV1 { key: "execution-lineage",
-                                               payload_hash, locator }
-                       → EvidenceBundle (merkle_root covers it)
+ExecutionRecordV1 bytes → EvidenceArtifactV1
+  { kind: "execution-lineage", payload_hash: hash(record bytes), … }
+→ EvidenceBundle.artifact_hashes (merkle_root covers it)
 ```
 
 Binding to the existing trust chain is by `execution_id` — the same identity
@@ -190,8 +213,11 @@ Frozen provider duties:
 ```
 verify BEFORE map           provider attestation and lineage checks
                             precede any normalization
-preserve gaps               gaps in provider data map to explicit boundary
-                            records, never to silently-truncated lineages
+preserve gaps — HARD       normalize MUST preserve gaps and MUST NOT
+                            repair, invent, or synthesize missing events
+                            or state continuity; a gap in provider data
+                            maps to an explicit boundary record, never to
+                            a silently-truncated or back-filled lineage
 no authority                the adapter produces EVIDENCE only; it must not
                             alter claimant / amount / receipt / asset, and
                             cannot create VerificationDecisions
@@ -211,7 +237,7 @@ Salmon Execution Record
   ↓ verify event lineage (their linkage rules)
   ↓ map selected events/artifacts → ExecutionEventV1 (capture_boundary:
     "external" where INTENT did not itself capture)
-  ↓ EvidenceArtifactV1 { key: "execution-lineage" }
+  ↓ EvidenceArtifactV1 { kind: "execution-lineage", payload_hash, … }
   ↓ EvidenceBundle → INTENT verifiers → OutcomeReceipt
 ```
 
@@ -238,8 +264,11 @@ verifier policy remains sovereign over interpretation.
 no second Salmon         only the minimal primitives (event / boundary /
                          adapter); no product-grade capture instrumentation
 no G1 schema edits       no new G1 objects; EXE objects live outside the
-                         frozen eight, entering only as bundle artifacts
-no new hash formulas     frozen canonicalize reused everywhere
+                         frozen eight, entering only as ordinary
+                         EvidenceArtifactV1 payloads
+no new hash primitives   frozen canonicalize, SHA256, the hashObject
+                         framing, and Domain.Event are all reused;
+                         no parallel formulas
 no settlement changes    nothing in this layer speaks to payment
 no runtime rewrite       native capture (EXE-R1) upgrades the journal
                          later, under a separate order
