@@ -1,6 +1,15 @@
 # TESTNET-R1 — Solana Devnet Settlement Adapter Contract (T0 Freeze)
 
-Status: **PROPOSED — awaiting Commander T0 adjudication**
+Status: **AMENDED per T0-R1 (Commander, 2026-09-29) — awaiting re-adjudication**
+
+Amendment T0-R1 changes (docs only): (1) gate order frozen as
+**T1 → T3 → T2 → T4 → T5 → T6** — devnet materialization (mint/program/
+keys/payout binding) is pinned in T3 BEFORE the first T2 devnet transaction;
+(2) `ClaimantPayoutBindingV1` added — the authoritative claimant→address
+binding; (3) `EconomicReleaseDigest` + release-PDA derivation frozen as an
+exact byte formula; (4) `ChainReleaseV1` clarified as adapter-local fact
+record, NOT a G1 object; (5) Appendix A extended with the claimant payout
+slots.
 
 Base: `main @ de5ac68c591c7d952c2b143f825f79a81a1369bb`
 Authority: Commander order `TESTNET-R1 = GO` (2026-09-29). This document is
@@ -104,11 +113,12 @@ claim fixture = packages/gp4-settlement/fixtures/gp-001-claim.json (committed)
 `USDC-test` must resolve to exactly ONE frozen SPL mint pubkey before any
 transaction exists. The mint pubkey is a **required-frozen constant**:
 
-- pinned once at T3 key-custody materialization under Commander authority;
+- pinned at the **T3 devnet materialization freeze**, which PRECEDES the
+  first T2 devnet transaction (gate order T1 → T3 → T2 → T4 → T5 → T6);
 - recorded in this contract's appendix (Appendix A) at pinning time;
 - machine-enforced thereafter: any other mint is rejected before tx build;
-- **until pinned, the adapter refuses every settlement** (no default, no
-  discovery, no env-var override).
+- **until pinned, the adapter refuses every settlement** — no discovery, no
+  default, no env-var override (unpinned → DENY).
 
 ## 4. ChainReleaseV1 — the minimal on-chain record
 
@@ -125,8 +135,19 @@ ChainReleaseV1
   released_at / slot     chain-time fact
 ```
 
-Nothing else goes on chain. ChainReleaseV1 is a FACT record, not an
-authority: the authority remains the accepted OutcomeReceipt off-chain.
+Nothing else goes on chain. `ChainReleaseV1` is a **TESTNET-R1
+adapter-local FACT record, NOT a G1 protocol primitive** — the authority
+hierarchy is frozen as:
+
+```
+OutcomeReceipt            = the authorization root
+EconomicReleaseKey        = the exactly-once authority key
+ChainReleaseV1 (on-chain) = FACT, not authority
+settlement_key            = instruction idempotency only
+```
+
+The existence of an on-chain release account NEVER constitutes payment
+authorization by itself.
 
 ## 5. Adapter interface contract (implemented in T1)
 
@@ -180,18 +201,36 @@ settlement_key     = instruction idempotency only           [GP0, unchanged]
 ```
 
 On-chain mapping: the EconomicReleaseKey maps to a **unique deterministic
-release PDA / account**:
+release PDA / account**, derived by an exact byte formula (frozen — a
+conceptual `hash(a || b)` is not a cross-implementation contract):
 
 ```
-release PDA = hash(escrow_ref || outcome_receipt_hash)
+EconomicReleaseDigest
+= SHA256(
+      UTF8("intent-protocol/testnet-r1/economic-release")
+      || 0x00
+      || UTF8(escrow_ref)
+      || 0x00
+      || outcome_receipt_hash_raw32        // 32 raw digest bytes; the
+   )                                       // "sha256:" prefix and hex
+                                           // STRING never participate
+
+release PDA
+= findProgramAddress(
+      [ UTF8("release"), EconomicReleaseDigest[0..32] ],
+      TESTNET_R1_PROGRAM_ID                // program id participates via
+   )                                       // PDA semantics by construction
 ```
 
 Constraints frozen now:
 
-- the PDA is a pure function of the pair ONLY — **no nonce, no client id,
-  no retry counter** participates;
+- `nonce`, `settlement_key`, client id, and retry counter **never
+  participate** in the digest or the PDA seeds;
 - the pair may create the release account exactly ONCE; every later attempt
-  (any nonce, any client, any restart) resolves against the same account.
+  (any nonce, any client, any restart) resolves against the same account;
+- **T1 must ship JS and Rust golden vectors** for
+  `EconomicReleaseDigest` and the release PDA (same input → same digest and
+  same PDA in both languages) before any program is written against them.
 
 T2 must prove, on devnet:
 
@@ -209,14 +248,23 @@ T2-08 concurrent clients
 PASS is NOT "the second transaction errors". PASS is:
 
 ```
-recipient final balance delta = exactly 10 USDC-test, exactly once
+ClaimRecord.claimant
+→ frozen ClaimantPayoutBindingV1 (§7.1)
+→ recipient token account (ATA)
+
+recipient ATA final balance delta = exactly 10 USDC-test, exactly once
 ```
 
-measured from pre/post token balances, not from client return codes.
+measured from pre/post token balances of the BOUND account, not from client
+return codes.
 
-## 7. Key custody and operator controls (proven in T3)
+## 7. Key custody and operator controls (materialized + hardened in T3, BEFORE T2)
 
 A development wallet private key in `.env` does NOT count as custody.
+Under the frozen gate order (T1 → T3 → T2 → T4 → T5 → T6), T3 both
+MATERIALIZES the devnet constants (program id, mint, keys, payout binding —
+Appendix A) and HARDENS them; no T2 devnet transaction may exist before
+T3 materialization is complete.
 
 Three frozen roles:
 
@@ -246,7 +294,46 @@ non-frozen asset triple   = rejected
 amount ≠ "10"             = rejected
 payee ≠ ClaimRecord
   .claimant               = rejected before tx
+unbound or substituted
+  payout destination      = rejected before tx (§7.1)
 ```
+
+### 7.1 ClaimantPayoutBindingV1 — the claimant→address authority binding
+
+`ClaimRecord.claimant` (R1 anchor: `agent:gp-001-demo`) is a protocol
+identity, NOT a Solana address. A real SPL transfer needs a wallet pubkey /
+ATA. The mapping between them is an **authority binding**, frozen as its own
+runtime/testnet-only record (NOT a G1 object; GP4/GP5 untouched):
+
+```
+ClaimantPayoutBindingV1
+  claim_id
+  claimant
+  network        = solana-devnet
+  wallet_pubkey
+  token_account  (ATA)
+  mint           (the frozen USDC-test mint)
+  binding_hash
+  bound_at
+```
+
+Frozen invariants:
+
+```
+ClaimRecord.claimant
+→ exactly ONE frozen payout binding
+→ exactly ONE Solana destination (wallet_pubkey + token_account)
+```
+
+```
+caller  cannot override wallet_pubkey
+caller  cannot override token_account
+adapter cannot discover or choose the recipient dynamically
+```
+
+Any settlement whose destination does not resolve through the frozen
+binding is rejected BEFORE tx. T2 and T6 PASS criteria are defined through
+this binding (§6, §10).
 
 ## 8. Chain state and recovery contract (proven in T4)
 
@@ -344,6 +431,8 @@ Intent
 → Solana Adapter
 → Devnet Release
 → claimant receives exactly 10 USDC-test
+  (via the frozen ClaimantPayoutBinding: recipient ATA balance delta
+   = exactly 10, exactly once)
 → replay
 → changed nonce
 → crash/recovery
@@ -359,7 +448,9 @@ This, and only this, may be recorded as `TESTNET-R1 = PASS`.
 G-T1  GP4/GP5 frozen subtree byte-unchanged
 G-T2  mainnet endpoints hard denied (machine-tested)
 G-T3  only the frozen devnet asset accepted (machine-tested)
-G-T4  payee == immutable ClaimRecord.claimant
+G-T4  payee == immutable ClaimRecord.claimant via the ONE frozen
+      ClaimantPayoutBindingV1 (wallet/ATA); caller/adapter cannot
+      substitute the destination
 G-T5  amount == "10"
 G-T6  economic uniqueness survives retry / nonce / concurrency
 G-T7  RPC response loss cannot cause double release
@@ -379,8 +470,12 @@ packages/golden-path/evidence/9f6610dc-*/**
 packages/gp2-verifier/formal/**
 ```
 
-All TESTNET-R1 code lives under `packages/solana-devnet-adapter/**` and its
-tests; frozen areas receive zero edits.
+All TESTNET-R1 new implementation lives under
+`packages/solana-devnet-adapter/**` — including a Solana program, if one is
+later authorized, under `packages/solana-devnet-adapter/program/**` (the
+program is part of THIS domain; no separate `programs/**` or `contracts/**`
+roots are ever opened, to prevent scope drift). Frozen areas receive zero
+edits.
 
 ALL TEN PASS is required for `TESTNET-R1 = PASS`. Even then:
 
@@ -388,14 +483,14 @@ ALL TEN PASS is required for `TESTNET-R1 = PASS`. Even then:
 MAINNET = DENIED
 ```
 
-## 12. T1–T6 gate matrix
+## 12. T1–T6 gate matrix (frozen order: T1 → T3 → T2 → T4 → T5 → T6)
 
 | Gate | Deliverable | PASS condition |
 |---|---|---|
 | T0 | this contract | semantics untouched; minimal chain duties; mainnet hard-denied; fund caps frozen; key roles frozen; failure model frozen — Commander adjudicates |
-| T1 | `packages/solana-devnet-adapter/` interface skeleton | four verbs + full input binding; every mismatch input = DENY BEFORE TX (machine-tested, no chain required) |
-| T2 | on-chain exactly-once | T2-01..08 on devnet; PASS = recipient balance delta exactly 10 once |
-| T3 | keys / operator controls / mint pinned (Appendix A) | role separation enforced; caps enforced; mainnet RPC + mainnet-beta + non-frozen mint machine-rejected |
+| T1 | `packages/solana-devnet-adapter/` interface skeleton + deployment boundary | four verbs + full input binding; every mismatch input = DENY BEFORE TX (machine-tested, no chain required); **JS + Rust golden vectors for EconomicReleaseDigest and the release PDA** |
+| T3 | devnet materialization freeze + custody/operator hardening | program id, USDC-test mint, Deployer/Operator/Treasury, ClaimantPayoutBindingV1, and caps pinned (Appendix A) — BEFORE any devnet tx; role separation enforced; rotation + unauthorized-key negatives + cap enforcement + mainnet RPC/mainnet-beta/non-frozen-mint machine-rejected |
+| T2 | on-chain exactly-once | T2-01..08 on devnet; PASS = recipient ATA balance delta exactly 10 once, via the frozen payout binding |
 | T4 | failure recovery | UNKNOWN_CHAIN_STATE never auto-fails; crash/timeout/restart reconcile to on-chain truth; zero double releases |
 | T5 | `testnet-proof-pack/` + third-party verifier | pack-only reverse trace answers all three questions; independent verify = exit 0 |
 | T6 | devnet golden run | full §10 sequence once, no second payment, pack verifies |
@@ -405,12 +500,19 @@ MAINNET = DENIED
 ```
 no on-chain Intent/Evidence/verification logic
 no protocol semantic changes (wire, hash, digest, state machines)
-no new G1 objects beyond the fact-record ChainReleaseV1
+no new G1 objects
+
+ChainReleaseV1
+= TESTNET-R1 adapter-local fact record
+= NOT a G1 protocol primitive
+(the same holds for ClaimantPayoutBindingV1 — a runtime/testnet-only
+binding, never a G1 object)
+
 no token, no mainnet, no real funds
 no modification of GP4/GP5 frozen surfaces
 ```
 
-## Appendix A — Frozen pinning records (filled at T3, Commander authority)
+## Appendix A — Frozen pinning records (materialized at T3, BEFORE the first T2 devnet tx)
 
 ```
 USDC-test mint pubkey      = <PINNED AT T3 — adapter refuses all tx until set>
@@ -418,5 +520,12 @@ devnet program id          = <PINNED AT T1/T2 DEPLOY>
 Deployer pubkey            = <PINNED AT T3>
 Operator pubkey            = <PINNED AT T3>
 Treasury pubkey            = <PINNED AT T3>
+claimant wallet pubkey     = <PINNED AT T3 (ClaimantPayoutBindingV1)>
+claimant token account     = <PINNED AT T3 (ClaimantPayoutBindingV1, ATA)>
+ClaimantPayoutBindingV1
+  binding_hash             = <PINNED AT T3>
 cap enforcement anchor     = per §7 caps, hard-coded, machine-tested
 ```
+
+Pinning authority: Commander. Until every slot above is pinned, the adapter
+refuses every settlement (no discovery, no default, no env override).
