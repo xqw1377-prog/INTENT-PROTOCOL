@@ -27,9 +27,15 @@ export const FROZEN = {
 } as const;
 
 /**
- * Appendix A pinned slots. EVERY slot is null until the T3 devnet
- * materialization freeze. While any slot is null the adapter has NO real
- * transaction capability — structurally, not just by policy.
+ * Appendix A pinned slots — MATERIALIZED at T3 (Commander order TESTNET-R1/T3).
+ * Source of record: materialization/appendix-a.json (committed); secrets live
+ * outside the repository at ~/intent-testnet-r1-keys/ (0600) and are NEVER
+ * committed (see materialization/CUSTODY.md).
+ *
+ * The program id was pinned BEFORE deployment by design (it is the program
+ * keypair's pubkey); deployment itself is a T2-authorized bootstrap action
+ * and has NOT happened. While the adapter package contains no RPC layer,
+ * chain actions remain structurally unavailable.
  */
 export const PINNED: Readonly<{
   programId: string | null; // actual deployment program id (pinned at T3, BEFORE deployment)
@@ -41,15 +47,62 @@ export const PINNED: Readonly<{
   claimantTokenAccount: string | null; // ClaimantPayoutBindingV1 (ATA)
   claimantBindingHash: string | null; // ClaimantPayoutBindingV1.binding_hash (Appendix A)
 }> = {
-  programId: null,
-  mint: null,
-  deployer: null,
-  operator: null,
-  treasury: null,
-  claimantWallet: null,
-  claimantTokenAccount: null,
-  claimantBindingHash: null,
+  programId: "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+  mint: "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
+  deployer: "q9jYp8Jg2uNLrfxRhXs7VR275VYvGPbvYruvSoHpf6B",
+  operator: "673H3SuS1o8cWEGFFpd4ua7roZppZWhKvAGBGgtsvTjN",
+  treasury: "8QW7mvynD8xPwhW8mp584Yf6nmfwGWWqXtNDn194uvsv",
+  claimantWallet: "6ce8Q7hxP5fbFPhKsUUpd7QHLGUYqfMHiNvZFkBAzwo8",
+  claimantTokenAccount: "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy",
+  claimantBindingHash: "sha256:a22111250b2cfb399e5e03d8d80e84c1dc40bc365d711b3b1279a5215d75a092",
 };
+
+/** T0 §7 fund caps (frozen; test funds, production discipline). */
+export const CAPS = {
+  perRelease: "10", // USDC-test
+  escrowTotalMax: "100", // test escrow total balance ceiling
+  cycleCumulativeMax: "100", // max cumulative release per test cycle
+} as const;
+
+/** Roles derived from the pinned slots (distinctness asserted by tests). */
+export const ROLES: Readonly<{ deployer: string; operator: string; treasury: string }> = {
+  deployer: PINNED.deployer!,
+  operator: PINNED.operator!,
+  treasury: PINNED.treasury!,
+};
+
+/** Wrong-mint hard denial (T0 §7): only the frozen devnet mint is accepted. */
+export class MintDeniedError extends Error {
+  constructor(mint: string) {
+    super(`mint denied (TESTNET-R1 T0 §7): ${mint} — frozen mint is ${PINNED.mint}`);
+  }
+}
+
+export function assertFrozenMint(mint: string): void {
+  if (mint !== PINNED.mint) throw new MintDeniedError(mint);
+}
+
+/** Role separation: ONLY the Operator may request settlements. */
+export class RoleDeniedError extends Error {}
+
+export function assertAuthorizedRequester(pubkey: string): void {
+  if (pubkey === ROLES.operator) return;
+  const who = pubkey === ROLES.deployer ? "deployer" : pubkey === ROLES.treasury ? "treasury" : "unknown";
+  throw new RoleDeniedError(`unauthorized requester (${who}): only the Operator role may request settlements — ${pubkey}`);
+}
+
+/** Destination binding: the payout destination is resolved ONLY through the frozen binding. */
+export class DestinationDeniedError extends Error {}
+
+export function resolvePayoutDestination(claimant: string): string {
+  if (claimant !== FROZEN.anchors.claimant) {
+    throw new DestinationDeniedError(`unknown claimant: ${claimant}`);
+  }
+  if (PINNED.claimantWallet === null || PINNED.claimantTokenAccount === null || PINNED.claimantBindingHash === null) {
+    throw new DestinationDeniedError("ClaimantPayoutBindingV1 not pinned");
+  }
+  return PINNED.claimantTokenAccount;
+}
 
 export function pinnedComplete(): boolean {
   return Object.values(PINNED).every((v) => v !== null);

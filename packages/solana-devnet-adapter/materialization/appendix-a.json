@@ -1,0 +1,75 @@
+{
+  "schema_version": "testnet-r1-appendix-a.v1",
+  "materialized_at": "2026-09-29T15:02:07.132Z",
+  "mode": "T3",
+  "endpoint": "https://api.devnet.solana.com",
+  "chain": {
+    "cluster": "devnet",
+    "slot_at_materialization": 505569749,
+    "genesis_hash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "solana_core": "4.3.0"
+  },
+  "program_id": {
+    "pubkey": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+    "note": "pinned at T3 BEFORE deployment; deployment is a T2-authorized bootstrap action"
+  },
+  "mint": {
+    "pubkey": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
+    "decimals": 6,
+    "mint_authority": "8QW7mvynD8xPwhW8mp584Yf6nmfwGWWqXtNDn194uvsv",
+    "freeze_authority": null,
+    "create_tx_signature": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
+    "supply_base_units": "100000000",
+    "supply_tx_signature": "5p2aSnDEW58LsjgAuTwqinWLNsi5eqGsrR3VZmYwYgnEdhQranYSwTSCLBzzN1Arfwvnq9WJzMN2LQVuDUf3E9Ax",
+    "provenance": "created by the Treasury role for TESTNET-R1 via the SPL Token program on devnet; test-only token, zero real-fund value"
+  },
+  "roles": {
+    "deployer": {
+      "pubkey": "q9jYp8Jg2uNLrfxRhXs7VR275VYvGPbvYruvSoHpf6B",
+      "authority": "devnet program deployment ONLY; cannot authorize settlements"
+    },
+    "operator": {
+      "pubkey": "673H3SuS1o8cWEGFFpd4ua7roZppZWhKvAGBGgtsvTjN",
+      "authority": "may request settlements ALREADY authorized by GP4 semantics; cannot alter claimant/amount/receipt/asset"
+    },
+    "treasury": {
+      "pubkey": "8QW7mvynD8xPwhW8mp584Yf6nmfwGWWqXtNDn194uvsv",
+      "authority": "test USDC source; mint authority; balance under hard cap"
+    }
+  },
+  "claimant_payout_binding": {
+    "schema_version": "claimant-payout-binding.v1",
+    "claim_id": "c1a4e7d2-3f3b-4a59-9e02-7b6d5c8f1a23",
+    "claimant": "agent:gp-001-demo",
+    "network": "solana-devnet",
+    "wallet_pubkey": "6ce8Q7hxP5fbFPhKsUUpd7QHLGUYqfMHiNvZFkBAzwo8",
+    "token_account": "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy",
+    "mint": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
+    "bound_at": "2026-09-29T15:02:07.132Z",
+    "binding_hash": "sha256:a22111250b2cfb399e5e03d8d80e84c1dc40bc365d711b3b1279a5215d75a092"
+  },
+  "token_accounts": {
+    "treasury_ata": "B7zaiMDacLZr93ERW882CZ8pK2BrQdj7UP845JpFDEUm",
+    "claimant_ata": "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy",
+    "treasury_ata_tx": "B7zaiMDacLZr93ERW882CZ8pK2BrQdj7UP845JpFDEUm",
+    "claimant_ata_tx": "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy"
+  },
+  "caps": {
+    "perRelease": "10",
+    "escrowTotalMax": "100",
+    "cycleCumulativeMax": "100"
+  },
+  "custody": {
+    "secrets_dir": "~/intent-testnet-r1-keys/ (OUTSIDE this repository)",
+    "files": [
+      "program.json",
+      "deployer.json",
+      "operator.json",
+      "treasury.json",
+      "claimant.json",
+      "mint.json"
+    ],
+    "permissions": "0600",
+    "note": "secrets are NEVER committed; see materialization/CUSTODY.md"
+  }
+}

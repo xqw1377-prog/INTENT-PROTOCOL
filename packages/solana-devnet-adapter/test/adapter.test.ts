@@ -5,7 +5,7 @@
  * material, NO mint discovery, NO mainnet, NO GP4/GP5 edit, NO G1 edit.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,15 +14,19 @@ import {
   economicReleaseDigest, receiptHashRaw32, toHex,
   base58Decode, base58Encode, findProgramAddress, isOnEd25519Curve, releasePda,
   prepareSettlement, submitSettlement, observeSettlement, reconcileSettlement,
-  assertNotMainnet, EndpointDeniedError, FROZEN, PINNED, pinnedComplete,
+  assertNotMainnet, assertFrozenMint, assertAuthorizedRequester, resolvePayoutDestination,
+  EndpointDeniedError, MintDeniedError, RoleDeniedError, DestinationDeniedError,
+  FROZEN, PINNED, ROLES, CAPS, pinnedComplete,
+  verifyBinding,
   type SettlementInput,
 } from "../src/index.ts";
 
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = path.resolve(pkgDir, "../..");
 const golden = JSON.parse(readFileSync(path.join(pkgDir, "vectors/golden.json"), "utf8")) as {
-  program_id: string;
-  cases: Array<{ name: string; escrow_ref: string; outcome_receipt_hash: string; program_id: string; economic_release_digest: string; release_pda: string; bump: number }>;
+  fixture_program_id: string;
+  actual_program_id: string | null;
+  cases: Array<{ name: string; escrow_ref: string; outcome_receipt_hash: string; program_id: string; program_id_class: string; economic_release_digest: string; release_pda: string; bump: number }>;
 };
 
 const validInput = (): SettlementInput => ({
@@ -169,7 +173,7 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
     expect(ok.status).toBe("PREPARED");
     if (ok.status === "PREPARED") {
       expect(ok.economicReleaseDigest).toBe(golden.cases[0]!.economic_release_digest);
-      expect(ok.programIdPinned).toBe(false); // Appendix A unpinned at T1
+      expect(ok.programIdPinned).toBe(true); // T3: Appendix A materialized
     }
   });
 
@@ -183,11 +187,8 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
     if (r.status === "DENIED_BEFORE_TX") expect(r.reason).toBe("mainnet-endpoint-denied");
   });
 
-  test("[T1-09] unpinned constants → NO real tx capability (structural); pinnedComplete covers EVERY Appendix A slot", () => {
-    expect(pinnedComplete()).toBe(false);
-    expect(PINNED.programId).toBeNull(); // actual deployment id NOT pinned at T1
-    // T1-R1: the pinned-slot contract must mirror Appendix A EXACTLY —
-    // pinnedComplete() can never be true while a required slot is missing.
+  test("[T1-09] Appendix A pinned (T3) → pinnedComplete() true; chain still structurally unavailable", () => {
+    // T3 materialized every slot; the pinned-slot contract mirrors Appendix A
     expect(Object.keys(PINNED).sort()).toEqual([
       "claimantBindingHash",
       "claimantTokenAccount",
@@ -198,21 +199,29 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
       "programId",
       "treasury",
     ].sort());
+    expect(pinnedComplete()).toBe(true); // every slot materialized at T3
     const prepared = prepareSettlement(validInput());
     expect(prepared.status).toBe("PREPARED");
+    if (prepared.status === "PREPARED") expect(okNote(prepared)).toContain("T1 skeleton");
     for (const r of [submitSettlement(prepared), observeSettlement("e", "sha256:" + "0".repeat(64)), reconcileSettlement("e", "sha256:" + "0".repeat(64))]) {
       expect(r.status).toBe("CHAIN_NOT_AUTHORIZED");
-      expect(r.reasons).toContain("appendix-a-constants-unpinned");
-      expect(r.reasons).toContain("t1-skeleton-no-rpc-layer");
+      expect(r.reasons).toContain("t1-skeleton-no-rpc-layer"); // deployment/T2 NOT authorized: no RPC layer exists
     }
   });
 
-  test("[T1-10] fixture program id is a test vector ONLY — never the actual deployment id", () => {
-    expect(golden.program_id).toBe(FROZEN.fixtureProgramId);
-    expect(PINNED.programId).not.toBe(FROZEN.fixtureProgramId);
-    expect(PINNED.programId).toBeNull();
-    // every golden case uses the fixture id
-    for (const c of golden.cases) expect(c.program_id).toBe(FROZEN.fixtureProgramId);
+  function okNote(p: Extract<ReturnType<typeof prepareSettlement>, { status: "PREPARED" }>): string {
+    return p.note;
+  }
+
+  test("[T1-10] fixture program id is a test vector ONLY — never the actual deployment program id", () => {
+    expect(golden.fixture_program_id).toBe(FROZEN.fixtureProgramId);
+    expect(FROZEN.fixtureProgramId).not.toBe(PINNED.programId); // distinct from the ACTUAL pinned id
+    // fixture-class vectors use the fixture id; actual-class vectors use the pinned id
+    for (const c of golden.cases) {
+      if (c.program_id_class === "fixture") expect(c.program_id).toBe(FROZEN.fixtureProgramId);
+      if (c.program_id_class === "actual") expect(c.program_id).toBe(PINNED.programId);
+    }
+    expect(golden.actual_program_id).toBe(PINNED.programId);
   });
 
   test("[T1-11] GP4/GP5 + G1 frozen paths byte-unchanged since the T0 freeze (ebf1ed9)", () => {
@@ -231,5 +240,116 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
     }
     // the golden-path frozen evidence dir is protected exactly
     expect(changed.some((p) => p.startsWith("packages/golden-path/evidence/9f6610dc-"))).toBe(false);
+  });
+});
+
+describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
+  const appendix = JSON.parse(readFileSync(path.join(pkgDir, "materialization/appendix-a.json"), "utf8")) as {
+    program_id: { pubkey: string };
+    mint: { pubkey: string; decimals: number; supply_base_units: string };
+    roles: Record<"deployer" | "operator" | "treasury", { pubkey: string }>;
+    claimant_payout_binding: Record<string, string>;
+    token_accounts: { claimant_ata: string; treasury_ata: string };
+    caps: Record<string, string>;
+  };
+
+  test("[T3-01] PINNED mirrors the Appendix A record EXACTLY", () => {
+    expect(PINNED.programId).toBe(appendix.program_id.pubkey);
+    expect(PINNED.mint).toBe(appendix.mint.pubkey);
+    expect(PINNED.deployer).toBe(appendix.roles.deployer.pubkey);
+    expect(PINNED.operator).toBe(appendix.roles.operator.pubkey);
+    expect(PINNED.treasury).toBe(appendix.roles.treasury.pubkey);
+    expect(PINNED.claimantWallet).toBe(appendix.claimant_payout_binding.wallet_pubkey);
+    expect(PINNED.claimantTokenAccount).toBe(appendix.claimant_payout_binding.token_account);
+    expect(PINNED.claimantBindingHash).toBe(appendix.claimant_payout_binding.binding_hash);
+    expect(appendix.mint.decimals).toBe(6);
+    expect(appendix.mint.supply_base_units).toBe("100000000"); // exactly 100 USDC-test — the escrow cap ceiling
+  });
+
+  test("[T3-02] ClaimantPayoutBindingV1: binding_hash recomputes from the record; bound to the frozen claimant", () => {
+    expect(verifyBinding(appendix.claimant_payout_binding as never)).toBe(true);
+    expect(appendix.claimant_payout_binding.claimant).toBe(FROZEN.anchors.claimant);
+    expect(appendix.claimant_payout_binding.network).toBe("solana-devnet");
+    expect(appendix.claimant_payout_binding.mint).toBe(PINNED.mint);
+  });
+
+  test("[T3-03] all six materialized identities are pairwise distinct", () => {
+    const ids = [PINNED.programId, PINNED.deployer, PINNED.operator, PINNED.treasury, PINNED.claimantWallet, PINNED.mint];
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ROLES.deployer).toBe(PINNED.deployer);
+    expect(ROLES.operator).toBe(PINNED.operator);
+    expect(ROLES.treasury).toBe(PINNED.treasury);
+  });
+
+  test("[T3-04] unauthorized-role negatives: ONLY the Operator may request settlements", () => {
+    expect(() => assertAuthorizedRequester(ROLES.operator)).not.toThrow();
+    expect(() => assertAuthorizedRequester(ROLES.deployer)).toThrow(RoleDeniedError); // deployer deploys only
+    expect(() => assertAuthorizedRequester(ROLES.treasury)).toThrow(RoleDeniedError); // treasury funds only
+    expect(() => assertAuthorizedRequester(PINNED.claimantWallet!)).toThrow(RoleDeniedError); // even the claimant
+    expect(() => assertAuthorizedRequester("11111111111111111111111111111111")).toThrow(RoleDeniedError); // unknown
+  });
+
+  test("[T3-05] wrong-mint hard denial: only the frozen devnet mint is accepted", () => {
+    expect(() => assertFrozenMint(PINNED.mint!)).not.toThrow();
+    for (const bad of [
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // MAINNET USDC mint — must be denied
+      "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", // devnet USDC (Circle's) — NOT our frozen mint
+      "So11111111111111111111111111111111111111112", // wrapped SOL
+    ]) {
+      expect(() => assertFrozenMint(bad), bad).toThrow(MintDeniedError);
+    }
+  });
+
+  test("[T3-06] wrong-destination hard denial: payout resolves ONLY through the frozen binding", () => {
+    // the frozen claimant resolves to exactly one destination — the pinned ATA
+    expect(resolvePayoutDestination(FROZEN.anchors.claimant)).toBe(PINNED.claimantTokenAccount);
+    expect(() => resolvePayoutDestination("agent:impostor")).toThrow(DestinationDeniedError);
+    expect(() => resolvePayoutDestination("agent:gp-002-other")).toThrow(DestinationDeniedError);
+    // and a caller cannot substitute a destination: resolve takes no destination argument
+    expect(resolvePayoutDestination.length).toBe(1);
+  });
+
+  test("[T3-07] fund caps frozen (per release 10 / escrow total 100 / cycle 100) and enforced at the amount boundary", () => {
+    expect(CAPS.perRelease).toBe("10");
+    expect(CAPS.escrowTotalMax).toBe("100");
+    expect(CAPS.cycleCumulativeMax).toBe("100");
+    expect(appendix.caps).toEqual({ perRelease: "10", escrowTotalMax: "100", cycleCumulativeMax: "100" });
+    // any amount other than the frozen per-release 10 is DENIED BEFORE TX (T1-07 matrix)
+    const input = validInput();
+    input.amount = "100";
+    expect(prepareSettlement(input).status).toBe("DENIED_BEFORE_TX");
+  });
+
+  test("[T3-08] actual-program-id PDA vectors exist and are oracle-verified (fixture proof does NOT carry over)", () => {
+    const actual = golden.cases.filter((c) => c.program_id_class === "actual");
+    expect(actual.length).toBeGreaterThanOrEqual(3);
+    for (const c of actual) expect(c.program_id).toBe(PINNED.programId);
+    // the R1-anchor release PDA for the REAL program id is deterministic and recorded
+    const anchor = actual.find((c) => c.name === "r1-anchor-actual")!;
+    expect(anchor.release_pda).toMatch(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/);
+  });
+
+  test("[T3-09] NO secret key material anywhere in the package tree", () => {
+    const scan = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) {
+          if (e.name === "node_modules" || e.name === "target" || e.name === "dist") continue;
+          scan(p);
+        } else if (e.name.endsWith(".json")) {
+          const raw = readFileSync(p, "utf8");
+          let parsed: unknown;
+          try { parsed = JSON.parse(raw); } catch { continue; }
+          // Solana keypair files are exactly 64 byte-valued numbers
+          if (Array.isArray(parsed) && parsed.length === 64 && parsed.every((n) => typeof n === "number" && Number.isInteger(n) && n >= 0 && n <= 255)) {
+            throw new Error(`SECRET KEYPAIR MATERIAL IN TREE: ${p}`);
+          }
+          if (typeof parsed === "object" && parsed !== null && "secretKey" in (parsed as Record<string, unknown>)) {
+            throw new Error(`SECRET KEY FIELD IN TREE: ${p}`);
+          }
+        }
+      }
+    };
+    scan(pkgDir);
   });
 });
