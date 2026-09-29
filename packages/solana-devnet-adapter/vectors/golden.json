@@ -2,7 +2,8 @@
   "schema_version": "t1-golden-vectors.v1",
   "program_id": "8d3sTN2WXf8SKcDR9iarBDScrupiG5TYVQcq8fuhK8aM",
   "program_id_note": "FIXTURE-ONLY (base58(sha256('intent-protocol/testnet-r1/fixture-program-id'))): test vector input, NEVER the actual deployment program id (pinned at T3 before deployment).",
-  "formula": "EconomicReleaseDigest = SHA256(UTF8('intent-protocol/testnet-r1/economic-release') || 0x00 || UTF8(escrow_ref) || 0x00 || receipt_raw32); release PDA = findProgramAddress([UTF8('release'), digest], program_id)",
+  "formula": "EconomicReleaseDigest = SHA256(UTF8('intent-protocol/testnet-r1/economic-release') || 0x00 || UTF8(escrow_ref) || 0x00 || receipt_raw32); release PDA = findProgramAddress([UTF8('release'), digest], program_id) with the OFFICIAL preimage seed1||…||seedN||bump||programId||'ProgramDerivedAddress'",
+  "oracle": "every case verified at generation time against the official @solana/web3.js PublicKey.findProgramAddressSync; T1-R1 invalidated the previous vector set (bump-after-marker preimage error)",
   "cases": [
     {
       "name": "r1-anchor",
@@ -10,8 +11,8 @@
       "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
       "program_id": "8d3sTN2WXf8SKcDR9iarBDScrupiG5TYVQcq8fuhK8aM",
       "economic_release_digest": "1cea7a269227c71fd41d4cf2f72b53adcd59a84c71a10ec2c4177682ba910c37",
-      "release_pda": "6txEi52eyTuL32sgKYTTc3mj54VJCu2asx6dWfiD3Pnc",
-      "bump": 253
+      "release_pda": "86WjmhnQ1f8skFiNwCvTzgdxCNyyGtYaPcEtoxk3Yrcn",
+      "bump": 255
     },
     {
       "name": "alt-escrow",
@@ -19,7 +20,7 @@
       "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
       "program_id": "8d3sTN2WXf8SKcDR9iarBDScrupiG5TYVQcq8fuhK8aM",
       "economic_release_digest": "bc74aa7d174f7f52179beeafc9b6e57df087aacfee65f85890e06cd1607f5ec0",
-      "release_pda": "7fFtqkpYcZmg1351FsUBFTDmVMarHD6gYuixMXibYc3u",
+      "release_pda": "H2XXQ9vLM26pKQXd2ZBmH8quHWhey18RW8YAocFvH8wm",
       "bump": 255
     },
     {
@@ -28,8 +29,8 @@
       "outcome_receipt_hash": "sha256:abababababababababababababababababababababababababababababababab",
       "program_id": "8d3sTN2WXf8SKcDR9iarBDScrupiG5TYVQcq8fuhK8aM",
       "economic_release_digest": "981087b54313167283788ecf7cc656e513f93a7f620086794d036deb0973271d",
-      "release_pda": "BWwNfCoorahQ2pER15mP1qHXdLkHfenJuBKKGxEE5mRT",
-      "bump": 254
+      "release_pda": "DHHCDdvjyAcKJ2zGDqEMhk8Yq8XKWS43uoqMbXcsrZv1",
+      "bump": 255
     }
   ]
 }

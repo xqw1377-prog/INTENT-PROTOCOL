@@ -39,6 +39,7 @@ export const PINNED: Readonly<{
   treasury: string | null;
   claimantWallet: string | null; // ClaimantPayoutBindingV1
   claimantTokenAccount: string | null; // ClaimantPayoutBindingV1 (ATA)
+  claimantBindingHash: string | null; // ClaimantPayoutBindingV1.binding_hash (Appendix A)
 }> = {
   programId: null,
   mint: null,
@@ -47,6 +48,7 @@ export const PINNED: Readonly<{
   treasury: null,
   claimantWallet: null,
   claimantTokenAccount: null,
+  claimantBindingHash: null,
 };
 
 export function pinnedComplete(): boolean {

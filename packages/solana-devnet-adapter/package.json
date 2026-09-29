@@ -7,5 +7,8 @@
   "scripts": {
     "test": "vitest run --root ../.. packages/solana-devnet-adapter",
     "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "@solana/web3.js": "^1.98.0"
   }
 }

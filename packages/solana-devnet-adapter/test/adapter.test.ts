@@ -72,6 +72,48 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
     }
   });
 
+  test("[T1-PDA-ORACLE] our JS == our Rust == OFFICIAL Solana SDK, for every golden vector", { timeout: 240_000 }, async (t) => {
+    // T1-R1 lesson: two independent implementations agreeing proves nothing if
+    // both copied the same algorithm error (the bump-after-marker bug). The
+    // OFFICIAL implementation is the canonical oracle.
+    const { PublicKey } = await import("@solana/web3.js");
+    let rustResults: Map<string, { economic_release_digest: string; release_pda: string; bump: number }> | null = null;
+    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+    if (!existsSync(bin)) {
+      try {
+        execFileSync("cargo", ["build", "-q"], {
+          cwd: path.join(pkgDir, "rust"),
+          env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") },
+        });
+        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+      } catch { /* rust unavailable: JS==OFFICIAL still enforced below */ }
+    }
+    if (existsSync(bin)) {
+      rustResults = new Map(golden.cases.map((c) => [c.name, JSON.parse(execFileSync(bin, [c.escrow_ref, c.outcome_receipt_hash, c.program_id], { encoding: "utf8" }).trim())]));
+    }
+    for (const c of golden.cases) {
+      const ours = releasePda(c.escrow_ref, c.outcome_receipt_hash, c.program_id);
+      expect(ours.pda).toBe(c.release_pda); // committed vector
+      // OFFICIAL ORACLE
+      const [officialAddr, officialBump] = PublicKey.findProgramAddressSync(
+        [Buffer.from("release", "utf8"), Buffer.from(c.economic_release_digest, "hex")],
+        new PublicKey(c.program_id),
+      );
+      expect(ours.pda, `${c.name}: our JS PDA != official`).toBe(officialAddr.toBase58());
+      expect(ours.bump, `${c.name}: our JS bump != official`).toBe(officialBump);
+      expect(c.release_pda).toBe(officialAddr.toBase58());
+      expect(c.bump).toBe(officialBump);
+      // RUST (when toolchain available)
+      if (rustResults) {
+        const r = rustResults.get(c.name)!;
+        expect(r.release_pda, `${c.name}: Rust PDA != official`).toBe(officialAddr.toBase58());
+        expect(r.bump, `${c.name}: Rust bump != official`).toBe(officialBump);
+        expect(r.economic_release_digest).toBe(c.economic_release_digest);
+      }
+    }
+    if (!rustResults) t.skip("rust leg unavailable (cargo absent) — JS==OFFICIAL enforced; JS==RUST==OFFICIAL verified locally with cargo 1.98.1");
+  });
+
   test("[T1-04] digest preimage hygiene: hex string / prefix NEVER participate; malformed hashes rejected", () => {
     const anchor = golden.cases[0]!;
     // raw32 extraction from the frozen anchor hash is exactly the digest bytes
@@ -141,9 +183,21 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
     if (r.status === "DENIED_BEFORE_TX") expect(r.reason).toBe("mainnet-endpoint-denied");
   });
 
-  test("[T1-09] unpinned constants → NO real tx capability (structural)", () => {
+  test("[T1-09] unpinned constants → NO real tx capability (structural); pinnedComplete covers EVERY Appendix A slot", () => {
     expect(pinnedComplete()).toBe(false);
     expect(PINNED.programId).toBeNull(); // actual deployment id NOT pinned at T1
+    // T1-R1: the pinned-slot contract must mirror Appendix A EXACTLY —
+    // pinnedComplete() can never be true while a required slot is missing.
+    expect(Object.keys(PINNED).sort()).toEqual([
+      "claimantBindingHash",
+      "claimantTokenAccount",
+      "claimantWallet",
+      "deployer",
+      "mint",
+      "operator",
+      "programId",
+      "treasury",
+    ].sort());
     const prepared = prepareSettlement(validInput());
     expect(prepared.status).toBe("PREPARED");
     for (const r of [submitSettlement(prepared), observeSettlement("e", "sha256:" + "0".repeat(64)), reconcileSettlement("e", "sha256:" + "0".repeat(64))]) {

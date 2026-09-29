@@ -5,9 +5,17 @@
  *       [ UTF8("release"), EconomicReleaseDigest[0..32] ],
  *       TESTNET_R1_PROGRAM_ID )
  *
- * Solana PDA semantics implemented directly (no SDK dependency): the address
- * candidate is SHA256(seeds… ‖ programId ‖ "ProgramDerivedAddress" ‖ [bump])
- * scanned bump 255→1 until the candidate is NOT a valid ed25519 curve point.
+ * Solana PDA semantics implemented directly (no SDK dependency), following
+ * the OFFICIAL algorithm exactly (solana-program Library
+ * program-derived-address.rs): find_program_address appends the bump as the
+ * FINAL SEED, then create_program_address hashes
+ *
+ *   seed1 ‖ … ‖ seedN ‖ bump ‖ programId ‖ "ProgramDerivedAddress"
+ *
+ * and scans bump 255→1 until the digest is NOT a valid ed25519 curve point.
+ * (T1-R1 fix: the bump participates WITH the seeds, BEFORE programId and
+ * the marker — never appended after the marker.)
+ *
  * The on-curve check is ed25519 point decompression: interpret the 32 bytes
  * as a little-endian y coordinate (bit 255 = x sign), then
  * x² = (y²−1)/(d·y²+1) must have a solution in GF(2^255−19).
@@ -115,9 +123,9 @@ export function findProgramAddress(seeds: Uint8Array[], programId: Uint8Array): 
   for (let bump = 255; bump >= 1; bump--) {
     const h = createHash("sha256");
     for (const s of seeds) h.update(s);
+    h.update(Buffer.from([bump])); // bump is the FINAL SEED (official semantics)
     h.update(programId);
     h.update(Buffer.from(PDA_MARKER, "utf8"));
-    h.update(Buffer.from([bump]));
     const candidate = new Uint8Array(h.digest());
     if (!isOnEd25519Curve(candidate)) return { address: candidate, bump };
   }

@@ -10,6 +10,11 @@
 //!   release PDA = findProgramAddress(
 //!       [UTF8("release"), digest], program_id )
 //!
+//! Official Solana PDA semantics (T1-R1 fix): the bump is appended as the
+//! FINAL SEED, then the hash preimage is
+//!   seed1 || ... || seedN || bump || program_id || "ProgramDerivedAddress"
+//! and bump scans 255→1 until the digest is off the ed25519 curve.
+//!
 //! Usage: t1-golden-vectors <escrow_ref> <outcome_receipt_hash> <program_id_base58>
 //! Prints one JSON line: {"economic_release_digest":..,"release_pda":..,"bump":..}
 
@@ -133,9 +138,9 @@ fn find_program_address(seeds: &[Vec<u8>], program_id: &[u8]) -> (Vec<u8>, u8) {
         for s in seeds {
             h.update(s);
         }
+        h.update([bump]); // bump is the FINAL SEED (official semantics)
         h.update(program_id);
         h.update(PDA_MARKER);
-        h.update([bump]);
         let candidate = h.finalize();
         if !is_on_curve(&candidate) {
             return (candidate.to_vec(), bump);
