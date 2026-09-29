@@ -38,10 +38,9 @@ A machine test scans the package tree to keep it that way.
   action); cannot authorize settlements.
 - **Operator** — may request settlements ALREADY authorized by GP4
   semantics; cannot alter claimant / amount / receipt / asset.
-- **Treasury** — test USDC source and mint authority; balance under the
-  hard cap; funded with 5 devnet SOL (human-assisted faucet claim on
-  2026-09-29 — the web faucet prohibits AI agents, so the Commander claimed
-  it; the RPC/CLI faucets were IP rate-limited).
+- **Treasury** — original mint authority (authority REVOKED at T3-R1:
+  `mint_authority = null`, supply hard-capped at 100); current test-USDC
+  holder and source; **NO LONGER mint authority**.
 
 ## Funding provenance
 

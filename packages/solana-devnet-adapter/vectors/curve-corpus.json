@@ -1,0 +1,91 @@
+{
+  "schema_version": "pda-curve-edge-corpus.v1",
+  "authority": "curve25519-dalek CompressedEdwardsY::decompress() — the Solana validator runtime's own curve library (agave → solana-program → create_program_address)",
+  "closure_rule": "our_js == rust_custom == runtime_expected for EVERY case; web3 vs runtime divergences are EXPECTED and RECORDED, never smoothed over",
+  "generated_with": {
+    "rust_tool": "t1-golden-vectors --curve-cases",
+    "web3": "PublicKey.isOnCurve"
+  },
+  "cases": [
+    {
+      "name": "identity-y1-sign0",
+      "encoding_hex": "0100000000000000000000000000000000000000000000000000000000000000",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "neutral element encoding (x=0, y=1): must decompress to the identity point",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "negative-zero-y1-sign1",
+      "encoding_hex": "0100000000000000000000000000000000000000000000000000000000000080",
+      "our_js": true,
+      "web3_expected": false,
+      "note": "y=1 with the x-sign bit set (negative zero): pathological sign-on-x=0 encoding",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "WEB3_VS_RUNTIME"
+    },
+    {
+      "name": "y-zero",
+      "encoding_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "y=0 encoding",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "y-equals-p",
+      "encoding_hex": "edffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "our_js": true,
+      "web3_expected": false,
+      "note": "non-canonical y = field prime p",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "WEB3_VS_RUNTIME"
+    },
+    {
+      "name": "y-equals-p-plus-1",
+      "encoding_hex": "eeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "our_js": true,
+      "web3_expected": false,
+      "note": "non-canonical y = p+1",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "WEB3_VS_RUNTIME"
+    },
+    {
+      "name": "normal-valid-point",
+      "encoding_hex": "6e0716ee0054628f0d81a28d41c30a1b8da29b0befeff7765ad8d9fe08100acd",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "an actual on-chain account key (on-curve by construction)",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "hash-digest-off-curve",
+      "encoding_hex": "980358f9a0b5b83ef667cdc842152ab2db9836adc3402056daaa54003198e170",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "first deterministic digest whose candidate is OFF-curve (a real PDA seed case)",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "hash-digest-on-curve",
+      "encoding_hex": "c12d74848944dc1f7f47ea851cacb2ce9b5d96c0b738c65425e7bc488f0757a7",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "first deterministic digest whose candidate is ON-curve (a reject case for findProgramAddress)",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    }
+  ]
+}

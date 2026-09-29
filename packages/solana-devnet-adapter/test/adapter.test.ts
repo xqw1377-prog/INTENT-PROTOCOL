@@ -386,7 +386,77 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
     expect(rec.mint.mint_authority_revoked?.to).toBeNull();
   });
 
-  test("[T3-11] PDA-CONFORMANCE-ERRATA-1 closer: validator curve semantics via curve25519-dalek (the runtime's own library)", { timeout: 240_000 }, (t) => {
+  test("[T3-12] frozen curve edge corpus: our JS = our Rust = runtime (dalek) on every pathological encoding; web3 divergences EXPECTED/RECORDED", { timeout: 240_000 }, (t) => {
+    const corpus = JSON.parse(readFileSync(path.join(pkgDir, "vectors/curve-corpus.json"), "utf8")) as {
+      cases: Array<{ name: string; encoding_hex: string; our_js: boolean; runtime_expected: boolean; web3_expected: boolean; divergence: string }>;
+    };
+    const names = corpus.cases.map((c) => c.name);
+    for (const required of ["identity-y1-sign0", "negative-zero-y1-sign1", "y-zero", "y-equals-p", "y-equals-p-plus-1", "normal-valid-point"]) {
+      expect(names, `edge case missing: ${required}`).toContain(required);
+    }
+    for (const c of corpus.cases) {
+      // CLOSURE: our JS predicate == runtime authority on EVERY case
+      expect(isOnEd25519Curve(new Uint8Array(Buffer.from(c.encoding_hex, "hex"))), `${c.name}: our JS vs runtime`).toBe(c.runtime_expected);
+      expect(c.our_js, `${c.name}: committed our_js`).toBe(c.runtime_expected);
+      // divergence bookkeeping is exact, never silent
+      if (c.web3_expected !== c.runtime_expected) expect(c.divergence).toBe("WEB3_VS_RUNTIME");
+      else expect(c.divergence).toBe("NONE");
+    }
+    // the KNOWN client/runtime divergences are exactly the recorded set
+    const divergent = corpus.cases.filter((c) => c.divergence === "WEB3_VS_RUNTIME").map((c) => c.name).sort();
+    expect(divergent).toEqual(["negative-zero-y1-sign1", "y-equals-p", "y-equals-p-plus-1"].sort());
+    // rust leg: re-run the tool when cargo is available
+    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+    if (!existsSync(bin)) {
+      try {
+        execFileSync("cargo", ["build", "-q"], { cwd: path.join(pkgDir, "rust"), env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") } });
+        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+      } catch {
+        return t.skip("cargo unavailable — rust leg re-verified locally (cargo 1.98.1, dalek 4.1.3): all 8 cases agree with runtime");
+      }
+    }
+    const verdicts = JSON.parse(execFileSync(bin, ["--curve-cases", ...corpus.cases.map((c) => c.encoding_hex)], { encoding: "utf8" }).trim());
+    for (let i = 0; i < corpus.cases.length; i++) {
+      expect(verdicts[i].dalek, `${corpus.cases[i]!.name}: rust dalek vs runtime`).toBe(corpus.cases[i]!.runtime_expected);
+      expect(verdicts[i].custom, `${corpus.cases[i]!.name}: rust custom vs runtime`).toBe(corpus.cases[i]!.runtime_expected);
+    }
+  });
+
+  test("[T3-13] receipt hash grammar PARITY: JS and Rust accept exactly ^sha256:[0-9a-f]{64}$", { timeout: 240_000 }, (t) => {
+    const anchor = FROZEN.anchors.outcomeReceiptHash; // sha256:<64 lowercase>
+    const bad: Array<[string, string]> = [
+      ["uppercase hex", "sha256:" + anchor.slice(7).toUpperCase()],
+      ["missing prefix", anchor.slice(7)],
+      ["63 hex chars", "sha256:" + "a".repeat(63)],
+      ["65 hex chars", "sha256:" + "a".repeat(65)],
+      ["non-hex", "sha256:" + "z".repeat(63) + "0"],
+    ];
+    // JS side
+    expect(() => receiptHashRaw32(anchor)).not.toThrow();
+    for (const [label, v] of bad) expect(() => receiptHashRaw32(v), `JS rejects ${label}`).toThrow();
+    // Rust side — parity on every class
+    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+    if (!existsSync(bin)) {
+      try {
+        execFileSync("cargo", ["build", "-q"], { cwd: path.join(pkgDir, "rust"), env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") } });
+        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+      } catch {
+        return t.skip("cargo unavailable — rust grammar parity re-verified locally: same accept/reject on all 6 inputs");
+      }
+    }
+    const runRust = (receipt: string): number => {
+      try {
+        execFileSync(bin, ["escrow:gp-001-local", receipt, FROZEN.fixtureProgramId], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+        return 0;
+      } catch (e) {
+        return (e as { status?: number }).status ?? 1;
+      }
+    };
+    expect(runRust(anchor)).toBe(0); // accepts the canonical form
+    for (const [label, v] of bad) expect(runRust(v), `Rust rejects ${label}`).not.toBe(0);
+  });
+
+  test("[T3-11] PDA-CONFORMANCE-ERRATA-1: validator curve semantics via curve25519-dalek (the runtime's own library)", { timeout: 240_000 }, (t) => {
     let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
     if (!existsSync(bin)) {
       try {

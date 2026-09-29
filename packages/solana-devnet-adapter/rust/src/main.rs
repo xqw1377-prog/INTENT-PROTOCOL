@@ -163,6 +163,26 @@ fn find_program_address(seeds: &[Vec<u8>], program_id: &[u8], curve_check: fn(&[
 
 // ————————————————— main —————————————————
 
+fn hex_to_32(s: &str) -> Result<[u8; 32], String> {
+    if s.len() != 64 {
+        return Err(format!("want 64 hex chars, got {}", s.len()));
+    }
+    let mut out = [0u8; 32];
+    for (i, ch) in s.bytes().enumerate() {
+        let v = match ch {
+            b'0'..=b'9' => ch - b'0',
+            b'a'..=b'f' => ch - b'a' + 10,
+            _ => return Err(format!("non-lowercase-hex char '{}' at {}", ch as char, i)),
+        };
+        if i % 2 == 0 {
+            out[i / 2] = v << 4;
+        } else {
+            out[i / 2] |= v;
+        }
+    }
+    Ok(out)
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() == 3 && args[1] == "--curve-corpus" {
@@ -186,6 +206,24 @@ fn main() {
         println!("{{\"corpus\":{},\"mismatches\":{}}}", n, mismatches);
         std::process::exit(if mismatches == 0 { 0 } else { 1 });
     }
+    if args.len() >= 3 && args[1] == "--curve-cases" {
+        // Per-case curve verdicts: for each 64-hex 32-byte encoding, report
+        // BOTH our custom predicate and curve25519-dalek (runtime authority).
+        let mut out = String::from("[");
+        for hex_case in &args[2..] {
+            let bytes = hex_to_32(hex_case).expect("bad hex case");
+            out.push_str(&format!(
+                "{{\"hex\":\"{}\",\"custom\":{},\"dalek\":{}}},",
+                hex_case.to_ascii_lowercase(),
+                is_on_curve(&bytes),
+                is_on_curve_dalek(&bytes)
+            ));
+        }
+        out.pop();
+        out.push(']');
+        println!("{}", out);
+        return;
+    }
     if args.len() == 5 && args[1] == "--pda-dalek" {
         // derive the PDA with the DALEK predicate (validator semantics) and
         // also with the custom predicate; both must agree and match the
@@ -193,7 +231,10 @@ fn main() {
         let escrow_ref = &args[2];
         let receipt = &args[3];
         let program_id_b58 = &args[4];
-        let raw = receipt_raw32(receipt);
+        let raw = match receipt_raw32(receipt) {
+            Ok(r) => r,
+            Err(e) => { eprintln!("receipt grammar rejected: {}", e); std::process::exit(2); }
+        };
         let mut h = Sha256::new();
         h.update(b"intent-protocol/testnet-r1/economic-release");
         h.update([0x00]);
@@ -224,7 +265,10 @@ fn main() {
     let receipt = &args[2];
     let program_id_b58 = &args[3];
 
-    let raw = receipt_raw32(receipt);
+    let raw = match receipt_raw32(receipt) {
+        Ok(r) => r,
+        Err(e) => { eprintln!("receipt grammar rejected: {}", e); std::process::exit(2); }
+    };
 
     // EconomicReleaseDigest
     let mut h = Sha256::new();
@@ -249,14 +293,30 @@ fn main() {
     );
 }
 
-fn receipt_raw32(receipt: &str) -> [u8; 32] {
-    assert!(receipt.starts_with("sha256:") && receipt.len() == 7 + 64, "malformed receipt hash");
-    let mut raw = [0u8; 32];
-    for i in 0..32 {
-        let hex_pair = &receipt[7 + i * 2..7 + i * 2 + 2];
-        raw[i] = u8::from_str_radix(hex_pair, 16).expect("invalid hex in receipt hash");
+/// Receipt hash grammar is FROZEN and MUST be exactly the JS language:
+/// ^sha256:[0-9a-f]{64}$  — lowercase only. u8::from_str_radix(.., 16) alone
+/// would also accept A-F, which would make the Rust accepted language a
+/// strict superset of the JS one (T3-R2 grammar alignment).
+fn receipt_raw32(receipt: &str) -> Result<[u8; 32], String> {
+    if !receipt.starts_with("sha256:") || receipt.len() != 7 + 64 {
+        return Err(format!("malformed receipt hash (prefix/length): {}", receipt));
     }
-    raw
+    let hex_part = &receipt[7..];
+    let mut raw = [0u8; 32];
+    for (i, ch) in hex_part.bytes().enumerate() {
+        let v = match ch {
+            b'0'..=b'9' => ch - b'0',
+            b'a'..=b'f' => ch - b'a' + 10,
+            // uppercase A-F is REJECTED: grammar parity with the JS side
+            _ => return Err(format!("non-lowercase-hex character '{}' at position {}", ch as char, i)),
+        };
+        if i % 2 == 0 {
+            raw[i / 2] = v << 4;
+        } else {
+            raw[i / 2] |= v;
+        }
+    }
+    Ok(raw)
 }
 
 // tiny hex helper (no hex crate dependency)
