@@ -52,7 +52,7 @@ StateLineage                                │
                         ▼
              ExecutionEvidenceAdapter       (this contract)
                         ▼
-                 EvidenceBundle             (frozen G1, open artifact keys)
+                 EvidenceBundle             (frozen G1, artifact payloads)
                         ▼
              Independent Verifiers          (frozen)
                         ▼
