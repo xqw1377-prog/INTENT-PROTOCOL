@@ -20,12 +20,12 @@ GP4                 = PASS / FROZEN
 GP5                 = PASS / FROZEN (COMMANDER SIGNED)
 MAIN-CLOSURE-R1     = PASS / CLOSED
 
-CURRENT GATE        = TESTNET-R1 / T0 FINAL ADJUDICATION (T0-R1 + T0-R2
-                     amendments delivered @ 8648376 / ebf1ed9 — awaiting
-                     Commander PASS/FROZEN signature)
+CURRENT GATE        = TESTNET-R1 / T1 (ADAPTER SKELETON — IN PROGRESS)
 EXE-R0              = PASS / FROZEN (Commander, 2026-09-29 @ 38ac0fb)
-NEXT TARGET         = T0 SIGN-OFF, THEN T1 SOLANA DEVNET ADAPTER SKELETON
-                     (gate order T1 → T3 → T2 → T4 → T5 → T6)
+TESTNET-R1 / T0     = PASS / FROZEN (Commander, 2026-09-29 @ ebf1ed9)
+NEXT TARGET         = T1 DELIVERABLES → T3 (DEVNET MATERIALIZATION + CUSTODY)
+                     gate order T1 → T3 → T2 → T4 → T5 → T6; T1 touches
+                     NO chain (no RPC, no devnet, no deployment)
 
 LOCAL SETTLEMENT    = PROVEN / SIGNED
 LOCAL GOLDEN PATH   = PROVEN

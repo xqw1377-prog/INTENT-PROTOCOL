@@ -1,6 +1,17 @@
 # TESTNET-R1 — Solana Devnet Settlement Adapter Contract (T0 Freeze)
 
-Status: **AMENDED per T0-R1 + T0-R2 (Commander, 2026-09-29) — awaiting re-adjudication**
+Status: **PASS / FROZEN (Commander, 2026-09-29, adjudicated @ ebf1ed9)**
+
+Frozen by Commander ruling. T0-R1 and T0-R2 accepted. Frozen semantics of
+record: gate order T1 → T3 → T2 → T4 → T5 → T6; Program ID pinned at T3
+BEFORE deployment; program deployment = T2-authorized bootstrap chain
+action; T3 completion precedes any devnet mutation, deployment
+authorization, and every settlement/release tx; T1 program-id vectors are
+fixture-only; OutcomeReceipt = authorization root; EconomicReleaseKey =
+(escrow_ref, outcome_receipt_hash); settlement_key = instruction
+idempotency only; ClaimantPayoutBindingV1 = claimant → exactly one frozen
+Solana destination; ChainReleaseV1 = FACT ONLY, ≠ authority, ≠ G1 object;
+MAINNET = DENIED; REAL FUNDS = DENIED.
 
 Amendment T0-R1 changes (docs only): (1) gate order frozen as
 **T1 → T3 → T2 → T4 → T5 → T6** — devnet materialization (mint/program/
