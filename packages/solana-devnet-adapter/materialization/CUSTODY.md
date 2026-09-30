@@ -32,6 +32,25 @@ operator machine (xinquanwang), with `0600` permissions:
 keys and hashes (`src/frozen.ts` PINNED + `materialization/appendix-a.json`).
 A machine test scans the package tree to keep it that way.
 
+## Upgrade authority — FINALIZED (PRODUCTION-HARDENING-R0 PH-01, 2026-10-01)
+
+```text
+baseline authority:            q9jYp8Jg2uNLrfxRhXs7VR275VYvGPbvYruvSoHpf6B (deployer), active
+baseline last deployed slot:   505727122
+finalization action:           solana program set-upgrade-authority ASvnm4pi… --final
+post-action authority:         NONE (on-chain re-read)
+post-action last deployed slot: 505727122 (unchanged — program bytes were NOT redeployed)
+post-T2 program replacement:    NO-EVIDENCE / Builder reports none
+```
+
+NEW HARDENING FACT: the deployed TESTNET-R1 program is now IMMUTABLE on
+devnet (loader-enforced, no longer only a governance statement). HISTORICAL
+T2/T6 evidence is UNCHANGED by this fact — this is not a re-freeze and adds
+no new gate claim. program immutable ≠ protocol production-ready; this
+closes the AR-02 upgradeability gap only. Any future program generalization
+(multi-pair authorization) requires a NEW deployment / NEW program id and a
+fresh materialization cycle — by design.
+
 ## Role authority (T0 §7)
 
 - **Deployer** — devnet program deployment ONLY (a T2-authorized bootstrap
