@@ -20,7 +20,7 @@ GP4                 = PASS / FROZEN
 GP5                 = PASS / FROZEN (COMMANDER SIGNED)
 MAIN-CLOSURE-R1     = PASS / CLOSED
 
-CURRENT GATE        = TESTNET-R1 / T6 (GOLDEN RUN — IN PROGRESS)
+CURRENT GATE        = NONE OPEN — TESTNET-R1 COMPLETE
 EXE-R0              = PASS / FROZEN (Commander, 2026-09-29 @ 38ac0fb)
 TESTNET-R1 / T0     = PASS / FROZEN (Commander, 2026-09-29, basis
                      8648376 + ebf1ed9, adjudicated @ 75407f3)
@@ -34,9 +34,16 @@ TESTNET-R1 / T4     = PASS / FROZEN (Commander, basis 08e43f7 + af9b215 +
 TESTNET-R1 / T5     = PASS / FROZEN (Commander, basis 3b414e0 + b16c3e6 +
                      d3371c5; third-party offline proof pack, two-layer
                      provenance, coordinated-tamper resistant)
-NEXT TARGET         = T4 DELIVERABLES (UNKNOWN → RECONCILE → safe terminal
-                     state) → T5 (PROOF PACK) → T6 (GOLDEN RUN). MAINNET
-                     REMAINS DENIED; TESTNET-R1 ≠ COMPLETE until T6 PASS
+TESTNET-R1 / T6     = PASS / FROZEN (Commander, basis 4d6ca9e + 660f8cf;
+                     golden run closed the loop; T5 frozen bytes preserved,
+                     path-level immutability gate T6-09)
+TESTNET-R1          = COMPLETE — frozen OutcomeReceipt → devnet settlement →
+                     exactly-once → failure reconciliation → third-party
+                     proof pack → golden run form one auditable closed loop.
+                     COMPLETE ≠ production authorization.
+NEXT TARGET         = AWAITING COMMANDER ORDER. Frozen regardless:
+                     MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
+                     TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED.
 
 LOCAL SETTLEMENT    = PROVEN / SIGNED
 LOCAL GOLDEN PATH   = PROVEN
