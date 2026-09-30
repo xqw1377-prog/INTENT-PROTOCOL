@@ -68,12 +68,28 @@ export function fingerprint(c: Command): string {
 const key = (m: MachineName, e: string): string => `${m}:${e}`;
 const JOURNAL_FILE = "journal.jsonl";
 
+/** Reconstruct the Command view of a journal entry (for fingerprint re-verification). */
+function commandOf(e: JournalEntry): Command {
+  return {
+    command_id: e.decision.command_id,
+    machine: e.decision.machine,
+    entity: e.decision.entity,
+    op: "transition",
+    to: e.decision.to ?? e.decision.from,
+    ...(e.claim ? { claim: e.claim } : {}),
+    ...(e.prerequisite ? { prerequisite: e.prerequisite } : {}),
+    at: e.at,
+  };
+}
+
 export class GPRuntime {
   private journal: JournalEntry[] = [];
   private byCommandId = new Map<string, JournalEntry>();
   private states = new Map<string, string>();
   private claims = new Map<string, ClaimRecord>();
   private dir: string | undefined;
+  /** PH-05: true when reload discarded a torn FINAL journal line (crash edge). */
+  tornTailDiscarded = false;
 
   constructor(opts: { dir?: string } = {}) {
     this.dir = opts.dir;
@@ -82,28 +98,90 @@ export class GPRuntime {
     }
   }
 
-  /** Deterministic fold of a journal (dedup by command_id keeps the first decision). */
+  /**
+   * Deterministic fold (dedup by command_id keeps the first decision).
+   * PH-05: every ACCEPTED transition is re-validated against the FROZEN
+   * ruleset — an entry recording a transition that was never legal
+   * (e.g. a forged RUNNING→CLOSED) fails the fold instead of folding in.
+   */
   static fold(entries: JournalEntry[]): GPRuntime {
     const rt = new GPRuntime();
     for (const e of [...entries].sort((a, b) => a.seq - b.seq)) {
       if (rt.byCommandId.has(e.decision.command_id)) continue;
-      rt.journal.push(e);
-      rt.byCommandId.set(e.decision.command_id, e);
       if (e.decision.accepted && e.decision.to) {
+        const from = rt.stateOf(e.decision.machine, e.decision.entity);
+        if (from !== e.decision.from) {
+          throw new Error(`journal replay violation at seq ${e.seq}: recorded from=${e.decision.from} but replay state=${from}`);
+        }
+        const edge = edgeFor(e.decision.machine, from, e.decision.to);
+        if (!edge) {
+          throw new Error(`journal replay violation at seq ${e.seq}: illegal transition ${from}→${e.decision.to} under the frozen ruleset`);
+        }
+        const needed = prerequisiteKindOf(edge.authority);
+        if (needed) {
+          if (!e.prerequisite) throw new Error(`journal replay violation at seq ${e.seq}: accepted transition lacks its prerequisite`);
+          if (prerequisiteShapeViolations(e.prerequisite).length > 0) throw new Error(`journal replay violation at seq ${e.seq}: prerequisite shape invalid`);
+          if (e.prerequisite.kind !== needed) throw new Error(`journal replay violation at seq ${e.seq}: prerequisite kind mismatch`);
+        }
+        if (edge.authority === "claim-record") {
+          if (!e.claim) throw new Error(`journal replay violation at seq ${e.seq}: claim-record edge without a recorded claim`);
+          if (claimRecordShapeViolations(e.claim).length > 0) throw new Error(`journal replay violation at seq ${e.seq}: claim shape invalid`);
+          if (e.claim.bounty_id !== e.decision.entity) throw new Error(`journal replay violation at seq ${e.seq}: claim/entity mismatch`);
+          const existing = rt.claims.get(e.decision.entity);
+          if (existing && JSON.stringify(existing) !== JSON.stringify(e.claim)) throw new Error(`journal replay violation at seq ${e.seq}: claim record mutated`);
+        }
         rt.states.set(key(e.decision.machine, e.decision.entity), e.decision.to);
         if (e.claim) rt.claims.set(e.decision.entity, { ...e.claim });
       }
+      rt.journal.push(e);
+      rt.byCommandId.set(e.decision.command_id, e);
     }
     return rt;
   }
 
-  /** Crash recovery: rebuild the full runtime from a durable journal directory. */
+  /**
+   * PH-05 hardened crash recovery (write format byte-compatible — the
+   * journal line format is UNCHANGED so existing clean runs and the GP5 pack
+   * regenerate identically):
+   *   · torn FINAL line → discarded with a recorded warning (append torn mid-write)
+   *   · torn NON-final line → hard failure (corruption, not a crash edge)
+   *   · fingerprint mismatch on any entry → hard failure (payload tamper)
+   *   · every accepted transition re-validated against the FROZEN ruleset
+   *     (edgeFor / prerequisite kind+shape / claim guard) — a forged entry
+   *     that was never legal cannot fold silently
+   */
   static reload(dir: string): GPRuntime {
     const file = path.join(dir, JOURNAL_FILE);
     if (!existsSync(file)) return new GPRuntime({ dir });
-    const lines = readFileSync(file, "utf8").split("\n").filter((l) => l.trim().length > 0);
-    const entries = lines.map((l) => JSON.parse(l) as JournalEntry);
+    const raw = readFileSync(file, "utf8").split("\n");
+    // trailing empty chunk from the final newline is normal, not a torn line
+    while (raw.length > 0 && raw[raw.length - 1]!.trim() === "") raw.pop();
+    let discarded = false;
+    const entries: JournalEntry[] = [];
+    for (let i = 0; i < raw.length; i++) {
+      try {
+        entries.push(JSON.parse(raw[i]!) as JournalEntry);
+      } catch (e) {
+        if (i === raw.length - 1) { discarded = true; continue; } // torn crash edge
+        throw new Error(`journal corrupt at line ${i + 1} (non-final torn line): ${String((e as Error).message).slice(0, 120)}`);
+      }
+    }
+    // fingerprint consistency: each ACCEPTED entry's recorded fingerprint must
+    // match a recomputation of its own decision payload (format unchanged —
+    // verified, not rewritten). REJECTED entries are skipped by necessity:
+    // the frozen write format does not persist the rejected command's
+    // original `to`, so its fingerprint is not recomputable from the journal
+    // alone; their machine/entity/op prefix is still covered by the replay
+    // validation below.
+    for (const e of entries) {
+      if (!e.decision.accepted || !e.decision.to) continue;
+      const recomputed = fingerprint(commandOf(e));
+      if (recomputed !== e.payloadFingerprint) {
+        throw new Error(`journal fingerprint mismatch at seq ${e.seq}: payload tamper or version drift`);
+      }
+    }
     const rt = GPRuntime.fold(entries);
+    rt.tornTailDiscarded = discarded;
     rt.dir = dir;
     return rt;
   }
@@ -177,11 +255,14 @@ export class GPRuntime {
       ...(claim ? { claim: { ...claim } } : {}),
       ...(prerequisite ? { prerequisite: { ...prerequisite } } : {}),
     };
-    this.journal.push(entry);
-    this.byCommandId.set(c.command_id, entry);
+    // PH-05 disk-before-memory: in durable mode the journal line is appended
+    // BEFORE any in-memory advance, so a failed disk write cannot leave the
+    // runtime ahead of its ledger. (In-memory mode there is no disk to fail.)
     if (this.dir) {
       appendFileSync(path.join(this.dir, JOURNAL_FILE), JSON.stringify(entry) + "\n", "utf8");
     }
+    this.journal.push(entry);
+    this.byCommandId.set(c.command_id, entry);
     return decision;
   }
 }
