@@ -167,11 +167,24 @@ describe("[TESTNET-R1/T4] UNKNOWN → RECONCILE → safe terminal state", () => 
     expect(report.acceptance.unknown_never_permits_resubmission).toBe(true);
   });
 
-  test("[T4-05] T4 scope guard: only adapter-domain paths changed since the T2 sign-off (2cabc63)", () => {
-    const changed = execFileSync("git", ["diff", "--name-only", "2cabc63..HEAD"], { cwd: repoRoot, encoding: "utf8" })
-      .split("\n").map((l) => l.trim()).filter(Boolean);
-    for (const p of changed) {
-      expect(p.startsWith("packages/solana-devnet-adapter/") || p === "README.md", `T4 scope drift: ${p}`).toBe(true);
-    }
+  test("[T4-05] EPOCH seal: closed range 2cabc63..ad935ee (T4 sign-off) — frozen T4 allowlist, never HEAD", () => {
+
+// ————————————————— GATE EPOCH MODEL (PH-00A / AMENDMENT-2) —————————————————
+function epochSeal(label: string, start: string, end: string, allowedDomain: (p: string) => boolean): void {
+  for (const sha of [start, end]) {
+    expect(execFileSync("git", ["cat-file", "-t", sha], { cwd: repoRoot, encoding: "utf8" }).trim(), `${label}: ${sha} must exist`).toBe("commit");
+  }
+  const mergeBase = execFileSync("git", ["merge-base", start, end], { cwd: repoRoot, encoding: "utf8" }).trim();
+  expect(mergeBase, `${label}: START must be an ancestor of END`).toBe(start);
+  const changed = execFileSync("git", ["diff", "--name-only", `${start}..${end}`], { cwd: repoRoot, encoding: "utf8" })
+    .split("\n").map((l) => l.trim()).filter(Boolean);
+  for (const p of changed) {
+    expect(allowedDomain(p), `${label}: closed-epoch scope violation: ${p}`).toBe(true);
+  }
+}
+    epochSeal("T4-05",
+      "2cabc6346b8a8b7c5d4265265a65a6fa2d5eb601",
+      "ad935eeebe9263cb91b9153bb174528394200c7e",
+      (p) => p.startsWith("packages/solana-devnet-adapter/") || p === "README.md");
   });
 });

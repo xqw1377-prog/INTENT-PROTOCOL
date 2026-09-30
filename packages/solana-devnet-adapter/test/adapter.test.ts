@@ -511,14 +511,18 @@ describe("[EPOCH-A] TESTNET-R1/PDA hardening — historical seal", () => {
 describe("[EPOCH-B] PRODUCTION-HARDENING-R0 — open scope gate", () => {
   test("[PH-H-01] since base bcea992, every changed path belongs to the PH-00A-AMENDMENT-1 allowlist", () => {
     const BASE = "bcea992f729c730a8356023eb1dc29b5d78f72cd";
-    // PH-00A-AMENDMENT-1 (Commander, frozen): the initial PH-R0 allowlist.
+    // PH-00A-AMENDMENT-1 + AMENDMENT-2 (Commander, frozen): the PH-R0 allowlist.
     // adapter.test.ts is permitted for GATE-EPOCH MACHINERY ONLY — touching
     // T1/T2/T3/PDA semantic tests through it is NOT authorized by this entry.
+    // AMENDMENT-2 entries are epoch-migration ONLY for their named guard:
     const allowed = new Set([
       ".gitattributes",                                             // PH-02 portability
       "docs/PRODUCTION-HARDENING-R0.md",                            // PH governance contract / amendments
       "packages/solana-devnet-adapter/materialization/CUSTODY.md",  // PH-01 chain-hardening evidence
       "packages/solana-devnet-adapter/test/adapter.test.ts",        // gate-epoch machinery ONLY
+      "packages/solana-devnet-adapter/test/t2-evidence.test.ts",    // T2-E4 epoch migration ONLY
+      "packages/solana-devnet-adapter/test/reconcile.test.ts",      // T4-05 epoch migration ONLY
+      "packages/solana-devnet-adapter/test/t6-golden-run.test.ts",  // T6-08 epoch migration ONLY
     ]);
     const changed = execFileSync("git", ["diff", "--name-only", `${BASE}...HEAD`], { cwd: repoRoot, encoding: "utf8" })
       .split("\n").map((l) => l.trim()).filter(Boolean);

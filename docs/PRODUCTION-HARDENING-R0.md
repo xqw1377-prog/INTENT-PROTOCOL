@@ -144,8 +144,24 @@ adapter.test.ts permission covers ONLY PDA-H-01 conversion + PH-H-01
 addition — modifying T1/T2/T3/PDA semantic tests through it is NOT
 authorized by this entry.
 
-### Discovered during conversion (reported, NOT acted on — outside the
-authorized 2-file scope)
+### PH-00A-AMENDMENT-2 (PASS / FROZEN) — legacy guard epoch migration
+
+Adds three paths to the PH-R0 allowlist, each with NARROW purpose
+(open-range scope guard → historical closed-range seal ONLY; no business/
+evidence/semantic/fixture/report changes):
+
+```text
+t2-evidence.test.ts   # T2-E4 epoch migration ONLY (7e50a08..dfd4b33)
+reconcile.test.ts     # T4-05 epoch migration ONLY (2cabc63..ad935ee)
+t6-golden-run.test.ts # T6-08 epoch migration ONLY (d3371c5..40b9ff0)
+```
+
+All three seals share the endpoint-integrity discipline (objects exist,
+START is an ancestor of END) and preserve each epoch's ORIGINAL allowlist
+DOMAIN (not exact-file-set conversion — T2/T4/T6 contracts were domain
+constraints). T6-09 (T5 frozen pack byte-identity) is UNCHANGED.
+
+### Discovered during conversion (legacy guards, migrated by AMENDMENT-2)
 
 Three legacy open-range guards fail on main since the PH epoch landings
 (7613986), independently of this conversion:

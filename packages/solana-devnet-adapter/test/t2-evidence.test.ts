@@ -94,12 +94,25 @@ describe("[TESTNET-R1/T2] on-chain exactly-once — committed evidence", () => {
     expect(JSON.stringify(report.note)).toContain("T4");
   });
 
-  test("[T2-E4] T2 scope guard: no T4/T5/T6 artifacts, frozen paths untouched since T3 sign-off (7e50a08)", () => {
-    const changed = execFileSync("git", ["diff", "--name-only", "7e50a08..HEAD"], { cwd: repoRoot, encoding: "utf8" })
-      .split("\n").map((l) => l.trim()).filter(Boolean);
-    for (const p of changed) {
-      const t2r1FlakeFix = "packages/gp-execution/test/gp2-execution.test.ts"; // T2-R1: deterministic N5 forgery flip (1/16 self-canceling replace flake); test-only, disclosed to the Commander
-      expect(p.startsWith("packages/solana-devnet-adapter/") || p === ".gitignore" || p === "package-lock.json" || p === "README.md" || p === t2r1FlakeFix, `T2 scope drift: ${p}`).toBe(true);
-    }
+  test("[T2-E4] EPOCH seal: closed range 7e50a08..dfd4b33 (T2 sign-off) — frozen T2 allowlist, never HEAD", () => {
+
+// ————————————————— GATE EPOCH MODEL (PH-00A / AMENDMENT-2) —————————————————
+function epochSeal(label: string, start: string, end: string, allowedDomain: (p: string) => boolean): void {
+  for (const sha of [start, end]) {
+    expect(execFileSync("git", ["cat-file", "-t", sha], { cwd: repoRoot, encoding: "utf8" }).trim(), `${label}: ${sha} must exist`).toBe("commit");
+  }
+  const mergeBase = execFileSync("git", ["merge-base", start, end], { cwd: repoRoot, encoding: "utf8" }).trim();
+  expect(mergeBase, `${label}: START must be an ancestor of END`).toBe(start);
+  const changed = execFileSync("git", ["diff", "--name-only", `${start}..${end}`], { cwd: repoRoot, encoding: "utf8" })
+    .split("\n").map((l) => l.trim()).filter(Boolean);
+  for (const p of changed) {
+    expect(allowedDomain(p), `${label}: closed-epoch scope violation: ${p}`).toBe(true);
+  }
+}
+    const t2r1FlakeFix = "packages/gp-execution/test/gp2-execution.test.ts"; // T2-R1 deterministic N5 forgery flip, disclosed
+    epochSeal("T2-E4",
+      "7e50a08c0ae49248a8aaf061cd098d7cf48e6c0f",
+      "dfd4b333d6d8d7a6c5b8583b1c1420dfb48a581a",
+      (p) => p.startsWith("packages/solana-devnet-adapter/") || p === ".gitignore" || p === "package-lock.json" || p === "README.md" || p === t2r1FlakeFix);
   });
 });

@@ -103,11 +103,24 @@ describe("[TESTNET-R1/T6] golden run — closing orchestration", () => {
     expect(String(a.note)).toContain("RECORDED GENESIS");
   });
 
-  test("[T6-08] no-drift scope guard: only adapter-domain paths changed since the T5 sign-off (d3371c5)", () => {
-    const changed = execFileSync("git", ["diff", "--name-only", "d3371c5..HEAD"], { cwd: repoRoot, encoding: "utf8" })
-      .split("\n").map((l) => l.trim()).filter(Boolean);
-    for (const p of changed) {
-      expect(p.startsWith("packages/solana-devnet-adapter/") || p === "README.md", `T6 scope drift: ${p}`).toBe(true);
-    }
+  test("[T6-08] EPOCH seal: closed range d3371c5..40b9ff0 (T6 sign-off / TESTNET-R1 COMPLETE) — frozen T6 allowlist, never HEAD", () => {
+
+// ————————————————— GATE EPOCH MODEL (PH-00A / AMENDMENT-2) —————————————————
+function epochSeal(label: string, start: string, end: string, allowedDomain: (p: string) => boolean): void {
+  for (const sha of [start, end]) {
+    expect(execFileSync("git", ["cat-file", "-t", sha], { cwd: repoRoot, encoding: "utf8" }).trim(), `${label}: ${sha} must exist`).toBe("commit");
+  }
+  const mergeBase = execFileSync("git", ["merge-base", start, end], { cwd: repoRoot, encoding: "utf8" }).trim();
+  expect(mergeBase, `${label}: START must be an ancestor of END`).toBe(start);
+  const changed = execFileSync("git", ["diff", "--name-only", `${start}..${end}`], { cwd: repoRoot, encoding: "utf8" })
+    .split("\n").map((l) => l.trim()).filter(Boolean);
+  for (const p of changed) {
+    expect(allowedDomain(p), `${label}: closed-epoch scope violation: ${p}`).toBe(true);
+  }
+}
+    epochSeal("T6-08",
+      "d3371c5f4500ca43a0cc8786941f82d2aa17acc6",
+      "40b9ff091bcff8a0a86e967f8ddced9c1468c219",
+      (p) => p.startsWith("packages/solana-devnet-adapter/") || p === "README.md");
   });
 });
