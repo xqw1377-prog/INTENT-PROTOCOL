@@ -1,0 +1,538 @@
+{
+  "schema_version": "pda-curve-corpus.v1",
+  "authority": "validator runtime — agave v3.1.8 pins solana-pubkey 3.0.0 → solana-address 2.8.0 → bytes_are_curve_point → curve25519-dalek 4.1.3 CompressedEdwardsY::decompress().is_some(); reached identically by sol_create_program_address, sol_try_find_program_address, and invoke_signed signer derivation",
+  "normative_column": "runtime_expected — our JS and Rust predicates MUST equal it",
+  "observational_column": "web3_expected — @solana/web3.js PublicKey.isOnCurve (strict @noble/curves decoding); divergence is a RECORDED FACT, never a failure",
+  "cases": [
+    {
+      "id": "CURVE-01",
+      "encoding_hex": "0100000000000000000000000000000000000000000000000000000000000000",
+      "note": "identity point: y=1 sign=0 (x=0)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "CURVE-02",
+      "encoding_hex": "0100000000000000000000000000000000000000000000000000000000000080",
+      "note": "negative zero: y=1 sign=1 — dalek accepts, strict decoders reject",
+      "runtime_expected": true,
+      "web3_expected": false,
+      "divergence": "KNOWN_CLIENT_RUNTIME_DIVERGENCE"
+    },
+    {
+      "id": "CURVE-03",
+      "encoding_hex": "edffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "note": "non-canonical y=p sign=0 — dalek reduces mod p (y=0)",
+      "runtime_expected": true,
+      "web3_expected": false,
+      "divergence": "KNOWN_CLIENT_RUNTIME_DIVERGENCE"
+    },
+    {
+      "id": "CURVE-04",
+      "encoding_hex": "eeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "note": "non-canonical y=p+1 sign=0 — dalek reduces mod p (y=1, identity)",
+      "runtime_expected": true,
+      "web3_expected": false,
+      "divergence": "KNOWN_CLIENT_RUNTIME_DIVERGENCE"
+    },
+    {
+      "id": "CURVE-05",
+      "encoding_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+      "note": "y=0 sign=0: x^2=-1 is a residue (p ≡ 1 mod 4) — order-4 point",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "CURVE-06",
+      "encoding_hex": "0000000000000000000000000000000000000000000000000000000000000080",
+      "note": "y=0 sign=1: same point, nonzero x so sign is meaningful",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "CURVE-07",
+      "encoding_hex": "0200000000000000000000000000000000000000000000000000000000000000",
+      "note": "smallest OFF-CURVE canonical encoding: y=2 sign=0 (x^2 non-residue)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "CURVE-08",
+      "encoding_hex": "5866666666666666666666666666666666666666666666666666666666666666",
+      "note": "ed25519 basepoint — canonical on-curve reference",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "CURVE-09",
+      "encoding_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "note": "all-0xFF: y=2^255-1 sign=1, non-canonical (y mod p = 18)",
+      "runtime_expected": true,
+      "web3_expected": false,
+      "divergence": "KNOWN_CLIENT_RUNTIME_DIVERGENCE"
+    },
+    {
+      "id": "CURVE-10",
+      "encoding_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "note": "y=2^255-1 sign=0 — same non-canonical y, opposite sign",
+      "runtime_expected": true,
+      "web3_expected": false,
+      "divergence": "KNOWN_CLIENT_RUNTIME_DIVERGENCE"
+    },
+    {
+      "id": "CURVE-11",
+      "encoding_hex": "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "note": "y=p-1 sign=0 — largest canonical encoding",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0000",
+      "encoding_hex": "7d34f3251bc704fbcecd9d79c90cd83bb1b76ef6ec2b2272a44324bb22236f06",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0001",
+      "encoding_hex": "b6386d723005049674e7a02a9fef0ce2511bf223dd854b057f5474f607eca202",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0002",
+      "encoding_hex": "15b71aa9b25b770856bda7903461a2359376e0d12cd72e8311fb87a4d807d012",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0003",
+      "encoding_hex": "76fb946cbefaabb8bad45df5991e4248b1b5c4ee7db4a1d174d47881ff7c0bf0",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0004",
+      "encoding_hex": "6fbfbe5ae4676f8451fc361a0d0eff6e181247e6f54487234885cd521d94c6eb",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0005",
+      "encoding_hex": "5e810e8382d6fe2cdd6a78ffb6a5141e6f00ba7560699cb67c207c0df4ff0147",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0006",
+      "encoding_hex": "aa0854224b81cabc642e57269f54ef36c4ee3342ea1c350c6920379a9c9c6f62",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0007",
+      "encoding_hex": "9caba9ca26984086a5760973c7c172fbc4b663b892a9409ff565e67461d6b185",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0008",
+      "encoding_hex": "d8de5694b00a7197d3306cd8f4acca327df49ab2122e7d2627be8af20fbb843e",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0009",
+      "encoding_hex": "2b088a6ed68bd3962502492a46ba57aaeeb1dace4635e7f639072c237f5273b5",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0010",
+      "encoding_hex": "fcce8f2b1695c693ec7e8c765f93b85a54032d3d09774559c651e7101d3dc518",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0011",
+      "encoding_hex": "ccd0fedb469ac57970488ac0bde2dbcdfe3939d0b198642a1c33b4fac61897a2",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0012",
+      "encoding_hex": "21808f1d171363be282b20d789962303d007b99f14760926b5f8de1943fea37f",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0013",
+      "encoding_hex": "75b512f26ddd27d6a083b95bf36d348f6921d71cb744ab390c839cb846f3c124",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0014",
+      "encoding_hex": "2e5735bb65c5903e7fab3761dfb594c46ae8d20d96b0fa61c7c99e37f58fda0c",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0015",
+      "encoding_hex": "e6368ca7c2eeba3c65da7edb7ba0b3365b08516a801e763398a0c83a39169ecc",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0016",
+      "encoding_hex": "c42a8c32ee750edadaa36b0efc7fd063122668ccfcbef03dd4570dfc39d52483",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0017",
+      "encoding_hex": "e736c351561a8869b80b452edde0e19d7a4617f6af10c464f120fc66b3cc5540",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0018",
+      "encoding_hex": "b12110b729f5e419c54a533c9f401f51411d5c405b527bbff476668334250ab1",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0019",
+      "encoding_hex": "a5574bb38d79c7560ad3c30acca04708fe84ae8497bc7ca63fc846be66c8d271",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0020",
+      "encoding_hex": "6f31131f1b3420c67486c8843086641f782a1ddaa25024990039989556de9719",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0021",
+      "encoding_hex": "0aa950a61cc526bc2dd50331eb592d35fe75d38a2e493e33ab91baaf94616aa9",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0022",
+      "encoding_hex": "64339afd3b0db4f5a5ac2c2bf2a28246cb032e9ebfe8b099f87588b9fa1f89c9",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0023",
+      "encoding_hex": "9e181eb6caac18e04f8249dc5666e2bcf63621730111d990befef40c6b6a4821",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0024",
+      "encoding_hex": "e02f0db8741f755cf73533aab1bf56539e74d967128161eee501a69adc5fbb33",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0025",
+      "encoding_hex": "9b311c52faa28a1fcc48efe561c04f86752dfc8d2650aaa409e42c4d97a3db27",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0026",
+      "encoding_hex": "ca2dec13d861091e9f5177d5a360f676aa929b492e6fe59b6a46d0c3dcc19b48",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0027",
+      "encoding_hex": "90ef2512daacb56486f744fcb1b15315bbd3bd0884018e1339016032804987c3",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0028",
+      "encoding_hex": "ef76cc5027cbaa7e9324001b2b89bdf4ccc238e2f53ab481add237fd510220b9",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0029",
+      "encoding_hex": "18efeef11ee33548701a9fe7f4b00cbad0bdb9f88e32367220bc5ab2bf8d8555",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0030",
+      "encoding_hex": "df5164ef488a5894bbcf44dce4df93fd2b1f592d9b3890644dbfe8b78d5b3d97",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0031",
+      "encoding_hex": "5f3533a184b16dc5ab4f9e48ff4f0062f5a2c5fe50ccf6115d6a4d5d974095a8",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0032",
+      "encoding_hex": "87878204260728f6d4e3842716a9a685af19808584e63bbb4e253f9b305666bd",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0033",
+      "encoding_hex": "a28c5c15731ae3d6418264d81f2101df0484629b82eebc3b32646255ba1e9c40",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0034",
+      "encoding_hex": "3d03fe52660c69c62f98f00f9376eea17bb20819f3cf0fdd4d53ffe6ded98f0c",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0035",
+      "encoding_hex": "7a1e004677884123e1026500a55a5696d00293e605b5c61385c6b16fc9fdfa6a",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0036",
+      "encoding_hex": "1bf12d09f7efe97192b93127b9ecb631e872fc9b8f9fb65d60e32282b545eefc",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0037",
+      "encoding_hex": "4acfea6990dd870a18918a6f9e87f3c6fde6291474cb5dd6489d8973bdfff5bb",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0038",
+      "encoding_hex": "de7f88f87a30ffac6a931f57a243ca78498aa02a8070cd6d9adf7b0a0760f448",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0039",
+      "encoding_hex": "a0435b201fcddbf0eb402693f5904439f5f4ccfe890190cb92881f09617cdce5",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0040",
+      "encoding_hex": "d270c3ce62c1c548a454f6476aaf334ba3ac1a6236b8ca81c67f4929ae94a08a",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0041",
+      "encoding_hex": "0cf4c52b44fcd468bed0489bb00a764e4da531dbf13c7843ca11b79063c350a1",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0042",
+      "encoding_hex": "62efa265ff1728b5931d21d75381835e846c93d585ee83ab9f40af81b6d48d65",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0043",
+      "encoding_hex": "6d81df1e5526c97102ebca052ed01f9b61c40a80764504d59f0b223239ec5c12",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0044",
+      "encoding_hex": "1d43cf24363dac4db8a65fcd16ff895aa6af25f161817f12537d36d3c99ba1be",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0045",
+      "encoding_hex": "85237499282b7d7d8e1b574ef113e4d620faaa9169d088939b9d2a6915738cec",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0046",
+      "encoding_hex": "71b120522f9d5c351e42ecb63d7eeca163b46035de342cdb64e54ecb83ddd70a",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0047",
+      "encoding_hex": "5a677452b642eb4c682bb59f8f2e642ef2d3c01bfaf5c0e316d7c7ab65c75eda",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0048",
+      "encoding_hex": "3ac9f8e7df7cd6d22f0911f71331ca3df25bc7c8630f6305f02caf2673874308",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0049",
+      "encoding_hex": "47f38503c55ab6dcb80395371a8102551f09e1dd3f8c6559b419e3d939c3b37f",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0050",
+      "encoding_hex": "aa37a2aedf3b5b04fb9c2fc84b51748ae799cbb6329dd78081c347e46eac6697",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0051",
+      "encoding_hex": "c5475352f2ace9ef5dd3f95d76ab4a5ccb249641e3017393d8145d4943a8ebe3",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0052",
+      "encoding_hex": "e982685badcc1c85b66284067c96bce4454886f3bc0f26b6737d4f359ec2eaf5",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0053",
+      "encoding_hex": "7e0db157ada6c60c74ab3800c4ee7cf87fea39de29c5fbef614a47e22c1ebaf3",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0054",
+      "encoding_hex": "4d793c8a2cd6a506cd117a8fd9efd001dbecc74316374bef36c71250f2795667",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0055",
+      "encoding_hex": "1a43922db5636656b52ae9372a59501a62e3ca4cba8e6a405ea7dd1e64c4c68c",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0056",
+      "encoding_hex": "e2eb102f5e494d793668888f358468da0e2668038cda6fa8f3431edeabbe0481",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0057",
+      "encoding_hex": "7ce8c0b2d1753bca220563d63b5950633aba5e217e166f248ccb1f22b1f435b7",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0058",
+      "encoding_hex": "0093853d38060ac814c58ccbcc065aa334ed4569ec63c229bd0e31da162462cc",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0059",
+      "encoding_hex": "50004fa882653d430a4e287347e85596493864b4da12b5740e634dd00f95d94f",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0060",
+      "encoding_hex": "cb682e56af32b347b3ef8c0676ba8bfe95c537f37c31c6a059b5a10d7fb0275f",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    },
+    {
+      "id": "DIGEST-0061",
+      "encoding_hex": "df16524314387ff77012f8441d949551db4abf7b7b992eb4e00dd2c4171a1e03",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0062",
+      "encoding_hex": "3f0b58e7d376c78c4a04424778293de38ca8b33e0eb1a6ea1706100f14d9cff7",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": false,
+      "web3_expected": false
+    },
+    {
+      "id": "DIGEST-0063",
+      "encoding_hex": "97423a1f53f3aeb05b4a5f60a9acb04232d119fc33a2dbc595def6da78fed0a3",
+      "note": "deterministic digest stream (same domain as rust --curve-corpus)",
+      "runtime_expected": true,
+      "web3_expected": true
+    }
+  ]
+}

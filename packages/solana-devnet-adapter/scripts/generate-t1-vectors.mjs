@@ -33,28 +33,54 @@ if (PINNED.programId) {
 }
 
 const cases = [];
+const emit = (name, c, p, extra = {}) => {
+  const r = releasePda(c.escrow_ref, c.outcome_receipt_hash, p.id);
+  // OFFICIAL ORACLE GATE — refuse to emit vectors our implementation cannot reproduce
+  const [officialAddr, officialBump] = PublicKey.findProgramAddressSync(
+    [Buffer.from("release", "utf8"), Buffer.from(r.digestHex, "hex")],
+    new PublicKey(p.id),
+  );
+  if (r.pda !== officialAddr.toBase58() || r.bump !== officialBump) {
+    throw new Error(`ORACLE MISMATCH for ${name}/${p.label}: ours=(${r.pda},${r.bump}) official=(${officialAddr.toBase58()},${officialBump}) — NOT writing vectors`);
+  }
+  cases.push({
+    name: `${name}-${p.label}`,
+    escrow_ref: c.escrow_ref,
+    outcome_receipt_hash: c.outcome_receipt_hash,
+    program_id: p.id,
+    program_id_class: p.label,
+    program_id_note: p.note,
+    economic_release_digest: r.digestHex,
+    release_pda: r.pda,
+    bump: r.bump,
+    ...extra,
+  });
+  return r.bump;
+};
+
+const bumpDescentNote = "bump-descent regression: bump=255 candidate hashes ON-curve and is rejected; the first OFF-curve candidate at the committed bump is accepted — the 255→bump descent path must actually execute";
 for (const p of programIds) {
   for (const c of inputs) {
-    const r = releasePda(c.escrow_ref, c.outcome_receipt_hash, p.id);
-    // OFFICIAL ORACLE GATE — refuse to emit vectors our implementation cannot reproduce
-    const [officialAddr, officialBump] = PublicKey.findProgramAddressSync(
-      [Buffer.from("release", "utf8"), Buffer.from(r.digestHex, "hex")],
-      new PublicKey(p.id),
-    );
-    if (r.pda !== officialAddr.toBase58() || r.bump !== officialBump) {
-      throw new Error(`ORACLE MISMATCH for ${c.name}/${p.label}: ours=(${r.pda},${r.bump}) official=(${officialAddr.toBase58()},${officialBump}) — NOT writing vectors`);
+    emit(c.name, c, p);
+  }
+  // PDA-CONFORMANCE-R1: committed descent vectors (Commander requirement:
+  // one bump=254, one bump≤252 per program id). Deterministic scan over
+  // escrow:bump-descent-<i> — fixed inputs → fixed output.
+  const receipt = FROZEN.anchors.outcomeReceiptHash;
+  let i = 0;
+  let got254 = false;
+  let gotLe252 = false;
+  while (!(got254 && gotLe252)) {
+    const escrow_ref = `escrow:bump-descent-${i}`;
+    const r = releasePda(escrow_ref, receipt, p.id);
+    if (r.bump === 254 && !got254) {
+      emit("descent-254", { escrow_ref, outcome_receipt_hash: receipt }, p, { bump_descent: bumpDescentNote });
+      got254 = true;
+    } else if (r.bump <= 252 && !gotLe252) {
+      emit("descent-le252", { escrow_ref, outcome_receipt_hash: receipt }, p, { bump_descent: bumpDescentNote });
+      gotLe252 = true;
     }
-    cases.push({
-      name: `${c.name}-${p.label}`,
-      escrow_ref: c.escrow_ref,
-      outcome_receipt_hash: c.outcome_receipt_hash,
-      program_id: p.id,
-      program_id_class: p.label,
-      program_id_note: p.note,
-      economic_release_digest: r.digestHex,
-      release_pda: r.pda,
-      bump: r.bump,
-    });
+    i++;
   }
 }
 

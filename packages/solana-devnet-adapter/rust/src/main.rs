@@ -186,6 +186,18 @@ fn main() {
         println!("{{\"corpus\":{},\"mismatches\":{}}}", n, mismatches);
         std::process::exit(if mismatches == 0 { 0 } else { 1 });
     }
+    if args.len() == 3 && args[1] == "--on-curve" {
+        // Evaluate BOTH predicates on one 32-byte compressed encoding: our
+        // custom num-bigint check and dalek decompress (the validator's own
+        // predicate implementation). Used by the committed curve corpus.
+        let bytes = hex_decode_32(&args[2]);
+        println!(
+            "{{\"custom\":{},\"dalek\":{}}}",
+            is_on_curve(&bytes),
+            is_on_curve_dalek(&bytes)
+        );
+        return;
+    }
     if args.len() == 5 && args[1] == "--pda-dalek" {
         // derive the PDA with the DALEK predicate (validator semantics) and
         // also with the custom predicate; both must agree and match the
@@ -218,6 +230,7 @@ fn main() {
         eprintln!("usage: {} <escrow_ref> <outcome_receipt_hash> <program_id_base58>", args[0]);
         eprintln!("       {} --curve-corpus <N>", args[0]);
         eprintln!("       {} --pda-dalek <escrow_ref> <outcome_receipt_hash> <program_id_base58>", args[0]);
+        eprintln!("       {} --on-curve <32-byte-hex>", args[0]);
         std::process::exit(2);
     }
     let escrow_ref = &args[1];
@@ -250,13 +263,33 @@ fn main() {
 }
 
 fn receipt_raw32(receipt: &str) -> [u8; 32] {
-    assert!(receipt.starts_with("sha256:") && receipt.len() == 7 + 64, "malformed receipt hash");
+    // Frozen grammar — identical to the JS receiptHashRaw32 regex
+    // ^sha256:[0-9a-f]{64}$: lowercase hex ONLY (uppercase must be rejected,
+    // not silently accepted by a permissive hex parser).
+    assert!(
+        receipt.starts_with("sha256:")
+            && receipt.len() == 7 + 64
+            && receipt[7..].bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+        "malformed receipt hash"
+    );
     let mut raw = [0u8; 32];
     for i in 0..32 {
         let hex_pair = &receipt[7 + i * 2..7 + i * 2 + 2];
         raw[i] = u8::from_str_radix(hex_pair, 16).expect("invalid hex in receipt hash");
     }
     raw
+}
+
+fn hex_decode_32(s: &str) -> [u8; 32] {
+    assert!(
+        s.len() == 64 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+        "expected 64 lowercase hex chars"
+    );
+    let mut out = [0u8; 32];
+    for i in 0..32 {
+        out[i] = u8::from_str_radix(&s[i * 2..i * 2 + 2], 16).expect("invalid hex");
+    }
+    out
 }
 
 // tiny hex helper (no hex crate dependency)
