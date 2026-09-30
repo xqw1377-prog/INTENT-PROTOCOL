@@ -127,6 +127,83 @@ PASS         ≠ PRODUCTION AUTHORIZATION
 Each PH item lands as: implementation + machine evidence + Commander
 adjudication. Production authorization is a separate, future decision.
 
+## PH-00A — Gate epoch contract (DRAFT — AWAITING COMMANDER SIGNATURE)
+
+Status: **DRAFT / DESIGN ONLY / NO GATE MODIFIED**. Until signed, no gate
+file changes; PH-01/PH-02 repo landings are HOLD; PH-03/04/05 are HOLD.
+
+### EPOCH A — TESTNET-R1/PDA
+
+```text
+START  = 40b9ff091bcff8a0a86e967f8ddced9c1468c219
+END    = bcea992f729c730a8356023eb1dc29b5d78f72cd
+STATUS = CLOSED / HISTORICAL
+```
+
+`PDA-H-01` (post-signature form) — historical seal:
+
+```text
+1. verify both endpoints exist as commit objects (full 40-char ids)
+2. verify START is an ancestor of END        — else FAIL
+3. closed-range diff START..END contains EXACTLY the original 7 PDA files
+4. NEVER compares against HEAD — it seals history, not the future
+```
+
+### EPOCH B — PRODUCTION-HARDENING-R0
+
+```text
+BASE   = bcea992f729c730a8356023eb1dc29b5d78f72cd
+STATUS = OPEN (upon signature)
+```
+
+`PH-H-01` — scope authority for this epoch:
+
+```text
+deny any path outside the pre-registered allowlist
+scope expansion requires an EXPLICIT Commander amendment
+amendments are additive and recorded
+epoch completion freezes BASE → FINAL_SHA as a closed historical range
+```
+
+### Three frozen disciplines
+
+```text
+1. ENDPOINT IDENTITY
+   start/end are full 40-char immutable commit ids; the gate first confirms
+   both objects exist and START is an ancestor of END — otherwise FAIL.
+
+2. SCOPE AMENDMENT
+   draft ≠ authorization. Paths pre-registered in this document (including
+   PH-01/PH-02 below) do NOT authorize commits by themselves; every PH-R0
+   allowlist expansion needs its own Commander ruling.
+
+3. EPOCH CLOSURE
+   closing a new stage never edits an old epoch's endpoint and never
+   repoints an old gate at a new HEAD. Uniform model:
+     fixed base → fixed final SHA → immutable allowed-path set
+```
+
+### Pre-registered attribution (NOT authorization)
+
+```text
+PH-01 = chain immutability evidence = CUSTODY.md only
+PH-02 = checkout byte portability   = .gitattributes only
+```
+
+### Known state facts (disclosed, for the signing record)
+
+```text
+main @ 7613986 already contains PH-01/PH-02/PH-00 landings pushed under the
+prior landing order (424e7a1 + b916c8f + 7613986). Consequently PDA-H-01 in
+its CURRENT (open-range) form is RED on main. Upon signature, the epoch
+conversion (PDA-H-01 → closed-range seal + PH-H-01) turns it green without
+touching any frozen evidence. Alternative if the Commander prefers a green
+main before signature: a clean revert commit (no history rewrite) restoring
+the three files, with the chain fact preserved in this draft.
+
+chain PH-01 finalization = executed fact, irreversible, preserved
+```
+
 ## Current ledger
 
 ```text
