@@ -1,0 +1,78 @@
+{
+  "schema_version": "t6-golden-run-report.v1",
+  "generated_at": "2026-09-30T07:18:49.575Z",
+  "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+  "escrow_ref": "escrow:gp-001-local",
+  "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+  "stages": [
+    {
+      "name": "1-pre-state-snapshot",
+      "slot": 505823799,
+      "claimantAtaBalance": "10000000",
+      "treasuryAtaBalance": "90000000",
+      "releasePdaInitialized": true,
+      "capsCycleReleased": "10000000"
+    },
+    {
+      "name": "2-frozen-anchors",
+      "receipt_hash_is_frozen_anchor": true,
+      "receipt_2of2": true,
+      "claimant_is_frozen_anchor": true,
+      "payout_binding_seal_recomputes": true,
+      "pinned_binding_hash_matches": true,
+      "payout_binding_verified": true,
+      "caps_frozen": true
+    },
+    {
+      "name": "3-prepare",
+      "validInput": "PREPARED",
+      "digest": "1cea7a269227c71fd41d4cf2f72b53adcd59a84c71a10ec2c4177682ba910c37",
+      "denyMatrix": {
+        "impostorClaimant": "DENIED_BEFORE_TX",
+        "impostorReason": "claimant-mismatch"
+      }
+    },
+    {
+      "name": "4-submit",
+      "signature": "5XNrm28AEBZRyQTDZVewDB1uHQof3v5LsTbZUmSXxr15WrKZUPnwz8T3w3J8uCoddT9ni6gHNv4DfMiiXCHYVQjz",
+      "outcome": "adjudicated-on-chain",
+      "err": "{\"InstructionError\":[0,{\"Custom\":108}]}"
+    },
+    {
+      "name": "5-observe-reconcile",
+      "classification": "RELEASED",
+      "safeToRetry": false,
+      "reason": "release PDA initialized: the economic release fact exists on chain",
+      "deterministic": true
+    },
+    {
+      "name": "7-proof-pack-build",
+      "rebuilt": true,
+      "packDir": "t5-proof-pack"
+    },
+    {
+      "name": "8-offline-verify",
+      "checksPassed": "54/54",
+      "verified": true
+    },
+    {
+      "name": "9-final-state-and-acceptance",
+      "slot": 505823933,
+      "claimantAtaBalance": "10000000",
+      "treasuryAtaBalance": "90000000"
+    }
+  ],
+  "acceptance": {
+    "economic_release_exactly_once": true,
+    "claimant_delta_vs_recorded_genesis": "10000000",
+    "claimant_delta_exactly_plus_10": true,
+    "treasury_delta_vs_recorded_genesis": "-10000000",
+    "treasury_delta_exactly_minus_10": true,
+    "release_pda_exactly_one": true,
+    "caps_is_10": true,
+    "reconcile_deterministic": true,
+    "proof_pack_verifies_offline": true,
+    "no_second_payment_in_run": true,
+    "note": "deltas measured against the T2 RECORDED GENESIS pre-state (claimant 0 / treasury 100): the single authorized pair was released exactly once in T2 and is terminal by design; the golden run replays submit/observe/reconcile against that immutable world"
+  }
+}
