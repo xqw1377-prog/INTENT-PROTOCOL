@@ -1,5 +1,6 @@
 {
   "schema_version": "t5-pack-manifest.v1",
+  "exactly_once_note": "future second release is structurally denied by the ON-CHAIN program semantics (T2 evidence: duplicate attempts rejected with Custom(108) DuplicateRelease), not by this snapshot",
   "files": [
     {
       "file": "receipt.json",
@@ -11,11 +12,11 @@
     },
     {
       "file": "authorization.json",
-      "sha256": "sha256:a39f768cc79a07f61482d820d636a3ca368091083f0a0f4fc671ef10eddf2cd1"
+      "sha256": "sha256:0e2d084469201121df6ec3c4c2de2e1d1946dc46ab1262dbe18a7442bfe03f14"
     },
     {
       "file": "tx.json",
-      "sha256": "sha256:99a64514f924ec9d297a828d8f7638555ff9ba909a7ab45f424c57c5478ba12c"
+      "sha256": "sha256:8b633d3113fb81715b922deb4cddd6b30b39908f090e80527e84eb75c0120030"
     },
     {
       "file": "release-pda.json",
@@ -23,7 +24,11 @@
     },
     {
       "file": "world-now.json",
-      "sha256": "sha256:25e94358b33f29308b09c0dddc8d351d7601309fcefd164b217b2d05c153d8ff"
+      "sha256": "sha256:01ee672ca7da5112b96e7fd61ed29f08616f7ecb36149dd1cf4c54e3c129a234"
+    },
+    {
+      "file": "gp4-instruction.json",
+      "sha256": "sha256:2af66bacc1ff8cfe8337fafa1ef4b1f767d8da9741a655fe147018579ad1b3a9"
     }
   ],
   "binding_summary": {

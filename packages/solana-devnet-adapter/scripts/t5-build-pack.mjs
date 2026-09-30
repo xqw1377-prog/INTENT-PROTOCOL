@@ -37,6 +37,31 @@ const tx = await connection.getTransaction(TX_SIGNATURE, { maxSupportedTransacti
 if (!tx) throw new Error(`release tx not queryable on devnet: ${TX_SIGNATURE}`);
 if (tx.meta.err !== null) throw new Error("release tx has an on-chain error — refusing to pack");
 
+// LAYER-1 authenticity inputs (T5-R1): the structured compiled legacy
+// message + the base58 signatures. The verifier RE-SERIALIZES the message
+// bytes itself (deterministic legacy format) and verifies the Ed25519
+// signatures over them — forging requires forging signatures over the
+// re-derived bytes, which is impossible without the frozen role keys.
+// NB: the builder IS the settlement operator, so signature validity proves
+// ROLE AUTHORIZATION over exactly these bytes; chain inclusion stays LAYER 2
+// (RPC-OBSERVED). Stated in the pack; no stronger claim is made.
+const msg = tx.transaction.message;
+const RAW_MESSAGE_STRUCTURED = {
+  header: {
+    numRequiredSignatures: msg.header.numRequiredSignatures,
+    numReadonlySignedAccounts: msg.header.numReadonlySignedAccounts,
+    numReadonlyUnsignedAccounts: msg.header.numReadonlyUnsignedAccounts,
+  },
+  accountKeys: msg.accountKeys.map((k) => k.toString()),
+  recentBlockhash: msg.recentBlockhash,
+  instructions: msg.instructions.map((ix) => ({
+    programIdIndex: ix.programIdIndex,
+    accounts: Array.from(ix.accounts),
+    data: ix.data, // already base58 from the RPC json form
+  })),
+};
+const RAW_SIGNATURES_B58 = Array.from(tx.transaction.signatures); // base58 strings from the RPC json form
+
 // token balance deltas straight from tx meta
 const preBal = new Map((tx.meta.preTokenBalances ?? []).map((b) => [b.accountIndex ?? -1, b]));
 const postBal = new Map((tx.meta.postTokenBalances ?? []).map((b) => [b.accountIndex ?? -1, b]));
@@ -112,6 +137,8 @@ const authorization = {
     exactly_once_authority: "deterministic release PDA per key; program rejects duplicates with Custom(108)",
   },
   payee_binding: {
+    treasury: PINNED.treasury,
+    operator: PINNED.operator,
     claim_record: "ClaimRecordV1 fixture (gp-001-claim.json)",
     claim_id: claim.claim_id,
     claimant: claim.claimant,
@@ -138,8 +165,24 @@ const txEvidence = {
   account_keys: keys,
   instruction_program_ids: (tx.transaction.message.instructions ?? []).map((i) => keys[i.programIdIndex]),
   token_balance_changes: { claimant_ata: claimantDelta, treasury_ata: treasuryDelta },
+  // LAYER-1 authenticity inputs (T5-R1): structured compiled legacy message
+  // + base58 signatures. The verifier RE-SERIALIZES the message bytes itself
+  // and verifies the Ed25519 signatures over them — forging requires forging
+  // signatures over the re-derived bytes (impossible without the frozen role
+  // keys). Signature validity proves ROLE AUTHORIZATION over exactly these
+  // bytes; chain inclusion remains LAYER 2 (RPC-OBSERVED).
+  raw_message_structured: RAW_MESSAGE_STRUCTURED,
+  raw_signatures_base58: RAW_SIGNATURES_B58,
+  provenance_layers: {
+    signed_tx_authenticity: "OFFLINE-VERIFIABLE (raw message + signatures in this pack)",
+    chain_inclusion_finality: "RPC-OBSERVED EVIDENCE (slot/err/deltas from getTransaction; no light-client inclusion proof is claimed)",
+  },
 };
 
+// GP4 authorization ARTIFACT (T5-R1 blocker C): the frozen SettlementInstruction
+// from the committed GP5 proof pack — machine-binding, not prose.
+const gp4Instruction = JSON.parse(readFileSync(path.join(repoRootOf(), "packages/gp5-proof-pack/pack/settlement/instruction.json"), "utf8"));
+put("gp4-instruction.json", JSON.stringify(gp4Instruction, null, 2) + "\n");
 put("receipt.json", JSON.stringify(receipt, null, 2) + "\n");
 put("claim.json", JSON.stringify(claim, null, 2) + "\n");
 put("authorization.json", JSON.stringify(authorization, null, 2) + "\n");
@@ -164,7 +207,8 @@ put("verify.mjs", readFileSync(path.join(pkgDir, "scripts/t5-verify.mjs"), "utf8
 // manifest LAST, hashing the FINAL bytes of every file
 const manifest = {
   schema_version: "t5-pack-manifest.v1",
-  files: ["receipt.json", "claim.json", "authorization.json", "tx.json", "release-pda.json", "world-now.json"].map((f) => ({
+  exactly_once_note: "future second release is structurally denied by the ON-CHAIN program semantics (T2 evidence: duplicate attempts rejected with Custom(108) DuplicateRelease), not by this snapshot",
+  files: ["receipt.json", "claim.json", "authorization.json", "tx.json", "release-pda.json", "world-now.json", "gp4-instruction.json"].map((f) => ({
     file: f, sha256: sha256(readFileSync(path.join(PACK, f))),
   })),
   binding_summary: {

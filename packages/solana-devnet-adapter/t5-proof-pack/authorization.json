@@ -15,6 +15,8 @@
     "exactly_once_authority": "deterministic release PDA per key; program rejects duplicates with Custom(108)"
   },
   "payee_binding": {
+    "treasury": "8QW7mvynD8xPwhW8mp584Yf6nmfwGWWqXtNDn194uvsv",
+    "operator": "673H3SuS1o8cWEGFFpd4ua7roZppZWhKvAGBGgtsvTjN",
     "claim_record": "ClaimRecordV1 fixture (gp-001-claim.json)",
     "claim_id": "c1a4e7d2-8f3b-4a59-9e02-7b6d5c8f1a23",
     "claimant": "agent:gp-001-demo",

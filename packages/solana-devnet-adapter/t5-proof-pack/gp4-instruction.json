@@ -1,0 +1,21 @@
+{
+  "schema_version": "settlement.v1",
+  "settlement_id": "22222222-2222-4222-8222-222222222222",
+  "escrow_ref": "escrow:gp-001-local",
+  "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+  "nonce": "1",
+  "outputs": [
+    {
+      "recipient": "agent:gp-001-demo",
+      "asset": {
+        "network": "solana-devnet",
+        "asset": "USDC-test",
+        "decimals": 6
+      },
+      "amount": "10",
+      "reason": "GP5 golden path settlement"
+    }
+  ],
+  "total_amount": "10",
+  "content_hash": "sha256:e3fd8129cf785e940446de09ea9690d5d29c386b04542c9da8201bddf0fd90d1"
+}
