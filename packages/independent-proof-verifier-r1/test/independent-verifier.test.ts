@@ -32,7 +32,7 @@ describe("[PH-03] independent proof verifier (zero SUT imports)", () => {
 
   test("[PH-03-2] ZERO imports from protocol-schema / frozen-lib / SUT code", () => {
     const src = readFileSync(path.join(pkgDir, "verify.mjs"), "utf8");
-    const code = src.replace(/^\s*\*.*$/gm, "").replace(/^\s*//.*$/gm, ""); // strip comments/docstrings
+    const code = src.replace(/^[\s]*[\*].*$/gm, "").replace(/^[\s]*\/\/.*$/gm, ""); // strip comments/docstrings
     expect(code).not.toMatch(/from\s+"@intent\//);
     expect(code).not.toMatch(/frozen-lib/);
     expect(code).not.toMatch(/protocol-schema/);

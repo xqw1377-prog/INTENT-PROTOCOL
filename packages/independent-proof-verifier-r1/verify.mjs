@@ -171,4 +171,4 @@ console.log(checks.join("\n"));
 console.log("");
 if (failures.length) { console.log(`${failures.length} CHECK(S) FAILED`); process.exit(1); }
 console.log(`${checks.length}/${checks.length} checks passed`);
-console.log("GP5 PROOF PACK INDEPENDENTLY VERIFIED — no protocol-schema, frozen-lib, or SUT code used; the cryptographic chain recomputes from the committed bytes alone.");
+console.log("GP5 PROOF PACK INDEPENDENTLY VERIFIED — zero SUT imports; the cryptographic chain recomputes from the committed bytes alone.");
