@@ -8,21 +8,25 @@
  * Self-contained: Node builtins only. NO network, NO repository, NO builder
  * claims. Evidence model, stated honestly in two layers:
  *
- *   LAYER 1 — OFFLINE-VERIFIABLE (cryptographic, from pack bytes alone):
- *     · signed transaction authenticity: raw message decoded, Ed25519
- *       signatures verified, instruction payload decoded, EconomicReleaseDigest
- *       and release PDA re-derived, PDA membership checked
- *     · ChainReleaseV1 decoded IN FULL from the raw 146 on-chain bytes
+ *   LAYER 1 — OFFLINE-VERIFIABLE (cryptographic/semantic, from pack bytes alone):
+ *     · signed transaction authenticity: message re-serialized, Ed25519
+ *       signatures verified over it, signer-prefix role layout sealed
+ *       (2 required: Treasury fee payer, Operator), instruction payload
+ *       decoded from the signed bytes, EconomicReleaseDigest and release PDA
+ *       re-derived, PDA membership checked
+ *     · the SUPPLIED ChainReleaseV1 raw bytes decode fully (146-byte frozen
+ *       layout) and bind to receipt / claimant / amount / PDA
  *     · OutcomeReceipt content_hash RECOMPUTED via the frozen G1 rules
- *       (IPC-JSON-1 canonicalization + Domain hash framing)
  *     · GP4 SettlementInstruction binding recomputed (its own content_hash)
  *     · cross-layer equality: raw bytes ⇄ semantic fields ⇄ frozen anchors
  *
  *   LAYER 2 — RPC-OBSERVED EVIDENCE (trusted to the pack builder/RPC, labeled):
- *     · chain inclusion of the tx (slot, err), token balance deltas, and the
- *       "world now" snapshot (caps=10, balances). These cannot be proven
- *       offline without a light-client inclusion proof, and are NOT claimed
- *       as offline-proven.
+ *     · the tx's chain inclusion (slot, err) and token balance deltas
+ *     · that the supplied ChainReleaseV1 bytes were observed AT the Devnet
+ *       release-PDA account (getAccountInfo — no account inclusion/state
+ *       proof is claimed; the BYTES' semantics are Layer 1, their on-chain
+ *       ORIGIN is Layer 2)
+ *     · the "world now" snapshot (caps=10, balances)
  *
  * Future-second-release denial comes from the ON-CHAIN program semantics
  * (T2 evidence: duplicate → Custom(108)), NOT from this snapshot.
@@ -234,8 +238,13 @@ if (tx.raw_message_structured?.accountKeys) {
   }
   ok("L1 Ed25519 signatures verify over the RE-SERIALIZED message", allSigs);
   ok("L1 pack tx signature == first signature", tx.signature === b58encode(sigs[0]));
-  ok("L1 fee payer == frozen Treasury (role separation)", decodedKeys[0] === auth.payee_binding.treasury);
-  ok("L1 Operator signed (frozen role)", decodedKeys.includes(auth.payee_binding.operator));
+  // Signer set of a legacy message is EXACTLY accountKeys[0..numRequiredSignatures-1];
+  // presence later in the list proves nothing. Seal the frozen role layout:
+  // 2 required signatures, signer[0]=Treasury (fee payer), signer[1]=Operator.
+  const signerKeys = decodedKeys.slice(0, tx.raw_message_structured.header.numRequiredSignatures);
+  ok("L1 exactly TWO required signatures (frozen role layout)", tx.raw_message_structured.header.numRequiredSignatures === 2);
+  ok("L1 Treasury is fee-payer signer [signer[0]]", signerKeys[0] === auth.payee_binding.treasury);
+  ok("L1 Operator is a REQUIRED signer [signer[1]]", signerKeys[1] === auth.payee_binding.operator);
   const progId = bs.program_id;
   const ix = tx.raw_message_structured.instructions.find((x) => decodedKeys[x.programIdIndex] === progId);
   ok("L1 the frozen TESTNET-R1 program is invoked in the signed message", !!ix);
@@ -257,10 +266,11 @@ if (tx.raw_message_structured?.accountKeys) {
   }
 }
 
-// ————————————————— LAYER 1b: ChainReleaseV1 FULL decode from raw bytes —————————————————
+// ————————————————— LAYER 1b: SUPPLIED ChainReleaseV1 bytes — full decode + bindings (OFFLINE) —————————————————
+// (the on-chain ORIGIN of these bytes at the release-PDA account is Layer 2, RPC-OBSERVED)
 const cr = pda.chain_release ?? {};
-const rawOk = typeof cr.raw_account_data_hex === "string" && Buffer.from(cr.raw_account_data_hex, "hex").length >= 146;
-ok("L1 raw account data present (>=146 bytes)", rawOk);
+const rawOk = typeof cr.raw_account_data_hex === "string" && Buffer.from(cr.raw_account_data_hex, "hex").length === 146;
+ok("L1 raw account data is EXACTLY the frozen 146-byte layout", rawOk);
 if (rawOk) {
   const raw = Buffer.from(cr.raw_account_data_hex, "hex");
   const dcr = {
@@ -338,4 +348,4 @@ console.log(checks.join("\n"));
 console.log("");
 if (failures.length) { console.log(`${failures.length} CHECK(S) FAILED`); process.exit(1); }
 console.log(`${checks.length}/${checks.length} checks passed`);
-console.log("TESTNET PROOF PACK VERIFIED — signed-tx authenticity, ChainReleaseV1 raw decode, recomputed OutcomeReceipt + GP4 bindings all verified OFFLINE; chain inclusion and balances are RPC-OBSERVED evidence; no second payment observed as of the recorded slot.");
+console.log("TESTNET PROOF PACK VERIFIED — signed-tx authenticity (incl. signer-prefix role layout), SUPPLIED ChainReleaseV1 byte semantics, recomputed OutcomeReceipt + GP4 bindings all verified OFFLINE; the tx chain inclusion, the release-account origin of the ChainRelease bytes, and balances are RPC-OBSERVED evidence; no second payment observed as of the recorded slot.");

@@ -137,6 +137,24 @@ describe("[TESTNET-R1/T5] cross-layer evidence / testnet proof pack", () => {
       j.token_balance_changes.claimant_ata.post = "30000000";
       writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
     });
+    // 6. Operator moved OUT of the required signer prefix (role-layout forgery)
+    await coordinated("operator moved outside signer prefix", (dir) => {
+      const f = path.join(dir, "tx.json");
+      const j = JSON.parse(readFileSync(f, "utf8"));
+      const keys = j.raw_message_structured.accountKeys;
+      const opIdx = keys.indexOf("673H3SuS1o8cWEGFFpd4ua7roZppZWhKvAGBGgtsvTjN");
+      keys.splice(opIdx, 1); // remove Operator from position 1...
+      keys.splice(5, 0, "673H3SuS1o8cWEGFFpd4ua7roZppZWhKvAGBGgtsvTjN"); // ...re-add later as a plain (unsigned) account
+      writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
+    });
+    // 7. required-signature count inflated so Treasury+other key are "signers"
+    await coordinated("signer prefix mis-sized", (dir) => {
+      const f = path.join(dir, "tx.json");
+      const j = JSON.parse(readFileSync(f, "utf8"));
+      j.raw_message_structured.header.numRequiredSignatures = 1; // Treasury-only world
+      writeFileSync(f, JSON.stringify(j, null, 2) + "\n");
+    });
+
     // 5. authorization root narrative pointed at a different hash
     await coordinated("authorization root redirected", (dir) => {
       const f = path.join(dir, "authorization.json");
