@@ -475,3 +475,23 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
     }
   });
 });
+
+describe("[PDA-EVIDENCE-HARDENING-R1] final scope gate", () => {
+  test("[PDA-H-01] since TESTNET-R1 COMPLETE (40b9ff0), ONLY the seven hardening files may differ", () => {
+    const T6_COMPLETE = "40b9ff091bcff8a0a86e967f8ddced9c1468c219";
+    const allowed = new Set([
+      "packages/solana-devnet-adapter/PDA-CONFORMANCE-R1.md",
+      "packages/solana-devnet-adapter/scripts/generate-curve-corpus.mjs",
+      "packages/solana-devnet-adapter/scripts/generate-t1-vectors.mjs",
+      "packages/solana-devnet-adapter/src/pda.ts",
+      "packages/solana-devnet-adapter/test/adapter.test.ts",
+      "packages/solana-devnet-adapter/vectors/curve-corpus.json",
+      "packages/solana-devnet-adapter/vectors/golden.json",
+    ]);
+    const changed = execFileSync("git", ["diff", "--name-only", `${T6_COMPLETE}...HEAD`], { cwd: repoRoot, encoding: "utf8" })
+      .split("\n").map((l) => l.trim()).filter(Boolean);
+    for (const p of changed) {
+      expect(allowed.has(p), `hardening scope drift: ${p}`).toBe(true);
+    }
+  });
+});
