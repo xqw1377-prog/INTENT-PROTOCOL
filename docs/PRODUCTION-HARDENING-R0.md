@@ -246,6 +246,17 @@ the three files, with the chain fact preserved in this draft.
 chain PH-01 finalization = executed fact, irreversible, preserved
 ```
 
+### PH-00A-AMENDMENT-3 (Commander "继续" order, 2026-10-01) — PH engineering paths
+
+Authorizes the PH-03/04/05 deliverable locations (narrow purpose each):
+
+```text
+packages/independent-proof-verifier-r1/**  # PH-03: standalone independent verifier (no SUT imports)
+packages/production-guards/**               # PH-04: settlement input-domain guard (settlementKey preimage UNCHANGED)
+packages/gp-runtime/src/runtime.ts          # PH-05: journal hardening ONLY — write format stays byte-compatible (GP5 pack zero drift)
+packages/gp-runtime/test/**                 # PH-05: hardening tests
+```
+
 ## Current ledger
 
 ```text
