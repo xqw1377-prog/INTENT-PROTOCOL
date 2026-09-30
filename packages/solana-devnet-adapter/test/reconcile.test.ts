@@ -63,6 +63,15 @@ describe("[TESTNET-R1/T4] UNKNOWN → RECONCILE → safe terminal state", () => 
     const blind = classify(baseObs());
     expect(blind.classification).toBe("STILL_UNKNOWN");
     expect(blind.safeToRetry).toBe(false);
+
+    // T4-R1 authorization gate negatives: expiry WITHOUT the original
+    // signature knowledge can NEVER grant retry permission
+    const unknownSignerExpired = classify(baseObs({ signature: { known: false, found: false }, lastValidBlockHeight: 499_000, currentBlockHeight: 500_000 }));
+    expect(unknownSignerExpired.classification).toBe("STILL_UNKNOWN");
+    expect(unknownSignerExpired.safeToRetry).toBe(false);
+    const nullSignatureExpired = classify(baseObs({ signature: null, lastValidBlockHeight: 499_000, currentBlockHeight: 500_000 }));
+    expect(nullSignatureExpired.classification).toBe("STILL_UNKNOWN");
+    expect(nullSignatureExpired.safeToRetry).toBe(false);
   });
 
   test("[T4-02] THE frozen invariant: UNKNOWN ≠ permission to resubmit (exhaustive over the rule space)", () => {
@@ -72,6 +81,8 @@ describe("[TESTNET-R1/T4] UNKNOWN → RECONCILE → safe terminal state", () => 
       baseObs({ signature: { known: true, found: true, err: null } }),
       baseObs({ signature: { known: true, found: false }, lastValidBlockHeight: 499_000 }),
       baseObs({ signature: { known: true, found: false }, lastValidBlockHeight: 500_100 }),
+      baseObs({ signature: { known: false, found: false }, lastValidBlockHeight: 499_000 }), // T4-R1 gate
+      baseObs({ signature: null, lastValidBlockHeight: 499_000 }), // T4-R1 gate
       baseObs(),
     ].map(classify);
     expect(unknownNeverPermitsResubmission(results)).toBe(true);

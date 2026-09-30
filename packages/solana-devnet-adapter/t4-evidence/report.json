@@ -1,6 +1,6 @@
 {
   "schema_version": "t4-reconcile-report.v1",
-  "generated_at": "2026-09-30T01:50:58.210Z",
+  "generated_at": "2026-09-30T02:10:02.883Z",
   "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
   "escrow_ref": "escrow:gp-001-local",
   "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
@@ -25,14 +25,14 @@
   "scenarios": [
     {
       "name": "T4-A-timeout-disconnect",
-      "signature": "4xxHLEGLSUgiH246yeo2hvFHoJgP8Q2WGGovKwpdwZVbrt4Q6FQNRvGKuAdcBrTyqQSnivifXvGZKtBzY1VtkSGw",
+      "signature": "CHYJHdUHAzGSui9LyuFpYJ7XNUG7xyCvJbVVzTkByBNm2bhc4GDSWnCo1iu6NUVCPKzyeEWPFMuJomBJs3qW1rg",
       "classification": "RELEASED",
       "safeToRetry": false,
       "reason": "release PDA initialized: the economic release fact exists on chain",
       "signatureStatus": {
         "known": true,
         "found": true,
-        "slot": 505738523,
+        "slot": 505743332,
         "confirmationStatus": "finalized",
         "err": "{\"InstructionError\":[0,{\"Custom\":108}]}"
       }
@@ -48,17 +48,27 @@
     {
       "name": "T4-C-expired-not-landed",
       "fixtureUnreleasedPair": true,
-      "syntheticSignature": true,
-      "lastValidBlockHeight": 492987177,
-      "currentBlockHeight": 492987383,
+      "fixtureTransaction": {
+        "signed": true,
+        "submitted": false,
+        "realSignature": "3RMNegALxenwdtY8WvFde9Cnbq8KZHV7F4BBqzcvQv1hcnncuBaNmoXDNmN6pTfneFksdxSaZW5GdsTwEh45YpcA",
+        "realLastValidBlockHeight": 492992324
+      },
       "classification": "NOT_LANDED",
       "safeToRetry": true,
-      "reason": "signature not found and block height 492987383 is past lastValid 492987177: the transaction can never land — safe to retry (subject to caps and pair authorization)"
+      "reason": "signature not found and block height 492992346 is past lastValid 492992324: the transaction can never land — safe to retry (subject to caps and pair authorization)",
+      "signatureFoundOnChain": false
     },
     {
       "name": "T4-D-still-unknown",
       "fixtureUnreleasedPair": true,
-      "syntheticSignature": true,
+      "fixtureTransaction": {
+        "signed": true,
+        "submitted": false,
+        "realSignature": "12dLHAx7DBxKU2evmRwykFtBz4kZxDJcpS7QN7My2xNa1RNtH7yCvy5uqhJBmSNYVMZBq4AXhQ2zCnLC4DmBfex",
+        "realLastValidBlockHeight": 492992498
+      },
+      "currentBlockHeight": 492992354,
       "classification": "STILL_UNKNOWN",
       "safeToRetry": false,
       "reason": "signature not yet visible on chain and still within its validity window — DO NOT resubmit"

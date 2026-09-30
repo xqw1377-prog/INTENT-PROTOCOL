@@ -92,26 +92,49 @@ console.log("T4 reconcile — pre-state:", JSON.stringify({ claimant: pre.claima
   if (r.classification !== "RELEASED" || r.safeToRetry) throw new Error("T4-B FAILED: expected RELEASED with no retry");
 }
 
-// T4-C expired transaction: lastValid in the past → NOT_LANDED + safeToRetry
+// T4-C REAL transaction expiry (T4-R1): build a genuinely signed fixture
+// transaction with its REAL validity window, DO NOT submit it, wait for the
+// window to permanently expire, then prove from chain truth that THIS exact
+// signature never landed — the only world entitled to retry permission.
 {
-  const current = await connection.getBlockHeight("confirmed");
-  const lastValid = current - 200; // provably dead window
-  // a signature that will never be found (synthetic, honest: tx never landed)
-  const ghostSignature = base58Encode(new Uint8Array((await import("node:crypto")).randomBytes(64))); // proper 64-byte signature shape, never submitted
-  const observation = await chainObservation(ghostSignature, lastValid, FIXTURE_PAIR);
+  const { tx } = await buildReleaseTx(connection, PINNED.programId, FIXTURE_PAIR, KEYS2);
+  const realSignature = base58Encode(new Uint8Array(tx.signature)); // real signature of the never-submitted tx
+  const lastValid = tx.lastValidBlockHeight; // REAL window from getLatestBlockhash
+  console.log(`  fixture tx signed (NOT submitted): ${realSignature.slice(0, 16)}… lastValid=${lastValid}; waiting for expiry…`);
+  let current = await connection.getBlockHeight("confirmed");
+  while (current <= lastValid) {
+    await new Promise((r) => setTimeout(r, 5_000));
+    current = await connection.getBlockHeight("confirmed");
+  }
+  const observation = await chainObservation(realSignature, lastValid, FIXTURE_PAIR);
   const r = classify(observation);
-  record("T4-C-expired-not-landed", { fixtureUnreleasedPair: true, syntheticSignature: true, lastValidBlockHeight: lastValid, currentBlockHeight: observation.currentBlockHeight, classification: r.classification, safeToRetry: r.safeToRetry, reason: r.reason });
-  if (r.classification !== "NOT_LANDED" || !r.safeToRetry) throw new Error("T4-C FAILED: expected NOT_LANDED with safeToRetry");
+  record("T4-C-expired-not-landed", {
+    fixtureUnreleasedPair: true,
+    fixtureTransaction: { signed: true, submitted: false, realSignature, realLastValidBlockHeight: lastValid },
+    classification: r.classification,
+    safeToRetry: r.safeToRetry,
+    reason: r.reason,
+    signatureFoundOnChain: observation.signature?.found,
+  });
+  if (observation.signature?.found) throw new Error("T4-C FAILED: the never-submitted fixture tx somehow appears on chain");
+  if (r.classification !== "NOT_LANDED" || !r.safeToRetry) throw new Error("T4-C FAILED: expected NOT_LANDED with safeToRetry from REAL expiry");
 }
 
-// T4-D in-flight window: fresh signature not yet visible + valid window → STILL_UNKNOWN
+// T4-D in-flight window (REAL tx, window still open): STILL_UNKNOWN, no retry
 {
-  const current = await connection.getBlockHeight("confirmed");
-  const lastValid = current + 150; // still valid
-  const unseenSignature = base58Encode(new Uint8Array((await import("node:crypto")).randomBytes(64))); // proper shape, never submitted
-  const observation = await chainObservation(unseenSignature, lastValid, FIXTURE_PAIR);
+  const { tx } = await buildReleaseTx(connection, PINNED.programId, FIXTURE_PAIR, KEYS2);
+  const realSignature = base58Encode(new Uint8Array(tx.signature));
+  const lastValid = tx.lastValidBlockHeight;
+  const observation = await chainObservation(realSignature, lastValid, FIXTURE_PAIR);
   const r = classify(observation);
-  record("T4-D-still-unknown", { fixtureUnreleasedPair: true, syntheticSignature: true, classification: r.classification, safeToRetry: r.safeToRetry, reason: r.reason });
+  record("T4-D-still-unknown", {
+    fixtureUnreleasedPair: true,
+    fixtureTransaction: { signed: true, submitted: false, realSignature, realLastValidBlockHeight: lastValid },
+    currentBlockHeight: observation.currentBlockHeight,
+    classification: r.classification,
+    safeToRetry: r.safeToRetry,
+    reason: r.reason,
+  });
   if (r.classification !== "STILL_UNKNOWN" || r.safeToRetry) throw new Error("T4-D FAILED: expected STILL_UNKNOWN with NO retry — the frozen invariant");
 }
 

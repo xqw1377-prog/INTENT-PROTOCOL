@@ -61,8 +61,11 @@ export interface ReconcileResult {
  *       Custom(108) DuplicateRelease)
  *   R3  signature found + success → RELEASED (a successful release tx must
  *       carry the fact; if the fact is somehow absent → STILL_UNKNOWN)
- *   R4  signature NOT found + block height beyond lastValidBlockHeight →
- *       NOT_LANDED (can never land) — safeToRetry ONLY here
+ *   R4  signature KNOWN and NOT found + block height beyond the KNOWN
+ *       lastValidBlockHeight → NOT_LANDED (can never land) — safeToRetry
+ *       ONLY here. Without the ORIGINAL signature and its ORIGINAL validity
+ *       window, expiry of "some" transaction proves nothing about THIS one
+ *       (T4-R1 authorization gate).
  *   R5  otherwise → STILL_UNKNOWN (in flight) — resubmission FORBIDDEN
  */
 export function classify(observation: ChainObservation): ReconcileResult {
@@ -88,10 +91,14 @@ export function classify(observation: ChainObservation): ReconcileResult {
     return safe("STILL_UNKNOWN", "signature reports success but the release PDA fact is absent — refusing to guess");
   }
 
-  // R4 — provably expired: the tx can never land
+  // R4 — provably expired: the tx can never land. Authorization gate
+  // (T4-R1): the ORIGINAL signature must be known AND its ORIGINAL
+  // lastValidBlockHeight must be known — an unknown signature with a
+  // generic expired window can never grant retry permission.
   if (
     observation.signature !== null &&
-    !observation.signature.found &&
+    observation.signature.known === true &&
+    observation.signature.found === false &&
     observation.lastValidBlockHeight !== null &&
     observation.currentBlockHeight > observation.lastValidBlockHeight
   ) {
