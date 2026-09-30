@@ -20,15 +20,18 @@ GP4                 = PASS / FROZEN
 GP5                 = PASS / FROZEN (COMMANDER SIGNED)
 MAIN-CLOSURE-R1     = PASS / CLOSED
 
-CURRENT GATE        = TESTNET-R1 / T3 (DEVNET MATERIALIZATION — IN PROGRESS)
+CURRENT GATE        = TESTNET-R1 / T4 (RECOVERY / RECONCILIATION — IN PROGRESS)
 EXE-R0              = PASS / FROZEN (Commander, 2026-09-29 @ 38ac0fb)
 TESTNET-R1 / T0     = PASS / FROZEN (Commander, 2026-09-29, basis
                      8648376 + ebf1ed9, adjudicated @ 75407f3)
 TESTNET-R1 / T1     = PASS / FROZEN (Commander, 2026-09-29 @ 640ede3)
-NEXT TARGET         = T3 DELIVERABLES → COMMANDER T3 ADJUDICATION → T2
-                     (FIRST AUTHORIZED CHAIN ACTION). gate order
-                     T1 → T3 → T2 → T4 → T5 → T6. T3: NO deployment, NO
-                     settlement/release tx, NO secret commit
+TESTNET-R1 / T3     = PASS / FROZEN (Commander, basis c6ea4fa + 7e50a08 + fe65cdf)
+TESTNET-R1 / T2     = PASS / FROZEN (Commander, basis 5e4c9f3 + 2cabc63;
+                     program deployed @ pinned ASvnm4pi…; exactly-once proven
+                     on chain: claimant delta exactly +10 once, 8/8 matrix)
+NEXT TARGET         = T4 DELIVERABLES (UNKNOWN → RECONCILE → safe terminal
+                     state) → T5 (PROOF PACK) → T6 (GOLDEN RUN). MAINNET
+                     REMAINS DENIED; TESTNET-R1 ≠ COMPLETE until T6 PASS
 
 LOCAL SETTLEMENT    = PROVEN / SIGNED
 LOCAL GOLDEN PATH   = PROVEN
