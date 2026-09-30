@@ -1,0 +1,22 @@
+[package]
+name = "testnet-r1-program"
+version = "0.1.0"
+edition = "2021"
+description = "TESTNET-R1 T2 on-chain program: consume an already-authorized settlement, re-validate frozen constants, enforce one release PDA per EconomicReleaseKey, transfer exactly 10 test USDC to the frozen claimant ATA, materialize ChainReleaseV1. Deployment id is pinned pre-deployment (ASvnm4pi…)."
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+# pinned to the exact CLI/cluster-era version: newer 1.18.x point releases pull
+# edition2024 transitive deps the SBF toolchain (rustc 1.75) cannot compile
+solana-program = "=1.18.17"
+spl-token = { version = "=3.5.0", default-features = false, features = ["no-entrypoint"] }
+# blake3 semver-open via solana-program resolves to 1.8.7, which pulls
+# digest 0.11 -> block-buffer 0.12.1 (an edition2024 re-release). 1.6.0 is
+# the first line with the `digest` feature solana-program requires, and it
+# still rides digest 0.10 (edition-2021 graph) — compilable by rustc 1.75.
+blake3 = "=1.6.0"
+
+[profile.release]
+overflow-checks = true

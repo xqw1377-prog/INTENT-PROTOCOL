@@ -18,3 +18,6 @@ packages/gp3-verification/keys/private/
 
 # TESTNET-R1 adapter: rust build artifacts never enter the tree (tests build into OS tmp)
 packages/solana-devnet-adapter/rust/target/
+
+# T2 program build artifacts
+packages/solana-devnet-adapter/program/target/

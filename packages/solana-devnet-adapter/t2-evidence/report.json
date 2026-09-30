@@ -1,0 +1,123 @@
+{
+  "schema_version": "t2-matrix-report.v1",
+  "generated_at": "2026-09-30T01:07:55.614Z",
+  "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+  "escrow_ref": "escrow:gp-001-local",
+  "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+  "pre_state": {
+    "slot": 505727165,
+    "claimantAtaBalance": "0",
+    "treasuryAtaBalance": "100000000",
+    "releasePda": {
+      "exists": false,
+      "initialized": false,
+      "amountBase": null,
+      "slot": null
+    },
+    "capsPda": {
+      "exists": false,
+      "cycleReleasedBase": null
+    }
+  },
+  "final_state": {
+    "slot": 505727391,
+    "claimantAtaBalance": "10000000",
+    "treasuryAtaBalance": "90000000",
+    "releasePda": {
+      "exists": true,
+      "initialized": true,
+      "amountBase": "10000000",
+      "slot": "505727176"
+    },
+    "capsPda": {
+      "exists": true,
+      "cycleReleasedBase": "10000000"
+    }
+  },
+  "scenarios": [
+    {
+      "name": "pre-state",
+      "slot": 505727165,
+      "claimantAtaBalance": "0",
+      "treasuryAtaBalance": "100000000",
+      "releasePda": {
+        "exists": false,
+        "initialized": false,
+        "amountBase": null,
+        "slot": null
+      },
+      "capsPda": {
+        "exists": false,
+        "cycleReleasedBase": null
+      }
+    },
+    {
+      "name": "T2-01-normal-release",
+      "outcome": "confirmed",
+      "signature": "3enZzgSBb14E6DS7kRPrTPtTeVZUpdx3HVYFYyGdnRQ4ThCWrQDHPoPJedeXcEa75t79pTz4hkVneqkK15fSrFEZ",
+      "err": "null",
+      "deltaBase": "10000000",
+      "released": true,
+      "caps": "10000000"
+    },
+    {
+      "name": "T2-02-exact-retry",
+      "outcome": "tx-failed-on-chain",
+      "signature": "5wkM67bRLUPUMSEJcyrB465wFZ1FG3hSdBW29ffb5RKwTtMZBMUsSPSmc82rxB9544gg5f2zK8aLP4w7xZUjTYGp",
+      "err": "{\"InstructionError\":[0,{\"Custom\":108}]}",
+      "deltaBase": "0"
+    },
+    {
+      "name": "T2-03-different-nonce",
+      "outcome": "tx-failed-on-chain",
+      "signature": "59XiQc1Qg3AKUo3VkEBuwQUnNiiuwnVfGHqvVGtwEasgMGyiLqeN49LzeouHEfyB8pnCp1ri3u6kPFbGbBxHgFx",
+      "err": "{\"InstructionError\":[0,{\"Custom\":108}]}",
+      "deltaBase": "0"
+    },
+    {
+      "name": "T2-04-response-lost",
+      "note": "response discarded; state read from chain only",
+      "deltaBase": "0"
+    },
+    {
+      "name": "T2-05-crash-after-submit",
+      "childSaid": "",
+      "killed": true,
+      "deltaBase": "0"
+    },
+    {
+      "name": "T2-06-local-unknown-chain-truth",
+      "note": "no local state consulted; observation is chain-only",
+      "releasePdaInitialized": true,
+      "recordedAmount": "10000000",
+      "capsCycleReleased": "10000000",
+      "deltaFromPreBase": "10000000"
+    },
+    {
+      "name": "T2-07-duplicate-client",
+      "outcome": "tx-failed-on-chain: {\"InstructionError\":[0,{\"Custom\":108}]}",
+      "deltaBase": "0"
+    },
+    {
+      "name": "T2-08-concurrent-clients",
+      "outcomes": [
+        "tx-failed-on-chain",
+        "tx-failed-on-chain",
+        "tx-failed-on-chain",
+        "tx-failed-on-chain"
+      ],
+      "deltaBase": "0"
+    }
+  ],
+  "acceptance": {
+    "claimant_delta_base": "10000000",
+    "claimant_delta_equals_exactly_10": true,
+    "treasury_delta_base": "-10000000",
+    "treasury_delta_equals_exactly_minus_10": true,
+    "release_pda_initialized": true,
+    "release_pda_amount": "10000000",
+    "caps_cycle_released": "10000000",
+    "second_economic_release": false
+  },
+  "note": "T2 scope only: crash/timeout/lost-response scenarios prove NO SECOND ECONOMIC RELEASE; the full UNKNOWN→reconcile lifecycle is T4 and is not claimed here."
+}

@@ -259,6 +259,7 @@ fn main() {
         eprintln!("usage: {} <escrow_ref> <outcome_receipt_hash> <program_id_base58>", args[0]);
         eprintln!("       {} --curve-corpus <N>", args[0]);
         eprintln!("       {} --pda-dalek <escrow_ref> <outcome_receipt_hash> <program_id_base58>", args[0]);
+        eprintln!("       {} --curve-cases <hex32> [<hex32> ...]", args[0]);
         std::process::exit(2);
     }
     let escrow_ref = &args[1];
