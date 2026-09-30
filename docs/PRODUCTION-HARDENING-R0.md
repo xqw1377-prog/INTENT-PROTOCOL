@@ -161,19 +161,14 @@ START is an ancestor of END) and preserve each epoch's ORIGINAL allowlist
 DOMAIN (not exact-file-set conversion — T2/T4/T6 contracts were domain
 constraints). T6-09 (T5 frozen pack byte-identity) is UNCHANGED.
 
-### Discovered during conversion (legacy guards, migrated by AMENDMENT-2)
+### Discovered during conversion (legacy guards — RESOLVED)
 
-Three legacy open-range guards fail on main since the PH epoch landings
-(7613986), independently of this conversion:
-
-```text
-T2-E4 (7e50a08...HEAD), T4-05 (2cabc63...HEAD), T6-08 (d3371c5...HEAD)
-```
-
-They are the same defect class PH-00A closes (old epochs policing future
-HEAD). Their conversion to closed-range seals requires a separate
-Commander authorization because they live in reconcile.test.ts,
-t2-evidence.test.ts, and t6-golden-run.test.ts — outside this cut's scope.
+Three legacy open-range guards (T2-E4 `7e50a08...HEAD`, T4-05
+`2cabc63...HEAD`, T6-08 `d3371c5...HEAD`) were red on main since the PH
+epoch landings (7613986) — the same defect class PH-00A closes (old
+epochs policing future HEAD). These three guards were authorized and
+migrated under PH-00A-AMENDMENT-2 at 25581c6 (GATE-EPOCH-CONVERSION-2).
+They are now CLOSED-EPOCH seals.
 
 Status: **PASS / FROZEN**. EPOCH A sealed by PDA-H-01 (closed range);
 EPOCH B opened under PH-H-01 (base bcea992 + moving HEAD, frozen to
