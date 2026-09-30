@@ -528,6 +528,7 @@ describe("[EPOCH-B] PRODUCTION-HARDENING-R0 — open scope gate", () => {
       "packages/production-guards/PDA-PLACEHOLDER",               // PH-04 dir prefix (see prefix rule below)
       "packages/gp-runtime/src/runtime.ts",                       // PH-05 journal hardening ONLY
       "packages/gp-runtime/test/PDA-PLACEHOLDER",                 // PH-05 tests prefix (see prefix rule below)
+      "packages/solana-devnet-adapter/src/chain.ts",               // PH-04R: guard at the production chain boundary ONLY
     ]);
     // directory-prefix entries (…/PDA-PLACEHOLDER) authorize their whole
     // directory via the prefix rule below

@@ -257,6 +257,14 @@ packages/gp-runtime/src/runtime.ts          # PH-05: journal hardening ONLY — 
 packages/gp-runtime/test/**                 # PH-05: hardening tests
 ```
 
+### PH-00A-AMENDMENT-4 (Commander PH-04R order, 2026-10-01) — guard integration boundary
+
+```text
+packages/solana-devnet-adapter/src/chain.ts   # PH-04R: assertEscrowRefDomain at the
+                                               # production CHAIN settlement boundary
+                                               # ONLY (buildReleaseTx / instruction data)
+```
+
 ## Current ledger
 
 ```text
