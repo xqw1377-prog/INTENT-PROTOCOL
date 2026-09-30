@@ -225,7 +225,10 @@ describe("[GP2-T5] tamper / replay negatives (F1–F9)", () => {
   });
 
   test("[N5] changed base SHA => run invalid (run binding break)", () => {
-    const forgedManifest = { ...exec.manifest, base_commit_sha: "f".repeat(40), run_id: exec.manifest.run_id.replace(/^./, "e") };
+    // deterministic flip: replace(/^./, "e") is a NO-OP 1-in-16 runs (random
+    // run_id already starting with 'e') — the forgery then fails to forge
+    const flippedRunId = (exec.manifest.run_id.startsWith("e") ? "f" : "e") + exec.manifest.run_id.slice(1);
+    const forgedManifest = { ...exec.manifest, base_commit_sha: "f".repeat(40), run_id: flippedRunId };
     expect(() => verifySealedBundle({
       bundle: bundle.bundle, manifest: forgedManifest,
       taskFreezeHash: pf.task_freeze_hash, verificationPolicy: pf.record.verification_policy,

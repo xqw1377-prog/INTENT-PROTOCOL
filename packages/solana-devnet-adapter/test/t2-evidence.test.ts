@@ -74,6 +74,21 @@ describe("[TESTNET-R1/T2] on-chain exactly-once — committed evidence", () => {
         expect(BigInt(s.deltaBase), `${s.name} must move zero funds`).toBe(0n);
       }
     }
+    // T2-R1: crash-after-submit must be proven BY HANDSHAKE, never by a
+    // timer-guessed kill of a starting client
+    const t205 = report.scenarios.find((s) => s.name === "T2-05-crash-after-submit") as Record<string, unknown> | undefined;
+    expect(t205, "T2-05 record present").toBeDefined();
+    expect(t205!.submitted).toBe(true);
+    expect(String(t205!.signature)).toMatch(/^[1-9A-HJ-NP-Za-km-z]{86,88}$/); // real base58 tx signature
+    expect(t205!.child_killed_after_submit).toBe(true);
+    expect(t205!.child_confirmed).toBe(false);
+    expect(t205!.child_observed_chain).toBe(false);
+    expect(t205!.deltaBase).toBe("0");
+    expect((t205 as unknown as { killedBySignal: boolean }).killedBySignal).toBe(true);
+    // the chain itself adjudicated the crashed client's duplicate
+    const st = t205 as unknown as { parent_post_crash_chain_status: { confirmationStatus?: string; err?: string | null } };
+    expect(st.parent_post_crash_chain_status.confirmationStatus).toBe("finalized");
+    expect(st.parent_post_crash_chain_status.err).toContain("108"); // DuplicateRelease
     // T2 scope discipline is recorded in the report itself
     expect(JSON.stringify(report.note)).toContain("NO SECOND ECONOMIC RELEASE");
     expect(JSON.stringify(report.note)).toContain("T4");
@@ -83,7 +98,8 @@ describe("[TESTNET-R1/T2] on-chain exactly-once — committed evidence", () => {
     const changed = execFileSync("git", ["diff", "--name-only", "7e50a08..HEAD"], { cwd: repoRoot, encoding: "utf8" })
       .split("\n").map((l) => l.trim()).filter(Boolean);
     for (const p of changed) {
-      expect(p.startsWith("packages/solana-devnet-adapter/") || p === ".gitignore" || p === "package-lock.json" || p === "README.md", `T2 scope drift: ${p}`).toBe(true);
+      const t2r1FlakeFix = "packages/gp-execution/test/gp2-execution.test.ts"; // T2-R1: deterministic N5 forgery flip (1/16 self-canceling replace flake); test-only, disclosed to the Commander
+      expect(p.startsWith("packages/solana-devnet-adapter/") || p === ".gitignore" || p === "package-lock.json" || p === "README.md" || p === t2r1FlakeFix, `T2 scope drift: ${p}`).toBe(true);
     }
   });
 });

@@ -50,6 +50,106 @@ async function observe() {
   return observeSettlement(connection, PINNED.programId, TARGETS);
 }
 
+
+// T2-05 crash-after-submit with the SUBMITTED handshake (T2-R1): the parent
+// waits for the child's "SUBMITTED <signature>" line BEFORE killing — the
+// kill provably happens AFTER the submit reached the RPC, never a timer guess.
+async function runT205() {
+  const before = await observe();
+  const child = spawn(process.execPath, ["--experimental-strip-types", path.join(here, "t2-send-once.mjs")], { cwd: pkgDir, stdio: ["ignore", "pipe", "pipe"] });
+  let out = "";
+  child.stdout.on("data", (d) => { out += d.toString(); });
+  child.stderr.on("data", (d) => { out += d.toString(); });
+
+  // wait for the SUBMITTED handshake (submit already happened at this point)
+  const handshakeLine = await new Promise((resolve, reject) => {
+    const deadline = setTimeout(() => reject(new Error("T2-05 child never reported SUBMITTED: " + out.slice(-300))), 90_000);
+    const poll = setInterval(() => {
+      const line = out.split("\n").find((l) => l.startsWith("SUBMITTED "));
+      if (line) { clearTimeout(deadline); clearInterval(poll); resolve(line.trim()); }
+    }, 25);
+    child.on("close", () => { clearTimeout(deadline); clearInterval(poll); reject(new Error("T2-05 child exited before SUBMITTED: " + out.slice(-300))); });
+  });
+  const signature = handshakeLine.slice("SUBMITTED ".length).trim();
+
+  // kill IMMEDIATELY after the handshake — after submit, before any confirm/observe
+  child.kill("SIGKILL");
+  const closeInfo = await new Promise((r) => child.on("close", (code, signal) => r({ code, signal })));
+  const killedBySignal = closeInfo.signal === "SIGKILL";
+
+  // let the submitted tx reach the chain, then read chain truth from the parent
+  await new Promise((r) => setTimeout(r, 10_000));
+  let chainStatus = null;
+  try {
+    const st = await connection.getSignatureStatuses([signature], { searchTransactionHistory: true });
+    const v = st && st.value[0];
+    if (v) chainStatus = { slot: v.slot, confirmationStatus: v.confirmationStatus ?? null, err: v.err === null ? null : JSON.stringify(v.err) };
+    else chainStatus = { notFound: true };
+  } catch (e) { chainStatus = { lookupError: String(e.message).slice(0, 160) }; }
+
+  const after = await observe();
+  const delta = BigInt(after.claimantAtaBalance) - BigInt(before.claimantAtaBalance);
+  const rec = {
+    name: "T2-05-crash-after-submit",
+    submitted: true,
+    signature,
+    child_killed_after_submit: true,
+    child_confirmed: false,          // child never awaits confirmation
+    child_observed_chain: false,     // child never reads chain state
+    killedBySignal,
+    exitCode: closeInfo.code,
+    parent_post_crash_chain_status: chainStatus,
+    releasePdaStillInitialized: after.releasePda.initialized,
+    capsCycleReleased: after.capsPda.cycleReleasedBase,
+    deltaBase: delta.toString(),
+  };
+  record(rec.name, rec);
+  if (!killedBySignal) throw new Error("T2-05 FAILED: child was not SIGKILLed after the SUBMITTED handshake");
+  if (delta !== 0n) throw new Error("T2-05 FAILED: crash-after-submit caused a second economic release");
+  if (!after.releasePda.initialized || after.capsPda.cycleReleasedBase !== "10000000") {
+    throw new Error("T2-05 FAILED: release PDA / caps state changed after the crash");
+  }
+  return rec;
+}
+
+
+const ONLY_T205 = process.argv.includes("--only-t2-05");
+
+if (ONLY_T205) {
+  // T2-R1: rerun ONLY the crash-after-submit scenario on the SAME frozen
+  // EconomicReleaseKey (release PDA already initialized — the child's submit
+  // is a duplicate that the on-chain guard must reject). Patch the committed
+  // report in place; every other scenario and the pre-state stay as recorded.
+  const reportPath = path.join(pkgDir, "t2-evidence", "report.json");
+  const existing = JSON.parse(readFileSync(reportPath, "utf8"));
+  console.log("T2-05-only rerun (SUBMITTED handshake) on the existing EconomicReleaseKey…");
+  const rec = await runT205();
+  const idx = existing.scenarios.findIndex((x) => x.name === "T2-05-crash-after-submit");
+  if (idx < 0) throw new Error("existing report has no T2-05 entry to replace");
+  existing.scenarios[idx] = rec;
+  const fin2 = await observe();
+  existing.final_state = fin2;
+  const deltaTotal2 = BigInt(fin2.claimantAtaBalance) - BigInt(existing.pre_state.claimantAtaBalance);
+  const tDelta2 = BigInt(fin2.treasuryAtaBalance) - BigInt(existing.pre_state.treasuryAtaBalance);
+  existing.acceptance = {
+    claimant_delta_base: deltaTotal2.toString(),
+    claimant_delta_equals_exactly_10: deltaTotal2 === 10_000_000n,
+    treasury_delta_base: tDelta2.toString(),
+    treasury_delta_equals_exactly_minus_10: tDelta2 === -10_000_000n,
+    release_pda_initialized: fin2.releasePda.initialized,
+    release_pda_amount: fin2.releasePda.amountBase,
+    caps_cycle_released: fin2.capsPda.cycleReleasedBase,
+    second_economic_release: false,
+  };
+  console.log("ACCEPTANCE (post T2-05 rerun):", JSON.stringify(existing.acceptance));
+  if (!existing.acceptance.claimant_delta_equals_exactly_10 || !existing.acceptance.treasury_delta_equals_exactly_minus_10) {
+    throw new Error("T2-05-only rerun broke the acceptance invariants");
+  }
+  writeFileSync(reportPath, JSON.stringify(existing, null, 2) + "\n");
+  console.log(`patched ${reportPath}`);
+  process.exit(0);
+}
+
 console.log("T2 matrix — pre-state:");
 const pre = await observe();
 record("pre-state", pre);
@@ -96,20 +196,8 @@ record("pre-state", pre);
   if (delta !== 0n) throw new Error("T2-04 FAILED: lost-response world caused a second release");
 }
 
-// T2-05 process crash after submit — child sends and exits instantly; parent kills mid-flight
-{
-  const before = await observe();
-  const child = spawn(process.execPath, ["--experimental-strip-types", path.join(here, "t2-send-once.mjs"), "t2-05-crash"], { cwd: pkgDir, stdio: ["ignore", "pipe", "pipe"] });
-  let out = "";
-  child.stdout.on("data", (d) => { out += d.toString(); });
-  setTimeout(() => { try { child.kill("SIGKILL"); } catch { /* already gone */ } }, 300); // crash mid-flight
-  await new Promise((r) => child.on("close", r));
-  await new Promise((r) => setTimeout(r, 8000));
-  const after = await observe();
-  const delta = BigInt(after.claimantAtaBalance) - BigInt(before.claimantAtaBalance);
-  record("T2-05-crash-after-submit", { childSaid: out.trim().slice(0, 120), killed: true, deltaBase: delta.toString() });
-  if (delta !== 0n) throw new Error("T2-05 FAILED: crashed client caused a second release");
-}
+// T2-05 process crash AFTER submit (SUBMITTED handshake; T2-R1)
+await runT205();
 
 // T2-06 tx landed but local state unknown — re-derive EVERYTHING from chain truth
 {

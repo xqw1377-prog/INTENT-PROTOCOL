@@ -20,7 +20,7 @@
     }
   },
   "final_state": {
-    "slot": 505727391,
+    "slot": 505732344,
     "claimantAtaBalance": "10000000",
     "treasuryAtaBalance": "90000000",
     "releasePda": {
@@ -81,8 +81,20 @@
     },
     {
       "name": "T2-05-crash-after-submit",
-      "childSaid": "",
-      "killed": true,
+      "submitted": true,
+      "signature": "5Yr6Tr66e4umSSp2aeSHqrfCjTTGG3qUL6vahUJrQJsMVHigj8buYFScduW6DARq7QKqJRNbZTjCAAn8pb9GDKWe",
+      "child_killed_after_submit": true,
+      "child_confirmed": false,
+      "child_observed_chain": false,
+      "killedBySignal": true,
+      "exitCode": null,
+      "parent_post_crash_chain_status": {
+        "slot": 505732294,
+        "confirmationStatus": "finalized",
+        "err": "{\"InstructionError\":[0,{\"Custom\":108}]}"
+      },
+      "releasePdaStillInitialized": true,
+      "capsCycleReleased": "10000000",
       "deltaBase": "0"
     },
     {
