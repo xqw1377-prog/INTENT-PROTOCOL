@@ -115,18 +115,27 @@ export function isOnEd25519Curve(bytes: Uint8Array): boolean {
 
 const PDA_MARKER = "ProgramDerivedAddress";
 
+/**
+ * The sha256 candidate hash for ONE bump: seed1 ‖ … ‖ seedN ‖ bump ‖
+ * programId ‖ "ProgramDerivedAddress" (official preimage order). Exported so
+ * tests can prove the 255→bump descent path step by step.
+ */
+export function pdaCandidateHash(seeds: Uint8Array[], bump: number, programId: Uint8Array): Uint8Array {
+  const h = createHash("sha256");
+  for (const s of seeds) h.update(s);
+  h.update(Buffer.from([bump])); // bump is the FINAL SEED (official semantics)
+  h.update(programId);
+  h.update(Buffer.from(PDA_MARKER, "utf8"));
+  return new Uint8Array(h.digest());
+}
+
 export function findProgramAddress(seeds: Uint8Array[], programId: Uint8Array): { address: Uint8Array; bump: number } {
   if (programId.length !== 32) throw new Error("program id must be 32 bytes");
   for (const s of seeds) {
     if (s.length > 32) throw new Error("PDA seed too long (max 32 bytes)");
   }
   for (let bump = 255; bump >= 1; bump--) {
-    const h = createHash("sha256");
-    for (const s of seeds) h.update(s);
-    h.update(Buffer.from([bump])); // bump is the FINAL SEED (official semantics)
-    h.update(programId);
-    h.update(Buffer.from(PDA_MARKER, "utf8"));
-    const candidate = new Uint8Array(h.digest());
+    const candidate = pdaCandidateHash(seeds, bump, programId);
     if (!isOnEd25519Curve(candidate)) return { address: candidate, bump };
   }
   throw new Error("no PDA found for the given seeds/program");
