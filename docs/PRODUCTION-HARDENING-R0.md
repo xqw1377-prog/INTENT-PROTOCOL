@@ -127,10 +127,41 @@ PASS         ≠ PRODUCTION AUTHORIZATION
 Each PH item lands as: implementation + machine evidence + Commander
 adjudication. Production authorization is a separate, future decision.
 
-## PH-00A — Gate epoch contract (DRAFT — AWAITING COMMANDER SIGNATURE)
+## PH-00A — Gate epoch contract (PASS / FROZEN, Commander 2026-10-01)
 
-Status: **DRAFT / DESIGN ONLY / NO GATE MODIFIED**. Until signed, no gate
-file changes; PH-01/PH-02 repo landings are HOLD; PH-03/04/05 are HOLD.
+Path (a) EPOCH CONVERSION selected; revert REJECTED.
+
+### PH-00A-AMENDMENT-1 (PASS / FROZEN) — initial PH-R0 allowlist
+
+```text
+1. .gitattributes                                             # PH-02 portability
+2. docs/PRODUCTION-HARDENING-R0.md                            # PH governance contract / amendments
+3. packages/solana-devnet-adapter/materialization/CUSTODY.md  # PH-01 chain-hardening evidence
+4. packages/solana-devnet-adapter/test/adapter.test.ts        # gate-epoch machinery ONLY
+```
+
+adapter.test.ts permission covers ONLY PDA-H-01 conversion + PH-H-01
+addition — modifying T1/T2/T3/PDA semantic tests through it is NOT
+authorized by this entry.
+
+### Discovered during conversion (reported, NOT acted on — outside the
+authorized 2-file scope)
+
+Three legacy open-range guards fail on main since the PH epoch landings
+(7613986), independently of this conversion:
+
+```text
+T2-E4 (7e50a08...HEAD), T4-05 (2cabc63...HEAD), T6-08 (d3371c5...HEAD)
+```
+
+They are the same defect class PH-00A closes (old epochs policing future
+HEAD). Their conversion to closed-range seals requires a separate
+Commander authorization because they live in reconcile.test.ts,
+t2-evidence.test.ts, and t6-golden-run.test.ts — outside this cut's scope.
+
+Status: **PASS / FROZEN**. EPOCH A sealed by PDA-H-01 (closed range);
+EPOCH B opened under PH-H-01 (base bcea992 + moving HEAD, frozen to
+FINAL_SHA at epoch closure). PH-03/04/05 remain HOLD.
 
 ### EPOCH A — TESTNET-R1/PDA
 

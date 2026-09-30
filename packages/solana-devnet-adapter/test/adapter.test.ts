@@ -476,10 +476,23 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
   });
 });
 
-describe("[PDA-EVIDENCE-HARDENING-R1] final scope gate", () => {
-  test("[PDA-H-01] since TESTNET-R1 COMPLETE (40b9ff0), ONLY the seven hardening files may differ", () => {
-    const T6_COMPLETE = "40b9ff091bcff8a0a86e967f8ddced9c1468c219";
-    const allowed = new Set([
+// ————————————————— PH-00A GATE EPOCH MODEL —————————————————
+// closed epoch = fixed START + fixed END (never HEAD);
+// open epoch   = fixed BASE + moving HEAD, frozen to FINAL_SHA at closure.
+
+describe("[EPOCH-A] TESTNET-R1/PDA hardening — historical seal", () => {
+  test("[PDA-H-01] closed range 40b9ff0..bcea992: endpoints exist, ancestor holds, EXACTLY the seven files", () => {
+    const START = "40b9ff091bcff8a0a86e967f8ddced9c1468c219";
+    const END = "bcea992f729c730a8356023eb1dc29b5d78f72cd";
+    // (1) both commit objects exist
+    for (const sha of [START, END]) {
+      expect(execFileSync("git", ["cat-file", "-t", sha], { cwd: repoRoot, encoding: "utf8" }).trim(), `${sha} must exist`).toBe("commit");
+    }
+    // (2) START is an ancestor of END (merge-base of the pair == START)
+    const mergeBase = execFileSync("git", ["merge-base", START, END], { cwd: repoRoot, encoding: "utf8" }).trim();
+    expect(mergeBase, "START must be an ancestor of END").toBe(START);
+    // (3) closed-range diff is EXACTLY the seven PDA hardening files (set equality, not subset)
+    const expected = new Set([
       "packages/solana-devnet-adapter/PDA-CONFORMANCE-R1.md",
       "packages/solana-devnet-adapter/scripts/generate-curve-corpus.mjs",
       "packages/solana-devnet-adapter/scripts/generate-t1-vectors.mjs",
@@ -488,10 +501,29 @@ describe("[PDA-EVIDENCE-HARDENING-R1] final scope gate", () => {
       "packages/solana-devnet-adapter/vectors/curve-corpus.json",
       "packages/solana-devnet-adapter/vectors/golden.json",
     ]);
-    const changed = execFileSync("git", ["diff", "--name-only", `${T6_COMPLETE}...HEAD`], { cwd: repoRoot, encoding: "utf8" })
+    const changed = execFileSync("git", ["diff", "--name-only", `${START}..${END}`], { cwd: repoRoot, encoding: "utf8" })
+      .split("\n").map((l) => l.trim()).filter(Boolean);
+    expect(new Set(changed), "EPOCH A must contain EXACTLY the seven approved files").toEqual(expected);
+    // (4) this seal never references HEAD — history only
+  });
+});
+
+describe("[EPOCH-B] PRODUCTION-HARDENING-R0 — open scope gate", () => {
+  test("[PH-H-01] since base bcea992, every changed path belongs to the PH-00A-AMENDMENT-1 allowlist", () => {
+    const BASE = "bcea992f729c730a8356023eb1dc29b5d78f72cd";
+    // PH-00A-AMENDMENT-1 (Commander, frozen): the initial PH-R0 allowlist.
+    // adapter.test.ts is permitted for GATE-EPOCH MACHINERY ONLY — touching
+    // T1/T2/T3/PDA semantic tests through it is NOT authorized by this entry.
+    const allowed = new Set([
+      ".gitattributes",                                             // PH-02 portability
+      "docs/PRODUCTION-HARDENING-R0.md",                            // PH governance contract / amendments
+      "packages/solana-devnet-adapter/materialization/CUSTODY.md",  // PH-01 chain-hardening evidence
+      "packages/solana-devnet-adapter/test/adapter.test.ts",        // gate-epoch machinery ONLY
+    ]);
+    const changed = execFileSync("git", ["diff", "--name-only", `${BASE}...HEAD`], { cwd: repoRoot, encoding: "utf8" })
       .split("\n").map((l) => l.trim()).filter(Boolean);
     for (const p of changed) {
-      expect(allowed.has(p), `hardening scope drift: ${p}`).toBe(true);
+      expect(allowed.has(p), `PH-R0 epoch scope drift: ${p}`).toBe(true);
     }
   });
 });
