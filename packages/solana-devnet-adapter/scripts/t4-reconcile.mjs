@@ -12,10 +12,12 @@
  *         then reconcile WITH the signature → expect REJECTED (Custom 108)
  *   T4-B  crash / missing local state: reconcile with NO signature →
  *         expect RELEASED (chain fact only)
- *   T4-C  expired tx: build with a dead blockhash window, submit, reconcile
- *         with lastValidBlockHeight in the past → expect NOT_LANDED + safeToRetry
- *   T4-D  in-flight window: reconcile against a synthetic not-yet-landed
- *         signature within its validity → expect STILL_UNKNOWN, no retry
+ *   T4-C  REAL transaction expiry: a genuinely SIGNED fixture tx (real
+ *         blockhash window) that is NEVER submitted; wait on-chain until
+ *         currentBlockHeight permanently passes its real lastValidBlockHeight,
+ *         then prove this exact signature is not on chain → NOT_LANDED + safeToRetry
+ *   T4-D  in-flight window: a REAL signed never-submitted tx still INSIDE its
+ *         validity window → STILL_UNKNOWN, no retry
  *
  * Run: node --experimental-strip-types scripts/t4-reconcile.mjs
  */

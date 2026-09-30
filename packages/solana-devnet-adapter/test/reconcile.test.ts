@@ -115,8 +115,8 @@ describe("[TESTNET-R1/T4] UNKNOWN → RECONCILE → safe terminal state", () => 
     };
     expect(report.program_id).toBe(PINNED.programId);
     expect(report.escrow_ref).toBe(FROZEN.anchors.escrowRef);
-    const byNameRaw: Record<string, { name: string; classification: string; safeToRetry: boolean; fixtureUnreleasedPair?: boolean; signatureStatus?: { found?: boolean; err?: string | null } }> = Object.fromEntries(report.scenarios.map((s) => [s.name, s]));
-    const g = (n: string): { name: string; classification: string; safeToRetry: boolean; fixtureUnreleasedPair?: boolean; signatureStatus?: { found?: boolean; err?: string | null } } => {
+    const byNameRaw: Record<string, { name: string; classification: string; safeToRetry: boolean; reason?: string; fixtureUnreleasedPair?: boolean; signatureStatus?: { found?: boolean; err?: string | null } }> = Object.fromEntries(report.scenarios.map((s) => [s.name, s]));
+    const g = (n: string): { name: string; classification: string; safeToRetry: boolean; reason?: string; fixtureUnreleasedPair?: boolean; signatureStatus?: { found?: boolean; err?: string | null } } => {
       const v = byNameRaw[n];
       if (!v) throw new Error(`scenario missing: ${n}`);
       return v;
@@ -132,9 +132,36 @@ describe("[TESTNET-R1/T4] UNKNOWN → RECONCILE → safe terminal state", () => 
     expect(g("T4-C-expired-not-landed").classification).toBe("NOT_LANDED");
     expect(g("T4-C-expired-not-landed").safeToRetry).toBe(true);
     expect(g("T4-C-expired-not-landed").fixtureUnreleasedPair).toBe(true); // honest about the fixture world
+    // T4-R2: the five evidence elements of the REAL-expiry proof are sealed
+    const c = g("T4-C-expired-not-landed") as unknown as {
+      fixtureTransaction: { signed: boolean; submitted: boolean; realSignature: string; realLastValidBlockHeight: number };
+      signatureFoundOnChain: boolean;
+      observation?: unknown;
+    };
+    expect(c.fixtureTransaction.signed).toBe(true);
+    expect(c.fixtureTransaction.submitted).toBe(false);
+    expect(c.fixtureTransaction.realSignature).toMatch(/^[1-9A-HJ-NP-Za-km-z]{86,88}$/); // REAL signature shape
+    expect(Number.isFinite(c.fixtureTransaction.realLastValidBlockHeight)).toBe(true);
+    expect(c.signatureFoundOnChain).toBe(false);
+    // expiry fact itself: the classification-time block height is PAST the real window
+    const cReason = g("T4-C-expired-not-landed").reason;
+    const cObserved = /block height (\d+) is past lastValid (\d+)/.exec(cReason ?? "");
+    expect(cObserved, "T4-C reason must carry the observed heights").not.toBeNull();
+    expect(Number(cObserved![1])).toBeGreaterThan(c.fixtureTransaction.realLastValidBlockHeight);
     expect(g("T4-D-still-unknown").classification).toBe("STILL_UNKNOWN");
     expect(g("T4-D-still-unknown").safeToRetry).toBe(false);
     expect(g("T4-D-still-unknown").fixtureUnreleasedPair).toBe(true);
+    // T4-R2: same sealing for the open-window world
+    const d = g("T4-D-still-unknown") as unknown as {
+      fixtureTransaction: { signed: boolean; submitted: boolean; realSignature: string; realLastValidBlockHeight: number };
+      currentBlockHeight: number;
+    };
+    expect(d.fixtureTransaction.signed).toBe(true);
+    expect(d.fixtureTransaction.submitted).toBe(false);
+    expect(d.fixtureTransaction.realSignature).toMatch(/^[1-9A-HJ-NP-Za-km-z]{86,88}$/);
+    expect(Number.isFinite(d.fixtureTransaction.realLastValidBlockHeight)).toBe(true);
+    // open-window fact itself: still WITHIN the real window
+    expect(d.currentBlockHeight).toBeLessThanOrEqual(d.fixtureTransaction.realLastValidBlockHeight);
     expect(report.acceptance.claimant_unchanged).toBe(true);
     expect(report.acceptance.treasury_unchanged).toBe(true);
     expect(report.acceptance.unknown_never_permits_resubmission).toBe(true);
