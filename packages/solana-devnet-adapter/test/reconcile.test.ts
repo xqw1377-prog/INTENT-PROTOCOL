@@ -1,0 +1,139 @@
+/**
+ * TESTNET-R1 / T4 machine tests: UNKNOWN → RECONCILE → safe terminal state.
+ * Hermetic: the classification rules and lifecycle are pure; the committed
+ * t4-evidence/report.json is sealed against tampering. On-chain rerun via
+ * scripts/t4-reconcile.mjs.
+ */
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, test } from "vitest";
+import { classify, nextAdapterState, InvalidTransitionError, unknownNeverPermitsResubmission, type ChainObservation } from "../src/reconcile.ts";
+import { FROZEN, PINNED } from "../src/index.ts";
+
+const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = path.resolve(pkgDir, "../..");
+
+const baseObs = (over: Partial<ChainObservation> = {}): ChainObservation => ({
+  releasePda: { initialized: false, amountBase: null },
+  claimantBalance: "10000000",
+  treasuryBalance: "90000000",
+  capsCycleReleased: "10000000",
+  signature: null,
+  lastValidBlockHeight: null,
+  currentBlockHeight: 500_000,
+  ...over,
+});
+
+describe("[TESTNET-R1/T4] UNKNOWN → RECONCILE → safe terminal state", () => {
+  test("[T4-01] classification rule matrix (pure, deterministic)", () => {
+    // R1 — the on-chain fact outranks everything, even a "lost" signature
+    const released = classify(baseObs({ releasePda: { initialized: true, amountBase: "10000000" }, signature: { known: true, found: false } }));
+    expect(released.classification).toBe("RELEASED");
+    expect(released.safeToRetry).toBe(false);
+
+    // R2 — rejected on chain (Custom 108 DuplicateRelease)
+    const rejected108 = classify(baseObs({ signature: { known: true, found: true, slot: 42, confirmationStatus: "finalized", err: '{"InstructionError":[0,{"Custom":108}]}' } }));
+    expect(rejected108.classification).toBe("REJECTED");
+    expect(rejected108.safeToRetry).toBe(false);
+    expect(rejected108.reason).toContain("108");
+
+    // R2 — rejected for another on-chain reason: still no retry
+    const rejectedOther = classify(baseObs({ signature: { known: true, found: true, err: '{"InstructionError":[0,{"Custom":103}]}' } }));
+    expect(rejectedOther.classification).toBe("REJECTED");
+    expect(rejectedOther.safeToRetry).toBe(false);
+
+    // R3 — success without the fact: refuse to guess
+    const successNoFact = classify(baseObs({ signature: { known: true, found: true, err: null } }));
+    expect(successNoFact.classification).toBe("STILL_UNKNOWN");
+    expect(successNoFact.safeToRetry).toBe(false);
+
+    // R4 — expired and not found: the ONLY safe-retry class
+    const notLanded = classify(baseObs({ signature: { known: true, found: false }, lastValidBlockHeight: 499_000, currentBlockHeight: 500_000 }));
+    expect(notLanded.classification).toBe("NOT_LANDED");
+    expect(notLanded.safeToRetry).toBe(true);
+
+    // R5 — in flight within the window
+    const inFlight = classify(baseObs({ signature: { known: true, found: false }, lastValidBlockHeight: 500_100, currentBlockHeight: 500_000 }));
+    expect(inFlight.classification).toBe("STILL_UNKNOWN");
+    expect(inFlight.safeToRetry).toBe(false);
+
+    // R5 — no signature at all and no fact: no blind resubmission
+    const blind = classify(baseObs());
+    expect(blind.classification).toBe("STILL_UNKNOWN");
+    expect(blind.safeToRetry).toBe(false);
+  });
+
+  test("[T4-02] THE frozen invariant: UNKNOWN ≠ permission to resubmit (exhaustive over the rule space)", () => {
+    const results = [
+      baseObs({ releasePda: { initialized: true, amountBase: "10000000" } }),
+      baseObs({ signature: { known: true, found: true, err: '{"InstructionError":[0,{"Custom":108}]}' } }),
+      baseObs({ signature: { known: true, found: true, err: null } }),
+      baseObs({ signature: { known: true, found: false }, lastValidBlockHeight: 499_000 }),
+      baseObs({ signature: { known: true, found: false }, lastValidBlockHeight: 500_100 }),
+      baseObs(),
+    ].map(classify);
+    expect(unknownNeverPermitsResubmission(results)).toBe(true);
+    expect(results.filter((r) => r.safeToRetry).map((r) => r.classification)).toEqual(["NOT_LANDED"]);
+  });
+
+  test("[T4-03] adapter lifecycle transitions (T0 §8) — invalid transitions rejected", () => {
+    expect(nextAdapterState("PREPARED", "SUBMITTED")).toBe("SUBMITTED");
+    expect(nextAdapterState("SUBMITTED", "CONFIRMED")).toBe("CONFIRMED");
+    expect(nextAdapterState("CONFIRMED", "FINALIZED")).toBe("FINALIZED");
+    expect(nextAdapterState("SUBMITTED", "UNKNOWN")).toBe("UNKNOWN");
+    expect(nextAdapterState("UNKNOWN", "RECONCILED")).toBe("RECONCILED");
+    for (const [from, to] of [
+      ["PREPARED", "CONFIRMED"], ["PREPARED", "FINALIZED"], ["PREPARED", "UNKNOWN"],
+      ["SUBMITTED", "FINALIZED"], ["SUBMITTED", "RECONCILED"],
+      ["CONFIRMED", "UNKNOWN"], ["CONFIRMED", "RECONCILED"], ["CONFIRMED", "SUBMITTED"],
+      ["UNKNOWN", "PREPARED"], ["UNKNOWN", "SUBMITTED"], ["UNKNOWN", "CONFIRMED"], ["UNKNOWN", "FINALIZED"],
+      ["FINALIZED", "ANY"], ["RECONCILED", "ANY"],
+    ] as const) {
+      expect(() => nextAdapterState(from, to as never), `${from} → ${to}`).toThrow(InvalidTransitionError);
+    }
+  });
+
+  test("[T4-04] committed on-chain evidence sealed (t4-evidence/report.json)", () => {
+    const report = JSON.parse(readFileSync(path.join(pkgDir, "t4-evidence/report.json"), "utf8")) as {
+      program_id: string;
+      escrow_ref: string;
+      acceptance: Record<string, unknown>;
+      scenarios: Array<{ name: string; classification: string; safeToRetry: boolean; fixtureUnreleasedPair?: boolean; signatureStatus?: { found?: boolean; err?: string | null } }>;
+    };
+    expect(report.program_id).toBe(PINNED.programId);
+    expect(report.escrow_ref).toBe(FROZEN.anchors.escrowRef);
+    const byNameRaw: Record<string, { name: string; classification: string; safeToRetry: boolean; fixtureUnreleasedPair?: boolean; signatureStatus?: { found?: boolean; err?: string | null } }> = Object.fromEntries(report.scenarios.map((s) => [s.name, s]));
+    const g = (n: string): { name: string; classification: string; safeToRetry: boolean; fixtureUnreleasedPair?: boolean; signatureStatus?: { found?: boolean; err?: string | null } } => {
+      const v = byNameRaw[n];
+      if (!v) throw new Error(`scenario missing: ${n}`);
+      return v;
+    };
+    // the pair is terminal: the recovery answer is RELEASED, and the
+    // lost-response duplicate itself is adjudicated Custom(108) on chain
+    expect(g("T4-A-timeout-disconnect").classification).toBe("RELEASED");
+    expect(g("T4-A-timeout-disconnect").safeToRetry).toBe(false);
+    expect(g("T4-A-timeout-disconnect").signatureStatus?.found).toBe(true);
+    expect(g("T4-A-timeout-disconnect").signatureStatus?.err).toContain("108");
+    expect(g("T4-B-missing-local-state").classification).toBe("RELEASED");
+    expect(g("T4-B-missing-local-state").safeToRetry).toBe(false);
+    expect(g("T4-C-expired-not-landed").classification).toBe("NOT_LANDED");
+    expect(g("T4-C-expired-not-landed").safeToRetry).toBe(true);
+    expect(g("T4-C-expired-not-landed").fixtureUnreleasedPair).toBe(true); // honest about the fixture world
+    expect(g("T4-D-still-unknown").classification).toBe("STILL_UNKNOWN");
+    expect(g("T4-D-still-unknown").safeToRetry).toBe(false);
+    expect(g("T4-D-still-unknown").fixtureUnreleasedPair).toBe(true);
+    expect(report.acceptance.claimant_unchanged).toBe(true);
+    expect(report.acceptance.treasury_unchanged).toBe(true);
+    expect(report.acceptance.unknown_never_permits_resubmission).toBe(true);
+  });
+
+  test("[T4-05] T4 scope guard: only adapter-domain paths changed since the T2 sign-off (2cabc63)", () => {
+    const changed = execFileSync("git", ["diff", "--name-only", "2cabc63..HEAD"], { cwd: repoRoot, encoding: "utf8" })
+      .split("\n").map((l) => l.trim()).filter(Boolean);
+    for (const p of changed) {
+      expect(p.startsWith("packages/solana-devnet-adapter/") || p === "README.md", `T4 scope drift: ${p}`).toBe(true);
+    }
+  });
+});

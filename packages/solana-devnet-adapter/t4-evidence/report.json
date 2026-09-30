@@ -1,0 +1,75 @@
+{
+  "schema_version": "t4-reconcile-report.v1",
+  "generated_at": "2026-09-30T01:50:58.210Z",
+  "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+  "escrow_ref": "escrow:gp-001-local",
+  "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+  "pre_state": {
+    "claimantAtaBalance": "10000000",
+    "treasuryAtaBalance": "90000000"
+  },
+  "final_state": {
+    "claimantAtaBalance": "10000000",
+    "treasuryAtaBalance": "90000000",
+    "releasePda": {
+      "exists": true,
+      "initialized": true,
+      "amountBase": "10000000",
+      "slot": "505727176"
+    },
+    "capsPda": {
+      "exists": true,
+      "cycleReleasedBase": "10000000"
+    }
+  },
+  "scenarios": [
+    {
+      "name": "T4-A-timeout-disconnect",
+      "signature": "4xxHLEGLSUgiH246yeo2hvFHoJgP8Q2WGGovKwpdwZVbrt4Q6FQNRvGKuAdcBrTyqQSnivifXvGZKtBzY1VtkSGw",
+      "classification": "RELEASED",
+      "safeToRetry": false,
+      "reason": "release PDA initialized: the economic release fact exists on chain",
+      "signatureStatus": {
+        "known": true,
+        "found": true,
+        "slot": 505738523,
+        "confirmationStatus": "finalized",
+        "err": "{\"InstructionError\":[0,{\"Custom\":108}]}"
+      }
+    },
+    {
+      "name": "T4-B-missing-local-state",
+      "classification": "RELEASED",
+      "safeToRetry": false,
+      "reason": "release PDA initialized: the economic release fact exists on chain",
+      "releaseAmount": "10000000",
+      "caps": "10000000"
+    },
+    {
+      "name": "T4-C-expired-not-landed",
+      "fixtureUnreleasedPair": true,
+      "syntheticSignature": true,
+      "lastValidBlockHeight": 492987177,
+      "currentBlockHeight": 492987383,
+      "classification": "NOT_LANDED",
+      "safeToRetry": true,
+      "reason": "signature not found and block height 492987383 is past lastValid 492987177: the transaction can never land — safe to retry (subject to caps and pair authorization)"
+    },
+    {
+      "name": "T4-D-still-unknown",
+      "fixtureUnreleasedPair": true,
+      "syntheticSignature": true,
+      "classification": "STILL_UNKNOWN",
+      "safeToRetry": false,
+      "reason": "signature not yet visible on chain and still within its validity window — DO NOT resubmit"
+    }
+  ],
+  "acceptance": {
+    "claimant_unchanged": true,
+    "treasury_unchanged": true,
+    "release_pda_still_the_one": true,
+    "caps_still_10": true,
+    "unknown_never_permits_resubmission": true
+  },
+  "note": "T4 scope only: UNKNOWN → RECONCILE → terminal state. No verification re-run, no OutcomeReceipt reformation, no T5 proof pack, no T6 claims. UNKNOWN never grants blind resubmission; only NOT_LANDED is safe-retryable."
+}
