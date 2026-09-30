@@ -20,8 +20,8 @@
  * Run: node --experimental-strip-types scripts/generate-curve-corpus.mjs
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -75,15 +75,30 @@ addCase("normal-valid-point", bytesToHex(base58Decode(PINNED.treasury)), "an act
 addCase("hash-digest-off-curve", firstDigestWith(isOnEd25519Curve, false), "first deterministic digest whose candidate is OFF-curve (a real PDA seed case)");
 addCase("hash-digest-on-curve", firstDigestWith(isOnEd25519Curve, true), "first deterministic digest whose candidate is ON-curve (a reject case for findProgramAddress)");
 
-// ————————————————— run the Rust tool: dalek verdicts = runtime authority —————————————————
-let bin = path.join(homedir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-if (!existsSync(bin)) {
-  execFileSync("cargo", ["build", "-q"], {
-    cwd: path.join(pkgDir, "rust"),
-    env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") },
-  });
-  bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
+// ————————————————— PDA-EVIDENCE-HARDENING-R1: wider boundary coverage —————————————————
+addCase("y-zero-sign1", leHex(1n << 255n), "y=0 with sign bit set: x^2=-1 residue, nonzero x so sign is meaningful");
+addCase("y-two-canonical-offcurve", leHex(2n), "smallest canonical OFF-CURVE encoding: y=2 sign=0 (x^2 non-residue)");
+addCase("basepoint", "5866666666666666666666666666666666666666666666666666666666666666", "ed25519 basepoint — canonical on-curve reference");
+addCase("all-ff-y-max-sign1", "ff".repeat(32), "all-0xFF: y=2^255-1 sign=1, non-canonical (y mod p = 18)");
+addCase("y-max-sign0", leHex(2n ** 255n - 1n), "y=2^255-1 sign=0 — same non-canonical y, opposite sign");
+addCase("y-p-minus-1", leHex(P - 1n), "y=p-1 sign=0 — largest canonical encoding");
+
+// deterministic digest stream — breadth coverage of both residue classes
+// (shares methodology with rust --curve-corpus but a distinct salt)
+for (let i = 0; i < 64; i++) {
+  const digest = createHash("sha256").update(`intent-protocol/testnet-r1/edge-corpus-stream/${i}`).digest();
+  addCase(`digest-stream-${String(i).padStart(4, "0")}`, bytesToHex(digest), "deterministic digest stream — broad input-space coverage");
 }
+
+// ————————————————— run the Rust tool: dalek verdicts = runtime authority —————————————————
+// Worktree-scoped target dir: a shared dir can serve a binary built from a
+// different checkout (cargo exit 0, stale output — observed in practice).
+const targetDir = path.join(tmpdir(), "intent-adapter-cargo-target-" + createHash("sha256").update(pkgDir).digest("hex").slice(0, 12));
+execFileSync("cargo", ["build", "-q"], {
+  cwd: path.join(pkgDir, "rust"),
+  env: { ...process.env, CARGO_TARGET_DIR: targetDir },
+});
+const bin = path.join(targetDir, "debug", "t1-golden-vectors");
 const rustVerdicts = JSON.parse(execFileSync(bin, ["--curve-cases", ...cases.map((c) => c.encoding_hex)], { encoding: "utf8" }).trim());
 if (rustVerdicts.length !== cases.length) throw new Error("rust verdict count mismatch");
 

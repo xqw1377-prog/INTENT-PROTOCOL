@@ -86,6 +86,706 @@
       "runtime_expected": true,
       "rust_custom": true,
       "divergence": "NONE"
+    },
+    {
+      "name": "y-zero-sign1",
+      "encoding_hex": "0000000000000000000000000000000000000000000000000000000000000080",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "y=0 with sign bit set: x^2=-1 residue, nonzero x so sign is meaningful",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "y-two-canonical-offcurve",
+      "encoding_hex": "0200000000000000000000000000000000000000000000000000000000000000",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "smallest canonical OFF-CURVE encoding: y=2 sign=0 (x^2 non-residue)",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "basepoint",
+      "encoding_hex": "5866666666666666666666666666666666666666666666666666666666666666",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "ed25519 basepoint — canonical on-curve reference",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "all-ff-y-max-sign1",
+      "encoding_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "our_js": true,
+      "web3_expected": false,
+      "note": "all-0xFF: y=2^255-1 sign=1, non-canonical (y mod p = 18)",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "WEB3_VS_RUNTIME"
+    },
+    {
+      "name": "y-max-sign0",
+      "encoding_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "our_js": true,
+      "web3_expected": false,
+      "note": "y=2^255-1 sign=0 — same non-canonical y, opposite sign",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "WEB3_VS_RUNTIME"
+    },
+    {
+      "name": "y-p-minus-1",
+      "encoding_hex": "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "y=p-1 sign=0 — largest canonical encoding",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0000",
+      "encoding_hex": "c73e1083ce95c78c44cdef054d73186441e0315c9a69f69cb3be55409a1d9da3",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0001",
+      "encoding_hex": "68194b27ed518420400e734458316175679c50164d0db0b9c59a6ecf7825e262",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0002",
+      "encoding_hex": "f97861d3d3b54d680ddb8bf666b2f3bf60f0de6706b22faf233003c35ec528be",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0003",
+      "encoding_hex": "80ccd688f83b399f9abf3879c21bc85de47d30e38a24f76c88abe4dfb8c6e901",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0004",
+      "encoding_hex": "c526542510f17b026a98e1abbbdd07f4ea0efea9a80ef42cb36e5501f25944cc",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0005",
+      "encoding_hex": "5871c4e9f16b4e3e5dead38f3ee791a7260a3b326e2dac561a00342cbfd6cceb",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0006",
+      "encoding_hex": "273d81ca1d2ede04966a09fa44b1685e9f951bef966178acf79485914e134db8",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0007",
+      "encoding_hex": "15f58e8eb3181c93ce13c3b922a716fa24a74f8ebb87be2e06cadbec85407f4f",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0008",
+      "encoding_hex": "90c96d1fd0869d2938d6d595914896ae92d211a8396bb5305cc2fa6db0bbe6e6",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0009",
+      "encoding_hex": "650ea781f8ca33a67109a6c7fa09eb18e2a168bfab5e5114143b51b68317cc0f",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0010",
+      "encoding_hex": "a894cac9b9a901a90d21dd6f668ce268309adce7ac7b132d437da9796f833015",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0011",
+      "encoding_hex": "fc04d72c48a181d8b19766a69db6a5770a71440fa6148bc9ef578a9e79729605",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0012",
+      "encoding_hex": "90841391cfa76c3734b144d3c7e70ee8ec46eaf4252016fe71409abf96ed2a99",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0013",
+      "encoding_hex": "b2a9db2657b1590179d84770eb1f51d8d40541fe51e17892c363ccdd11e0be82",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0014",
+      "encoding_hex": "369cdc141fed9c47a2ad7f32f8d8645f842cc79f36f8d2340b1cf5efa5f04316",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0015",
+      "encoding_hex": "0a3ad13f6773ead3e94fc3adec4eb62aaf85751178a3ddfac9a23c12c7c97f7b",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0016",
+      "encoding_hex": "0487f8b616b9ff6446ce28089c6222acab5e295c0f6da05ee6a40068c86ad379",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0017",
+      "encoding_hex": "b168577146722dfa655ecc03d202d7a7f7fb7e7408f783ddbf77f29f9888006a",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0018",
+      "encoding_hex": "53353984b29286d8e5b71a20413791e22e10e61d35ae203497831143ba256dd4",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0019",
+      "encoding_hex": "47f905602bccc241b3e70f30e785120a8ee91f702951017282f42f3aecb38301",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0020",
+      "encoding_hex": "1ff23f37d144288aa4b51a3c7e8fe059fbd25b74f7c833c03dd148b12badc4c2",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0021",
+      "encoding_hex": "ad4c3bfad7aab9bbf519e7df6555d741615b9091cd2bc164d7eb1836acc81c57",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0022",
+      "encoding_hex": "93f0bb237bf13e058c4aeeb73d847dfcc45ce906ef8d1115dc7be827c3b4fc53",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0023",
+      "encoding_hex": "443e73d0c698c8fbfbee1f5bfe441b26e1f11f7227d2551b0bd66985032c61e8",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0024",
+      "encoding_hex": "7f55840095bb442f5de9c6463804b993e3ac17f6a8160eec04a8d8d34ee4086b",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0025",
+      "encoding_hex": "907dc81f423b4e139e7f6b0cf0dbc44df7396e048484eb241f852c563da1e0a1",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0026",
+      "encoding_hex": "f927c8968919ee6647ccbf20710b0ac2fc583a2667446f68d7dcd3700c2dbe9f",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0027",
+      "encoding_hex": "364e0654518a1cbf89d973e2baffe9d03b277a783ace8a0f30d473aeec91d458",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0028",
+      "encoding_hex": "11b133538f94017e79e0bf2e12c228f607daff3ed08944b4e2d743e3a280c195",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0029",
+      "encoding_hex": "1e6df809b69c24facffd8588b4fa7d5efd97708d605775514811123bf7f184bd",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0030",
+      "encoding_hex": "e3bb53b6cdae3429534ec3961ae65417db06bf1c42eba2bad816ed8bed26ff0c",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0031",
+      "encoding_hex": "d61925c085e9696992c81b92091dd268dd20b8139b14e0bbe413b7741fead6c4",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0032",
+      "encoding_hex": "539de9311a5a1f4362f60a080b7ac8202abb6bc7f65054f50fcf701754428b1f",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0033",
+      "encoding_hex": "88e8650c6dfae738600da1e58bc9acf2cd8a5e97f7fc6d6759d26704f2a2951b",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0034",
+      "encoding_hex": "baf1895239933c906782aaa7e7da856ea5cb3a3dcfdcf98b46799e6ca92a3fb2",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0035",
+      "encoding_hex": "803325579582f7917dce7a0572efe2ebad56a1c946dab333320a5b717818a168",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0036",
+      "encoding_hex": "9f5c3219a4ecb5f8bfa1a54f4a30f3569a36d8e43c2870ef560e87382b4b99ff",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0037",
+      "encoding_hex": "7e00d2b0385bd5b14e878a1dd1433f041e5b4f4195714264a1477d76848c850d",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0038",
+      "encoding_hex": "8f482187ae39b15246381e5e7f414ae71ab109ca4986825e638531c9f2dbba58",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0039",
+      "encoding_hex": "4bed092183697debc54a65ab800d7bf7aacd495cc8df3d99c306f75a51f59efd",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0040",
+      "encoding_hex": "5d96f1bc7a84c2953072e5d022f84408c0a43b392c7f0c772f12a11f5a9c5fe7",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0041",
+      "encoding_hex": "612f55d7dde3178cfa4e2320207795d759e2ef59d187d357333ae6c4718ac8cb",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0042",
+      "encoding_hex": "0aa921e0d168abfa31217e7fafae6d26e8c0aa6fc13f2daed4e0558b66f96a48",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0043",
+      "encoding_hex": "79d92daaea44034190c55759a46002bbbfc9ce0fd5ac5c62b56cbc4040fae8b9",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0044",
+      "encoding_hex": "fde3a1b23175f5b615ff0b45ed7c9c40f2aafe1d143a1b449238d8fb70d0412a",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0045",
+      "encoding_hex": "b894ebb87e3d3604e7fae587f87b24d9369d71eee3ff36fa4b1c39a40f7b0899",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0046",
+      "encoding_hex": "f39eb64aa1fb9e429173b12736d28481899f7a19eb217a9420421fc487d18404",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0047",
+      "encoding_hex": "1925c30e14c02be37694a3a0f9c876079a07234e173d0127b7190a2a3cc5488e",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0048",
+      "encoding_hex": "1027d92c7e6ee7f9c0a71c207695389b58f080567085e91dcb41d16411ecdbc8",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0049",
+      "encoding_hex": "4f5c3e838d377ac61214f919b05f6df0d0f1382ad4a126726aaf538d00ff5db1",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0050",
+      "encoding_hex": "c67fcc3fb0df924aa63c73669794a1ad2d30e3cd747663815d83f52dc64c4d73",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0051",
+      "encoding_hex": "f1378feffba89ee146c4512d16f2f7e6a8342abc68c8183b4f698d4e7a09730f",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0052",
+      "encoding_hex": "0f1113d0bca5ed257c11554d65240e4a14315c133018f94c813063ad244d87bb",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0053",
+      "encoding_hex": "02106e3b310901f04bb1c3504b994f5e1f72f4bf4f945312c63bb54d2336390e",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0054",
+      "encoding_hex": "dc8028f6efdfeadd8d229a5f55cce156952388e2305652302c4ab3b48bc082fb",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0055",
+      "encoding_hex": "e5f19857f5df1c4da638c52533a5e276e0175e43990852ce5a60d408df4adf72",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0056",
+      "encoding_hex": "9ae0ed77c69d646c77cb9154f16a891fe137b1d84e02e577c57d5bc9c3df89d8",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0057",
+      "encoding_hex": "ea9e231dddebac0a26a859f4da7d6eb0cadc33a83f21ec77888e90b7fd8ec2c0",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0058",
+      "encoding_hex": "077319683b0f77c350756c333a9225c6a731dbc117e14d5fa217767f7a34bcda",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0059",
+      "encoding_hex": "e1ae96aeb24a1442e6049a49a9b2c41bac66a2f8481f5f0feee6c575f5f3b013",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0060",
+      "encoding_hex": "0e481768057dcf37d8ebef1f445caa2b28fcf893311309e578db0c4b0fd8ca81",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0061",
+      "encoding_hex": "3cf41a8acd605b344ce040ad087e4302291693b7c701792b6ffd8d62f8ed0b99",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0062",
+      "encoding_hex": "148df58f60cd36928284d4ac76941333ac78312d5e229e9a304d067eb0f1ffa5",
+      "our_js": true,
+      "web3_expected": true,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": true,
+      "rust_custom": true,
+      "divergence": "NONE"
+    },
+    {
+      "name": "digest-stream-0063",
+      "encoding_hex": "a5bdf5875f2e251893363793f75ef235c9acb35f8347325ff95ebe8408b709c8",
+      "our_js": false,
+      "web3_expected": false,
+      "note": "deterministic digest stream — broad input-space coverage",
+      "runtime_expected": false,
+      "rust_custom": false,
+      "divergence": "NONE"
     }
   ]
 }

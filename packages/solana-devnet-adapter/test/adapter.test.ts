@@ -5,6 +5,7 @@
  * material, NO mint discovery, NO mainnet, NO GP4/GP5 edit, NO G1 edit.
  */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
@@ -12,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import {
   economicReleaseDigest, receiptHashRaw32, toHex,
-  base58Decode, base58Encode, findProgramAddress, isOnEd25519Curve, releasePda,
+  base58Decode, base58Encode, findProgramAddress, isOnEd25519Curve, releasePda, pdaCandidateHash,
   prepareSettlement, submitSettlement, observeSettlement, reconcileSettlement,
   assertNotMainnet, assertFrozenMint, assertAuthorizedRequester, resolvePayoutDestination,
   assertCaps, CapsDeniedError,
@@ -29,6 +30,20 @@ const golden = JSON.parse(readFileSync(path.join(pkgDir, "vectors/golden.json"),
   actual_program_id: string | null;
   cases: Array<{ name: string; escrow_ref: string; outcome_receipt_hash: string; program_id: string; program_id_class: string; economic_release_digest: string; release_pda: string; bump: number }>;
 };
+
+/** Rust golden-vector binary — builds OUTSIDE the repo tree (TEST-HYGIENE-R1).
+ * The target dir is scoped to THIS worktree: a shared dir can serve a binary
+ * built from a different checkout (cargo exit 0, stale output — observed).
+ * Always rebuilds (incremental, cheap). */
+const rustTargetDir = path.join(tmpdir(), "intent-adapter-cargo-target-" + createHash("sha256").update(pkgDir).digest("hex").slice(0, 12));
+function rustBinary(): string | null {
+  try {
+    execFileSync("cargo", ["build", "-q"], { cwd: path.join(pkgDir, "rust"), env: { ...process.env, CARGO_TARGET_DIR: rustTargetDir } });
+    return path.join(rustTargetDir, "debug", "t1-golden-vectors");
+  } catch {
+    return null;
+  }
+}
 
 const validInput = (): SettlementInput => ({
   escrow_ref: FROZEN.anchors.escrowRef,
@@ -56,19 +71,8 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
   });
 
   test("[T1-03] JS ↔ Rust cross-language equality (runs the Rust binary when cargo is available)", { timeout: 240_000 }, (t) => {
-    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-    if (!existsSync(bin)) {
-      // build outside the repository tree (TEST-HYGIENE-R1: no worktree writes)
-      try {
-        execFileSync("cargo", ["build", "-q"], {
-          cwd: path.join(pkgDir, "rust"),
-          env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") },
-        }, );
-        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-      } catch {
-        return t.skip("cargo toolchain unavailable — JS↔Rust cross-check not runnable in this environment (verified locally with cargo 1.98.1: all cases MATCH)");
-      }
-    }
+    const bin = rustBinary();
+    if (!bin) return t.skip("cargo toolchain unavailable — JS↔Rust cross-check not runnable in this environment (verified locally with cargo 1.98.1: all cases MATCH)");
     for (const c of golden.cases) {
       const out = JSON.parse(execFileSync(bin, [c.escrow_ref, c.outcome_receipt_hash, c.program_id], { encoding: "utf8" }).trim());
       expect(out.economic_release_digest).toBe(c.economic_release_digest);
@@ -83,17 +87,8 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
     // OFFICIAL implementation is the canonical oracle.
     const { PublicKey } = await import("@solana/web3.js");
     let rustResults: Map<string, { economic_release_digest: string; release_pda: string; bump: number }> | null = null;
-    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-    if (!existsSync(bin)) {
-      try {
-        execFileSync("cargo", ["build", "-q"], {
-          cwd: path.join(pkgDir, "rust"),
-          env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") },
-        });
-        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-      } catch { /* rust unavailable: JS==OFFICIAL still enforced below */ }
-    }
-    if (existsSync(bin)) {
+    const bin = rustBinary();
+    if (bin) {
       rustResults = new Map(golden.cases.map((c) => [c.name, JSON.parse(execFileSync(bin, [c.escrow_ref, c.outcome_receipt_hash, c.program_id], { encoding: "utf8" }).trim())]));
     }
     for (const c of golden.cases) {
@@ -241,6 +236,24 @@ describe("[TESTNET-R1/T1] adapter skeleton + deterministic contracts", () => {
     }
     // the golden-path frozen evidence dir is protected exactly
     expect(changed.some((p) => p.startsWith("packages/golden-path/evidence/9f6610dc-"))).toBe(false);
+  });
+
+  test("[T1-12] bump-descent vectors: every rejected candidate is ON-curve, the accepted bump is OFF-curve", () => {
+    const descent = golden.cases.filter((c) => c.bump < 255);
+    // Commander requirement: committed coverage at bump=254 AND bump<=252
+    expect(descent.some((c) => c.bump === 254), "a committed bump=254 descent vector is required").toBe(true);
+    expect(descent.some((c) => c.bump <= 252), "a committed bump<=252 descent vector is required").toBe(true);
+    for (const c of descent) {
+      const seeds = [Buffer.from("release", "utf8"), Buffer.from(c.economic_release_digest, "hex")];
+      const pid = base58Decode(c.program_id);
+      for (let b = 255; b > c.bump; b--) {
+        // the descent path actually executed: each higher bump hashed ON-curve and was rejected
+        expect(isOnEd25519Curve(pdaCandidateHash(seeds, b, pid)), `${c.name}: bump ${b} must be ON-curve (rejected)`).toBe(true);
+      }
+      const accepted = pdaCandidateHash(seeds, c.bump, pid);
+      expect(isOnEd25519Curve(accepted), `${c.name}: final bump must be OFF-curve`).toBe(false);
+      expect(base58Encode(accepted)).toBe(c.release_pda);
+    }
   });
 });
 
@@ -402,19 +415,15 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
       if (c.web3_expected !== c.runtime_expected) expect(c.divergence).toBe("WEB3_VS_RUNTIME");
       else expect(c.divergence).toBe("NONE");
     }
-    // the KNOWN client/runtime divergences are exactly the recorded set
+    // the KNOWN client/runtime divergences are exactly the recorded set:
+    // non-canonical y and negative-zero are ON-curve for the validator but
+    // rejected by web3's strict decoder — a permanent guard against anyone
+    // "fixing" our predicate into strict-client semantics
     const divergent = corpus.cases.filter((c) => c.divergence === "WEB3_VS_RUNTIME").map((c) => c.name).sort();
-    expect(divergent).toEqual(["negative-zero-y1-sign1", "y-equals-p", "y-equals-p-plus-1"].sort());
+    expect(divergent).toEqual(["negative-zero-y1-sign1", "y-equals-p", "y-equals-p-plus-1", "all-ff-y-max-sign1", "y-max-sign0"].sort());
     // rust leg: re-run the tool when cargo is available
-    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-    if (!existsSync(bin)) {
-      try {
-        execFileSync("cargo", ["build", "-q"], { cwd: path.join(pkgDir, "rust"), env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") } });
-        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-      } catch {
-        return t.skip("cargo unavailable — rust leg re-verified locally (cargo 1.98.1, dalek 4.1.3): all 8 cases agree with runtime");
-      }
-    }
+    const bin = rustBinary();
+    if (!bin) return t.skip("cargo unavailable — rust leg re-verified locally (cargo 1.98.1, dalek 4.1.3): all cases agree with runtime");
     const verdicts = JSON.parse(execFileSync(bin, ["--curve-cases", ...corpus.cases.map((c) => c.encoding_hex)], { encoding: "utf8" }).trim());
     for (let i = 0; i < corpus.cases.length; i++) {
       expect(verdicts[i].dalek, `${corpus.cases[i]!.name}: rust dalek vs runtime`).toBe(corpus.cases[i]!.runtime_expected);
@@ -435,15 +444,8 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
     expect(() => receiptHashRaw32(anchor)).not.toThrow();
     for (const [label, v] of bad) expect(() => receiptHashRaw32(v), `JS rejects ${label}`).toThrow();
     // Rust side — parity on every class
-    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-    if (!existsSync(bin)) {
-      try {
-        execFileSync("cargo", ["build", "-q"], { cwd: path.join(pkgDir, "rust"), env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") } });
-        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-      } catch {
-        return t.skip("cargo unavailable — rust grammar parity re-verified locally: same accept/reject on all 6 inputs");
-      }
-    }
+    const bin = rustBinary();
+    if (!bin) return t.skip("cargo unavailable — rust grammar parity re-verified locally: same accept/reject on all 6 inputs");
     const runRust = (receipt: string): number => {
       try {
         execFileSync(bin, ["escrow:gp-001-local", receipt, FROZEN.fixtureProgramId], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
@@ -457,18 +459,8 @@ describe("[TESTNET-R1/T3] devnet materialization freeze", () => {
   });
 
   test("[T3-11] PDA-CONFORMANCE-ERRATA-1: validator curve semantics via curve25519-dalek (the runtime's own library)", { timeout: 240_000 }, (t) => {
-    let bin = path.join(process.env.HOME ?? "~", "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-    if (!existsSync(bin)) {
-      try {
-        execFileSync("cargo", ["build", "-q"], {
-          cwd: path.join(pkgDir, "rust"),
-          env: { ...process.env, CARGO_TARGET_DIR: path.join(tmpdir(), "intent-adapter-cargo-target") },
-        });
-        bin = path.join(tmpdir(), "intent-adapter-cargo-target", "debug", "t1-golden-vectors");
-      } catch {
-        return t.skip("cargo unavailable — dalek conformance not runnable here (verified locally with cargo 1.98.1 + curve25519-dalek 4.1.3: corpus 4096 → 0 mismatches; all 6 golden vectors agree)");
-      }
-    }
+    const bin = rustBinary();
+    if (!bin) return t.skip("cargo unavailable — dalek conformance not runnable here (verified locally with cargo 1.98.1 + curve25519-dalek 4.1.3: corpus 4096 → 0 mismatches; all golden vectors agree)");
     // 1) corpus: our custom curve predicate == curve25519-dalek exactly
     const corpus = JSON.parse(execFileSync(bin, ["--curve-corpus", "1024"], { encoding: "utf8" }).trim());
     expect(corpus.mismatches, "custom predicate vs curve25519-dalek").toBe(0);
