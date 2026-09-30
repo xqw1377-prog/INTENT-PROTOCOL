@@ -1,6 +1,6 @@
 {
   "schema_version": "t5-world-now.v1",
-  "observed_at_slot": 505823910,
+  "observed_at_slot": 505817765,
   "claimant_ata_balance": "10000000",
   "treasury_ata_balance": "90000000",
   "release_pda": {

@@ -103,16 +103,24 @@ let submitSignature = null;
   const { tx } = await buildReleaseTx(connection, PINNED.programId, TARGETS, { operator: load("operator"), treasury: load("treasury") });
   let outcome = "sent";
   let err = null;
+  const text = (e) => String(e?.message ?? e ?? "");
   try {
     const sig = await connection.sendRawTransaction(tx.serialize(), { skipPreflight: true });
     submitSignature = sig;
     const conf = await connection.confirmTransaction({ signature: sig, blockhash: tx.recentBlockhash, lastValidBlockHeight: tx.lastValidBlockHeight }, "confirmed");
     if (conf.value.err) { outcome = "adjudicated-on-chain"; err = JSON.stringify(conf.value.err); }
     else outcome = "confirmed-new-release";
-  } catch (e) { outcome = "rejected"; err = String(e.message).slice(0, 200); }
+  } catch (e) {
+    // The 108 adjudication can surface EITHER as a confirmed tx error OR as a
+    // send/confirm exception whose message carries the program log. Accept
+    // both faces; anything else is a real failure.
+    const t = text(e);
+    outcome = /0x6c|108/.test(t) ? "adjudicated-on-chain" : "rejected";
+    err = t.slice(0, 300) || "undefined";
+  }
   stage("4-submit", { signature: submitSignature, outcome, err });
   if (outcome === "confirmed-new-release") throw new Error("STAGE 4 FATAL: a SECOND economic release happened — exactly-once violated");
-  if (!err || !err.includes("108")) throw new Error("STAGE 4 FAILED: expected the on-chain exactly-once guard (Custom 108) to adjudicate the replay");
+  if (!err || !/0x6c|108/.test(err)) throw new Error("STAGE 4 FAILED: expected the on-chain exactly-once guard (Custom 108) to adjudicate the replay");
 }
 
 // ————————————————— 5/6. observe + reconcile (deterministic: run twice) —————————————————
@@ -140,18 +148,20 @@ stage("5-observe-reconcile", {
 });
 if (r1.classification !== "RELEASED" || r1.safeToRetry || r1.classification !== r2.classification) throw new Error("STAGE 5 FAILED: reconcile not RELEASED/deterministic");
 
-// ————————————————— 7. proof-pack build (T5 builder, unchanged) —————————————————
+// ————————————————— 7. proof-pack build (T6-R1: OWN output dir; the frozen T5
+// pack at t5-proof-pack/ is READ-ONLY from now on — immutability gate T6-09) —————————————————
 {
-  const out = execFileSync(process.execPath, ["--experimental-strip-types", path.join(here, "t5-build-pack.mjs")], { encoding: "utf8", cwd: pkgDir, maxBuffer: 64 * 1024 * 1024 });
-  stage("7-proof-pack-build", { rebuilt: out.includes("T5 proof pack written"), packDir: "t5-proof-pack" });
+  const t6PackDir = path.join(pkgDir, "t6-evidence", "proof-pack");
+  const out = execFileSync(process.execPath, ["--experimental-strip-types", path.join(here, "t5-build-pack.mjs"), "--out-dir", t6PackDir], { encoding: "utf8", cwd: pkgDir, maxBuffer: 64 * 1024 * 1024 });
+  stage("7-proof-pack-build", { rebuilt: out.includes("T5 proof pack written"), packDir: "t6-evidence/proof-pack", frozenT5PackUntouched: true });
   if (!out.includes("T5 proof pack written")) throw new Error("STAGE 7 FAILED: pack build failed");
 }
 
 // ————————————————— 8. offline third-party verify —————————————————
 {
-  const out = execFileSync(process.execPath, ["verify.mjs"], { encoding: "utf8", cwd: path.join(pkgDir, "t5-proof-pack"), maxBuffer: 64 * 1024 * 1024 });
+  const out = execFileSync(process.execPath, ["verify.mjs"], { encoding: "utf8", cwd: path.join(pkgDir, "t6-evidence", "proof-pack"), maxBuffer: 64 * 1024 * 1024 });
   const m = /(\d+)\/(\d+) checks passed/.exec(out);
-  stage("8-offline-verify", { checksPassed: m ? `${m[1]}/${m[2]}` : null, verified: out.includes("TESTNET PROOF PACK VERIFIED") });
+  stage("8-offline-verify", { checksPassed: m ? `${m[1]}/${m[2]}` : null, verified: out.includes("TESTNET PROOF PACK VERIFIED"), verifiedPack: "t6-evidence/proof-pack" });
   if (!out.includes("TESTNET PROOF PACK VERIFIED")) throw new Error("STAGE 8 FAILED: offline verifier rejected the pack");
 }
 

@@ -1,0 +1,8 @@
+{
+  "bounty_id": "GP-001",
+  "claim_id": "c1a4e7d2-8f3b-4a59-9e02-7b6d5c8f1a23",
+  "claimant": "agent:gp-001-demo",
+  "claimed_at": "2026-09-24T09:00:00.000Z",
+  "schema_version": "gp-claim.v1",
+  "task_freeze_hash": "sha256:95ca98eb0146c56be577f9704d8640bb99ef38b5271a94496fc8cc6aa61121e5"
+}

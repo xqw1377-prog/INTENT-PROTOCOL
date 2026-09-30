@@ -23,7 +23,12 @@ import { FROZEN, PINNED } from "../src/index.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkgDir = path.resolve(here, "..");
-const PACK = path.join(pkgDir, "t5-proof-pack");
+// Pure plumbing (T6-R1): output destination parameterized. DEFAULT
+// UNCHANGED — `node scripts/t5-build-pack.mjs` still writes the frozen T5
+// pack location; T6 passes --out-dir to keep its OWN evidence copy without
+// ever touching the signed T5 bytes.
+const OUT_DIR_ARG = process.argv.find((a, i) => process.argv[i - 1] === "--out-dir");
+const PACK = OUT_DIR_ARG ? path.resolve(OUT_DIR_ARG) : path.join(pkgDir, "t5-proof-pack");
 const TARGETS = { escrowRef: FROZEN.anchors.escrowRef, outcomeReceiptHash: FROZEN.anchors.outcomeReceiptHash };
 const connection = devnetConnection();
 

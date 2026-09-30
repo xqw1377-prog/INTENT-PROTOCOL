@@ -70,10 +70,18 @@ describe("[TESTNET-R1/T6] golden run — closing orchestration", () => {
     expect(rec.deterministic).toBe(true);
   });
 
-  test("[T6-06] offline third-party verify re-run on the committed pack: exit 0, all checks pass", { timeout: 120_000 }, () => {
-    const out = execFileSync(process.execPath, ["verify.mjs"], { encoding: "utf8", cwd: path.join(pkgDir, "t5-proof-pack"), maxBuffer: 64 * 1024 * 1024 });
+  test("[T6-06] offline third-party verify re-run on the T6 pack (own evidence dir): exit 0, all checks pass", { timeout: 120_000 }, () => {
+    const out = execFileSync(process.execPath, ["verify.mjs"], { encoding: "utf8", cwd: path.join(pkgDir, "t6-evidence/proof-pack"), maxBuffer: 64 * 1024 * 1024 });
     expect(out).toContain("TESTNET PROOF PACK VERIFIED");
     expect(out).toMatch(/\d+\/\d+ checks passed/);
+  });
+
+  test("[T6-09] T5 FROZEN EVIDENCE IMMUTABILITY: the signed T5 pack is byte-identical to d3371c5", () => {
+    const diff = execFileSync("git", ["diff", "d3371c5", "--", "packages/solana-devnet-adapter/t5-proof-pack/"], { cwd: repoRoot, encoding: "utf8" });
+    expect(diff, "T5 frozen pack must be byte-identical to the T5 sign-off commit").toBe("");
+    // and the working tree matches HEAD there too (no uncommitted drift)
+    const status = execFileSync("git", ["status", "--porcelain", "--", "packages/solana-devnet-adapter/t5-proof-pack/"], { cwd: repoRoot, encoding: "utf8" }).trim();
+    expect(status).toBe("");
   });
 
   test("[T6-07] THE total acceptance: exactly-once, ±10 deltas vs recorded genesis, one PDA, caps 10", () => {

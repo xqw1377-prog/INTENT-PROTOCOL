@@ -1,0 +1,25 @@
+{
+  "schema_version": "t5-release-pda.v1",
+  "address": "Jm29XnysfyoP5hVnB75DeXTn3UJscfaN1MPsxM79ghf",
+  "derived_from": {
+    "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+    "seeds": "['release', EconomicReleaseDigest]",
+    "economic_release_digest": "1cea7a269227c71fd41d4cf2f72b53adcd59a84c71a10ec2c4177682ba910c37"
+  },
+  "chain_release": {
+    "schema_version": "chain-release.v1 (adapter-local FACT record — NOT a G1 object, NOT an authority)",
+    "escrow_ref_hash": "8bc98c22f1e3a0d5d36d2d103f9f3dbf7fb387e61e54f5606fc9939732880625",
+    "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+    "claimant": "agent:gp-001-demo",
+    "mint": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
+    "amount_base_units": "10000000",
+    "released_at_slot": "505727176",
+    "pda_bump": 255,
+    "account_owner": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+    "raw_account_data_hex": "018bc98c22f1e3a0d5d36d2d103f9f3dbf7fb387e61e54f5606fc9939732880625da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc77063806167656e743a67702d3030312d64656d6f000000000000000000000000000000a75e4bb2a7cb70e1d1c49ed7196e1e4d60d53d1da46bc231af9fab0fec3655528096980000000000c8c8241e00000000ff"
+  },
+  "caps": {
+    "address": "7Tk7vzCtNtRDZi4mfuGXsfggCxfHuLNmBthHhSWAXvje",
+    "cycle_released_base_units": "10000000"
+  }
+}

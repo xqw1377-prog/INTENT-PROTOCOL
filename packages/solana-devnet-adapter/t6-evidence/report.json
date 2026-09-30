@@ -1,13 +1,13 @@
 {
   "schema_version": "t6-golden-run-report.v1",
-  "generated_at": "2026-09-30T07:18:49.575Z",
+  "generated_at": "2026-09-30T07:29:29.647Z",
   "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
   "escrow_ref": "escrow:gp-001-local",
   "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
   "stages": [
     {
       "name": "1-pre-state-snapshot",
-      "slot": 505823799,
+      "slot": 505826584,
       "claimantAtaBalance": "10000000",
       "treasuryAtaBalance": "90000000",
       "releasePdaInitialized": true,
@@ -34,7 +34,7 @@
     },
     {
       "name": "4-submit",
-      "signature": "5XNrm28AEBZRyQTDZVewDB1uHQof3v5LsTbZUmSXxr15WrKZUPnwz8T3w3J8uCoddT9ni6gHNv4DfMiiXCHYVQjz",
+      "signature": "5565rGLPM9cZVELUJr7T9mT68fLJwyLmKRCmbYAZ4dvaYBMth1Mik3NyRf2Cbz1mCgAM64TDhNSLwFEP59y58c8j",
       "outcome": "adjudicated-on-chain",
       "err": "{\"InstructionError\":[0,{\"Custom\":108}]}"
     },
@@ -48,16 +48,18 @@
     {
       "name": "7-proof-pack-build",
       "rebuilt": true,
-      "packDir": "t5-proof-pack"
+      "packDir": "t6-evidence/proof-pack",
+      "frozenT5PackUntouched": true
     },
     {
       "name": "8-offline-verify",
       "checksPassed": "54/54",
-      "verified": true
+      "verified": true,
+      "verifiedPack": "t6-evidence/proof-pack"
     },
     {
       "name": "9-final-state-and-acceptance",
-      "slot": 505823933,
+      "slot": 505826710,
       "claimantAtaBalance": "10000000",
       "treasuryAtaBalance": "90000000"
     }

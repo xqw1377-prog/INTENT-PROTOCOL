@@ -1,0 +1,44 @@
+{
+  "schema_version": "t5-pack-manifest.v1",
+  "exactly_once_note": "future second release is structurally denied by the ON-CHAIN program semantics (T2 evidence: duplicate attempts rejected with Custom(108) DuplicateRelease), not by this snapshot",
+  "files": [
+    {
+      "file": "receipt.json",
+      "sha256": "sha256:faf8bf4c1ff64841a230a2729ba0a8709565ba63967008d36a35daeec0fc760d"
+    },
+    {
+      "file": "claim.json",
+      "sha256": "sha256:d45cfb1b442b5218a69e18b514b3d5312af2ab20e739801751b9ed1b5979fd7d"
+    },
+    {
+      "file": "authorization.json",
+      "sha256": "sha256:0e2d084469201121df6ec3c4c2de2e1d1946dc46ab1262dbe18a7442bfe03f14"
+    },
+    {
+      "file": "tx.json",
+      "sha256": "sha256:8b633d3113fb81715b922deb4cddd6b30b39908f090e80527e84eb75c0120030"
+    },
+    {
+      "file": "release-pda.json",
+      "sha256": "sha256:eb886860122b2a159a9f86104412b12e17c28b5982866362d2531a62749e8f7a"
+    },
+    {
+      "file": "world-now.json",
+      "sha256": "sha256:20e51e0b23ef482c512a8f6ecf81311c5c31357bb50df3d9288c062259a11b41"
+    },
+    {
+      "file": "gp4-instruction.json",
+      "sha256": "sha256:2af66bacc1ff8cfe8337fafa1ef4b1f767d8da9741a655fe147018579ad1b3a9"
+    }
+  ],
+  "binding_summary": {
+    "tx_signature": "3enZzgSBb14E6DS7kRPrTPtTeVZUpdx3HVYFYyGdnRQ4ThCWrQDHPoPJedeXcEa75t79pTz4hkVneqkK15fSrFEZ",
+    "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+    "release_pda": "Jm29XnysfyoP5hVnB75DeXTn3UJscfaN1MPsxM79ghf",
+    "economic_release_digest": "1cea7a269227c71fd41d4cf2f72b53adcd59a84c71a10ec2c4177682ba910c37",
+    "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+    "claimant": "agent:gp-001-demo",
+    "amount_base_units": "10000000",
+    "mint": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh"
+  }
+}
