@@ -1,0 +1,31 @@
+{
+  "schema_version": "t5-authorization-binding.v1",
+  "authorization_root": {
+    "object": "OutcomeReceipt (frozen GP3 artifact)",
+    "content_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+    "wire": "OutcomeReceiptV1 (G1 frozen; 2-of-2 VerificationDecisions)",
+    "note": "OutcomeReceipt is THE authorization root; ChainReleaseV1 is a FACT; tx_signature is observation evidence only"
+  },
+  "economic_release_key": {
+    "definition": "(escrow_ref, outcome_receipt_hash)",
+    "escrow_ref": "escrow:gp-001-local",
+    "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+    "economic_release_digest": "1cea7a269227c71fd41d4cf2f72b53adcd59a84c71a10ec2c4177682ba910c37",
+    "digest_formula": "SHA256(UTF8('intent-protocol/testnet-r1/economic-release') || 0x00 || UTF8(escrow_ref) || 0x00 || receipt_raw32)",
+    "exactly_once_authority": "deterministic release PDA per key; program rejects duplicates with Custom(108)"
+  },
+  "payee_binding": {
+    "claim_record": "ClaimRecordV1 fixture (gp-001-claim.json)",
+    "claim_id": "c1a4e7d2-8f3b-4a59-9e02-7b6d5c8f1a23",
+    "claimant": "agent:gp-001-demo",
+    "payout_binding": "ClaimantPayoutBindingV1 (T3 Appendix A): claimant → wallet → ATA, immutable",
+    "claimant_wallet": "6ce8Q7hxP5fbFPhKsUUpd7QHLGUYqfMHiNvZFkBAzwo8",
+    "claimant_ata": "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy"
+  },
+  "gp4_authorization_chain": [
+    "GP2: isolated execution + SEALED EvidenceBundle (9f6610dc)",
+    "GP3: 2-of-2 VerificationDecisions → OutcomeReceipt (content_hash da577b3d…)",
+    "GP4: OutcomeReceipt-gated local settlement proven (GP4 PASS/FROZEN; exactly-once link(2) guard)",
+    "TESTNET-R1: adapter consumes the SAME authorization; program re-validated all frozen constants on chain"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": "t5-tx-evidence.v1",
+  "signature": "3enZzgSBb14E6DS7kRPrTPtTeVZUpdx3HVYFYyGdnRQ4ThCWrQDHPoPJedeXcEa75t79pTz4hkVneqkK15fSrFEZ",
+  "slot": 505727176,
+  "blockTime": 1790730425,
+  "err": null,
+  "fee_payer": "8QW7mvynD8xPwhW8mp584Yf6nmfwGWWqXtNDn194uvsv",
+  "program_invoked": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+  "account_keys": [
+    "8QW7mvynD8xPwhW8mp584Yf6nmfwGWWqXtNDn194uvsv",
+    "673H3SuS1o8cWEGFFpd4ua7roZppZWhKvAGBGgtsvTjN",
+    "4R8BCsiLtAJn4xyWNMQhmbuvTYK3qm2jUgbqDofBBcQy",
+    "7Tk7vzCtNtRDZi4mfuGXsfggCxfHuLNmBthHhSWAXvje",
+    "B7zaiMDacLZr93ERW882CZ8pK2BrQdj7UP845JpFDEUm",
+    "Jm29XnysfyoP5hVnB75DeXTn3UJscfaN1MPsxM79ghf",
+    "11111111111111111111111111111111",
+    "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+    "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+  ],
+  "instruction_program_ids": [
+    "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+    "11111111111111111111111111111111"
+  ],
+  "token_balance_changes": {
+    "claimant_ata": {
+      "pre": "0",
+      "post": "10000000",
+      "mint": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh"
+    },
+    "treasury_ata": {
+      "pre": "100000000",
+      "post": "90000000",
+      "mint": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh"
+    }
+  }
+}

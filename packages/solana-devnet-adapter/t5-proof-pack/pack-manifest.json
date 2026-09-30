@@ -1,0 +1,39 @@
+{
+  "schema_version": "t5-pack-manifest.v1",
+  "files": [
+    {
+      "file": "receipt.json",
+      "sha256": "sha256:faf8bf4c1ff64841a230a2729ba0a8709565ba63967008d36a35daeec0fc760d"
+    },
+    {
+      "file": "claim.json",
+      "sha256": "sha256:d45cfb1b442b5218a69e18b514b3d5312af2ab20e739801751b9ed1b5979fd7d"
+    },
+    {
+      "file": "authorization.json",
+      "sha256": "sha256:a39f768cc79a07f61482d820d636a3ca368091083f0a0f4fc671ef10eddf2cd1"
+    },
+    {
+      "file": "tx.json",
+      "sha256": "sha256:99a64514f924ec9d297a828d8f7638555ff9ba909a7ab45f424c57c5478ba12c"
+    },
+    {
+      "file": "release-pda.json",
+      "sha256": "sha256:eb886860122b2a159a9f86104412b12e17c28b5982866362d2531a62749e8f7a"
+    },
+    {
+      "file": "world-now.json",
+      "sha256": "sha256:25e94358b33f29308b09c0dddc8d351d7601309fcefd164b217b2d05c153d8ff"
+    }
+  ],
+  "binding_summary": {
+    "tx_signature": "3enZzgSBb14E6DS7kRPrTPtTeVZUpdx3HVYFYyGdnRQ4ThCWrQDHPoPJedeXcEa75t79pTz4hkVneqkK15fSrFEZ",
+    "program_id": "ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F",
+    "release_pda": "Jm29XnysfyoP5hVnB75DeXTn3UJscfaN1MPsxM79ghf",
+    "economic_release_digest": "1cea7a269227c71fd41d4cf2f72b53adcd59a84c71a10ec2c4177682ba910c37",
+    "outcome_receipt_hash": "sha256:da577b3d04bc53dac6ace4c200679ab36bc1fa21e8be31e2e5c7197cc7706380",
+    "claimant": "agent:gp-001-demo",
+    "amount_base_units": "10000000",
+    "mint": "CGLUuUdaeUkMk9GmKwM8EbQMtzRXrpsFsiLnoWwt1Fvh"
+  }
+}

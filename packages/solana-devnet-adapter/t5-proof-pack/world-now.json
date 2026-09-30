@@ -1,0 +1,16 @@
+{
+  "schema_version": "t5-world-now.v1",
+  "observed_at_slot": 505800236,
+  "claimant_ata_balance": "10000000",
+  "treasury_ata_balance": "90000000",
+  "release_pda": {
+    "exists": true,
+    "initialized": true,
+    "amountBase": "10000000",
+    "slot": "505727176"
+  },
+  "caps": {
+    "exists": true,
+    "cycleReleasedBase": "10000000"
+  }
+}
