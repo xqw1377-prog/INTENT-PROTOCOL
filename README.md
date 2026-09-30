@@ -20,7 +20,7 @@ GP4                 = PASS / FROZEN
 GP5                 = PASS / FROZEN (COMMANDER SIGNED)
 MAIN-CLOSURE-R1     = PASS / CLOSED
 
-CURRENT GATE        = TESTNET-R1 / T4 (RECOVERY / RECONCILIATION — IN PROGRESS)
+CURRENT GATE        = TESTNET-R1 / T5 (CROSS-LAYER EVIDENCE / PROOF PACK — IN PROGRESS)
 EXE-R0              = PASS / FROZEN (Commander, 2026-09-29 @ 38ac0fb)
 TESTNET-R1 / T0     = PASS / FROZEN (Commander, 2026-09-29, basis
                      8648376 + ebf1ed9, adjudicated @ 75407f3)
@@ -29,6 +29,8 @@ TESTNET-R1 / T3     = PASS / FROZEN (Commander, basis c6ea4fa + 7e50a08 + fe65cd
 TESTNET-R1 / T2     = PASS / FROZEN (Commander, basis 5e4c9f3 + 2cabc63;
                      program deployed @ pinned ASvnm4pi…; exactly-once proven
                      on chain: claimant delta exactly +10 once, 8/8 matrix)
+TESTNET-R1 / T4     = PASS / FROZEN (Commander, basis 08e43f7 + af9b215 +
+                     99e5a16; UNKNOWN≠retry; NOT_LANDED sole retry authority)
 NEXT TARGET         = T4 DELIVERABLES (UNKNOWN → RECONCILE → safe terminal
                      state) → T5 (PROOF PACK) → T6 (GOLDEN RUN). MAINNET
                      REMAINS DENIED; TESTNET-R1 ≠ COMPLETE until T6 PASS
