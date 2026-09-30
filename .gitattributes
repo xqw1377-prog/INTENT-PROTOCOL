@@ -2,3 +2,7 @@ packages/golden-path/fixtures/gp-001-task.json -text
 packages/golden-path/evidence/** -text
 packages/gp2-verifier/target-snapshot/** -text
 packages/gp5-proof-pack/pack/** -text
+
+# PRODUCTION-HARDENING-R0 PH-02: sealed evidence packs must survive ANY checkout config
+packages/solana-devnet-adapter/t5-proof-pack/** -text
+packages/solana-devnet-adapter/t6-evidence/** -text
