@@ -111,6 +111,30 @@ Deferred to UE-2 with explicit gates (NOT claimed by UE-1):
   UE2-DEPENDENCY-DENY    dependency-addition rejection
 ```
 
+### 4a. CUT-1R2 — artifact persistence (final UE-1 form)
+
+```text
+UE1-R6A publish is GENERATION-ATOMIC: the complete generation is built in
+      a sibling temp dir, fsync-verified, self-checked (staged task
+      re-derives the staged ruleset/contract/hashes), then RENAMED into
+      place. outDir must NOT pre-exist (no overwrite, no mixed generations;
+      a second freeze into the same dir is refused with the old set intact).
+      Publish success → 4/4 same-generation artifacts; failure → 0/4.
+UE1-R6B injected publish failure (unwritable parent) exposes ZERO partial
+      new generation and ZERO staging residue.
+
+UE1-R7  contract-freeze.json on disk is EXACTLY ContractFreezeV1
+      (contractFreezeOf(experiment)) — the same object the hash commits.
+UE1-R8  canonical-hash(contract-freeze.json) == manifest.contract_freeze_hash
+UE1-R9  canonical-hash(ruleset.json)        == manifest.verification_ruleset_hash
+UE1-R10 precommitBinding(task.json)          == manifest.precommit_binding
+
+The four artifacts form a self-verifying closure:
+task.json derives ruleset.json + contract-freeze.json; the manifest hashes
+both; the precommit binding re-derives from the task alone. A portable
+verifier (UE-4) will re-check exactly these identities from disk.
+```
+
 ## 5. Later cuts (NOT authorized by CUT-1)
 
 UE-2 runner / UE-3 proof builder / UE-4 third-party replayer /

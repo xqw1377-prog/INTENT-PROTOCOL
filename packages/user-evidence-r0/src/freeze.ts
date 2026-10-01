@@ -17,10 +17,10 @@
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { closeSync, existsSync, fsyncSync, mkdtempSync, openSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
-import { assertFreezeComplete, contractFreezeHash, precommitBinding, verificationRulesetHash, verificationRulesetOf, type RealTaskExperimentV1 } from "./schema.ts";
+import { assertFreezeComplete, contractFreezeHash, contractFreezeOf, precommitBinding, verificationRulesetHash, verificationRulesetOf, type RealTaskExperimentV1 } from "./schema.ts";
 
 export interface FreezeTaskConfig {
   experiment_id: string;
@@ -231,21 +231,53 @@ export function freezeExperiment(repoDir: string, cfg: FreezeTaskConfig, outDir:
     preflight: pre.preflight,
   };
 
-  // atomic publish: stage artifacts in a temp dir, then move into place
-  const staging = mkdtempSync(path.join(tmpdir(), "ue1-publish-"));
+  // CUT-1R2 generation-atomic publish: the complete generation is built in a
+  // SIBLING temp dir, fsync-verified, then the FINAL dir must NOT exist and
+  // the temp dir is RENAMED into place. Either 4/4 same-generation artifacts
+  // appear, or 0/4 — a mid-publish failure can never leave a mixed set.
+  // outDir must NOT pre-exist (no overwrite / no stale mixing in R0).
+  if (existsSync(outDir)) {
+    throw new FreezeError("outdir-exists", `${outDir} already exists — refuse to overwrite or mix generations`);
+  }
+  const parent = path.dirname(outDir);
+  execFileSync("mkdir", ["-p", parent]);
+  const staging = mkdtempSync(path.join(parent, ".ue1-gen-"));
   try {
+    const onDiskContract = contractFreezeOf(experiment); // EXACTLY the hashed object
     writeFileSync(path.join(staging, "task.json"), JSON.stringify(experiment, null, 2) + "\n");
     writeFileSync(path.join(staging, "ruleset.json"), JSON.stringify(verificationRulesetOf(experiment), null, 2) + "\n");
-    writeFileSync(path.join(staging, "contract-freeze.json"), JSON.stringify({
-      schema_version: "real-task-contract-freeze.v1" as const,
-      ...({ ...({ ...manifest } as Record<string, unknown>) } as Record<string, unknown>),
-      contract: { ...experiment, commands: experiment.commands, tier1_reward: experiment.tier1_reward, tier2_reward: experiment.tier2_reward, payer_identity: experiment.payer_identity, worker_identity: experiment.worker_identity, claim_mode: experiment.claim_mode },
-    }, null, 2) + "\n");
+    writeFileSync(path.join(staging, "contract-freeze.json"), JSON.stringify(onDiskContract, null, 2) + "\n");
     writeFileSync(path.join(staging, "freeze-manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
-    execFileSync("mkdir", ["-p", outDir]);
-    for (const f of readdirSync(staging)) copyFileSync(path.join(staging, f), path.join(outDir, f));
-  } finally {
-    rmSync(staging, { recursive: true, force: true });
+    // fsync every artifact before the rename (durability of the generation)
+    for (const f of readdirSync(staging)) {
+      const fd = openSync(path.join(staging, f), "r");
+      try { fsyncSync(fd); } finally { closeSync(fd); }
+    }
+    // self-check the staged generation reopens and rehashes identically
+    const stagedTask = JSON.parse(readFileSync(path.join(staging, "task.json"), "utf8")) as RealTaskExperimentV1;
+    const stagedRuleset = verificationRulesetOf(stagedTask);
+    const stagedRulesetFile = JSON.parse(readFileSync(path.join(staging, "ruleset.json"), "utf8"));
+    if (JSON.stringify(stagedRuleset) !== JSON.stringify(stagedRulesetFile)) {
+      throw new FreezeError("generation-selfcheck", "staged ruleset does not derive from staged task");
+    }
+    const stagedContract = JSON.parse(readFileSync(path.join(staging, "contract-freeze.json"), "utf8"));
+    if (JSON.stringify(stagedContract) !== JSON.stringify(contractFreezeOf(stagedTask))) {
+      throw new FreezeError("generation-selfcheck", "staged contract-freeze.json is not the canonical ContractFreezeV1 of the staged task");
+    }
+    if (contractFreezeHash(stagedTask) !== manifest.contract_freeze_hash) {
+      throw new FreezeError("generation-selfcheck", "staged task rehash != manifest.contract_freeze_hash");
+    }
+    if (verificationRulesetHash(stagedRuleset) !== manifest.verification_ruleset_hash) {
+      throw new FreezeError("generation-selfcheck", "staged ruleset rehash != manifest.verification_ruleset_hash");
+    }
+    if (precommitBinding(stagedTask) !== manifest.precommit_binding) {
+      throw new FreezeError("generation-selfcheck", "staged task precommit rebind != manifest.precommit_binding");
+    }
+    // THE atomic step: rename the verified generation into place
+    renameSync(staging, outDir);
+  } catch (e) {
+    rmSync(staging, { recursive: true, force: true }); // 0/4 on ANY failure (incl. injected)
+    throw e;
   }
   return manifest;
 }

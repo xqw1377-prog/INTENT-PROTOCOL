@@ -10,6 +10,8 @@ import {
   type RealTaskExperimentV1,
 } from "../src/schema.ts";
 import { freezeExperiment, runPreflight, type FreezeTaskConfig } from "../src/freeze.ts";
+import { contractFreezeOf } from "../src/schema.ts";
+import { createHash } from "node:crypto";
 
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = path.resolve(pkgDir, "../..");
@@ -145,7 +147,8 @@ describe("[UE-1 CUT-1R] real preflight", () => {
     const { dir, sha } = makeRealRepo();
     try {
       const cfg = { ...validConfig(), base_commit_sha: sha, repository_url: dir, determinism_runs: 2 };
-      const out = mkdtempSync(path.join(tmpdir(), "ue1r-out-"));
+      const outParent = mkdtempSync(path.join(tmpdir(), "ue1r-out-"));
+      const out = path.join(outParent, "gen");
       try {
         const m = freezeExperiment(dir, cfg, out);
         expect(m.preflight.dependency_reconstruction).toBe("CLEAN_ROOM_OK");
@@ -156,7 +159,7 @@ describe("[UE-1 CUT-1R] real preflight", () => {
         expect(m.verification_ruleset_hash).toBe(verificationRulesetHash(verificationRulesetOf(JSON.parse(readFileSync(path.join(out, "task.json"), "utf8")))));
         expect(m.contract_freeze_hash).toBe(contractFreezeHash(JSON.parse(readFileSync(path.join(out, "task.json"), "utf8"))));
         expect(existsSync(path.join(out, "contract-freeze.json"))).toBe(true);
-      } finally { rmSync(out, { recursive: true, force: true }); }
+      } finally { rmSync(outParent, { recursive: true, force: true }); }
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
@@ -188,6 +191,84 @@ describe("[UE-1 CUT-1R] real preflight", () => {
         expect(JSON.parse(readFileSync(stale, "utf8"))).toEqual({ stale: true }); // old content intact, nothing overwritten
         expect(existsSync(path.join(out, "freeze-manifest.json"))).toBe(false);
       } finally { rmSync(out, { recursive: true, force: true }); }
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+});
+
+describe("[UE-1 CUT-1R2] artifact persistence", () => {
+  // same canonical form the schema hashes with: deep-sorted keys, no whitespace
+  const canonical = (v: unknown): string => {
+    const ds = (x: unknown): unknown => {
+      if (x === null || typeof x !== "object" || Array.isArray(x)) return Array.isArray(x) ? x.map(ds) : x;
+      const o: Record<string, unknown> = {};
+      for (const k of Object.keys(x as Record<string, unknown>).sort()) o[k] = ds((x as Record<string, unknown>)[k]);
+      return o;
+    };
+    return JSON.stringify(ds(v));
+  };
+
+  test("[UE1-R7/R8/R9/R10] on-disk generation is the canonical self-verifying closure", { timeout: 1_200_000 }, () => {
+    const { dir, sha } = makeRealRepo();
+    try {
+      const cfg = { ...validConfig(), base_commit_sha: sha, repository_url: dir };
+      const outParent = mkdtempSync(path.join(tmpdir(), "ue1r2-ok-"));
+      const out = path.join(outParent, "gen");
+      try {
+        const m = freezeExperiment(dir, cfg, out);
+        const task = JSON.parse(readFileSync(path.join(out, "task.json"), "utf8"));
+        const rulesetFile = JSON.parse(readFileSync(path.join(out, "ruleset.json"), "utf8"));
+        const contractFile = JSON.parse(readFileSync(path.join(out, "contract-freeze.json"), "utf8"));
+        // R7: contract-freeze.json is EXACTLY ContractFreezeV1 (schema_version + content)
+        expect(contractFile.schema_version).toBe("real-task-contract-freeze.v1");
+        expect(contractFile).toEqual(contractFreezeOf(task));
+        // R8/R9/R10: hashes re-derive from the on-disk artifacts
+        expect(createHash("sha256").update(canonical(contractFile)).digest("hex")).toBe(m.contract_freeze_hash.slice(7));
+        expect(createHash("sha256").update(canonical(rulesetFile)).digest("hex")).toBe(m.verification_ruleset_hash.slice(7));
+        expect(precommitBinding(task)).toBe(m.precommit_binding);
+      } finally { rmSync(outParent, { recursive: true, force: true }); }
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[UE1-R6A] publish is generation-atomic: 4/4 same-generation artifacts or nothing; outDir must not pre-exist", { timeout: 1_200_000 }, () => {
+    const { dir, sha } = makeRealRepo();
+    try {
+      const cfg = { ...validConfig(), base_commit_sha: sha, repository_url: dir };
+      const parent = mkdtempSync(path.join(tmpdir(), "ue1r2-at-"));
+      const out = path.join(parent, "gen");
+      try {
+        expect(existsSync(out)).toBe(false);
+        const m = freezeExperiment(dir, cfg, out);
+        const files = execFileSync("ls", [out], { encoding: "utf8" }).split("\n").filter(Boolean).sort();
+        expect(files).toEqual(["contract-freeze.json", "freeze-manifest.json", "ruleset.json", "task.json"]);
+        // refusing to overwrite: a second freeze into the SAME dir is rejected, existing set intact
+        expect(() => freezeExperiment(dir, cfg, out)).toThrow(/INELIGIBLE \(outdir-exists\)/);
+        const files2 = execFileSync("ls", [out], { encoding: "utf8" }).split("\n").filter(Boolean).sort();
+        expect(files2).toEqual(files);
+        expect(JSON.parse(readFileSync(path.join(out, "freeze-manifest.json"), "utf8")).frozen_at).toBe(m.frozen_at);
+      } finally { rmSync(parent, { recursive: true, force: true }); }
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[UE1-R6B] injected publish failure exposes ZERO partial new generation", { timeout: 1_200_000 }, () => {
+    const { dir, sha } = makeRealRepo();
+    try {
+      const cfg = { ...validConfig(), base_commit_sha: sha, repository_url: dir };
+      const parent = mkdtempSync(path.join(tmpdir(), "ue1r2-fail-"));
+      try {
+        const out = path.join(parent, "gen");
+        // simulate a publish-phase failure AFTER preflight by making the parent read-only
+        // so the rename of the staging dir cannot land
+        execFileSync("chmod", ["555", parent]);
+        try {
+          expect(() => freezeExperiment(dir, cfg, out)).toThrow(); // rename fails → 0/4 visible
+        } finally {
+          execFileSync("chmod", ["755", parent]);
+        }
+        expect(existsSync(out)).toBe(false);
+        // no stray .ue1-gen-* staging residue left behind
+        const residue = execFileSync("ls", ["-a", parent], { encoding: "utf8" }).split("\n").filter((x) => x.startsWith(".ue1-gen-"));
+        expect(residue).toEqual([]);
+      } finally { rmSync(parent, { recursive: true, force: true }); }
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });
