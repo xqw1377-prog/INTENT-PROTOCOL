@@ -275,14 +275,25 @@ packages/gp-runtime/test/ph05-hardening.test.ts
 packages/solana-devnet-adapter/test/adapter.test.ts  # PH-H-01 allowlist entry for machines.ts
 ```
 
-## Current ledger
+## Final ledger (EPOCH-B-CLOSURE, 2026-10-01)
 
 ```text
-PRODUCTION-HARDENING-R0 = OPEN
-PH-00 = this contract (FROZEN for adjudication)
-PH-01 = EXECUTED / EVIDENCE LANDED (424e7a1)
-PH-02 = IMPLEMENTED / LANDED (b916c8f)
-PH-03 = NOT STARTED (contract above)
-PH-04 = NOT STARTED (contract above)
-PH-05 = NOT STARTED (contract above)
+PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED
+
+PH-00  = PASS / FROZEN
+PH-01  = PASS / FROZEN   (chain program immutable on devnet)
+PH-02  = PASS / FROZEN   (portability rule installed)
+PH-03  = PASS / FROZEN   (independent verifier, zero SUT imports)
+PH-04  = PASS / FROZEN   (input-domain enforced at the production chain boundary)
+PH-05  = PASS / FROZEN   (atomic ordering + version envelope + coupled ruleset identity)
+
+EPOCH B
+BASE      = bcea992f729c730a8356023eb1dc29b5d78f72cd
+FINAL_SHA = 13bf84b14b34e9e05a47346c8839631c781f9627
+STATUS    = CLOSED / HISTORICAL (PH-H-01 sealed as a closed range;
+            implementation commits after FINAL_SHA are forbidden)
+
+The closure commit itself is a GOVERNANCE TRANSITION RECORD and is not part
+of the BASE..FINAL_SHA implementation interval (no self-reference, no
+FINAL_SHA moving).
 ```

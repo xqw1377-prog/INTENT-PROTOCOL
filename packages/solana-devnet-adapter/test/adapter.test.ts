@@ -532,13 +532,18 @@ describe("[PH-04R] escrow_ref input-domain ENFORCED at the production chain boun
   });
 });
 
-describe("[EPOCH-B] PRODUCTION-HARDENING-R0 — open scope gate", () => {
-  test("[PH-H-01] since base bcea992, every changed path belongs to the PH-00A-AMENDMENT-1 allowlist", () => {
+describe("[EPOCH-B] PRODUCTION-HARDENING-R0 — historical seal (CLOSED)", () => {
+  test("[PH-H-01] closed range bcea992..13bf84b: endpoints exist, ancestor holds, every changed path within the frozen PH-R0 allowlist", () => {
     const BASE = "bcea992f729c730a8356023eb1dc29b5d78f72cd";
-    // PH-00A-AMENDMENT-1 + AMENDMENT-2 (Commander, frozen): the PH-R0 allowlist.
-    // adapter.test.ts is permitted for GATE-EPOCH MACHINERY ONLY — touching
-    // T1/T2/T3/PDA semantic tests through it is NOT authorized by this entry.
-    // AMENDMENT-2 entries are epoch-migration ONLY for their named guard:
+    const FINAL_SHA = "13bf84b14b34e9e05a47346c8839631c781f9627";
+    // endpoint integrity
+    for (const sha of [BASE, FINAL_SHA]) {
+      expect(execFileSync("git", ["cat-file", "-t", sha], { cwd: repoRoot, encoding: "utf8" }).trim(), `${sha} must exist`).toBe("commit");
+    }
+    const mergeBase = execFileSync("git", ["merge-base", BASE, FINAL_SHA], { cwd: repoRoot, encoding: "utf8" }).trim();
+    expect(mergeBase, "BASE must be an ancestor of FINAL_SHA").toBe(BASE);
+    // the frozen PH-R0 allowlist (AMENDMENT-1..5, final form) — domain
+    // constraint per the original gate contract (NOT exact-file-set)
     const allowed = new Set([
       ".gitattributes",                                             // PH-02 portability
       "docs/PRODUCTION-HARDENING-R0.md",                            // PH governance contract / amendments
@@ -547,21 +552,21 @@ describe("[EPOCH-B] PRODUCTION-HARDENING-R0 — open scope gate", () => {
       "packages/solana-devnet-adapter/test/t2-evidence.test.ts",    // T2-E4 epoch migration ONLY
       "packages/solana-devnet-adapter/test/reconcile.test.ts",      // T4-05 epoch migration ONLY
       "packages/solana-devnet-adapter/test/t6-golden-run.test.ts",  // T6-08 epoch migration ONLY
-      // PH-00A-AMENDMENT-3 (PH engineering paths, narrow purpose each):
-      "packages/independent-proof-verifier-r1/PDA-PLACEHOLDER",   // PH-03 dir prefix (see prefix rule below)
-      "packages/production-guards/PDA-PLACEHOLDER",               // PH-04 dir prefix (see prefix rule below)
-      "packages/gp-runtime/src/runtime.ts",                       // PH-05 journal hardening ONLY
-      "packages/gp-runtime/test/PDA-PLACEHOLDER",                 // PH-05 tests prefix (see prefix rule below)
-      "packages/solana-devnet-adapter/src/chain.ts",               // PH-04R: guard at the production chain boundary ONLY
-      "packages/gp-runtime/src/machines.ts",                       // PH-05R3 (AMENDMENT-5): rule-constant EXPORTS only, zero semantic change
+      "packages/solana-devnet-adapter/src/chain.ts",                // PH-04R: guard at the production chain boundary ONLY
+      "packages/gp-runtime/src/runtime.ts",                         // PH-05 journal hardening ONLY
+      "packages/gp-runtime/src/machines.ts",                        // PH-05R3 (AMENDMENT-5): rule-constant EXPORTS only
     ]);
-    // directory-prefix entries (…/PDA-PLACEHOLDER) authorize their whole
-    // directory via the prefix rule below
-    const changed = execFileSync("git", ["diff", "--name-only", `${BASE}...HEAD`], { cwd: repoRoot, encoding: "utf8" })
+    const prefixes = [
+      "packages/independent-proof-verifier-r1/",   // PH-03 deliverable dir
+      "packages/production-guards/",               // PH-04 deliverable dir
+      "packages/gp-runtime/test/",                 // PH-05 tests dir
+    ];
+    const changed = execFileSync("git", ["diff", "--name-only", `${BASE}..${FINAL_SHA}`], { cwd: repoRoot, encoding: "utf8" })
       .split("\n").map((l) => l.trim()).filter(Boolean);
-    const prefixes = [...allowed].filter((a) => a.endsWith("/PDA-PLACEHOLDER")).map((a) => a.slice(0, -"/PDA-PLACEHOLDER".length));
     for (const p of changed) {
       expect(allowed.has(p) || prefixes.some((pre) => p.startsWith(pre)), `PH-R0 epoch scope drift: ${p}`).toBe(true);
     }
+    // historical seal: this gate NEVER references HEAD again
   });
+
 });
