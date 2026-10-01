@@ -183,14 +183,14 @@ describe("[PH-05R] atomic ordering + version envelope", () => {
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
-  test("[PH-05R-5] legacy journal WITHOUT sidecar still replays (v1 frozen reader compatibility)", () => {
+  test("[PH-05R-5] legacy journal WITHOUT sidecar replays ONLY via the EXPLICIT legacy entry (PH-05R2 boundary)", () => {
     const dir = mkdtempSync(path.join(tmpdir(), "ph5r-leg-"));
     try {
       goldenWalk(new GPRuntime({ dir }));
       rmSync(path.join(dir, "journal.meta.json")); // strip the sidecar → legacy v1 journal
-      const rt = GPRuntime.reload(dir);
+      expect(() => GPRuntime.reload(dir)).toThrow(/without journal.meta.json/);      // default reader refuses
+      const rt = GPRuntime.reloadLegacyV1(dir);                                     // explicit migration authority
       expect(rt.stateOf("bounty", "GP-001")).toBe("SETTLED");
-      expect(rt.tornTailDiscarded).toBe(false);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
@@ -202,6 +202,60 @@ describe("[PH-05R] atomic ordering + version envelope", () => {
       expect(bytes.split("\n").filter(Boolean).every((l) => !l.includes("ruleset") && !l.includes("machine_version"))); // no version fields leaked into lines
       const rt = GPRuntime.reload(dir);
       expect(rt.stateOf("bounty", "GP-001")).toBe("SETTLED");
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+});
+
+describe("[PH-05R2] ruleset identity + legacy boundary", () => {
+  test("[PH-05R2-1] RULESET_HASH is a stable golden constant", async () => {
+    const { RULESET_HASH, computeRulesetHashForTest } = await import("../src/runtime.ts");
+    // GOLDEN constant: any change to the replay ruleset MUST change this hash
+    expect(RULESET_HASH).toBe("sha256:02252baf8bb633330afa03989ebe7f40ce5dfbbf9542ff752bbc0352e1ebb8aa");
+    expect(computeRulesetHashForTest()).toBe(RULESET_HASH); // golden identity, no wall-clock input
+  });
+
+  test("[PH-05R2-2] ANY rule change mutates the hash (counterfactual matrix)", async () => {
+    const { computeRulesetHashForTest } = await import("../src/runtime.ts");
+    const base = computeRulesetHashForTest();
+    const edit = (fn: (d: Record<string, any>) => void) => computeRulesetHashForTest(fn);
+    expect(edit((d) => { (d.machines as any).bounty.states.push("HACKED"); })).not.toBe(base);      // state graph
+    expect(edit((d) => { (d.machines as any).bounty.terminal.push("FUNDED"); })).not.toBe(base);   // terminals
+    expect(edit((d) => { (d.edges as any[])[0]!.to = "HACKED"; })).not.toBe(base);                  // one edge
+    expect(edit((d) => { (d.edges as any[])[1]!.authority = "none"; })).not.toBe(base);             // authority
+    expect(edit((d) => { (d.initial_states as any).bounty = "FUNDED"; })).not.toBe(base);          // initial state
+    expect(edit((d) => { (d.prerequisite_kinds as string[]).push("rogue-kind"); })).not.toBe(base); // prereq kinds
+    expect(edit((d) => { d.prerequisite_ref_grammar = "^.*$"; })).not.toBe(base);                  // prereq grammar
+    expect(edit((d) => { d.claim_schema_version = "gp-claim.v2"; })).not.toBe(base);               // claim schema
+    expect(edit((d) => { d.claim_claimant_grammar = "^.*$"; })).not.toBe(base);                    // claim field grammar
+    expect(edit((d) => { d.claim_entity_binding = "disabled"; })).not.toBe(base);                  // entity binding
+    expect(edit((d) => { d.claim_immutability_rule = "mutable"; })).not.toBe(base);                // immutability
+    expect(edit(() => {})).toBe(base); // identity edit → hash unchanged (sanity)
+  });
+
+  test("[PH-05R2-3] NON-EMPTY journal missing sidecar → default reload HARD FAILS (no silent legacy downgrade)", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r2-del-"));
+    try {
+      goldenWalk(new GPRuntime({ dir }));
+      rmSync(path.join(dir, "journal.meta.json")); // attacker deletes the envelope
+      expect(() => GPRuntime.reload(dir)).toThrow(/without journal.meta.json/);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[PH-05R2-4] EXPLICIT reloadLegacyV1 still loads a sidecar-less journal (frozen reader compatibility)", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r2-leg-"));
+    try {
+      goldenWalk(new GPRuntime({ dir }));
+      rmSync(path.join(dir, "journal.meta.json"));
+      const rt = GPRuntime.reloadLegacyV1(dir);
+      expect(rt.stateOf("bounty", "GP-001")).toBe("SETTLED");
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[PH-05R2-5] EMPTY journal (fresh dir) reloads fine without sidecar", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r2-empty-"));
+    try {
+      const rt = GPRuntime.reload(dir);
+      expect(rt.stateOf("bounty", "X")).toBe("CREATED");
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

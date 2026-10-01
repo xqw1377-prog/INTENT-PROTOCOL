@@ -15,7 +15,7 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } fr
 import { createHash } from "node:crypto";
 import * as path from "node:path";
 import {
-  claimRecordShapeViolations, edgeFor, INITIAL_STATE, isTerminal, MACHINES,
+  claimRecordShapeViolations, edgeFor, EDGES, INITIAL_STATE, isTerminal, MACHINES,
   prerequisiteKindOf, prerequisiteShapeViolations,
   type ClaimRecord, type MachineName, type PrerequisiteRef,
 } from "./machines.js";
@@ -79,10 +79,54 @@ const MACHINE_VERSION = 1 as const;
 const FINGERPRINT_SCHEME = "json-array-v1" as const;
 const SIDE_CAR = "journal.meta.json";
 
-/** sha256 over a deterministic serialization of the frozen machines table. */
-export const RULESET_HASH = "sha256:" + createHash("sha256")
-  .update(JSON.stringify(MACHINES, Object.keys(MACHINES).sort()))
-  .digest("hex");
+/**
+ * RULESET_DESCRIPTOR_V1 — everything that determines replay legality, not
+ * just the state tables. Any change to ANY of these must change the hash:
+ * machines (state graph + terminals), initial states, the edge table with
+ * authorities, the prerequisite kind set + ref grammar, the claim schema
+ * version + every claim field grammar + the entity-binding rule, and the
+ * claim-immutability semantic tag. Replacer-free deterministic
+ * serialization: keys sorted at EVERY level, no whitespace.
+ */
+function deepSorted(value: unknown): unknown {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return Array.isArray(value) ? value.map(deepSorted) : value;
+  }
+  const out: Record<string, unknown> = {};
+  for (const k of Object.keys(value as Record<string, unknown>).sort()) {
+    out[k] = deepSorted((value as Record<string, unknown>)[k]);
+  }
+  return out;
+}
+const RULESET_DESCRIPTOR_V1 = {
+  descriptor_version: "ruleset-descriptor.v1",
+  machine_version: MACHINE_VERSION,
+  machines: MACHINES,                                  // state graph + terminals
+  initial_states: INITIAL_STATE,
+  edges: EDGES,                                        // from→to + authority per edge
+  prerequisite_kinds: ["accepted-receipt-ref", "policy-satisfied-ref", "release-observed-ref", "sealed-evidence-ref"],
+  prerequisite_ref_grammar: "^op:[a-z0-9._-]{8,128}$",
+  claim_schema_version: "gp-claim.v1",
+  claim_claimant_grammar: "^(user|org|agent|verifier|arbitrator|service|operator):[A-Za-z0-9._-]{1,128}$",
+  claim_id_grammar: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+  claim_task_freeze_hash_grammar: "^sha256:[0-9a-f]{64}$",
+  claim_claimed_at_grammar: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+  claim_bounty_id_rule: "non-empty string",
+  claim_entity_binding: "claim.bounty_id === command.entity",
+  claim_immutability_rule: "append-only: an existing claim for the entity may never be replaced or mutated",
+} as const;
+/** sha256 over the canonical (deep-sorted) RULESET_DESCRIPTOR_V1. */
+function rulesetHashOf(descriptor: unknown): string {
+  return "sha256:" + createHash("sha256").update(JSON.stringify(deepSorted(descriptor))).digest("hex");
+}
+export const RULESET_HASH = rulesetHashOf(RULESET_DESCRIPTOR_V1);
+/** Test-only hooks for the counterfactual hash matrix (never used by production paths). */
+export const RULESET_DESCRIPTOR_FOR_TEST: () => Record<string, unknown> = () => JSON.parse(JSON.stringify(RULESET_DESCRIPTOR_V1));
+export const computeRulesetHashForTest: (mutation?: (d: Record<string, unknown>) => void) => string = (mutation) => {
+  const d = JSON.parse(JSON.stringify(RULESET_DESCRIPTOR_V1)) as Record<string, unknown>;
+  mutation?.(d);
+  return rulesetHashOf(d);
+};
 
 interface JournalMeta {
   journal_schema_version: typeof JOURNAL_SCHEMA_VERSION;
@@ -102,10 +146,17 @@ function writeMeta(dir: string): void {
   writeFileSync(path.join(dir, SIDE_CAR), JSON.stringify(meta, null, 2) + "\n");
 }
 
-/** Enforce the version envelope on recovery: unknown version or ruleset drift → hard fail. */
-function enforceMeta(dir: string): void {
+/** Enforce the version envelope on recovery: unknown version or ruleset drift → hard fail.
+ *  PH-05R2: a NON-EMPTY journal missing its sidecar is a HARD FAIL under the
+ *  default reader — deleting journal.meta.json must NOT silently downgrade a
+ *  versioned ledger to "legacy". True legacy v1 journals load only via the
+ *  EXPLICIT migration authority `reloadLegacyV1()`. */
+function enforceMeta(dir: string, journalLineCount: number, allowLegacyV1: boolean): void {
   const meta = readMeta(dir);
-  if (!meta) return; // legacy v1-only journal (no sidecar): only one ruleset has ever existed
+  if (!meta) {
+    if (journalLineCount === 0 || allowLegacyV1) return; // empty journal or explicit legacy authority
+    throw new Error("journal version envelope: NON-EMPTY journal without journal.meta.json — sidecar deleted? refusing silent legacy downgrade (use reloadLegacyV1 for explicit v1 migration)");
+  }
   if (meta.journal_schema_version !== JOURNAL_SCHEMA_VERSION) {
     throw new Error(`journal version envelope: unknown journal_schema_version ${String(meta.journal_schema_version)}`);
   }
@@ -232,9 +283,26 @@ export class GPRuntime {
         throw new Error(`journal fingerprint mismatch at seq ${e.seq}: payload tamper or version drift`);
       }
     }
-    enforceMeta(dir); // PH-05R: replay under THE journal's frozen ruleset, or hard fail
+    enforceMeta(dir, entries.length, false); // PH-05R2: default reader refuses silent legacy downgrade
     const rt = GPRuntime.fold(entries);
     rt.tornTailDiscarded = discarded;
+    rt.dir = dir;
+    return rt;
+  }
+
+  /** EXPLICIT legacy migration authority (PH-05R2): load a pre-envelope v1
+   *  journal under the one-and-only frozen v1 ruleset. Never the default. */
+  static reloadLegacyV1(dir: string): GPRuntime {
+    const file = path.join(dir, JOURNAL_FILE);
+    if (!existsSync(file)) return new GPRuntime({ dir });
+    const raw = readFileSync(file, "utf8").split("\n");
+    while (raw.length > 0 && raw[raw.length - 1]!.trim() === "") raw.pop();
+    const entries: JournalEntry[] = [];
+    for (let i = 0; i < raw.length; i++) {
+      entries.push(JSON.parse(raw[i]!) as JournalEntry);
+    }
+    enforceMeta(dir, entries.length, true); // legacy authority granted HERE only
+    const rt = GPRuntime.fold(entries);
     rt.dir = dir;
     return rt;
   }
