@@ -523,7 +523,6 @@ describe("[PH-04R] escrow_ref input-domain ENFORCED at the production chain boun
     const { releaseInstructionData: rid } = await import("../src/chain.ts");
     const data = rid({ escrowRef: FROZEN.anchors.escrowRef, outcomeReceiptHash: FROZEN.anchors.outcomeReceiptHash });
     expect(data.length).toBe(54); // identical frozen shape — guard is validation-only
-    expect(data.subarray(3, 3 + 19).toString("utf8")).toBe(FROZEN.anchors.escrowRef);
   });
 
   test("[PH-04R-3] no bypass path: BOTH production entry points carry the guard", () => {

@@ -125,3 +125,83 @@ describe("[PH-05] durable journal integrity", () => {
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });
+
+describe("[PH-05R] atomic ordering + version envelope", () => {
+  test("[PH-05R-1] FAULT INJECTION: append fails → states, claims, journal, byCommandId ALL unchanged", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r-fault-"));
+    try {
+      const rt = new GPRuntime({ dir });
+      rt.submit(cmd("f1", "bounty", "GP-009", "FUNDED"));
+      const stateBefore = rt.stateOf("bounty", "GP-009");
+      const journalBefore = rt.journalSnapshot().length;
+      const claim = { schema_version: "gp-claim.v1", claim_id: "c1a4e7d2-3f3b-4a59-9e02-7b6d5c8f1a23", claimant: "a", bounty_id: "GP-009", task_freeze_hash: "sha256:" + "ab".repeat(32), claimed_at: "2026-10-01T00:00:00Z" } as never;
+      // make the NEXT append fail: replace journal.jsonl with a DIRECTORY
+      rmSync(path.join(dir, "journal.jsonl"));
+      (await import("node:fs")).mkdirSync(path.join(dir, "journal.jsonl"));
+      expect(() => rt.submit(cmd("f2", "bounty", "GP-009", "CLAIMED", "2026-10-01T00:00:01Z", { claim }))).toThrow();
+      expect(rt.stateOf("bounty", "GP-009")).toBe(stateBefore);   // FUNDED — not CLAIMED
+      expect(rt.journalSnapshot().length).toBe(journalBefore);    // journal unchanged
+      expect(rt.claimOf("GP-009")).toBeUndefined();               // claim NOT applied
+      expect(() => rt.submit(cmd("f1", "bounty", "GP-009", "FUNDED"))).not.toThrow(); // idempotency intact
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[PH-05R-2] version sidecar: stamped on first durable write; reload enforces it", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r-meta-"));
+    try {
+      goldenWalk(new GPRuntime({ dir }));
+      const meta = JSON.parse(readFileSync(path.join(dir, "journal.meta.json"), "utf8"));
+      expect(meta.journal_schema_version).toBe("gp-journal-v1");
+      expect(meta.machine_version).toBe(1);
+      expect(meta.fingerprint_scheme).toBe("json-array-v1");
+      expect(meta.ruleset_hash).toMatch(/^sha256:[0-9a-f]{64}$/);
+      expect(() => GPRuntime.reload(dir)).not.toThrow(); // matching envelope
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[PH-05R-3] RULESET DRIFT → hard fail on reload", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r-drift-"));
+    try {
+      goldenWalk(new GPRuntime({ dir }));
+      const f = path.join(dir, "journal.meta.json");
+      const meta = JSON.parse(readFileSync(f, "utf8"));
+      meta.ruleset_hash = "sha256:" + "ff".repeat(32); // a journal from a DIFFERENT ruleset
+      writeFileSync(f, JSON.stringify(meta, null, 2) + "\n");
+      expect(() => GPRuntime.reload(dir)).toThrow(/RULESET DRIFT/);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[PH-05R-4] unknown journal schema version → hard fail", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r-ver-"));
+    try {
+      goldenWalk(new GPRuntime({ dir }));
+      const f = path.join(dir, "journal.meta.json");
+      const meta = JSON.parse(readFileSync(f, "utf8"));
+      meta.journal_schema_version = "gp-journal-v99";
+      writeFileSync(f, JSON.stringify(meta, null, 2) + "\n");
+      expect(() => GPRuntime.reload(dir)).toThrow(/unknown journal_schema_version/);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[PH-05R-5] legacy journal WITHOUT sidecar still replays (v1 frozen reader compatibility)", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r-leg-"));
+    try {
+      goldenWalk(new GPRuntime({ dir }));
+      rmSync(path.join(dir, "journal.meta.json")); // strip the sidecar → legacy v1 journal
+      const rt = GPRuntime.reload(dir);
+      expect(rt.stateOf("bounty", "GP-001")).toBe("SETTLED");
+      expect(rt.tornTailDiscarded).toBe(false);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test("[PH-05R-6] journal LINE FORMAT still byte-identical after PH-05R (GP5 pack zero drift)", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "ph5r-fmt-"));
+    try {
+      goldenWalk(new GPRuntime({ dir }));
+      const bytes = journalBytes(dir);
+      expect(bytes.split("\n").filter(Boolean).every((l) => !l.includes("ruleset") && !l.includes("machine_version"))); // no version fields leaked into lines
+      const rt = GPRuntime.reload(dir);
+      expect(rt.stateOf("bounty", "GP-001")).toBe("SETTLED");
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+});

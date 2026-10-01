@@ -12,6 +12,7 @@
  *   submit / stateOf / claimOf / journalSnapshot
  */
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import * as path from "node:path";
 import {
   claimRecordShapeViolations, edgeFor, INITIAL_STATE, isTerminal, MACHINES,
@@ -67,6 +68,57 @@ export function fingerprint(c: Command): string {
 
 const key = (m: MachineName, e: string): string => `${m}:${e}`;
 const JOURNAL_FILE = "journal.jsonl";
+
+// ————————————————— PH-05R version envelope (sidecar; line format UNCHANGED) —————————————————
+// The v1 journal line format is FROZEN (GP5 pack zero drift), so the version
+// contract lives in a sidecar next to the journal. reload() refuses unknown
+// versions and refuses ruleset drift — old journals replay under THEIR frozen
+// ruleset, never silently under a different one.
+const JOURNAL_SCHEMA_VERSION = "gp-journal-v1" as const;
+const MACHINE_VERSION = 1 as const;
+const FINGERPRINT_SCHEME = "json-array-v1" as const;
+const SIDE_CAR = "journal.meta.json";
+
+/** sha256 over a deterministic serialization of the frozen machines table. */
+export const RULESET_HASH = "sha256:" + createHash("sha256")
+  .update(JSON.stringify(MACHINES, Object.keys(MACHINES).sort()))
+  .digest("hex");
+
+interface JournalMeta {
+  journal_schema_version: typeof JOURNAL_SCHEMA_VERSION;
+  machine_version: typeof MACHINE_VERSION;
+  ruleset_hash: string;
+  fingerprint_scheme: typeof FINGERPRINT_SCHEME;
+}
+
+function readMeta(dir: string): JournalMeta | null {
+  const f = path.join(dir, SIDE_CAR);
+  if (!existsSync(f)) return null;
+  return JSON.parse(readFileSync(f, "utf8")) as JournalMeta;
+}
+
+function writeMeta(dir: string): void {
+  const meta: JournalMeta = { journal_schema_version: JOURNAL_SCHEMA_VERSION, machine_version: MACHINE_VERSION, ruleset_hash: RULESET_HASH, fingerprint_scheme: FINGERPRINT_SCHEME };
+  writeFileSync(path.join(dir, SIDE_CAR), JSON.stringify(meta, null, 2) + "\n");
+}
+
+/** Enforce the version envelope on recovery: unknown version or ruleset drift → hard fail. */
+function enforceMeta(dir: string): void {
+  const meta = readMeta(dir);
+  if (!meta) return; // legacy v1-only journal (no sidecar): only one ruleset has ever existed
+  if (meta.journal_schema_version !== JOURNAL_SCHEMA_VERSION) {
+    throw new Error(`journal version envelope: unknown journal_schema_version ${String(meta.journal_schema_version)}`);
+  }
+  if (meta.machine_version !== MACHINE_VERSION) {
+    throw new Error(`journal version envelope: unknown machine_version ${String(meta.machine_version)}`);
+  }
+  if (meta.fingerprint_scheme !== FINGERPRINT_SCHEME) {
+    throw new Error(`journal version envelope: unknown fingerprint_scheme ${String(meta.fingerprint_scheme)}`);
+  }
+  if (meta.ruleset_hash !== RULESET_HASH) {
+    throw new Error(`journal version envelope: RULESET DRIFT — journal was written under ${meta.ruleset_hash.slice(0, 20)}… but the frozen v1 ruleset hashes to ${RULESET_HASH.slice(0, 20)}…`);
+  }
+}
 
 /** Reconstruct the Command view of a journal entry (for fingerprint re-verification). */
 function commandOf(e: JournalEntry): Command {
@@ -180,6 +232,7 @@ export class GPRuntime {
         throw new Error(`journal fingerprint mismatch at seq ${e.seq}: payload tamper or version drift`);
       }
     }
+    enforceMeta(dir); // PH-05R: replay under THE journal's frozen ruleset, or hard fail
     const rt = GPRuntime.fold(entries);
     rt.tornTailDiscarded = discarded;
     rt.dir = dir;
@@ -231,6 +284,7 @@ export class GPRuntime {
       if (c.prerequisite.kind !== needed) return this.commit(c, reject("prerequisite-wrong-kind"));
     }
 
+    let nextClaim: ClaimRecord | undefined;
     if (edge.authority === "claim-record") {
       if (!c.claim) return this.commit(c, reject("claim-required"));
       if (claimRecordShapeViolations(c.claim).length > 0) return this.commit(c, reject("invalid-claim-shape"));
@@ -239,14 +293,16 @@ export class GPRuntime {
       if (existing && JSON.stringify(existing) !== JSON.stringify(c.claim)) {
         return this.commit(c, reject("claim-record-immutable")); // §3: append-only, never replaced/mutated
       }
-      this.claims.set(c.entity, { ...c.claim });
+      nextClaim = c.claim;
     }
 
-    this.states.set(key(c.machine, c.entity), c.to);
-    return this.commit(c, { ...base, accepted: true, to: c.to }, c.claim, c.prerequisite);
+    // PH-05R: VALIDATE → CONSTRUCT (nextState/nextClaim, no mutation yet) →
+    // commit() appends the durable line FIRST and only then applies the
+    // mutations. A failed append cannot leave the runtime ahead of its ledger.
+    return this.commit(c, { ...base, accepted: true, to: c.to }, c.claim, c.prerequisite, nextClaim);
   }
 
-  private commit(c: Command, decision: Decision, claim?: ClaimRecord, prerequisite?: PrerequisiteRef): Decision {
+  private commit(c: Command, decision: Decision, claim?: ClaimRecord, prerequisite?: PrerequisiteRef, nextClaim?: ClaimRecord): Decision {
     const entry: JournalEntry = {
       seq: this.journal.length + 1,
       at: c.at,
@@ -255,11 +311,18 @@ export class GPRuntime {
       ...(claim ? { claim: { ...claim } } : {}),
       ...(prerequisite ? { prerequisite: { ...prerequisite } } : {}),
     };
-    // PH-05 disk-before-memory: in durable mode the journal line is appended
-    // BEFORE any in-memory advance, so a failed disk write cannot leave the
-    // runtime ahead of its ledger. (In-memory mode there is no disk to fail.)
+    // PH-05R atomic ordering: durable append FIRST (the only fallible step);
+    // every in-memory mutation — states, claims, journal, byCommandId —
+    // happens ONLY after the append succeeded. A thrown append leaves the
+    // runtime EXACTLY as it was. The version sidecar is stamped on the first
+    // durable write (line format unchanged).
     if (this.dir) {
+      if (!existsSync(path.join(this.dir, SIDE_CAR))) writeMeta(this.dir);
       appendFileSync(path.join(this.dir, JOURNAL_FILE), JSON.stringify(entry) + "\n", "utf8");
+    }
+    if (decision.accepted && decision.to) {
+      this.states.set(key(decision.machine, decision.entity), decision.to);
+      if (nextClaim) this.claims.set(decision.entity, { ...nextClaim });
     }
     this.journal.push(entry);
     this.byCommandId.set(c.command_id, entry);
