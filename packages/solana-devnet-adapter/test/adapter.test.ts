@@ -520,9 +520,8 @@ describe("[PH-04R] escrow_ref input-domain ENFORCED at the production chain boun
   });
 
   test("[PH-04R-2] the frozen production escrow_ref passes and yields UNCHANGED settlement bytes", async () => {
-    const { releaseInstructionData } = await import("../src/chain.ts");
-    const { releaseInstructionData } = require("../src/chain.ts");
-    const data = releaseInstructionData({ escrowRef: FROZEN.anchors.escrowRef, outcomeReceiptHash: FROZEN.anchors.outcomeReceiptHash });
+    const { releaseInstructionData: rid } = await import("../src/chain.ts");
+    const data = rid({ escrowRef: FROZEN.anchors.escrowRef, outcomeReceiptHash: FROZEN.anchors.outcomeReceiptHash });
     expect(data.length).toBe(54); // identical frozen shape — guard is validation-only
     expect(data.subarray(3, 3 + 19).toString("utf8")).toBe(FROZEN.anchors.escrowRef);
   });
