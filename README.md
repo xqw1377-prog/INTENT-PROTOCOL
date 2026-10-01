@@ -20,7 +20,7 @@ GP4                 = PASS / FROZEN
 GP5                 = PASS / FROZEN (COMMANDER SIGNED)
 MAIN-CLOSURE-R1     = PASS / CLOSED
 
-CURRENT GATE        = NONE OPEN — TESTNET-R1 COMPLETE
+CURRENT GATE        = PRODUCT-THESIS-R0 (PRODUCT THESIS — NOT ENGINEERING)
 EXE-R0              = PASS / FROZEN (Commander, 2026-09-29 @ 38ac0fb)
 TESTNET-R1 / T0     = PASS / FROZEN (Commander, 2026-09-29, basis
                      8648376 + ebf1ed9, adjudicated @ 75407f3)
@@ -41,7 +41,16 @@ TESTNET-R1          = COMPLETE — frozen OutcomeReceipt → devnet settlement �
                      exactly-once → failure reconciliation → third-party
                      proof pack → golden run form one auditable closed loop.
                      COMPLETE ≠ production authorization.
-NEXT TARGET         = AWAITING COMMANDER ORDER. Frozen regardless:
+PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
+                     BASE bcea992 → FINAL_SHA 13bf84b, closure 188950d;
+                     PH-01 devnet program IMMUTABLE / PH-02 byte portability /
+                     PH-03 independent verifier / PH-04 input-domain closure /
+                     PH-05 durable journal w/ coupled ruleset identity)
+NEXT TARGET         = PRODUCT-THESIS-R0: who pays for verified outcomes,
+                     which high-stakes action requires them, why existing
+                     payment rails are insufficient, our minimal unique
+                     capability, the first real task. NOT engineering; no
+                     features. Frozen regardless:
                      MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
                      TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED.
 
