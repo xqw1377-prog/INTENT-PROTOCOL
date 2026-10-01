@@ -180,10 +180,20 @@ FIRST EXPERIMENT (pre-money, single-claim, user-evidence generator)
     "According to the rules you agreed to before work began,
      has this worker earned the Tier-1 reward?"
 
-  Machine-checkable success criteria (three, all required):
-    PAYER ACCEPTS            = YES, Tier-1 entitlement is earned
-    THIRD-PARTY REPLAY      = same verdict from the pack alone
-    POST-HOC RULE CHANGE    = ZERO requests to re-judge Tier 1
+  SUCCESS CRITERIA — split by evidence class (PT-5R1: technical proof
+  and user evidence are never conflated):
+    TECHNICAL EVIDENCE (machine-verifiable):
+      THIRD-PARTY REPLAY   = same Tier-1 verdict from the pack alone,
+                             re-derived by a party outside the transaction.
+    USER EVIDENCE (observed behavior, attested in the experiment report
+    with timestamps and the payer's verbatim words — kept as a durable
+    record, not reconstructed from memory; a signed/timestamped payer
+    acknowledgement is collected if the payer will provide one):
+      PAYER ACCEPTS         = the payer explicitly acknowledges that the
+                             Tier-1 entitlement was earned under the rules
+                             they agreed to before work began.
+      POST-HOC RULE CHANGE = zero attempts to redefine Tier-1 rules after
+                             seeing the outcome.
 
   Reading the outcome (this is the user evidence the thesis needs):
     "Tests pass, but I won't admit the Tier-1 money is his"
