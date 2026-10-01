@@ -17,6 +17,7 @@ import * as path from "node:path";
 import {
   claimRecordShapeViolations, edgeFor, EDGES, INITIAL_STATE, isTerminal, MACHINES,
   prerequisiteKindOf, prerequisiteShapeViolations,
+  CLAIM_ID_RE, PREREQ_KINDS, PREREQUISITE_REF_RE, RFC3339_UTC_RE, SUBJECT_REF_RE, TASK_FREEZE_HASH_RE,
   type ClaimRecord, type MachineName, type PrerequisiteRef,
 } from "./machines.js";
 
@@ -98,19 +99,23 @@ function deepSorted(value: unknown): unknown {
   }
   return out;
 }
+// PH-05R3: SINGLE SOURCE OF TRUTH — every grammar/kind below is derived from
+// the SAME exported constants the validators execute (regex .source, not a
+// hand-copied string). Changing a validator rule now necessarily changes the
+// RULESET_HASH; a stale hand-written copy is structurally impossible.
 const RULESET_DESCRIPTOR_V1 = {
   descriptor_version: "ruleset-descriptor.v1",
   machine_version: MACHINE_VERSION,
   machines: MACHINES,                                  // state graph + terminals
   initial_states: INITIAL_STATE,
   edges: EDGES,                                        // from→to + authority per edge
-  prerequisite_kinds: ["accepted-receipt-ref", "policy-satisfied-ref", "release-observed-ref", "sealed-evidence-ref"],
-  prerequisite_ref_grammar: "^op:[a-z0-9._-]{8,128}$",
+  prerequisite_kinds: PREREQ_KINDS,                    // same array prerequisiteShapeViolations checks
+  prerequisite_ref_grammar: PREREQUISITE_REF_RE.source,
   claim_schema_version: "gp-claim.v1",
-  claim_claimant_grammar: "^(user|org|agent|verifier|arbitrator|service|operator):[A-Za-z0-9._-]{1,128}$",
-  claim_id_grammar: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-  claim_task_freeze_hash_grammar: "^sha256:[0-9a-f]{64}$",
-  claim_claimed_at_grammar: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+  claim_claimant_grammar: SUBJECT_REF_RE.source,
+  claim_id_grammar: CLAIM_ID_RE.source,
+  claim_task_freeze_hash_grammar: TASK_FREEZE_HASH_RE.source,
+  claim_claimed_at_grammar: RFC3339_UTC_RE.source,
   claim_bounty_id_rule: "non-empty string",
   claim_entity_binding: "claim.bounty_id === command.entity",
   claim_immutability_rule: "append-only: an existing claim for the entity may never be replaced or mutated",

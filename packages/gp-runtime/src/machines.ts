@@ -76,12 +76,18 @@ export const EDGES: Edge[] = [
   { machine: "settlement", from: "ELIGIBLE", to: "RELEASED", authority: "release-observed-ref" },
 ];
 
-const PREREQ_KINDS: readonly string[] = [
+export const PREREQ_KINDS: readonly string[] = [
   "sealed-evidence-ref", "policy-satisfied-ref", "accepted-receipt-ref", "release-observed-ref",
 ];
 
 /** Opaque token grammar (GP1-R1): kind + shape checked, semantics never interpreted. */
 export const PREREQUISITE_REF_RE = /^op:[a-z0-9._-]{8,128}$/;
+// PH-05R3: the remaining replay-rule constants are EXPORTED so the
+// RULESET_DESCRIPTOR and the validators share ONE source of truth.
+export const SUBJECT_REF_RE = /^(user|org|agent|verifier|arbitrator|service|operator):[A-Za-z0-9._-]{1,128}$/;
+export const CLAIM_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+export const TASK_FREEZE_HASH_RE = /^sha256:[0-9a-f]{64}$/;
+export const RFC3339_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 
 export function edgeFor(machine: MachineName, from: string, to: string): Edge | undefined {
   return EDGES.find((e) => e.machine === machine && e.from === from && e.to === to);
@@ -114,10 +120,7 @@ export interface ClaimRecord {
   claimed_at: string;
 }
 
-const SUBJECT_REF_RE = /^(user|org|agent|verifier|arbitrator|service|operator):[A-Za-z0-9._-]{1,128}$/;
-const TASK_FREEZE_HASH_RE = /^sha256:[0-9a-f]{64}$/;
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const RFC3339_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+const UUID_RE = CLAIM_ID_RE; // single source (PH-05R3): alias, not a second copy
 
 export function claimRecordShapeViolations(c: Partial<ClaimRecord>): string[] {
   const v: string[] = [];

@@ -209,8 +209,9 @@ describe("[PH-05R] atomic ordering + version envelope", () => {
 describe("[PH-05R2] ruleset identity + legacy boundary", () => {
   test("[PH-05R2-1] RULESET_HASH is a stable golden constant", async () => {
     const { RULESET_HASH, computeRulesetHashForTest } = await import("../src/runtime.ts");
-    // GOLDEN constant: any change to the replay ruleset MUST change this hash
-    expect(RULESET_HASH).toBe("sha256:02252baf8bb633330afa03989ebe7f40ce5dfbbf9542ff752bbc0352e1ebb8aa");
+    // GOLDEN constant (PH-05R3 coupled form — validator constants ARE the
+    // descriptor input): any change to the replay ruleset MUST change this hash
+    expect(RULESET_HASH).toBe("sha256:2bad13b85585392d7d3435839e91402ad7f63f00fc0a4f635d58393e6ddb73d4");
     expect(computeRulesetHashForTest()).toBe(RULESET_HASH); // golden identity, no wall-clock input
   });
 
@@ -257,5 +258,49 @@ describe("[PH-05R2] ruleset identity + legacy boundary", () => {
       const rt = GPRuntime.reload(dir);
       expect(rt.stateOf("bounty", "X")).toBe("CREATED");
     } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+});
+
+describe("[PH-05R3] validator/descriptor single-source coupling", () => {
+  test("[PH-05R3-1] descriptor grammars === the ACTUAL validator regexes (same object source)", async () => {
+    const { RULESET_DESCRIPTOR_FOR_TEST } = await import("../src/runtime.ts");
+    const { PREREQUISITE_REF_RE, SUBJECT_REF_RE, CLAIM_ID_RE, TASK_FREEZE_HASH_RE, RFC3339_UTC_RE, PREREQ_KINDS } = await import("../src/machines.ts");
+    const d = RULESET_DESCRIPTOR_FOR_TEST() as Record<string, unknown>;
+    expect(d.prerequisite_ref_grammar).toBe(PREREQUISITE_REF_RE.source);
+    expect(d.claim_claimant_grammar).toBe(SUBJECT_REF_RE.source);
+    expect(d.claim_id_grammar).toBe(CLAIM_ID_RE.source);
+    expect(d.claim_task_freeze_hash_grammar).toBe(TASK_FREEZE_HASH_RE.source);
+    expect(d.claim_claimed_at_grammar).toBe(RFC3339_UTC_RE.source);
+    expect(d.prerequisite_kinds).toEqual([...PREREQ_KINDS]);
+  });
+
+  test("[PH-05R3-2] changing a VALIDATOR rule necessarily changes RULESET_HASH (the coupling proof)", async () => {
+    const { computeRulesetHashForTest } = await import("../src/runtime.ts");
+    const base = computeRulesetHashForTest();
+    const edit = (fn: (d: Record<string, any>) => void) => computeRulesetHashForTest(fn);
+    // The counterfactual now edits the SAME fields the validators read —
+    // a validator-constant change flows into these fields by construction.
+    expect(edit((d) => { d.prerequisite_ref_grammar = "^op:.*$"; })).not.toBe(base);
+    expect(edit((d) => { d.claim_claimant_grammar = "^.*$"; })).not.toBe(base);
+    expect(edit((d) => { d.claim_id_grammar = "^.*$"; })).not.toBe(base);
+    expect(edit((d) => { d.claim_task_freeze_hash_grammar = "^.*$"; })).not.toBe(base);
+    expect(edit((d) => { d.claim_claimed_at_grammar = "^.*$"; })).not.toBe(base);
+    expect(edit((d) => { (d.prerequisite_kinds as string[]).pop(); })).not.toBe(base);
+    expect(edit(() => {})).toBe(base);
+  });
+
+  test("[PH-05R3-3] machines.ts semantic surface UNCHANGED: validators still reject/accept identically", async () => {
+    const { prerequisiteShapeViolations, claimRecordShapeViolations } = await import("../src/machines.ts");
+    // prerequisite: good shape passes, bad ref fails (same frozen behavior)
+    expect(prerequisiteShapeViolations({ kind: "policy-satisfied-ref", ref: "op:gp3-2of2-20260924a1" })).toEqual([]);
+    expect(prerequisiteShapeViolations({ kind: "policy-satisfied-ref", ref: "x" })).toContain("ref");
+    expect(prerequisiteShapeViolations({ kind: "rogue", ref: "op:abcdefgh" })).toContain("kind");
+    // claim: the frozen valid fixture passes; each field corruption fails
+    const claim = { schema_version: "gp-claim.v1", claim_id: "c1a4e7d2-3f3b-4a59-9e02-7b6d5c8f1a23", bounty_id: "GP-001", claimant: "agent:gp-001-demo", task_freeze_hash: "sha256:" + "ab".repeat(32), claimed_at: "2026-10-01T00:00:00Z" };
+    expect(claimRecordShapeViolations(claim as never)).toEqual([]);
+    expect(claimRecordShapeViolations({ ...claim, claimant: "not-a-subject" } as never)).toContain("claimant");
+    expect(claimRecordShapeViolations({ ...claim, claim_id: "zzz" } as never)).toContain("claim_id");
+    expect(claimRecordShapeViolations({ ...claim, task_freeze_hash: "nope" } as never)).toContain("task_freeze_hash");
+    expect(claimRecordShapeViolations({ ...claim, claimed_at: "2026-10-01" } as never)).toContain("claimed_at");
   });
 });
