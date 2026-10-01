@@ -9,6 +9,7 @@ import {
 } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { assertNotMainnet, PINNED } from "./frozen.ts";
+import { assertEscrowRefDomain } from "../../production-guards/src/escrow-ref-domain.ts";
 import { releasePda, toHex, economicReleaseDigest } from "./index.ts";
 
 // frozen source ATA (Appendix A; treasury ATA is the escrow source)
@@ -28,8 +29,12 @@ export interface ReleaseTargets {
   outcomeReceiptHash: string;
 }
 
-/** Program instruction data: [0][u16 len][escrow_ref][receipt raw32]. */
+/** Program instruction data: [0][u16 len][escrow_ref][receipt raw32].
+ *  PH-04R: the UNTRUSTED escrow_ref passes the input-domain guard BEFORE it
+ *  can reach the settlement instruction bytes / settlementKey preimage —
+ *  NFC/NFD-ambiguous refs are rejected at this boundary, no bypass path. */
 export function releaseInstructionData({ escrowRef, outcomeReceiptHash }: ReleaseTargets): Uint8Array {
+  assertEscrowRefDomain(escrowRef); // production boundary — throws before any byte is built
   const receiptRaw = Buffer.from(outcomeReceiptHash.slice(7), "hex");
   if (escrowRef.length > 0xffff) throw new Error("escrow_ref too long");
   const data = Buffer.alloc(1 + 2 + escrowRef.length + 32);
@@ -53,6 +58,7 @@ export async function buildReleaseTx(
   keys: ReleaseKeys,
   variation?: bigint,
 ): Promise<{ tx: Transaction; releasePda: string; digest: string }> {
+  assertEscrowRefDomain(targets.escrowRef); // PH-04R chain boundary (pre-tx, no bypass)
   const digestHex = toHex(economicReleaseDigest(targets.escrowRef, targets.outcomeReceiptHash));
   const { pda } = releasePda(targets.escrowRef, targets.outcomeReceiptHash, programId);
   const caps = PublicKey.findProgramAddressSync([Buffer.from("caps")], new PublicKey(programId))[0].toBase58();

@@ -508,6 +508,32 @@ describe("[EPOCH-A] TESTNET-R1/PDA hardening — historical seal", () => {
   });
 });
 
+describe("[PH-04R] escrow_ref input-domain ENFORCED at the production chain boundary", () => {
+  test("[PH-04R-1] NFC/NFD-ambiguous refs are REJECTED before any settlement byte is built", async () => {
+    const { buildReleaseTx, releaseInstructionData } = await import("../src/chain.ts");
+    const { Connection } = await import("@solana/web3.js");
+    const conn = new Connection("https://api.devnet.solana.com", "confirmed"); // never queried — guard throws first
+    for (const bad of ["escrow:caf\u00e9", "escrow:cafe\u0301", "escrow:\u4f60\u597d"]) {
+      expect(() => releaseInstructionData({ escrowRef: bad, outcomeReceiptHash: FROZEN.anchors.outcomeReceiptHash }), bad).toThrow(/input-domain rejection/);
+      await expect(buildReleaseTx(conn, PINNED.programId!, { escrowRef: bad, outcomeReceiptHash: FROZEN.anchors.outcomeReceiptHash }, { operator: undefined as never, treasury: undefined as never }), bad).rejects.toThrow(/input-domain rejection/);
+    }
+  });
+
+  test("[PH-04R-2] the frozen production escrow_ref passes and yields UNCHANGED settlement bytes", async () => {
+    const { releaseInstructionData } = await import("../src/chain.ts");
+    const { releaseInstructionData } = require("../src/chain.ts");
+    const data = releaseInstructionData({ escrowRef: FROZEN.anchors.escrowRef, outcomeReceiptHash: FROZEN.anchors.outcomeReceiptHash });
+    expect(data.length).toBe(54); // identical frozen shape — guard is validation-only
+    expect(data.subarray(3, 3 + 19).toString("utf8")).toBe(FROZEN.anchors.escrowRef);
+  });
+
+  test("[PH-04R-3] no bypass path: BOTH production entry points carry the guard", () => {
+    const src = readFileSync(path.join(pkgDir, "src/chain.ts"), "utf8");
+    const guardCount = (src.match(/assertEscrowRefDomain/g) ?? []).length;
+    expect(guardCount).toBeGreaterThanOrEqual(3); // import + both entries
+  });
+});
+
 describe("[EPOCH-B] PRODUCTION-HARDENING-R0 — open scope gate", () => {
   test("[PH-H-01] since base bcea992, every changed path belongs to the PH-00A-AMENDMENT-1 allowlist", () => {
     const BASE = "bcea992f729c730a8356023eb1dc29b5d78f72cd";
