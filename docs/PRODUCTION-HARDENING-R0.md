@@ -265,6 +265,16 @@ packages/solana-devnet-adapter/src/chain.ts   # PH-04R: assertEscrowRefDomain at
                                                # ONLY (buildReleaseTx / instruction data)
 ```
 
+### PH-00A-AMENDMENT-5 (Commander PH-05R3 order) — validator/descriptor coupling
+
+```text
+docs/PRODUCTION-HARDENING-R0.md
+packages/gp-runtime/src/machines.ts       # export the rule constants (pure export, zero semantic change)
+packages/gp-runtime/src/runtime.ts       # descriptor consumes the EXPORTED constants (single source)
+packages/gp-runtime/test/ph05-hardening.test.ts
+packages/solana-devnet-adapter/test/adapter.test.ts  # PH-H-01 allowlist entry for machines.ts
+```
+
 ## Current ledger
 
 ```text
