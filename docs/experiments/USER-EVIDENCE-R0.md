@@ -1,6 +1,6 @@
 # USER-EVIDENCE-R0 — Experiment Contract (UE-0 Freeze)
 
-Status: **FROZEN for adjudication (CUT-1: UE-0 + UE-1 only)**
+Status: **REVISED per CUT-1R (Command Freeze + Dual-Hash Contract) — awaiting adjudication**
 
 Authority: Commander order `USER-EVIDENCE-R0 / CUT-1 = GO` (2026-10-01).
 Product north star: a real repo owner freezes Tier-1 rules BEFORE work
@@ -64,39 +64,51 @@ ruleset_hash              (sha256 over canonical ruleset bytes — single
                            source: the same constants the validators run)
 ```
 
-## 3. UE-0 PASS conditions
+## 3. UE-0 PASS conditions (CUT-1R form — dual-hash contract binding)
 
 ```text
-UE0-01 schema has no unresolved Tier-1 variable
-      (every judging fact fixed before worker execution)
-UE0-02 payer precommit is hash-bound to ruleset
-      (precommit recorded BEFORE any outcome exists)
-UE0-03 single-claim only is hard-coded for R0
-UE0-04 auto-release explicitly absent
-UE0-05 Tier-2 execution explicitly absent
+UE0-R1 precommit flips when Tier1 amount changes
+UE0-R2 precommit flips when Tier2 amount changes
+UE0-R3 payer/worker identity change invalidates binding (every frozen
+      command too; identity-stable on unchanged input)
+UE0-R4 all required fields strict-validated (each miss named)
+UE0-R5 all sha256 fields exact grammar ^sha256:[0-9a-f]{64}$
+
+Dual hash (single source, schema.ts):
+  VERIFICATION_RULESET_HASH = verification rules + frozen COMMANDS only
+  CONTRACT_FREEZE_HASH      = payer + claimant + tier1_reward + tier2_reward
+                             + claim mode + auto_release=ABSENT +
+                             tier2_execution=ABSENT + verification_ruleset_hash
+  payer_precommit binding → CONTRACT_FREEZE_HASH + exact words + timestamp.
+  The precommit commits to the MONEY and the RULES — a post-hoc tier1/tier2
+  swap is structurally detectable (product constitution enforced here).
 ```
 
-## 4. UE-1 — Real Task Freezer (CUT-1's build)
+## 4. UE-1 — Real Task Freezer (CUT-1R form — command freeze, real enforcement)
 
-CLI: `intent experiment freeze <repo> <task-config>` → emits
-`experiment/task.json`, `experiment/ruleset.json`,
-`experiment/freeze-manifest.json` with base SHA / suite hash / lockfile
-hash / ruleset hash. Preflight runs BEFORE any publication:
-base checkout → regression MUST FAIL (real red); full suite → agreed
-baseline; network-off sandbox runnable; lockfile reproducible; forbidden
-paths resolvable. ANY miss → `TASK = INELIGIBLE` (never "publish first").
+CLI: `intent experiment freeze <repo> <task-config>` — the contract freezes
+COMMAND STRINGS (not just test paths; real repos are not all Vitest):
+regression_command / baseline_health_command / patched_acceptance_command /
+optional build+typecheck / package_manager / install_command — all inside the
+hashed contract. Preflight in a temp STAGING dir, ATOMIC publish only after
+every check passes; ANY miss → INELIGIBLE with the output dir untouched.
 
 ```text
-UE1-01 exact base commit exists (git object database, never live worktree)
-UE1-02 base regression is RED
-UE1-03 suite bytes hash frozen
-UE1-04 lockfile bytes hash frozen
-UE1-05 sandbox network-off runnable
-UE1-06 N-run determinism configurable and frozen
-UE1-07 forbidden paths enforced
-UE1-08 dependency-addition denied
-UE1-09 resulting ruleset hash deterministic (same input → same hash)
-UE1-10 freeze output reopens byte-identically (round-trip)
+UE1-R1 regression_command REALLY FAILS at base (executed in sandbox)
+UE1-R2 baseline_health_command REALLY PASSES at base (executed in sandbox)
+UE1-R3 dependency env reconstructed CLEAN-ROOM from the frozen lockfile
+      (vendored node_modules removed first; npm ci with frozen lockfile)
+UE1-R4 network access attempt REALLY FAILS inside the sandbox
+      (macOS sandbox-exec (version 1)(allow default)(deny network*);
+       Linux unshare -n) — negatively probed: TCP 1.1.1.1:53 must FAIL,
+       local execution must still work
+UE1-R5 same frozen commands + same base reproduce the SAME results N times
+UE1-R6 failed freeze leaves ZERO publishable artifact set (stale outputs
+      from a previous run are never overwritten or mistaken for success)
+
+Deferred to UE-2 with explicit gates (NOT claimed by UE-1):
+  UE2-PATH-DENY          forbidden-path patch enforcement
+  UE2-DEPENDENCY-DENY    dependency-addition rejection
 ```
 
 ## 5. Later cuts (NOT authorized by CUT-1)
