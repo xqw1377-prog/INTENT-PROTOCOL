@@ -1,10 +1,36 @@
 # EXPERIMENT-001 — Candidate Shortlist & Screening Record
 
-Status: **DRAFT — NOTHING SENT.** Recruitment is IN PROGRESS; no maintainer
-has been contacted; no participant is secured; the experiment has not run.
-Operator: ZCode. Sending channel: the Commander's own account (first public
-contact is a one-shot reputational act — ZCode holds no authenticated
-GitHub channel; `gh auth status` verified unauthenticated 2026-10-03).
+Status: **FIRST CONTACT PREPARED — not yet sent.** Recruitment is IN
+PROGRESS; no participant is secured; the experiment has not run.
+Operator: ZCode. Sending channel: the Commander's stored GitHub credential
+(keychain PAT, login xqw1377-prog, verified read-only 2026-10-03) — used
+only on the Commander's direct order to send.
+
+## Commander rulings applied before first contact (2026-10-03)
+
+1. **The frozen red test freezes BEHAVIOR, not a fix shape.** Contract:
+   "after dispose(), a drop must not process the file or resurrect the
+   preview." A behavior-level red test was written against the REAL
+   GCodePreview class (renderer-smoke mock pattern, no WebGL) and verified
+   RED inside the frozen sandbox: `processGCodeStream` is called once on a
+   post-dispose drop; an `update` event fires; the lazy `sceneManager`
+   getter rebuilds a renderer. The earlier screening draft (cleanup-return
+   contract, fix option 1) is SUPERSEDED — kept only as a screening
+   artifact, never to be frozen. Artifacts: /tmp (disposable); the FROZEN
+   test is written with the maintainer at PREP.
+2. **Funder consistency.** Tier-1 amount, actual funder, and
+   `payer_identity` must agree. If the experiment sponsors the reward and
+   the maintainer only validates, that is a DIFFERENT relationship than
+   the one under test and will be recorded as exactly what it is — never
+   mixed. Settled with the maintainer at PREP, before freeze.
+3. **"Sign off" wording.** First contact asks the maintainer to READ the
+   rules and REPLY that they agree — plain reply, no implication of
+   identity authentication or digital signature (R1 provides none).
+
+Recording discipline for the recruitment phase: an explicit refusal is
+kept VERBATIM as recruitment-stage evidence; no reply is recorded as
+UNANSWERED — never as refusal. Neither may be recorded as a payer
+observation of a completed task.
 
 Charter: docs/experiments/EXPERIMENT-001.md · screening checklist:
 docs/experiments/EXPERIMENT-001-OPS.md §2. All screening below was run on
@@ -75,17 +101,18 @@ Checklist results (all inside the frozen net-denied sandbox, local clone):
 [ ] worker pre-designated BEFORE freeze, external, unaffiliated  — OPEN
 ```
 
-Screening artifacts (in /tmp, disposable): screening red test encodes the
-issue's fix option 1 (makeDroppable returns a cleanup fn); the FROZEN
-acceptance test will be written WITH the maintainer at PREP and may
-instead encode the behavior-level contract (no resurrection after
-dispose) — that choice is the maintainer's, at freeze time.
+Screening artifacts (in /tmp, disposable): a fix-shape screening test
+(cleanup-return, option 1) and the ruled behavior-level test (real class,
+post-dispose drop) — both verified RED at base inside the frozen sandbox;
+the clone restored to 44 files / 980 tests green afterwards. The FROZEN
+acceptance test is written WITH the maintainer at PREP and encodes the
+behavior contract only (ruling 1).
 
-## First-contact draft (remcoder, via #530) — NOTHING SENT
+## First-contact message (remcoder, via #530) — FINAL, applies all rulings
 
 Follows the frozen template (experiment first; no protocol, no
 blockchain, no proof architecture, no product pitch; one qualifying
-question; refusal = data):
+question; refusal = data) plus rulings 1–3:
 
 > Hi Remcoder — I'm helping run a small, facilitated experiment about
 > pre-agreed standards in open-source work, and gcode-preview looks like
@@ -93,24 +120,31 @@ question; refusal = data):
 >
 > You have a real, still-open bug: #530 — makeDroppable never removes
 > its listeners, so a disposed preview can be resurrected by a drop
-> (your own write-up, including the two fix options).
+> (your own write-up).
 >
 > Before anyone touches it, we would freeze — with you — exactly what
-> counts as fixed: which new test must go from red to green (written
-> together with you, mirroring your existing src/__tests__/dom-utils.ts
-> patterns), which files may change, how big the patch may be. An
-> external contributor then does the fix. A separate machine re-runs
-> everything from the frozen baseline, offline, from your package-lock.
+> counts as fixed: a new test, written together with you, that describes
+> the required behavior (after dispose(), a drop must do nothing — not
+> any particular implementation), which files may change, and how big
+> the patch may be. An external contributor then does the fix. A
+> separate machine re-runs everything from the frozen baseline,
+> offline, from your package-lock.
+>
+> The reward is a small symbolic amount, pre-money by design. Who
+> actually funds it is agreed and recorded exactly as it is before
+> anything is frozen — the payer is never blurred.
 >
 > The one thing we're testing: if the pre-agreed conditions are all
 > satisfied, will you acknowledge that the fixed reward for that part
 > has been earned — rather than redefining the standard afterwards?
 >
-> Would you be willing to sign off on the rules BEFORE seeing the
-> solution?
+> Would you be willing to read the rules and reply here that you agree
+> to them — before seeing the solution? (A plain reply is all "agree"
+> means here — no signatures, no accounts, nothing to install.)
 
-If the answer is "no": record it as user evidence (payer_accepts = false
-path); do NOT shop for a friendlier maintainer in the same round.
+If the answer is "no": keep the refusal verbatim as recruitment-stage
+evidence; do NOT shop for a friendlier maintainer in the same round. If
+there is no reply: record UNANSWERED — never refusal (ruling above).
 
 ## Open items before Freeze (per Commander order)
 
