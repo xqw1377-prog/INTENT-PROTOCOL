@@ -1,207 +1,245 @@
-# PRODUCT-UX-R0 / FRONTEND-R1 — Minimal Experiment Product
+# PRODUCT-UX-R0 / FRONTEND-R1 — Facilitated Experiment Interaction Contract
 
-Status: **GO (Commander order 2026-10-03). Awaiting the Commander's
-design (information architecture, the five pages, interaction state
-machine, first visual language) — then Zcode implements. No frontend
-code before that handoff.**
+Status: **D4–D9 and P1 rulings incorporated (2026-10-03). PRODUCT-UX-R0 = PASS / FROZEN as an interaction specification. FRONTEND-R1 IMPLEMENTATION = GO within this contract; implementation correctness remains NOT VERIFIED. No visual-design work in this cut.**
 
-Objective: make EXPERIMENT-001 usable by a real maintainer and a real
-worker — without us hand-running JSON, CLIs, and hash explanations.
+Authority: the Commander's HOLD-6 review supersedes the previous premature GO and all conflicting wording in this document.
+References: PRODUCT-THESIS-R0, USER-EVIDENCE-R0, EXPERIMENT-001.
+This cut changes this specification only. UE-0..UE-5 code, schemas, enums, trust anchors, payment authority and frozen artifacts remain unchanged.
 
-```text
-BACKEND MACHINE  UE-0..UE-5 = PASS / FROZEN-R0 (code frozen; no changes
-                                  without a new cut)
-NEXT DEVELOPMENT = FRONTEND-R1 (F1–F5 + Experiment status)
-PROTOCOL WORK    = HOLD (no protocol/chain/payments/auto-release/
-                         concurrent-claim/Tier-2 work)
-EXPERIMENT-001   = WAITING FOR FRONTEND-R1 MINIMUM FLOW
-```
+## Scope and operating mode
 
-## Scope (allowed, and only this)
+**Facilitated local experiment, not self-service software.**
+One operator runs a localhost Node service and facilitates participation by a real maintainer and a real external worker, selected BEFORE freeze.
+Identity = declared experiment identity. Authentication = NOT PROVIDED IN R1.
+Maintainer / Worker / Observer labels are not authenticated accounts. Browser clicks are observed input, not proof of who clicked or a verified signature.
 
-```text
-F1  Task Freeze          — repo owner; the "Freeze & Pre-commit" moment
-F2  Frozen Task View     — worker; rules are locked, earn conditions plain
-F3  Worker Submission    — submit patch
-F4  Verification Result  — TIER-1 OUTCOME as rights, not logs
-F5  Payer Acknowledgement— the three questions → UE-5 ledger, verbatim
-+   Experiment status    — DRAFT → FROZEN → WORK SUBMITTED → VERIFYING
-                           → TIER-1 VALID/INVALID → PAYER RESPONSE
-                           RECORDED → FINALIZED
-Identities (R1): Maintainer / Worker / Observer — plain role labels,
-no accounts, no auth.
-```
+PRE-MONEY / TESTNET-VALUE ONLY; real funds, chain writes, auto-release, public marketplace, accounts, wallets, concurrent claims, retry contracts, Tier-2 engine and arbitration remain HOLD.
+EXPERIMENT-001 uses Tier 1 only: config `tier2_reward = "0"`; display “Tier 2 — not used in this experiment”.
+EARNED means the derived Tier-1 entitlement under frozen experiment rules; it does not mean payment sent, custody, automatic settlement, authenticated assent or legal enforceability.
 
-HOLD (unchanged): public marketplace, task discovery feed, account
-systems, wallet connection, payments UI, chat, agent marketplace,
-leaderboards, profile/reputation, token, DAO, multi-payer, multi-worker
-racing, dispute-arbitration UI.
+## Product and evidence principles
 
-## Product principle (frozen from the ruling)
+Translate protocol state into understandable entitlement state.
+First-experiment language: FROZEN RULES → VERIFIED OUTCOME → TIER 1 EARNED.
+STILL DISCRETIONARY belongs to the broader thesis; it is not an executable review control in R1.
+If viewing a different frozen task with nonzero Tier 2, show:
+“Tier 2 is declared only. It is not evaluated or settled by this experiment.”
+Never show “What you still control: Tier-2 review only”.
 
-The frontend's real job:
+Every claim of FROZEN / VERIFIED / EARNED must trace to a frozen artifact or machine report.
+Draft inputs and `experiment-notes.json` { issue_url, summary, payer_quote } are permitted, visibly labeled **UNFROZEN CONTEXT — not part of the frozen contract**.
+Do not reconstruct verifier, policy, hash or entitlement logic in the frontend.
+Hash, proof and verifier internals default to collapsed “Technical details”.
 
-```text
-complex protocol state  →  human-understandable ENTITLEMENT state
-```
+## F1 — Prepare & Freeze (D4, D5)
 
-Three visual objects, potentially the whole visual language:
+### WHO
 
-```text
-FROZEN RULES   ·   EARNED   ·   STILL DISCRETIONARY
-```
+Show PAYER / Maintainer (`payer_identity`), ASSIGNED WORKER (`worker_identity`) and CLAIM MODE (`SINGLE_CLAIMANT`).
+“This task is frozen for this worker only.”
+Both real participants must be selected before preparation. These strings will be contract-bound, not authenticated.
+An empty identity blocks preparation and freeze.
 
-Not a Web3 bounty dashboard. The page's sentence is: "The rules are
-frozen; now tell me what has been EARNED and what is STILL
-DISCRETIONARY."
+### WHAT
 
----
+Show repository URL, exact base commit, bug context [UNFROZEN CONTEXT], Tier-1 declared amount and Tier-2 zero.
+Amounts are declared experiment terms; do not invent a currency, conversion or payment mechanism.
 
-# DESIGN INPUT A — page → frozen-artifact data map (field-level)
+### WHAT COUNTS
 
-Every element the UI shows must trace to a real field of a frozen
-artifact or a machine report. Nothing invented, nothing re-inflated.
+Show regression and baseline commands, suite/lockfile identity, allowed/forbidden paths, no dependency change, diff bound, N deterministic runs and network-denied verification.
+Policy requirements are labeled “rules”, not completed checks.
 
-## F1 Task Freeze (payer)
+### Step 1 — Prepare & Check
 
-| UI element | Source of truth |
+Call the existing exported `runPreflight(repoDir, cfg)` without publishing a freeze pack.
+Before success, checks are pending; never render fabricated green ticks.
+On success display:
+Base RED · Baseline GREEN · Network DENIED · Install OK · N/N reproducible.
+Source is the returned `suiteHash`, `lockHash`, `preflight`:
+`base_regression=RED`, `baseline_health=GREEN`,
+`network_sandbox=DENIED_VERIFIED`,
+`dependency_reconstruction=CLEAN_ROOM_OK`, `determinism=N/N`.
+These are preparation evidence, not a frozen manifest.
+Network DENIED describes verification sandbox commands, not an assertion that dependency installation never uses the network.
+
+Keep a server-side prepared input snapshot and the machine report.
+Any change to identity, reward, base, commands, suite, lockfile, scope or other reviewed contract input invalidates readiness and requires Prepare & Check again.
+Lost preparation state on service restart requires re-preparation; never recover readiness from browser memory.
+Preparation failure leaves DRAFT and no published freeze generation.
+
+### Step 2 — Review & Freeze
+
+Present the COMPLETE entitlement terms, not merely a short checklist. Include identities, amounts, claim mode, all rules/commands and the exact precommit text.
+“Everything below has been checked. If you freeze now, satisfying these rules creates an irreversible Tier-1 entitlement.”
+“If these conditions are satisfied, Tier 1 is earned.”
+The displayed conditions expressly include primary verification AND independent portable replay.
+
+Button: **Freeze these rules**.
+Only after explicit agreement capture exact `payer_precommit_text` and UTC `payer_precommit_timestamp`.
+The operator records this as observed assent, not authenticated or cryptographically verified assent.
+Call `freezeExperiment()` with the reviewed snapshot. It re-runs preflight and atomically publishes.
+Compare recheck suite/lockfile identities and terms with what was reviewed; any mismatch blocks the UI's FROZEN claim and requires operator inspection/new review. Never silently present changed terms as agreed.
+Do not modify the frozen module to skip its second preflight.
+Disable duplicate freeze requests. Display rechecking/publishing until complete.
+Only a complete, validated 4-file generation permits FROZEN. Failure cannot advance the page.
+No work begins until freeze succeeds.
+
+## F2 — Frozen Task
+
+“These rules can no longer be changed for this task.”
+Show assigned worker, bug context [UNFROZEN CONTEXT] and declared Tier-1 reward.
+“You earn it when: the bug is fixed; existing tests stay green; only allowed files change; dependencies remain unchanged; deterministic verification and independent replay succeed.”
+All requirements are projections of frozen task/ruleset data; copy cannot introduce additional judging criteria.
+Tier 2: not used in this experiment.
+Expose frozen task download and collapsed Technical details with hashes, precommit binding, commands and EXPERIMENT-001 trust anchors.
+A missing or inconsistent freeze generation is an evidence error, not a frozen task.
+Precommit semantics: changing a committed term invalidates its binding.
+
+## F3 — Submit Work (P1)
+
+Select/paste one unified diff. Selection is local draft input, not submission.
+Show filename and byte size; do not invent changed-line/file counts or duplicate the policy parser.
+“This exact patch will be verified. After submission it cannot be replaced in this run.”
+Button: **Submit for verification**.
+The operator service places exact bytes at `worker.patch` as an operational submission marker, outside the 4-file freeze generation.
+Write once; duplicate/concurrent submission cannot overwrite. The runner later hash-binds these bytes.
+Then call the existing UE-2 runner.
+Display “Immutable for this run” after successful submission.
+INVALID is terminal for this submission. No “Try again” or patch replacement.
+A new attempt requires operator action / a new experiment, not an invented R0 retry contract.
+Process interruption is not INVALID; preserve the submitted bytes and require operator inspection.
+
+## F4 — Verify Outcome (D6)
+
+Two distinct steps:
+1. Primary verification — UE-2.
+2. Independent replay — trusted portable UE-4 verifier, from the UE-3 pack.
+
+Flow: Checking patch → Primary verification passed → Independently replaying → Replay PASS → TIER 1 EARNED.
+UE-2 `VALID` is **CANDIDATE VALID**, never EARNED by itself.
+Use existing frozen proof/ledger verification boundaries to validate derived checks and bindings; a raw verdict string alone is insufficient.
+Independent replay requires trusted verifier identity checked against EXPERIMENT-001's external release anchor BEFORE execution.
+A replay process spawned locally is not proof of a real third party's participation. The operator must facilitate the real independent replay required by EXPERIMENT-001; distinguish machine replay success from observed third-party participation.
+
+**EARNED iff the primary outcome is VALID and independent replay is PASS with the same VALID verdict, bound to this exact current freeze/patch/proof pack.**
+Use manifest hash AND pack-byte digest freshness checks; missing, stale, mismatched, untrusted or failed evidence never yields EARNED.
+Do not place replay reports inside the exact nine-file proof pack.
+Header only after both passes: **TIER 1 — EARNED**.
+“This is a derived result from the rules frozen before work began.”
+
+Persist separate facts. A payer's later “No” cannot alter the machine outcome.
+Primary INVALID: display the machine's rule failure; do not create an entitlement proof pack or enter UE-5 (VALID-only).
+Replay FAIL: primary may remain VALID, but entitlement stays unverified; show failure and operator action required, with no automatic patch retry.
+Missing report/interrupted process: verification incomplete, not a fabricated FAIL or PASS.
+No optimistic EARNED flash while replay is pending.
+
+| Human result | Evidence source |
 |---|---|
-| Repository / Base commit | config `repository_url`, `base_commit_sha` (task.json) |
-| Tier-1 / Tier-2 reward | task.json `tier1_reward`, `tier2_reward` |
-| "✓ regression currently fails" | freeze-manifest.json `preflight.base_regression = RED` (proven at freeze, in a net-denied sandbox) |
-| "✓ existing suite currently passes" | `preflight.baseline_health = GREEN` |
-| "✓ no new dependencies" | ruleset `new_dependencies_allowed = false` |
-| "✓ only these paths may change" | ruleset `allowed_paths` / `forbidden_paths` |
-| "✓ max patch size" | ruleset `max_diff_lines` |
-| "✓ runs N times" | ruleset `determinism_runs` |
-| "✓ network disabled" | ruleset `network = "disabled"` + `preflight.network_sandbox = DENIED_VERIFIED` |
-| "What you still control: Tier-2 review only" | contract-freeze.json `tier2_execution = ABSENT` (R0: declared, not executed) |
-| The cardinal sentence + "I agree and freeze" button | `payer_precommit_text` + `payer_precommit_timestamp` → hash-bound into `precommit_binding`; THIS is the pre-commit moment |
+| Frozen base | freeze closure + suite/lockfile checks |
+| Regression fixed | patched acceptance GREEN + base regression RED |
+| Existing suite | patched baseline GREEN |
+| Allowed scope | policy_result OK |
+| Dependencies | dependency policy OK |
+| Determinism | full N/N |
+| Primary outcome | validated UE-2 record |
+| Independent replay | trusted UE-4 report, same verdict and current pack bindings |
+| EARNED | conjunction above, derived through frozen validation |
+| Technical details/download | nine-file proof pack + trusted verifier instructions |
 
-**Gap D1 (design must rule): the frozen contract has NO bug-description
-field — deliberately (only machine-checkable facts are frozen).** The
-human bug description should be an UNFROZEN sidecar: `experiment-notes.json`
-{ issue_url, summary, payer_quote } clearly labeled "not part of the
-frozen contract". No schema change, no amendment needed.
+## F5 — Record Payer Response (D9, P1)
 
-## F2 Frozen Task View (worker)
+Available only on UE-5's verified-VALID evidence path.
+Keep **Machine result: TIER 1 EARNED** visible throughout.
+Technical evidence and user evidence are separate.
 
-| UI element | Source |
+1. “According to the rules you agreed to before work began, has this worker earned the Tier-1 reward?”
+Map to `payer_accepts_tier1`; capture `payer_ack_verbatim` and observation timestamp.
+On No immediately prompt **Tell us why** and preserve the payer's exact words.
+2. “Are you trying to change any Tier-1 rule after seeing the result?”
+Map to `posthoc_rule_change_attempts` and one `posthoc_rule_change_details` entry per attempt. A stated wish to change rules is evidence, never permission to edit the frozen contract.
+3. “Would you fund another task using this structure?”
+Options: **Yes / No / Answer later**.
+Yes/No map to frozen `repeat_fund_intent=YES/NO`.
+Answer later remains unresolved UI state; it is never mapped to NO and prevents finalize.
+The operator may explicitly close unresolved follow-up using frozen `NOT_ASKED`, recording verbatim hesitation and why the experiment ended without a definite answer in provenance. NOT_ASKED must not be presented as a definite refusal or as proof the question was never displayed.
+Do not widen the frozen enum.
+
+Use existing `LedgerObservationsV1` fields exactly:
+`observation_source`, `observer_identity`, `source_record`,
+`source_record_sha256`, `payer_attestation=UNSIGNED_RECORDED`.
+Default label: **USER EVIDENCE — OBSERVED / UNSIGNED**.
+If a signed statement is recorded: **SIGNED_STATEMENT / RECORDED — NOT MACHINE-VERIFIED**.
+Never claim “PAYER-ATTESTED”, verified identity or machine-verified signature.
+
+Observations append immutably; revisions before final remain separate records.
+Final ledger is derived from latest valid observation and written once.
+No unresolved required response may silently become a default.
+Finalization records the experiment; it cannot turn payer rejection into acceptance or invalidate earned Tier 1.
+
+## Phase and independent facts (D7)
+
+Phase is a navigation projection, not a replacement for evidence.
+
+| Primary phase | Basis |
 |---|---|
-| Issue / bug description | sidecar `experiment-notes.json` + issue URL (Gap D1) |
-| Earn: Tier 1 X / Tier 2 Y | task.json rewards |
-| "You earn Tier 1 when:" checklist | same ruleset facts as F1, worker-facing wording |
-| "Maintainer cannot change these rules after you start" | precommit binding semantics (UE0-R1..R3: any term change invalidates the binding) |
-| Trust footer | EXPERIMENT-001.md frozen anchor block (MAIN SHA + verifier hashes) |
-| Download frozen task | the freeze pack (4 files) |
+| DRAFT | inputs incomplete, preparation absent/invalid or preparation failure |
+| READY TO FREEZE | successful current preparation report + reviewed input snapshot; operational state, not frozen contract |
+| FROZEN | complete validated freeze generation |
+| SUBMITTED | immutable worker.patch present for this run |
+| VERIFYING | orchestrator currently running primary verification or replay |
+| AWAITING PAYER | verified VALID + matching independent replay PASS; UE-5 eligible |
+| FINALIZED | valid final-ledger.json exists |
 
-Hidden by default (per ruling): ruleset hash, contract-freeze hash,
-precommit binding, verifier internals. "The rules are locked" is the
-sentence; the hashes are one click away under "Technical details".
+Keep independent badges in every later phase:
+TASK = FROZEN / NOT FROZEN;
+TIER 1 primary result = VALID / INVALID / PENDING;
+REPLAY = PASS / FAIL / PENDING;
+PAYER RESPONSE = RECORDED / NOT RECORDED.
+“Primary VALID” must never visually imply verified EARNED while replay is pending/failed.
+Terminal INVALID and replay failures are result/error panels on the submitted workflow; do not invent an AWAITING PAYER path that UE-5 rejects.
+FINALIZED retains all historical badges; no preceding fact disappears.
 
-## F3 Worker Submission
+PERSISTENT FACTS = validated artifacts/reports on disk.
+TRANSIENT UI STATE = orchestrator process state (preparing, publishing, verifying, replaying).
+On reload, validate disk facts. On service restart, do not infer a running process from missing output; show interrupted/incomplete and operator action required.
+File presence alone is insufficient for verified claims.
+Typical finalized successful page: FINALIZED / FROZEN RULES ✓ / TIER-1 OUTCOME EARNED / INDEPENDENT PROOF ✓ / PAYER RESPONSE RECORDED.
+Only render this combination when all supporting facts actually exist.
 
-Input: one unified diff (paste or file) → saved as `worker.patch` in
-the experiment directory → triggers UE-2 run. The UI never inspects the
-patch; the policy wall does.
+## Local Orchestrator integration
 
-## F4 Verification Result (the aha page)
+Chosen: local Node service wrapping existing frozen modules; one facilitated experiment, loopback-only, no hosting, accounts or auth.
+Preparation calls `runPreflight`; explicit assent calls `freezeExperiment`.
+Run/proof/replay/ledger call existing modules/executables; no copied policy, verifier or entitlement engine.
+The portable verifier remains independent; do not replace it with the runner.
+Operational preparation/submission state is not a new protocol object.
+Given identical inputs, authoritative outputs must match CLI bytes. Real timestamps remain explicit inputs; never mutate frozen artifacts to normalize them.
+All preparation and test scratch writes use OS temp; keep operational sidecars/reports outside exact freeze/proof generations.
+Browser controls are participation aids, not authentication.
+Display the operating mode and declared-identity limitation before freeze and on response recording.
 
-| UI element | Source (run-record.json / replay report) |
-|---|---|
-| Frozen base | `checks.freeze_closure = VERIFIED` + suite/lockfile byte checks |
-| Regression fixed | `checks.patched_acceptance = GREEN` (with `base_regression_recheck = RED`) |
-| Existing suite | `checks.baseline_health_patched = GREEN` |
-| Allowed scope | `policy_result = OK` (path/scope wall) |
-| Dependencies | `checks.dependency_policy = OK` |
-| Determinism | `checks.determinism = n/n` |
-| Independent replay | replay report `same_verdict = true`, `status = PASS` |
-| TIER-1 ENTITLEMENT: EARNED | `verdict = VALID` — displayed as a DERIVED conclusion, never a button |
-| INVALID case | `invalid_reason` mapped to the same human vocabulary (which rule failed) |
-| View/Download proof | the 9-file proof pack; verify.mjs instructions |
+## Implementation acceptance contract
 
-## F5 Payer Acknowledgement (the user-evidence page)
+D4–D9 are mandatory, not optional copy improvements.
+Before implementation PASS, provide evidence for:
+- Prepare publishes no freeze pack; only explicit reviewed agreement freezes; edits invalidate readiness; recheck failure/mismatch cannot silently freeze different reviewed terms.
+- Missing payer/assigned worker blocks freeze; SINGLE_CLAIMANT is visible.
+- UE-2 VALID + replay pending/FAIL/stale/mismatched/untrusted evidence never renders EARNED, including intermediate render frames.
+- Bound matching VALID/PASS produces EARNED; payer rejection preserves it and records verbatim rejection.
+- Phase changes retain badges; restart never invents running processes or completed verification.
+- Tier-2 zero shows unused; nonzero declared-only view exposes no review/settlement control.
+- Declared identities and OBSERVED / UNSIGNED never become authenticated/signed claims.
+- Submission cannot be replaced; INVALID has no UI retry; failed verification cannot bypass UE-5 eligibility.
+- Answer later prevents finalize; NOT_ASKED requires explicit operator closure/provenance; enums unchanged.
+- Frozen module bytes/trust anchors unchanged; artifact outputs remain compatible; repository hygiene passes.
 
-Shown AFTER the payer sees F4. Three questions, exact mapping to
-`LedgerObservationsV1`:
-
-| Question | Field |
-|---|---|
-| "According to the rules you agreed to before work began, has this worker earned the Tier-1 reward?" | `payer_accepts_tier1` (+ `payer_ack_verbatim` — the UI captures the payer's own words; buttons alone are thin, prompt for one sentence) |
-| "After seeing the result, do you want to add or change any Tier-1 rule?" | `posthoc_rule_change_attempts` (0 / 1+ `posthoc_rule_change_details`) |
-| "Would you fund another task using this structure?" | `repeat_fund_intent` |
-| (auto) | `observation_source`, `observer_identity`, `source_record`, `source_record_sha256`, `payer_attestation = UNSIGNED_RECORDED` (default) |
-
-**Gap D2 (design must rule): "Not sure" is NOT in the frozen enum**
-(`YES | NO | NOT_ASKED`). Options: (a) offer Yes/No only while the
-question was actually asked, and "ask later" simply doesn't record yet
-(becomes NOT_ASKED only if the experiment ends unasked); or (b) widen
-the enum — requires a ratified amendment to frozen UE-5. Recommendation:
-(a), no amendment.
-
-Wording red lines (frozen — the UI must NOT re-inflate claims):
-`SIGNED` renders "SIGNED_STATEMENT / RECORDED — NOT MACHINE-VERIFIED";
-technical vs user evidence stay separate lines; no "PAYER-ATTESTED".
-
----
-
-# DESIGN INPUT B — experiment state machine (disk-level ground truth)
-
-Each UI state must BE a fact about the experiment directory, not a
-database row:
-
-```text
-DRAFT                      no freeze pack dir yet (F1 in progress)
-FROZEN                     freeze pack exists (4 files, closure verified)
-WORK SUBMITTED             worker.patch present in the experiment dir
-VERIFYING                  UE-2 run in flight (transient)
-TIER-1 VALID / INVALID     run-record.json exists; verdict field decides
-PAYER RESPONSE RECORDED    observations/001.json… exist (append-only)
-FINALIZED                  final-ledger.json exists (once, forever)
-```
-
-**Gap D3 (small): "WORK SUBMITTED" has no artifact today** — the runner
-consumes a patch path directly. The orchestrator layer should simply
-place `worker.patch` (and nothing else) into the experiment directory as
-the submission marker; it is operational metadata, NOT a frozen object,
-and the run record hash-binds the patch bytes anyway.
-
-Transitions and actors: DRAFT→FROZEN (payer clicks freeze; operator
-supplies repo/config), FROZEN→WORK SUBMITTED (worker submits patch),
-→VERIFYING→VALID/INVALID (machine), →PAYER RESPONSE RECORDED (payer
-answers; observations append), →FINALIZED (finalize once; revisions of
-observations allowed before final, final head never forks — UE5-R-FINALITY).
-
----
-
-# DESIGN INPUT C — integration architecture (design must choose)
-
-The machine is a file-based pipeline (freeze → run → proof → replay →
-ledger), single-experiment, pre-money. Two shapes:
-
-```text
-(A) READ-ONLY VIEWER       the operator runs the existing CLIs; the UI
-                           reads the experiment directory and renders.
-                           Zero new trusted code; slowest demo flow.
-
-(B) LOCAL ORCHESTRATOR     one local Node service (localhost, no
-    (recommended for R1)   accounts) that wraps the SAME frozen modules
-                           in-process (import, not re-implement), writes
-                           the same artifacts, and serves the UI. The
-                           maintainer clicks "freeze"/"acknowledge" in a
-                           browser during a session. Single operator, no
-                           hosting, no auth; the trust anchor stays the
-                           frozen machine + trust block.
-```
-
-Constraints either way: the orchestrator may only CALL the frozen
-modules (schema/freeze/run/proof/replay/ledger); it must not restate
-their logic; all artifacts it writes must remain byte-identical to the
-CLI outputs; frontend tests obey the repository hygiene gate (writes to
-OS temp only); `apps/experiment-ui` fits the existing npm workspace
-(`apps/*` is already declared).
-
-Identity: Maintainer / Worker / Observer are role labels bound to the
-frozen strings `payer_identity` / `worker_identity` (single claimant);
-no accounts, no sessions in R1.
-
+Gate summary:
+INFORMATION ARCHITECTURE = PASS
+CORE PRODUCT LANGUAGE = PASS
+F1–F5 SCOPE = PASS
+LOCAL ORCHESTRATOR DIRECTION = PASS
+D4–D9 INTERACTION SPEC = CLOSED IN THIS DOCUMENT
+PRODUCT-UX-R0 = PASS / FROZEN (specification)
+FRONTEND-R1 IMPLEMENTATION = GO (implementation evidence still required)
+REAL USER EVIDENCE / PMF = NOT ESTABLISHED BY THIS DOCUMENT
