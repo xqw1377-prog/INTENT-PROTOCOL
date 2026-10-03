@@ -48,17 +48,22 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-01 devnet program IMMUTABLE / PH-02 byte portability /
                      PH-03 independent verifier / PH-04 input-domain closure /
                      PH-05 durable journal w/ coupled ruleset identity)
-NEXT TARGET         = FIND THE FIRST REAL MAINTAINER (EXPERIMENT-001).
-                     The repository self-proof phase is CLOSED by
-                     Commander order 2026-10-03. PASS here means only:
-                     the machine can support the first real user-evidence
-                     experiment. It does NOT mean product-market fit /
-                     payer demand / commercial viability — all three
-                     remain NO-EVIDENCE. Frozen regardless:
-                     MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
-                     TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED;
-                     PROTOCOL EXPANSION / UNIFIED CLI / UI / PAYMENTS /
-                     AUTO-RELEASE / CONCURRENT CLAIM / TIER-2 ENGINE = HOLD.
+NEXT DEVELOPMENT   = FRONTEND-R1 — minimal experiment product
+                     (docs/product/FRONTEND-R1.md): F1 Task Freeze,
+                     F2 Frozen Task View, F3 Worker Submission, F4
+                     Verification Result, F5 Payer Acknowledgement +
+                     Experiment status. Objective: EXPERIMENT-001 usable
+                     by a real maintainer and worker. Awaiting Commander
+                     design (IA / pages / state machine / visual
+                     language) → then implementation. PROTOCOL WORK =
+                     HOLD. "Stop self-proving" ≠ "stop developing":
+                     product/front-end/experiment-UI work continues;
+                     protocol/chain/payments/auto-release/concurrent-
+                     claim/Tier-2 work does not.
+EXPERIMENT-001     = WAITING FOR FRONTEND-R1 MINIMUM FLOW (trust anchor
+                     frozen at docs/experiments/EXPERIMENT-001.md:
+                     MAIN fe18be0 / audit ca0c646 / release
+                     sha256:25286e96… / verifier sha256:292d5804…).
 USER-EVIDENCE-R0    = PASS / FROZEN-R0 (Commander @ CUT-2R1 ca0c646,
                      2026-10-03). UE-0 / UE-1 / UE-2 / UE-3 / UE-4 /
                      UE-5 = PASS / FROZEN-R0. Technical readiness for
@@ -78,9 +83,9 @@ VERIFIER RELEASE    = packages/user-evidence-r0/VERIFIER-RELEASE.json —
                      the package-external trust root for portable
                      proof packs (a pack can never vouch for its own
                      verifier).
-EXPERIMENT-001      = NOT STARTED (requires REAL maintainer + REAL repo +
-                     REAL bug; no fictional fixtures).
-REAL PAYER / REAL TASK / REAL EXTERNAL WORKER = 0 / 0 / 0.
+REAL PAYER / REAL TASK / REAL EXTERNAL WORKER = 0 / 0 / 0 (targets: 1/1/1
+                     via EXPERIMENT-001; requires REAL maintainer + REAL
+                     repo + REAL bug; no fictional fixtures).
 
 LOCAL SETTLEMENT    = PROVEN / SIGNED
 LOCAL GOLDEN PATH   = PROVEN
