@@ -39,7 +39,40 @@ freeze-window (`BASE(3fbef70)..materialization(545cb43)`), so `.gitattributes`
 no longer participates in that historical window: the pinned window contains
 identity-scoped paths only, and the post-materialization guard freezes the
 identity objects themselves. Therefore this amendment does **not** require
-admitting `.gitattributes` into the CURRENT V3.11 allowlist, and nothing in the
-current implementation may be read as narrowing or revoking the ratified
+admitting `.gitattributes` into the CURRENT V3.11 allowlist, and nothing in
+the current implementation may be read as narrowing or revoking the ratified
 decision. `.gitattributes` remains a repository byte-integrity control and a
 non-semantic governance artifact.
+
+## USER-EVIDENCE-R0-AMENDMENT-1 — install-domain narrowing of the R0 experiment schema
+
+Status: RATIFIED (Commander, CUT-2R1 sign-off 2026-10-03).
+
+```text
+BASIS
+  = CUT-2R1 install-authority hardening (AUDIT-A / A2 closure)
+
+CHANGE
+  = RealTaskExperimentV1 R0 install domain narrowed:
+      package_manager: "npm" only
+      install_command: "npm ci --ignore-scripts" only
+    (single source: packages/user-evidence-r0/src/schema.ts
+     CANONICAL_INSTALL_COMMAND + assertInstallAuthority)
+
+SEMANTICS
+  = validation-domain tightening only
+  = no new economic authority
+  = no change to Tier-1 entitlement semantics
+  = existing canonical R0 packs remain valid
+  = previously admissible non-canonical install configs
+    (pnpm/yarn/none, extra flags, chained shell) become INELIGIBLE
+  = CUT-1R2 remains landed history; this amendment records that its
+    schema surface was TIGHTENED by CUT-2R1, never silently
+```
+
+Context: CUT-1R2 (landed at main 13b0145) admitted
+`install_command: string` / `package_manager: npm|pnpm|yarn|none`, which the
+CUT-2 audit classified as frozen-string → arbitrary-shell authority. CUT-2R1
+(@ ca0c646, Commander-signed PASS) closed it to a canonical direct-argv
+operation. This entry exists so the narrowing is governed history, not an
+unrecorded change to a landed cut.

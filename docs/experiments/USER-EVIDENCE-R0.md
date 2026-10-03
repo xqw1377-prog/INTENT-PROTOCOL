@@ -1,12 +1,12 @@
 # USER-EVIDENCE-R0 — Experiment Contract (UE-0 Freeze)
 
-Status: **CUT-2R1 implemented (2026-10-03) — install authority closed per
-Commander GO; UE5 wording downgraded. Ruling ledger: UE2-R-PATH = PASS /
-FROZEN · UE2-R-INSTALL = was HOLD-1, closed by §7b pending re-audit ·
-UE-3 = PASS / FROZEN · UE-4 = PASS / FROZEN-R0 (external trust anchor
-to be frozen into the experiment governance record before
-EXPERIMENT-001) · UE-5 PROVENANCE = PASS (wording fix applied) ·
-UE-5 FINALITY = PASS / FROZEN. UNIFIED CLI = HOLD; no features.**
+Status: **PASS / FROZEN-R0 (Commander sign-off 2026-10-03 @ CUT-2R1
+ca0c646). UE-0 / UE-1 / UE-2 / UE-3 / UE-4 / UE-5 = PASS / FROZEN-R0.
+Technical readiness for EXPERIMENT-001 = YES — repository self-proof
+phase CLOSED by Commander order; user-evidence-r0 code is FROZEN (no
+further changes without a new cut). PMF / payer demand / commercial
+viability remain NO-EVIDENCE — that is what EXPERIMENT-001 exists to
+test.**
 
 Authority: Commander order `USER-EVIDENCE-R0 / CUT-1 = GO` (2026-10-01);
 `USER-EVIDENCE-R0 / CUT-2..CUT-4 = GO` (2026-10-03, repo-authority directive:

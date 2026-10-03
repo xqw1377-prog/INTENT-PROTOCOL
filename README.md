@@ -20,9 +20,9 @@ GP4                 = PASS / FROZEN
 GP5                 = PASS / FROZEN (COMMANDER SIGNED)
 MAIN-CLOSURE-R1     = PASS / CLOSED
 
-CURRENT GATE        = USER-EVIDENCE-R0 (Commander ruling 2026-10-03:
-                     PRODUCT-THESIS-R0 = PASS / FROZEN;
-                     USER-EVIDENCE-R0 = OPEN)
+CURRENT GATE        = EXPERIMENT-001 / REAL USER EVIDENCE (Commander
+                     2026-10-03: PRODUCT-THESIS-R0 = PASS / FROZEN;
+                     USER-EVIDENCE-R0 MACHINE = PASS / FROZEN-R0)
 EXE-R0              = PASS / FROZEN (Commander, 2026-09-29 @ 38ac0fb)
 TESTNET-R1 / T0     = PASS / FROZEN (Commander, 2026-09-29, basis
                      8648376 + ebf1ed9, adjudicated @ 75407f3)
@@ -48,33 +48,27 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-01 devnet program IMMUTABLE / PH-02 byte portability /
                      PH-03 independent verifier / PH-04 input-domain closure /
                      PH-05 durable journal w/ coupled ruleset identity)
-NEXT TARGET         = USER-EVIDENCE-R0: Commander re-audit of CUT-2R1
-                     (install authority) at
-                     audit/user-evidence-r0-cut2-cut4 → sign
-                     UE-0..UE-5 PASS / FROZEN-R0 → freeze the external
-                     verifier trust anchor into the experiment
-                     governance record → FIND THE FIRST REAL
-                     MAINTAINER (EXPERIMENT-001). Frozen regardless:
+NEXT TARGET         = FIND THE FIRST REAL MAINTAINER (EXPERIMENT-001).
+                     The repository self-proof phase is CLOSED by
+                     Commander order 2026-10-03. PASS here means only:
+                     the machine can support the first real user-evidence
+                     experiment. It does NOT mean product-market fit /
+                     payer demand / commercial viability — all three
+                     remain NO-EVIDENCE. Frozen regardless:
                      MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
                      TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED;
-                     UNIFIED CLI = HOLD; PROTOCOL EXPANSION = HOLD;
-                     NO new UI / payments / auto-release / concurrent
-                     claims / Tier-2 engine.
-USER-EVIDENCE-R0    = OPEN — ONE REMAINING GATE (Commander re-audit
-                     2026-10-03: UE-2 = HOLD-1 / INSTALL AUTHORITY
-                     ONLY; UE-3 = PASS / FROZEN; UE-4 = PASS /
-                     FROZEN-R0 — external trust anchor must be frozen
-                     into the experiment governance record before
-                     EXPERIMENT-001; UE-5 = PASS / FROZEN-R0 with
-                     wording fix applied — SIGNED renders
-                     SIGNED_STATEMENT / RECORDED, NOT MACHINE-VERIFIED).
-                     CUT-2R1 (install authority: npm-only, canonical
-                     argv, INSTALL-R1..R4) implemented at
-                     audit/user-evidence-r0-cut2-cut4, awaiting
-                     re-audit → then UE-0..UE-5 = PASS / FROZEN-R0
-                     and the machine is READY FOR EXPERIMENT-001.
-CUT-1R2             = PASS CANDIDATE (Commander audit 2026-10-03: no
-                     blocker found); LANDED REMOTE (main @ 13b0145).
+                     PROTOCOL EXPANSION / UNIFIED CLI / UI / PAYMENTS /
+                     AUTO-RELEASE / CONCURRENT CLAIM / TIER-2 ENGINE = HOLD.
+USER-EVIDENCE-R0    = PASS / FROZEN-R0 (Commander @ CUT-2R1 ca0c646,
+                     2026-10-03). UE-0 / UE-1 / UE-2 / UE-3 / UE-4 /
+                     UE-5 = PASS / FROZEN-R0. Technical readiness for
+                     EXPERIMENT-001 = YES. Install authority = canonical
+                     npm argv, zero shell (INSTALL-R1..R4);
+                     USER-EVIDENCE-R0-AMENDMENT-1 records the CUT-1R2
+                     schema tightening (docs/AMENDMENTS.md).
+CUT-1R2             = PASS / FROZEN-R0 (Commander audit: no blocker
+                     found); LANDED REMOTE; schema surface later
+                     tightened by ratified AMENDMENT-1.
 EVIDENCE SCENE evidence/3b941db2 = CLOSED WITH PERMANENT LOSS
                      (Commander 2026-10-03; disclosure PASS; incident
                      record docs/incidents/EVIDENCE-SCENE-3b941db2-DELETION.md;
