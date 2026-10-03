@@ -9,20 +9,56 @@
  * replay-report) live OUTSIDE the exact frozen/proof generations.
  */
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { freezeExperiment, runPreflight, type FreezeTaskConfig, type FreezeManifest } from "../../../packages/user-evidence-r0/src/freeze.ts";
 import { CANONICAL_INSTALL_COMMAND } from "../../../packages/user-evidence-r0/src/schema.ts";
 import { runWorkerPatch, type RunRecordV1 } from "../../../packages/user-evidence-r0/src/run.ts";
 import { buildProofPack, tier1VerdictOf } from "../../../packages/user-evidence-r0/src/proof.ts";
-import { replayPack } from "../../../packages/user-evidence-r0/src/portable-replay.mjs";
 import { recordObservation, finalizeLedger, sha256OfFile, sha256Of, type LedgerObservationsV1 } from "../../../packages/user-evidence-r0/src/ledger.ts";
 import { deriveExperimentState, experimentPaths } from "./state.ts";
 import { TRUST_ANCHOR } from "./trust-anchor.ts";
 
-/** P0-5: the file whose bytes we hash before replay IS the module imported above. */
+/**
+ * P0-3 (review fix): the trusted verifier is NEVER executed from the module
+ * cache. At replay time the on-disk bytes are hashed against the anchor,
+ * copied to a protected temp location, the COPY is re-hashed (what was
+ * checked is what executes), and the copy runs in a SEPARATE process.
+ * Swapping the module between boot and request cannot make the server run
+ * un-checked code.
+ */
 const PORTABLE_REPLAY_PATH = fileURLToPath(new URL("../../../packages/user-evidence-r0/src/portable-replay.mjs", import.meta.url));
+
+function runTrustedReplay(packDir: string): Record<string, unknown> {
+  const diskSha = sha256OfFile(PORTABLE_REPLAY_PATH);
+  if (diskSha !== TRUST_ANCHOR.portable_replay_sha256) {
+    throw new Error(`the verifier bytes on disk hash to ${diskSha}, not the EXPERIMENT-001 anchor — execution refused`);
+  }
+  const work = mkdtempSync(path.join(tmpdir(), "ue-trusted-replay-"));
+  try {
+    const copy = path.join(work, "verify.mjs"); // named verify.mjs → the CLI entry
+    writeFileSync(copy, readFileSync(PORTABLE_REPLAY_PATH), { mode: 0o400 });
+    chmodSync(copy, 0o400);
+    const copySha = sha256OfFile(copy);
+    if (copySha !== TRUST_ANCHOR.portable_replay_sha256) {
+      throw new Error(`protected copy hashes to ${copySha} — refusing to execute anything un-checked`);
+    }
+    const reportPath = path.join(work, "replay-report.json");
+    let code = 0;
+    try {
+      execFileSync(process.execPath, [copy, "--pack", packDir, "--report", reportPath], { encoding: "utf8", timeout: 20 * 60_000, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
+    } catch (e) {
+      code = (e as { status?: number }).status ?? 1; // exit 1 = verified FAIL — the report still exists
+    }
+    if (!existsSync(reportPath)) throw new Error(`trusted verifier produced no report (exit ${code})`);
+    return JSON.parse(readFileSync(reportPath, "utf8")) as Record<string, unknown>;
+  } finally {
+    rmSync(work, { recursive: true, force: true });
+  }
+}
 
 /**
  * The cardinal pre-commit statement shown at the F1 pre-commit moment and
@@ -287,18 +323,12 @@ export function createExperimentServer(expDir: string): Server {
       if (existsSync(p.replayReport)) return json(res, 409, { error: "replay evidence already exists for this run — no auto-retry; operator action required" });
       const derived = tier1VerdictOf(readJson(p.runRecord) as never);
       if (derived !== "VALID") return json(res, 409, { error: `replay is available only for a derived-VALID run (got ${derived})` });
-      // P0-5: verify the identity of the release file AND of the ACTUAL verifier
-      // bytes that are about to execute (the module imported at the top of this
-      // file — hashed here from disk, so what is checked is what runs).
+      // P0-5: the anchored release file must be the repository's actual release
       const releasePath = path.join(repoRoot, "packages/user-evidence-r0/VERIFIER-RELEASE.json");
       if (!existsSync(releasePath)) return json(res, 500, { error: "VERIFIER-RELEASE.json not found — the trusted verifier cannot be established" });
       const releaseSha = sha256OfFile(releasePath);
       if (releaseSha !== TRUST_ANCHOR.verifier_release_sha256) {
         return json(res, 500, { error: `VERIFIER-RELEASE.json hash ${releaseSha} does not match the EXPERIMENT-001 anchor — trusted verifier NOT established` });
-      }
-      const verifierSha = sha256OfFile(PORTABLE_REPLAY_PATH);
-      if (verifierSha !== TRUST_ANCHOR.portable_replay_sha256) {
-        return json(res, 500, { error: `the verifier module about to execute hashes to ${verifierSha}, not the EXPERIMENT-001 anchor ${TRUST_ANCHOR.portable_replay_sha256} — execution refused` });
       }
       transient.verifying = true;
       try {
@@ -306,7 +336,9 @@ export function createExperimentServer(expDir: string): Server {
         if (!existsSync(p.proofDir)) {
           buildProofPack({ freezePackDir: p.freezeDir, runRecordPath: p.runRecord, patchPath: p.workerPatch, repoDir: String(frozen.repository_url), outDir: p.proofDir, builtAt: new Date().toISOString() });
         }
-        const report = replayPack(p.proofDir, { replayedAt: new Date().toISOString() });
+        // P0-3: check the disk bytes, copy them protected, execute THE COPY in a
+        // separate process — never the boot-time module cache
+        const report = runTrustedReplay(p.proofDir);
         writeAtomic(p.replayReport, JSON.stringify(report, null, 2) + "\n"); // sidecar — NEVER inside the 9-file pack
         return json(res, 200, { ok: report.status === "PASS", report, state: statePayload() });
       } finally {

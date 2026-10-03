@@ -107,8 +107,16 @@ function buildChain(d: string): void {
   };
   wj(p.runRecord, record);
 
-  // proof pack: manifest binds the CURRENT freeze task / patch / record; verifier bytes = anchored
+  // proof pack: the COMPLETE nine-file protocol set, every entry byte-verified
   cpSync(REAL_VERIFY_MJS, path.join(p.proofDir, "verify.mjs"));
+  cpSync(path.join(p.freezeDir, "task.json"), path.join(p.proofDir, "task.json"));
+  cpSync(path.join(p.freezeDir, "ruleset.json"), path.join(p.proofDir, "ruleset.json"));
+  cpSync(path.join(p.freezeDir, "contract-freeze.json"), path.join(p.proofDir, "contract-freeze.json"));
+  cpSync(path.join(p.freezeDir, "freeze-manifest.json"), path.join(p.proofDir, "freeze-manifest.json"));
+  cpSync(p.runRecord, path.join(p.proofDir, "run-record.json"));
+  w(path.join(p.proofDir, "worker.patch"), patchText);
+  w(path.join(p.proofDir, "base.bundle"), "synthetic-git-bundle-bytes\n");
+  const packFile = (name: string, file = path.join(p.proofDir, name)) => ({ sha256: sha256OfFile(file), bytes: readFileSync(file).length });
   const proofManifest = {
     schema_version: "outcome-proof-manifest.v1",
     experiment_id: task.experiment_id, built_at: "2026-10-03T02:00:00Z", tier1_verdict: "VALID",
@@ -116,10 +124,14 @@ function buildChain(d: string): void {
     precommit_binding: manifest.precommit_binding, patch_sha256: record.patch_sha256,
     verifier_sha256: sha256OfFile(path.join(p.proofDir, "verify.mjs")),
     files: {
-      "task.json": { sha256: sha256OfFile(path.join(p.freezeDir, "task.json")), bytes: readFileSync(path.join(p.freezeDir, "task.json")).length },
-      "worker.patch": { sha256: sha256Of(patchText), bytes: patchText.length },
-      "run-record.json": { sha256: sha256OfFile(p.runRecord), bytes: readFileSync(p.runRecord).length },
-      "verify.mjs": { sha256: sha256OfFile(path.join(p.proofDir, "verify.mjs")), bytes: readFileSync(path.join(p.proofDir, "verify.mjs")).length },
+      "task.json": packFile("task.json"),
+      "ruleset.json": packFile("ruleset.json"),
+      "contract-freeze.json": packFile("contract-freeze.json"),
+      "freeze-manifest.json": packFile("freeze-manifest.json"),
+      "worker.patch": packFile("worker.patch"),
+      "run-record.json": packFile("run-record.json"),
+      "base.bundle": packFile("base.bundle"),
+      "verify.mjs": packFile("verify.mjs"),
     },
   };
   wj(path.join(p.proofDir, "proof-manifest.json"), proofManifest);
@@ -257,6 +269,125 @@ describe("[FR-1] the verified evidence chain", () => {
       expect(s.evidenceErrors.join(" ")).toMatch(/observation 001.json invalid/);
       expect(s.evidenceErrors.join(" ")).toMatch(/final ledger invalid/);
       expect(s.phase).toBe("AWAITING_PAYER"); // earned facts stand; recording is an evidence error
+    } finally {
+      rmSync(d, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("[FR-1] review round-2 counterexamples", () => {
+  test("REVIEW-2A: an INCOMPLETE pack (manifest+verify.mjs only) with recomputed digests → never EARNED", () => {
+    const d = freshChain();
+    try {
+      buildChain(d);
+      const p = experimentPaths(d);
+      // delete seven of the nine files, keep manifest + verify.mjs (the reviewer's shape)
+      for (const f of ["task.json", "ruleset.json", "contract-freeze.json", "freeze-manifest.json", "worker.patch", "run-record.json", "base.bundle"]) {
+        rmSync(path.join(p.proofDir, f));
+      }
+      // attacker recomputes the report digests over what remains
+      const report = JSON.parse(readFileSync(p.replayReport, "utf8"));
+      report.files_binding = filesBindingOf(p.proofDir);
+      wj(p.replayReport, report);
+      const s = deriveExperimentState(d);
+      expect(s.facts.replay).toBe("FAIL");
+      expect(s.facts.tier1_entitlement).not.toBe("EARNED");
+      expect(s.phase).not.toBe("AWAITING_PAYER");
+      expect(s.evidenceErrors.join(" ")).toContain("nine-file");
+    } finally {
+      rmSync(d, { recursive: true, force: true });
+    }
+  });
+
+  test("REVIEW-2B: verifier DELETED from the pack, digests recomputed → FAIL (missing verifier is a failure, not a skip)", () => {
+    const d = freshChain();
+    try {
+      buildChain(d);
+      const p = experimentPaths(d);
+      rmSync(path.join(p.proofDir, "verify.mjs"));
+      const report = JSON.parse(readFileSync(p.replayReport, "utf8"));
+      report.files_binding = filesBindingOf(p.proofDir);
+      wj(p.replayReport, report);
+      const s = deriveExperimentState(d);
+      expect(s.facts.replay).toBe("FAIL");
+      expect(s.facts.tier1_entitlement).not.toBe("EARNED");
+      expect(s.evidenceErrors.join(" ")).toMatch(/nine-file|verify.mjs bytes/);
+    } finally {
+      rmSync(d, { recursive: true, force: true });
+    }
+  });
+
+  test("REVIEW-2C: well-formed observation/ledger WITHOUT any proof pack → NOT RECORDED / NOT FINALIZED", () => {
+    const d = freshChain();
+    try {
+      const p = experimentPaths(d);
+      mkdirSync(p.observationsDir, { recursive: true });
+      const transcript = "Q1 → YES";
+      const obs = {
+        schema_version: "real-task-observation.v1",
+        seq: 1,
+        recorded_at: "2026-10-03T00:00:00Z",
+        pack_binding: { proof_manifest_sha256: "sha256:" + "c".repeat(64), files_binding: "sha256:" + "d".repeat(64) },
+        replay_check: { status: "PASS", tier1_verdict: "VALID" },
+        observations: {
+          schema_version: "real-task-ledger-observations.v1", third_party_replay: "SAME",
+          payer_accepts_tier1: true, payer_ack_verbatim: "yes", payer_ack_timestamp: "2026-10-03T00:00:00Z",
+          posthoc_rule_change_attempts: 0, posthoc_rule_change_details: [], repeat_fund_intent: "YES",
+          observation_source: "INTERVIEW", observer_identity: "op", source_record: transcript,
+          source_record_sha256: sha256Of(transcript), payer_attestation: "UNSIGNED_RECORDED", recorded_at: "2026-10-03T00:00:00Z",
+        },
+      };
+      wj(path.join(p.observationsDir, "001.json"), obs);
+      wj(p.finalLedger, {
+        schema_version: "real-task-ledger.v1", experiment_id: "ue-x", finalized_at: "2026-10-03T00:00:00Z",
+        finality: { observation_seq: 1, observations_total: 1, final: true },
+        technical: { tier1_verdict: "VALID", third_party_replay: "SAME", proof_manifest_sha256: "sha256:" + "c".repeat(64) },
+        user_evidence: { payer_accepts_tier1: true, repeat_fund_intent: "YES", posthoc_rule_change_attempts: 0 },
+        verdict: "THESIS STRENGTHENED", rendered: "",
+      });
+      const s = deriveExperimentState(d);
+      expect(s.facts.payer_response).toBe("NONE");
+      expect(s.facts.ledger).toBe("OPEN");
+      expect(s.facts.tier1_entitlement).toBe("PENDING");
+      expect(s.evidenceErrors.join(" ")).toContain("without a valid, chain-bound proof pack");
+    } finally {
+      rmSync(d, { recursive: true, force: true });
+    }
+  });
+
+  test("REVIEW-2D: ledger disagreeing with the latest valid observation → OPEN", () => {
+    const d = freshChain();
+    try {
+      buildChain(d);
+      const p = experimentPaths(d);
+      const report = JSON.parse(readFileSync(p.replayReport, "utf8"));
+      const manifestSha = sha256OfFile(path.join(p.proofDir, "proof-manifest.json"));
+      const transcript = "Q1 → YES";
+      const obs = {
+        schema_version: "real-task-observation.v1", seq: 1, recorded_at: "2026-10-03T00:00:00Z",
+        pack_binding: { proof_manifest_sha256: manifestSha, files_binding: report.files_binding },
+        replay_check: { status: "PASS", tier1_verdict: "VALID" },
+        observations: {
+          schema_version: "real-task-ledger-observations.v1", third_party_replay: "SAME",
+          payer_accepts_tier1: true, payer_ack_verbatim: "yes", payer_ack_timestamp: "2026-10-03T00:00:00Z",
+          posthoc_rule_change_attempts: 0, posthoc_rule_change_details: [], repeat_fund_intent: "YES",
+          observation_source: "INTERVIEW", observer_identity: "op", source_record: transcript,
+          source_record_sha256: sha256Of(transcript), payer_attestation: "UNSIGNED_RECORDED", recorded_at: "2026-10-03T00:00:00Z",
+        },
+      };
+      mkdirSync(p.observationsDir, { recursive: true });
+      wj(path.join(p.observationsDir, "001.json"), obs);
+      wj(p.finalLedger, {
+        schema_version: "real-task-ledger.v1", experiment_id: "ue-x", finalized_at: "2026-10-03T00:00:00Z",
+        finality: { observation_seq: 1, observations_total: 1, final: true },
+        technical: { tier1_verdict: "VALID", third_party_replay: "SAME", proof_manifest_sha256: manifestSha },
+        user_evidence: { payer_accepts_tier1: true, repeat_fund_intent: "YES", posthoc_rule_change_attempts: 0 },
+        verdict: "THESIS CHALLENGED", rendered: "", // LIES: derived conclusion is STRENGTHENED
+      });
+      const s = deriveExperimentState(d);
+      expect(s.facts.payer_response).toBe("RECORDED");
+      expect(s.facts.ledger).toBe("OPEN"); // disagrees with the derived conclusion
+      expect(s.evidenceErrors.join(" ")).toContain("verdict THESIS CHALLENGED != derived THESIS STRENGTHENED");
     } finally {
       rmSync(d, { recursive: true, force: true });
     }

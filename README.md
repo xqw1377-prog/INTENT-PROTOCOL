@@ -51,26 +51,25 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
 NEXT DEVELOPMENT   = FRONTEND-R1 — minimal experiment product
                      (docs/product/FRONTEND-R1.md + frozen spec
                      docs/product/FRONTEND-R1-SPEC.md incl. HOLD-6
-                     REVISION 2). Implementation revised per the
-                     Commander's HOLD review of 9550d4c: verified-chain
-                     state derivation (freeze closure / reviewed-terms
-                     match / record-patch binding / proof-pack chain /
-                     replay freshness ∧ source-trust; observations and
-                     the final ledger structurally verified), first-
-                     answer Answer-later closure, review_id-bound
-                     consent, actual-verifier-bytes precheck, explicit
-                     acceptance-suite inputs, F4 EARNED as landing view,
-                     exact patch bytes. Run: apps/experiment-ui/start.sh
-                     (Node ≥ 22.7, --experimental-transform-types).
-                     All review counterexamples are machine-tested
-                     (apps/experiment-ui/test/fr1+fr3456). Awaiting
-                     re-review. PROTOCOL WORK = HOLD.
-FRONTEND/UE COMPAT  = DISCLOSURE: ledger.ts additive exports
-                     (filesBindingOf/sha256Of/sha256OfFile) changed
-                     frozen-module BYTES; semantics identical, full
-                     suite green; compatibility ruling REQUESTED —
-                     acceptance item 10 is NOT claimed as
-                     "frozen-module bytes unchanged" until ruled.
+                     REVISION 2). Review round-2 (HOLD-4) blockers
+                     closed: complete nine-file byte-verified proof
+                     packs only; observations/ledger fail without
+                     their binding target and the ledger must agree
+                     with the latest VALID observation incl. the
+                     derived conclusion; replay executes a re-hashed
+                     read-only COPY of the anchored verifier bytes in
+                     a separate process (never the boot-time module
+                     cache); browser first-Answer-later path
+                     complete. Browser acceptance passed end-to-end
+                     in real Chrome via real page operations
+                     (F1→FINALIZED / THESIS MIXED, all badges
+                     retained; walkthrough caught + fixed two real
+                     frontend bugs). Awaiting re-review.
+                     PROTOCOL WORK = HOLD.
+LEDGER ADDITIVE-EXPORT COMPATIBILITY = PASS (Commander 2026-10-03:
+                     reverting the three disclosed exports restores
+                     ledger.ts byte-identical to the fe18be0 baseline;
+                     scope = those exports only).
 EXPERIMENT-001     = WAITING FOR FRONTEND-R1 MINIMUM FLOW (trust anchor
                      frozen at docs/experiments/EXPERIMENT-001.md:
                      MAIN fe18be0 / audit ca0c646 / release

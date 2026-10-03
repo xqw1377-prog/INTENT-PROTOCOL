@@ -23,7 +23,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import * as path from "node:path";
 import { verifyFreezePackDir } from "../../../packages/user-evidence-r0/src/pack.ts";
 import { tier1VerdictOf } from "../../../packages/user-evidence-r0/src/proof.ts";
-import { filesBindingOf, sha256OfFile, sha256Of } from "../../../packages/user-evidence-r0/src/ledger.ts";
+import { filesBindingOf, sha256OfFile, sha256Of, thesisVerdictOf } from "../../../packages/user-evidence-r0/src/ledger.ts";
 import { TRUST_ANCHOR } from "./trust-anchor.ts";
 
 export type RulesState = "DRAFT" | "FROZEN";
@@ -171,53 +171,95 @@ function deriveTermsMatch(expDir: string, eligibility: Record<string, unknown> |
   return pairs.every(([a, b]) => JSON.stringify(a) === JSON.stringify(b));
 }
 
-/** D6: the proof pack must bind the CURRENT freeze task, submitted patch, and run record. */
-function deriveProofChain(expDir: string): { match: boolean | null; errors: string[] } {
+/** The exact proof-pack file set (spec §8: nine files, no more, no less). */
+const PROOF_PACK_FILES = [
+  "base.bundle", "contract-freeze.json", "freeze-manifest.json", "proof-manifest.json",
+  "run-record.json", "ruleset.json", "task.json", "verify.mjs", "worker.patch",
+] as const;
+
+/** A shared, verified view of the proof pack — one chain, not three coincidences. */
+interface ProofPackView {
+  present: boolean;
+  complete: boolean; // exact 9-file set on disk
+  allBytesMatch: boolean; // every manifest entry verified against actual file bytes
+  verifierAnchored: boolean; // pack verify.mjs bytes == anchor (UNCONDITIONAL)
+  chainBound: boolean; // task/patch/record entries == the current artifacts
+  manifestSha: string | null;
+  errors: string[];
+}
+
+/**
+ * P0-1 (review fix): a proof pack counts only when the COMPLETE nine-file set
+ * exists on disk, EVERY manifest entry matches the actual file bytes, the
+ * pack's verifier bytes equal the anchor (missing verifier is a FAILURE, not
+ * a skip), and the task/patch/record entries bind the CURRENT artifacts.
+ */
+function deriveProofPack(expDir: string): ProofPackView {
   const p = experimentPaths(expDir);
   const manifestPath = path.join(p.proofDir, "proof-manifest.json");
-  if (!existsSync(manifestPath)) return { match: null, errors: [] };
+  const view: ProofPackView = { present: false, complete: false, allBytesMatch: false, verifierAnchored: false, chainBound: false, manifestSha: null, errors: [] };
+  if (!existsSync(manifestPath)) return view;
+  view.present = true;
+  view.manifestSha = sha256OfFile(manifestPath);
   const manifest = tryReadJson(manifestPath);
-  if (!manifest || manifest.schema_version !== "outcome-proof-manifest.v1") return { match: false, errors: ["proof manifest missing or invalid"] };
-  const files = (manifest.files ?? {}) as Record<string, { sha256?: string }>;
+  if (!manifest || manifest.schema_version !== "outcome-proof-manifest.v1") {
+    view.errors.push("proof manifest missing or invalid");
+    return view;
+  }
+  const onDisk = readdirSync(p.proofDir).sort();
+  if (JSON.stringify(onDisk) !== JSON.stringify([...PROOF_PACK_FILES].sort())) {
+    view.errors.push(`proof pack file set is not the exact nine-file protocol set (${onDisk.length} files on disk)`);
+    return view;
+  }
+  view.complete = true;
+  const files = (manifest.files ?? {}) as Record<string, { sha256?: string; bytes?: number }>;
+  const listed = Object.keys(files).sort();
+  const expectedListed = PROOF_PACK_FILES.filter((f) => f !== "proof-manifest.json").sort();
+  if (JSON.stringify(listed) !== JSON.stringify(expectedListed)) {
+    view.errors.push("proof manifest does not list exactly the expected files");
+    return view;
+  }
+  for (const name of expectedListed) {
+    const file = path.join(p.proofDir, name);
+    const bytes = readFileSync(file);
+    if (files[name].sha256 !== sha256OfFile(file) || files[name].bytes !== bytes.length) {
+      view.errors.push(`proof file ${name} does not match its manifest entry`);
+    }
+  }
+  view.allBytesMatch = view.errors.length === 0;
+  // UNCONDITIONAL verifier identity: the pack must CARRY the anchored verifier bytes
+  view.verifierAnchored = sha256OfFile(path.join(p.proofDir, "verify.mjs")) === TRUST_ANCHOR.portable_replay_sha256;
+  if (!view.verifierAnchored) view.errors.push("pack verify.mjs bytes do not match the EXPERIMENT-001 anchor");
   const links: Array<[string, string]> = [
     ["task.json", path.join(p.freezeDir, "task.json")],
     ["worker.patch", p.workerPatch],
     ["run-record.json", p.runRecord],
   ];
-  const errors: string[] = [];
+  let chainBound = true;
   for (const [entry, current] of links) {
-    if (!files[entry]?.sha256) {
-      errors.push(`proof manifest does not list ${entry}`);
-      continue;
-    }
-    if (!existsSync(current)) {
-      errors.push(`proof binds ${entry} but the current artifact is missing`);
-      continue;
-    }
-    if (files[entry].sha256 !== sha256OfFile(current)) {
-      errors.push(`proof ${entry} does not match the current ${path.basename(current)}`);
+    if (!existsSync(current) || files[entry].sha256 !== sha256OfFile(current)) {
+      chainBound = false;
     }
   }
-  return { match: errors.length === 0, errors };
+  view.chainBound = chainBound;
+  if (!chainBound) view.errors.push("proof pack does not bind the current freeze task / submitted patch / run record");
+  return view;
 }
 
-/** D6: replay evidence — PASS only when fresh AND source-trusted (fresh ≠ trusted). */
-function deriveReplay(expDir: string, proofChain: boolean | null): { state: ReplayState; fresh: boolean | null; untrustedReason: string | null; error?: string } {
+/** D6: replay evidence — PASS only when the pack is complete/anchored AND the report binds it FRESHLY. */
+function deriveReplay(expDir: string, pack: ProofPackView): { state: ReplayState; fresh: boolean | null; untrustedReason: string | null } {
   const p = experimentPaths(expDir);
   if (!existsSync(p.replayReport)) return { state: "PENDING", fresh: null, untrustedReason: null };
-  const packManifest = path.join(p.proofDir, "proof-manifest.json");
-  const packVerify = path.join(p.proofDir, "verify.mjs");
-  if (!existsSync(packManifest)) return { state: "FAIL", fresh: false, untrustedReason: "replay report exists but the proof pack is missing" };
-  if (proofChain === false) return { state: "FAIL", fresh: false, untrustedReason: "the proof pack is not bound to the current evidence chain" };
+  if (!pack.present) return { state: "FAIL", fresh: false, untrustedReason: "replay report exists but the proof pack is missing" };
+  if (!pack.complete || !pack.allBytesMatch) return { state: "FAIL", fresh: false, untrustedReason: "the proof pack is not the complete, byte-verified nine-file set" };
+  if (!pack.verifierAnchored) return { state: "FAIL", fresh: false, untrustedReason: "the pack's verifier bytes do not match the EXPERIMENT-001 anchor — source not trusted" };
+  if (!pack.chainBound) return { state: "FAIL", fresh: false, untrustedReason: "the proof pack is not bound to the current evidence chain" };
   const report = tryReadJson(p.replayReport);
   if (!report || report.schema_version !== "portable-replay-report.v1") return { state: "FAIL", fresh: false, untrustedReason: "replay report missing or invalid" };
   if (report.status !== "PASS" || report.same_verdict !== true) return { state: "FAIL", fresh: false, untrustedReason: `replay status ${String(report.status)} (${String(report.fail_reason ?? "")})` };
   const reproduced = report.reproduced as Record<string, unknown> | undefined;
   if (!reproduced || reproduced.tier1_verdict !== "VALID") return { state: "FAIL", fresh: false, untrustedReason: "reproduced verdict is not VALID" };
-  if (existsSync(packVerify) && sha256OfFile(packVerify) !== TRUST_ANCHOR.portable_replay_sha256) {
-    return { state: "FAIL", fresh: false, untrustedReason: "the pack's verifier bytes do not match the EXPERIMENT-001 anchor — source not trusted" };
-  }
-  if (report.proof_manifest_sha256 !== sha256OfFile(packManifest)) return { state: "FAIL", fresh: false, untrustedReason: "replay report is stale: proof-manifest changed after the replay" };
+  if (report.proof_manifest_sha256 !== pack.manifestSha) return { state: "FAIL", fresh: false, untrustedReason: "replay report is stale: proof-manifest changed after the replay" };
   let binding: string;
   try {
     binding = filesBindingOf(p.proofDir);
@@ -228,14 +270,28 @@ function deriveReplay(expDir: string, proofChain: boolean | null): { state: Repl
   return { state: "PASS", fresh: true, untrustedReason: null };
 }
 
-/** P0-2: observations are RECORDED only when structurally valid and pack-bound. */
-function derivePayerResponse(expDir: string, errors: string[]): PayerResponse {
+interface ValidObservation {
+  seq: number;
+  payer_accepts_tier1: boolean;
+  posthoc_rule_change_attempts: number;
+  repeat_fund_intent: string;
+}
+
+/**
+ * P0-2 (review fix): observations are RECORDED only when structurally valid AND
+ * bound to a VERIFIED proof pack. A missing binding target FAILS — it never skips.
+ */
+function derivePayerResponse(expDir: string, pack: ProofPackView, errors: string[]): { response: PayerResponse; latest: ValidObservation | null } {
   const p = experimentPaths(expDir);
-  if (!existsSync(p.observationsDir)) return "NONE";
+  if (!existsSync(p.observationsDir)) return { response: "NONE", latest: null };
   const files = readdirSync(p.observationsDir).filter((f) => /^\d{3}\.json$/.test(f)).sort();
-  if (files.length === 0) return "NONE";
-  const packManifest = path.join(p.proofDir, "proof-manifest.json");
+  if (files.length === 0) return { response: "NONE", latest: null };
+  if (!pack.present || !pack.complete || !pack.allBytesMatch || !pack.chainBound) {
+    errors.push("observations exist without a valid, chain-bound proof pack");
+    return { response: "NONE", latest: null };
+  }
   let valid = 0;
+  let latest: ValidObservation | null = null;
   for (const f of files) {
     const obs = tryReadJson(path.join(p.observationsDir, f));
     const o = obs?.observations as Record<string, unknown> | undefined;
@@ -244,15 +300,27 @@ function derivePayerResponse(expDir: string, errors: string[]): PayerResponse {
     if (!obs || obs.schema_version !== "real-task-observation.v1") problems.push("schema");
     if (!o || typeof o.payer_accepts_tier1 !== "boolean" || typeof o.source_record !== "string" || !/^sha256:[0-9a-f]{64}$/.test(String(o.source_record_sha256 ?? ""))) problems.push("observation fields");
     else if (sha256Of(o.source_record) !== o.source_record_sha256) problems.push("source_record hash mismatch");
-    if (existsSync(packManifest) && (!binding || binding.proof_manifest_sha256 !== sha256OfFile(packManifest))) problems.push("pack binding stale");
+    if (!binding || binding.proof_manifest_sha256 !== pack.manifestSha) problems.push("pack binding stale/missing");
     if (problems.length) errors.push(`observation ${f} invalid: ${problems.join(", ")}`);
-    else valid++;
+    else {
+      valid++;
+      latest = {
+        seq: Number(f.slice(0, 3)),
+        payer_accepts_tier1: o.payer_accepts_tier1 as boolean,
+        posthoc_rule_change_attempts: o.posthoc_rule_change_attempts as number,
+        repeat_fund_intent: String(o.repeat_fund_intent),
+      };
+    }
   }
-  return valid > 0 ? "RECORDED" : "NONE";
+  return { response: valid > 0 ? "RECORDED" : "NONE", latest };
 }
 
-/** P0-2: FINALIZED only when the final ledger verifies against the current pack. */
-function deriveLedger(expDir: string, errors: string[]): LedgerState {
+/**
+ * P0-2 (review fix): FINALIZED requires the ledger to verify against a valid
+ * pack AND agree with the LATEST valid observation (seq, user evidence,
+ * derived conclusion via the frozen mapping).
+ */
+function deriveLedger(expDir: string, pack: ProofPackView, latest: ValidObservation | null, errors: string[]): LedgerState {
   const p = experimentPaths(expDir);
   if (!existsSync(p.finalLedger)) return "OPEN";
   const ledger = tryReadJson(p.finalLedger);
@@ -260,10 +328,27 @@ function deriveLedger(expDir: string, errors: string[]): LedgerState {
   if (!ledger || ledger.schema_version !== "real-task-ledger.v1") problems.push("schema");
   const finality = ledger?.finality as Record<string, unknown> | undefined;
   const technical = ledger?.technical as Record<string, unknown> | undefined;
+  const ue = ledger?.user_evidence as Record<string, unknown> | undefined;
   if (!finality || finality.final !== true) problems.push("finality");
-  if (!technical || !["THESIS STRENGTHENED", "THESIS MIXED", "THESIS CHALLENGED"].includes(String(ledger?.verdict ?? ""))) problems.push("verdict");
-  const packManifest = path.join(p.proofDir, "proof-manifest.json");
-  if (existsSync(packManifest) && technical?.proof_manifest_sha256 !== sha256OfFile(packManifest)) problems.push("pack binding stale");
+  if (!["THESIS STRENGTHENED", "THESIS MIXED", "THESIS CHALLENGED"].includes(String(ledger?.verdict ?? ""))) problems.push("verdict");
+  if (!pack.present || !pack.complete || !pack.allBytesMatch || !pack.chainBound) {
+    problems.push("no valid, chain-bound proof pack to bind to");
+  } else if (technical?.proof_manifest_sha256 !== pack.manifestSha) {
+    problems.push("pack binding stale/missing");
+  }
+  if (!latest) {
+    problems.push("no valid observation to agree with");
+  } else {
+    if (finality?.observation_seq !== latest.seq) problems.push("finality seq != latest valid observation");
+    if (ue?.payer_accepts_tier1 !== latest.payer_accepts_tier1) problems.push("user evidence disagrees with the observation");
+    if (ue?.repeat_fund_intent !== latest.repeat_fund_intent) problems.push("repeat funding disagrees with the observation");
+    const derived = thesisVerdictOf({
+      payer_accepts_tier1: latest.payer_accepts_tier1,
+      posthoc_rule_change_attempts: latest.posthoc_rule_change_attempts,
+      repeat_fund_intent: latest.repeat_fund_intent as "YES" | "NO" | "NOT_ASKED",
+    });
+    if (ledger?.verdict !== derived) problems.push(`verdict ${String(ledger?.verdict)} != derived ${derived}`);
+  }
   if (problems.length) {
     errors.push(`final ledger invalid: ${problems.join(", ")}`);
     return "OPEN";
@@ -317,9 +402,9 @@ export function deriveExperimentFacts(expDir: string): ExperimentFacts & { evide
     primary_verification = derived === "VALID" && freezeBound && patchBindingMatch === true ? "VALID" : "INVALID";
   }
 
-  const proofChain = deriveProofChain(expDir);
-  evidenceErrors.push(...proofChain.errors);
-  const replay = deriveReplay(expDir, proofChain.match);
+  const proofPack = deriveProofPack(expDir);
+  evidenceErrors.push(...proofPack.errors);
+  const replay = deriveReplay(expDir, proofPack);
 
   // the FULL chain gates EARNED — nothing advances on presence or partial coincidence
   const eligibility = tryReadJson(p.eligibility);
@@ -332,16 +417,19 @@ export function deriveExperimentFacts(expDir: string): ExperimentFacts & { evide
     primary_verification === "VALID" &&
     freezeVerified &&
     frozenTermsMatch === true &&
-    proofChain.match === true &&
+    proofPack.complete &&
+    proofPack.allBytesMatch &&
+    proofPack.verifierAnchored &&
+    proofPack.chainBound &&
     replay.state === "PASS"
   ) {
     tier1_entitlement = "EARNED";
   }
 
-  const payer_response = derivePayerResponse(expDir, evidenceErrors);
-  const ledger = deriveLedger(expDir, evidenceErrors);
+  const payer = derivePayerResponse(expDir, proofPack, evidenceErrors);
+  const ledger = deriveLedger(expDir, proofPack, payer.latest, evidenceErrors);
 
-  return { rules_state, submission_state, primary_verification, replay: replay.state, tier1_entitlement, payer_response, ledger, evidenceErrors, patchBindingMatch, proofChainMatch: proofChain.match };
+  return { rules_state, submission_state, primary_verification, replay: replay.state, tier1_entitlement, payer_response: payer.response, ledger, evidenceErrors, patchBindingMatch, proofChainMatch: proofPack.chainBound };
 }
 
 /** Phase = verified disk facts + explicitly-transient process flags (never persisted). */
@@ -369,8 +457,8 @@ export function deriveExperimentState(expDir: string, transient: TransientStates
   }
 
   const p = experimentPaths(expDir);
-  const chain = deriveProofChain(expDir);
-  const replay = deriveReplay(expDir, chain.match);
+  const pack = deriveProofPack(expDir);
+  const replay = deriveReplay(expDir, pack);
   return {
     phase,
     transient: { checking, verifying },
@@ -390,7 +478,7 @@ export function deriveExperimentState(expDir: string, transient: TransientStates
     freezeVerified: existsSync(path.join(p.freezeDir, "freeze-manifest.json")) ? facts.rules_state === "FROZEN" : null,
     freezePresent: existsSync(path.join(p.freezeDir, "freeze-manifest.json")),
     patchBindingMatch: facts.patchBindingMatch,
-    proofChainMatch: chain.match,
+    proofChainMatch: pack.present ? pack.chainBound && pack.complete && pack.allBytesMatch : null,
     replayFresh: replay.fresh,
     replayUntrustedReason: replay.untrustedReason,
     evidenceErrors: facts.evidenceErrors,

@@ -237,3 +237,40 @@ Runnable start: apps/experiment-ui/start.sh (uses
 modules' parameter properties). Disclosure: ledger.ts additive exports
 changed frozen-module BYTES — compatibility ruling requested; until
 ruled, acceptance item 10 is NOT claimed as "bytes unchanged".
+
+## Review round-2 fixes + browser walkthrough (2026-10-03)
+
+The four HOLD-4 blockers are closed: (1) a proof pack now counts only
+as the COMPLETE nine-file set with every manifest entry byte-verified
+and the pack verifier bytes anchored — the two-file shape is a machine
+negative (REVIEW-2A/2B), never a happy path; (2) observations and the
+final ledger FAIL when their binding target is missing, and the ledger
+must agree with the latest VALID observation (seq, user evidence, and
+the derived conclusion via the frozen thesisVerdictOf) — well-formed
+records without a pack yield NOT RECORDED / NOT FINALIZED (REVIEW-2C),
+a disagreeing ledger yields OPEN (REVIEW-2D); (3) replay is executed
+by hashing the on-disk verifier bytes, writing them to a read-only
+copy, re-hashing the copy, and executing THAT copy in a separate
+process — the boot-time module cache is never the executor; (4) the
+browser first-Answer-later path is complete (closure panel carrying
+Q1/Q2 + hesitation verbatim + close reason → close-followup →
+finalize).
+
+Browser acceptance (real Chrome, real page operations, fresh
+environment, port-isolated): prepare → check eligibility (real
+preflight) → review/ack → freeze → FROZEN → submit (paste) → primary
+PASS with the replay-required line and NO earned rendering →
+independent replay → EARNED moment + independent facts strip → F5 Q1
+Yes+verbatim / Q2 No / Q3 Answer later (record disabled, closure panel
+visible) → operator closure as the FIRST observation (NOT_ASKED) →
+finalize → FINALIZED / THESIS MIXED with all badges retained and the
+PMF disclaimer visible. The walkthrough caught and fixed two real
+frontend bugs the HTTP tests missed: bodyless api() calls silently
+became GETs (all action endpoints 404'd from the page), and the
+closure handler referenced a block-scoped helper (ReferenceError on
+click).
+
+Compatibility (Commander ruling 2026-10-03): LEDGER ADDITIVE-EXPORT
+COMPATIBILITY = PASS — reverting the three disclosed exports restores
+ledger.ts byte-identical to the fe18be0 baseline; scope = those
+exports only, no frozen-semantics extension.

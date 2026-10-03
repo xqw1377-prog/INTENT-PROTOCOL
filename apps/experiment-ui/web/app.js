@@ -7,8 +7,11 @@
 const $ = (sel) => document.querySelector(sel);
 let STATE = null;
 
-async function api(path, body) {
-  const res = await fetch(path, body ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) } : undefined);
+async function api(path, body, method = "POST") {
+  // actions are ALWAYS explicit-method requests — a missing body must never
+  // silently turn an action into a GET (caught by the browser walkthrough)
+  const init = method === "GET" ? undefined : { method, headers: { "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) };
+  const res = await fetch(path, init);
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `${res.status} ${res.statusText}`);
   return data;
@@ -532,6 +535,16 @@ function renderPayerResponse(state) {
         </div>
         <p class="note">"Answer later" keeps the question unresolved — it is not a No, and it blocks finalizing until answered or explicitly closed by the operator.</p>
 
+        <div id="closure-panel" hidden style="margin-top:14px">
+          <div class="card evidence-card">
+            <h2 class="section-title" style="margin-top:0">Operator closure of the unresolved follow-up (D9)</h2>
+            <p class="note">The payer chose Answer later. The operator may close the follow-up explicitly: the hesitation is recorded verbatim, Q3 stays NOT_ASKED (never a No, never "never asked"), provenance is preserved.</p>
+            <div class="form-field full"><label>Hesitation verbatim</label><textarea id="closure-hesitation" placeholder="Payer: ask me again next week."></textarea></div>
+            <div class="form-field full" style="margin-top:10px"><label>Why the experiment closes without an answer</label><textarea id="closure-reason" placeholder="Session ended before the payer decided on repeat funding."></textarea></div>
+            <div class="actions"><button class="primary" type="button" id="btn-close-followup">Close follow-up (operator)</button></div>
+          </div>
+        </div>
+
         <div class="actions">
           <button class="primary" type="submit" id="btn-record" disabled>Record response</button>
         </div>
@@ -550,14 +563,18 @@ function renderPayerResponse(state) {
       ${latest && latest.repeat_fund_intent === "NOT_ASKED" ? `<p class="note">Follow-up was closed by the operator as NOT_ASKED (explicit closure, provenance recorded). You may finalize.</p><div class="actions"><button class="primary" id="btn-finalize">Finalize experiment</button></div>` : ""}
     </div>`;
 
+  const q = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
   const form = $("#f5-form");
   if (form) {
-    const q = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
     const update = () => {
       $("#q1-yes").hidden = q("q1") !== "yes";
       $("#q1-no").hidden = q("q1") !== "no";
       $("#q2-yes").hidden = q("q2") !== "yes";
-      $("#btn-record").disabled = !(q("q1") && q("q2") && q("q3"));
+      const later = q("q3") === "ANSWER_LATER";
+      $("#closure-panel").hidden = !later;
+      const btn = $("#btn-record");
+      btn.disabled = !(q("q1") && q("q2") && q("q3")) || later;
+      btn.textContent = later ? "Answer later — use the operator closure below" : "Record response";
     };
     form.addEventListener("change", update);
     form.addEventListener("submit", async (ev) => {
@@ -565,7 +582,9 @@ function renderPayerResponse(state) {
       const q1 = q("q1");
       const q3 = q("q3");
       if (q3 === "ANSWER_LATER") {
-        alert("The repeat-funding question is unresolved ('Answer later'). Nothing is recorded yet — answer Yes/No to record, or ask the operator to close the follow-up explicitly.");
+        // P0-4: nothing is recorded on Answer later; the explicit operator closure below writes the FIRST observation
+        $("#closure-panel").hidden = false;
+        $("#closure-hesitation").focus();
         return;
       }
       const payload = {
@@ -586,6 +605,35 @@ function renderPayerResponse(state) {
       }
     });
   }
+  $("#btn-close-followup")?.addEventListener("click", async () => {
+    const q1 = q("q1");
+    const hesitation = $("#closure-hesitation").value.trim();
+    const reason = $("#closure-reason").value.trim();
+    if (!hesitation || !reason) {
+      alert("Closure requires BOTH the hesitation verbatim and the reason the experiment closes without an answer.");
+      return;
+    }
+    if (!q1 || !q("q2")) {
+      alert("Answer Q1 and Q2 first — the closure record carries the complete payer response.");
+      return;
+    }
+    try {
+      await api("/api/close-followup", {
+        payer_accepts: q1 === "yes",
+        payer_ack_verbatim: q1 === "yes" ? $("#q1-verbatim").value.trim() : "",
+        no_reason: q1 === "no" ? $("#q1-why").value.trim() : "",
+        rule_change_attempts: q("q2") === "yes" ? 1 : 0,
+        rule_change_details: q("q2") === "yes" ? [$("#q2-what").value.trim()].filter(Boolean) : [],
+        hesitation_verbatim: hesitation,
+        close_reason: reason,
+        observation_source: "INTERVIEW",
+        observer_identity: "operator",
+      });
+      await refresh();
+    } catch (e) {
+      alert(e.message);
+    }
+  });
   $("#btn-finalize")?.addEventListener("click", async () => {
     if (!confirm("The final experiment ledger can only be created once. Finalize now?")) return;
     try {
@@ -625,7 +673,7 @@ function render(state) {
 }
 
 async function refresh() {
-  const state = await api("/api/state");
+  const state = await api("/api/state", undefined, "GET");
   render(state);
 }
 
