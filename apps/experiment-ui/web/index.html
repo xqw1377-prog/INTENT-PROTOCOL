@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>INTENT — Experiment 001</title>
+  <link rel="stylesheet" href="/web/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="brand">INTENT</div>
+      <div class="experiment-id">
+        <span class="label">Experiment 001</span>
+        <span id="phase-dot" class="phase-dot pending" title="primary phase"></span>
+        <span id="phase-name" class="phase-name">—</span>
+      </div>
+    </div>
+    <div id="facts-strip" class="facts-strip"></div>
+  </header>
+
+  <main id="main" class="main"><!-- rendered by app.js --></main>
+
+  <footer class="app-footer">
+    <div class="app-footer-inner">
+      <span class="footer-mode">Experiment mode — Facilitated · identities are declared, not authenticated</span>
+      <span class="footer-links">
+        <button class="linklike" id="footer-details-toggle">Technical details</button>
+        <span>·</span>
+        <span>Experiment trust anchor: docs/experiments/EXPERIMENT-001.md</span>
+      </span>
+    </div>
+    <div id="footer-details" class="footer-details" hidden></div>
+  </footer>
+
+  <script src="/web/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "@intent/experiment-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "FRONTEND-R1 — Facilitated local experiment UI (Local Orchestrator). Zero runtime dependencies; the server calls the frozen UE-0..UE-5 modules."
+}

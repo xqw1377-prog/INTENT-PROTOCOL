@@ -49,14 +49,15 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-03 independent verifier / PH-04 input-domain closure /
                      PH-05 durable journal w/ coupled ruleset identity)
 NEXT DEVELOPMENT   = FRONTEND-R1 — minimal experiment product
-                     (docs/product/FRONTEND-R1.md): F1 Task Freeze,
-                     F2 Frozen Task View, F3 Worker Submission, F4
-                     Verification Result, F5 Payer Acknowledgement +
-                     Experiment status. Objective: EXPERIMENT-001 usable
-                     by a real maintainer and worker. Awaiting Commander
-                     design (IA / pages / state machine / visual
-                     language) → then implementation. PROTOCOL WORK =
-                     HOLD. "Stop self-proving" ≠ "stop developing":
+                     (docs/product/FRONTEND-R1.md + frozen spec
+                     docs/product/FRONTEND-R1-SPEC.md). FR-1 + FR-2
+                     IMPLEMENTED (apps/experiment-ui): AppShell, phase
+                     derivation from artifacts (no second backend
+                     truth), F1 Prepare → Check eligibility (preflight
+                     BEFORE precommit) → payer review → Freeze with the
+                     pre-commit moment; unfrozen-context sidecar per D1.
+                     NEXT CUT: FR-3…FR-6 (F2–F5). PROTOCOL WORK = HOLD.
+                     "Stop self-proving" ≠ "stop developing":
                      product/front-end/experiment-UI work continues;
                      protocol/chain/payments/auto-release/concurrent-
                      claim/Tier-2 work does not.

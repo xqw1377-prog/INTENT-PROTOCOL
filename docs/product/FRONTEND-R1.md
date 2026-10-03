@@ -1,9 +1,15 @@
 # PRODUCT-UX-R0 / FRONTEND-R1 — Minimal Experiment Product
 
-Status: **GO (Commander order 2026-10-03). Awaiting the Commander's
-design (information architecture, the five pages, interaction state
-machine, first visual language) — then Zcode implements. No frontend
-code before that handoff.**
+Status: **DESIGN FROZEN (docs/product/FRONTEND-R1-SPEC.md, Commander
+2026-10-03). FIRST CUT FR-1 + FR-2 IMPLEMENTED at
+apps/experiment-ui (Local Orchestrator: server calls the frozen UE
+modules; web is dependency-free vanilla). FR-3…FR-6 (F2 Frozen Task ·
+F3 Submit · F4 Verification + EARNED moment · F5 Payer Response +
+Finalize) remain for the next cuts — do not build ahead of review.**
+
+Run: `node --experimental-strip-types apps/experiment-ui/server/index.ts
+--exp-dir <dir> [--port 4319]` → http://127.0.0.1:4319 (127.0.0.1 only;
+the experiment directory is an explicit argument by design).
 
 Objective: make EXPERIMENT-001 usable by a real maintainer and a real
 worker — without us hand-running JSON, CLIs, and hash explanations.
