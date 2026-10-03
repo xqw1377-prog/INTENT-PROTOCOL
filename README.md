@@ -48,7 +48,22 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-01 devnet program IMMUTABLE / PH-02 byte portability /
                      PH-03 independent verifier / PH-04 input-domain closure /
                      PH-05 durable journal w/ coupled ruleset identity)
-NEXT DEVELOPMENT   = FRONTEND-R1 — minimal experiment product
+FRONTEND-R1         = PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03;
+                     all review rounds closed: verified-chain derivation,
+                     nine-file byte-verified packs, trusted verifier
+                     execution via re-hashed read-only copy in a separate
+                     process, snapshot-bound consent, verified-ledger-view
+                     only; browser acceptance passed end-to-end). Frontend
+                     expansion STOPPED by ruling. LEDGER ADDITIVE-EXPORT
+                     COMPATIBILITY = PASS (maintained).
+NEXT                = EXPERIMENT-001 — IN FIELD (Commander GO 2026-10-03):
+                     find ONE real maintainer + ONE pre-designated external
+                     worker; run the first real task per the frozen flow
+                     (docs/experiments/EXPERIMENT-001.md; ops kit
+                     docs/experiments/EXPERIMENT-001-OPS.md). Real user
+                     evidence remains ZERO; the product thesis is NOT yet
+                     validated — that is what the first transaction tests.
+NEXT DEVELOPMENT    = (superseded — see NEXT above) minimal experiment product
                      (docs/product/FRONTEND-R1.md + frozen spec
                      docs/product/FRONTEND-R1-SPEC.md incl. HOLD-6
                      REVISION 2). Review round-2 (HOLD-4) blockers

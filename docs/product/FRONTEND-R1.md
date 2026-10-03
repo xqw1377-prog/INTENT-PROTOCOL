@@ -1,6 +1,6 @@
 # PRODUCT-UX-R0 / FRONTEND-R1 — Minimal Experiment Product
 
-Status: **HOLD-6 contract incorporated (docs/product/FRONTEND-R1-SPEC.md
+Status: **PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03 — all three rounds of review blockers closed and independently verified; browser acceptance passed; frontend expansion STOPPED by ruling). Prior state: HOLD-6 contract incorporated (docs/product/FRONTEND-R1-SPEC.md
 REVISION 2: D4–D9 + P1 rulings + the 10-item implementation acceptance
 contract). IMPLEMENTED END-TO-END at apps/experiment-ui — F1 Prepare/
 Check/Freeze (snapshot readiness, pre-commit moment), F2 Frozen Task,

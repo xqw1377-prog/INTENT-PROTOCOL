@@ -30,6 +30,9 @@ version was the experiment run on?" is this block, and nothing else.
 
 ## First-maintainer selection criteria (harsh on purpose)
 
+> Operations kit (English first-contact message, hard screening
+> checklist, operator runbook): docs/experiments/EXPERIMENT-001-OPS.md.
+
 The first task must be boring to the point of having almost no
 subjective space. We are not testing AI coding ability; we are testing
 whether a maintainer will concede, BEFORE seeing the outcome, that
