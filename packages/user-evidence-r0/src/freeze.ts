@@ -87,7 +87,7 @@ export function materializeBase(repoDir: string, sha: string, into: string): voi
 }
 
 /** R4: reconstruct dependencies from the frozen lockfile in a CLEAN room (no borrowed node_modules). */
-function reconstructDependencies(baseDir: string, cfg: FreezeTaskConfig): void {
+export function reconstructDependencies(baseDir: string, cfg: FreezeTaskConfig): void {
   const lock = path.join(baseDir, cfg.lockfile_path);
   if (!existsSync(lock)) throw new FreezeError("lockfile-missing", cfg.lockfile_path);
   // remove any vendored/pre-existing deps so the reconstruction is real
@@ -106,7 +106,7 @@ function reconstructDependencies(baseDir: string, cfg: FreezeTaskConfig): void {
 }
 
 /** R3: run a command inside a NETWORK-DENIED sandbox; throws if the wrap is unavailable. */
-function inNetSandbox(cmd: string, cwd: string, timeoutMs = 10 * 60_000): { code: number; stdout: string } {
+export function inNetSandbox(cmd: string, cwd: string, timeoutMs = 10 * 60_000): { code: number; stdout: string } {
   const wrapped =
     process.platform === "darwin"
       ? `sandbox-exec -p '(version 1)(allow default)(deny network*)' sh -c ${JSON.stringify(cmd)}`
@@ -121,7 +121,7 @@ function inNetSandbox(cmd: string, cwd: string, timeoutMs = 10 * 60_000): { code
 }
 
 /** R3 negative test: a REAL outbound attempt MUST fail inside the sandbox, local work MUST succeed. */
-function verifyNetSandbox(cwd: string): void {
+export function verifyNetSandbox(cwd: string): void {
   const probe = `node -e "const net=require('node:net');const s=net.connect({host:'1.1.1.1',port:53,timeout:3000});s.on('error',()=>process.exit(0));s.on('connect',()=>{s.destroy();process.exit(1)});setTimeout(()=>process.exit(0),4000)"`;
   const r = inNetSandbox(probe, cwd, 30_000);
   if (r.code !== 0) throw new FreezeError("network-sandbox-ineffective", "TCP connect to 1.1.1.1:53 SUCCEEDED inside the network-denied sandbox");

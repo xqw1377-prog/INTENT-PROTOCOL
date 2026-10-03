@@ -1,8 +1,11 @@
 # USER-EVIDENCE-R0 — Experiment Contract (UE-0 Freeze)
 
-Status: **REVISED per CUT-1R (Command Freeze + Dual-Hash Contract) — awaiting adjudication**
+Status: **CUT-1R/1R2 + CUT-2 implemented — awaiting adjudication**
 
-Authority: Commander order `USER-EVIDENCE-R0 / CUT-1 = GO` (2026-10-01).
+Authority: Commander order `USER-EVIDENCE-R0 / CUT-1 = GO` (2026-10-01);
+`USER-EVIDENCE-R0 / CUT-2..CUT-4 = GO` (2026-10-03, repo-authority directive:
+land the remaining experiment machinery in priority order — UE-2 runner,
+UE-3+UE-4 proof/replay, UE-5 ledger).
 Product north star: a real repo owner freezes Tier-1 rules BEFORE work
 begins; a real external worker does the task; a third party replays the
 proof; we observe whether the payer acknowledges the Tier-1 entitlement as
@@ -135,13 +138,13 @@ both; the precommit binding re-derives from the task alone. A portable
 verifier (UE-4) will re-check exactly these identities from disk.
 ```
 
-## 5. Later cuts (NOT authorized by CUT-1)
+## 5. Later cuts
 
-UE-2 runner / UE-3 proof builder / UE-4 third-party replayer /
-UE-5 user-evidence recorder — design-only references live in the Commander
-order; no code until separately authorized. `experiments/001/` may only be
-created when a REAL maintainer + REAL repo + REAL bug exist. No fictional
-fixtures.
+UE-2 (runner) / UE-3 (proof builder) / UE-4 (third-party replayer) /
+UE-5 (user-evidence recorder) were design-only under CUT-1; CUT-2..CUT-4
+(2026-10-03) authorize their implementation (§7–§10 below). `experiments/001/`
+may still only be created when a REAL maintainer + REAL repo + REAL bug
+exist. No fictional fixtures.
 
 ## 6. Final experiment ledger (the ONLY allowed report form)
 
@@ -153,3 +156,58 @@ REPEAT-FUND INTENT (YES|NO|NOT ASKED)
 → exactly one of: THESIS STRENGTHENED | THESIS MIXED | THESIS CHALLENGED
 One experiment ≠ product-market fit.
 ```
+
+---
+
+## 7. CUT-2 — UE-2 Real Task Runner (pre-execution policy wall)
+
+CLI: `intent experiment run <repo> <freeze-pack> <patch> <ran-at> [out]`.
+Order of authority: intake closure → policy wall → dependency wall →
+clean-room execution. The two gates deferred from UE-1 land here.
+
+```text
+UE2-R0  INTAKE   the freeze pack re-verifies from disk (UE1-R7..R10
+      discipline re-enforced at intake): ruleset/contract must be exactly
+      what task.json derives; all manifest hashes re-derive. A broken pack
+      refuses the run BEFORE anything executes (no record, no commands).
+UE2-PATH-DENY   a touched path matching any forbidden glob → INVALID
+      (reason names the path), ZERO commands executed. Includes the frozen
+      suite files, the lockfile, CI/workflows — the tests that define
+      Tier-1 can never be touched by the patch that claims it.
+UE2-SCOPE       a touched path matching NO allowed glob (and no forbidden
+      glob) → INVALID out-of-scope. Scope is allowed-allowlist, not
+      deny-list.
+UE2-DIFF-BOUND  total diff lines (added + removed, excluding +++, ---)
+      over max_diff_lines → INVALID, no execution.
+UE2-BINARY      a binary patch → INVALID (R0: text diffs only).
+UE2-DEPENDENCY-DENY  the dependency sections (dependencies,
+      devDependencies, peerDependencies, optionalDependencies,
+      bundledDependencies, overrides, resolutions) of any touched
+      package.json must be IDENTICAL before/after; a newly created
+      package.json must carry all-empty sections; deleting one counts as
+      changing every dependency → INVALID. new_dependencies_allowed is
+      hard-coded false and enforced HERE, not by trust.
+UE2-BASE-RED    the run re-proves regression_command FAILS on the frozen
+      base at run time (clean-room materialized, sandboxed) — the pack
+      never trusts the freeze-time red.
+UE2-BYTES       lockfile + acceptance-suite bytes re-hash to the frozen
+      values before AND after the patch (drift = INVALID).
+UE2-ACCEPT      patched_acceptance_command PASSES with the patch applied
+      (network-denied sandbox); a clean-applying patch that does not fix
+      the bug → INVALID patched-acceptance-red.
+UE2-HEALTH      baseline_health_command still PASSES on the patched tree
+      (no existing test broken).
+UE2-DET         N consecutive patched-acceptance runs all green
+      (flaky = INVALID determinism-unstable).
+UE2-RECORD      every execution recorded (stage, command, exit code,
+      stdout sha256, duration); verdict VALID iff every check holds —
+      there is no other path to VALID. Records write atomically and are
+      never overwritten.
+
+Normative grammar (frozen):
+  patch format = unified diff (git diff form), text files only
+  touched path = union of a/b sides of every file entry + rename from/to
+  glob         = "**" crosses "/", "*" does not; forbidden wins over allowed
+```
+
+
