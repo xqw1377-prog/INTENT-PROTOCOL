@@ -169,15 +169,73 @@ If the answer is "no": keep the refusal verbatim as recruitment-stage
 evidence; do NOT shop for a friendlier maintainer in the same round. If
 there is no reply: record UNANSWERED — never refusal (ruling above).
 
+## Worker-candidate shortlist (2026-10-03) — NONE CONTACTED YET
+
+Commander order: find one external worker (TS-capable, accepts frozen
+standards, unaffiliated with the maintainer); confirm willingness first;
+no task details, no solution shown, no work before freeze. Pool source:
+external authors of recent TypeScript PRs (2026-09-25+), then per-person
+profile + affiliation screening.
+
+| Rank | Candidate | Evidence | gcode-preview affiliation | Contact channel |
+|---|---|---|---|---|
+| 1 | **bkdev98** (Quoc Khanh, VN) | 10-yr GitHub, 71 repos, 76 followers, web/mobile TS, ships today (critterpass #581); site states "open to new opportunities or freelance" | ZERO (issue/PR search empty) | quocs.com/contact form (no public email) |
+| 2 | **ChristopherZhong** (PhD CS) | active today (config-lens #60 — schema-validation tooling); self-described test-driven practices — philosophically aligned with frozen acceptance; hireable: true | ZERO | LinkedIn (christopherzhong); site has no email |
+| 3 | **elmaxe** (Axel Elmarsson, SE) | employed dev @BookBeat, active today (sporer #91); playful bio | ZERO | LinkedIn only |
+
+Selection note: rank 1 = cleanest combination of proven TS + motivation
+signal + reachable form; rank 2 = best philosophical fit, channel requires
+the Commander's LinkedIn; rank 3 = spare. ONE candidate is approached at
+a time (single-claimant discipline; no parallel canvassing).
+
+### Worker first-contact message (template, per-candidate greeting)
+
+Template discipline: experiment first; no protocol, no blockchain, no
+product pitch; no task details or solution; willingness question only;
+symbolic reward stated up front; work starts only after freeze (F2).
+
+> Subject: One small TypeScript fix — rules frozen before you start
+> (small paid experiment)
+>
+> Hi [name],
+>
+> I'm running a small, facilitated experiment about pre-agreed standards
+> in open-source work, and I'm looking for exactly one external
+> contributor.
+>
+> The shape: a small, real bug fix (TypeScript, likely a few lines) in an
+> active open-source repository. Before you write anything, the acceptance
+> rules are frozen and shown to you: which test must go from red to green,
+> which files may change, how big the patch may be. You submit one patch.
+> A separate machine re-runs everything from the frozen baseline — the bar
+> cannot be moved afterwards, in either direction. That immovability is
+> exactly what the experiment is about.
+>
+> Right now I'm only asking: would you be willing to take such a task
+> under those conditions? The reward is a small symbolic amount, agreed
+> and written down before you start. If yes, I'll come back with the
+> frozen task (repo, bug, exact rules) as soon as the rules are locked —
+> not before.
+>
+> — [Commander]
+
+Sending: via the Commander's own channel (contact form / LinkedIn /
+mailbox). ZCode holds no worker-side channel and none is needed — the
+worker's declared identity binds at ClaimRecord time (facilitated mode,
+no authentication claimed or implied).
+
 ## Open items before Freeze (per Commander order)
 
-1. Send the first contact from the Commander's account (or run
-   `gh auth login` and authorize this specific target).
-2. Pre-designate the external worker (single claimant, unaffiliated with
-   the maintainer) BEFORE freeze.
-3. PREP with the maintainer: pin base commit, write the frozen
-   acceptance test (red), set the symbolic Tier-1 amount, confirm
-   identities.
-4. Only then F1 (Check eligibility via apps/experiment-ui on the REAL
-   repo — the screening above predicts it passes, but the UI preflight
-   is the authority, not this document).
+1. ~~Send the first contact~~ DONE 2026-10-03T13:47:01Z (see SENT RECORD).
+2. Worker: shortlist above (3 candidates, affiliation-cleared, NONE
+   CONTACTED). Commander picks one and sends the template via personal
+   channel; willingness confirmed before PREP completes.
+3. Funding: per Commander — prefer asking the maintainer to act as the
+   ACTUAL payer of a small Tier-1 reward once they reply; if we sponsor
+   instead, the experiment relationship gets a SEPARATE adjudication
+   before freeze (already registered).
+4. PREP (only when explicit agreement + actual payer + external worker
+   are ALL secured): pin base commit, write the frozen behavior-level
+   acceptance test with the maintainer (red at base), set the Tier-1
+   amount, confirm identities → F1 real preflight → Review → Freeze →
+   only then the worker starts.
