@@ -64,8 +64,14 @@ NEXT DEVELOPMENT   = FRONTEND-R1 — minimal experiment product
                      in real Chrome via real page operations
                      (F1→FINALIZED / THESIS MIXED, all badges
                      retained; walkthrough caught + fixed two real
-                     frontend bugs). Awaiting re-review.
-                     PROTOCOL WORK = HOLD.
+                     frontend bugs). Review round-3 (finalized-ledger
+                     authenticity): FINALIZED requires the currently-
+                     valid evidence chain; ledger cross-check covers
+                     rule-change attempts; /api/state and F5 expose
+                     ONLY the verified ledger view (tampered/stale →
+                     ledger-integrity panel, never FINALIZED); all
+                     three counterexamples machine-tested. Awaiting
+                     re-review. PROTOCOL WORK = HOLD.
 LEDGER ADDITIVE-EXPORT COMPATIBILITY = PASS (Commander 2026-10-03:
                      reverting the three disclosed exports restores
                      ledger.ts byte-identical to the fe18be0 baseline;

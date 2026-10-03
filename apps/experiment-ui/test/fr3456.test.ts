@@ -287,6 +287,45 @@ describe("[HOLD-6 acceptance] Experiment A — full happy path", () => {
   });
 });
 
+describe("[HOLD-6 acceptance] Experiment A — verified ledger view over HTTP (review round-3)", () => {
+  test("9c. tampered ledger / deleted replay → /api/state exposes NO finalLedger, only unverified + named errors; restore re-finalizes", { timeout: 1_200_000 }, async () => {
+    const { server, base } = await startServer(expA);
+    try {
+      // baseline: verified FINALIZED view is exposed
+      let s = await call(base, "GET", "/api/state");
+      expect(s.json.facts.ledger).toBe("FINALIZED");
+      expect(s.json.finalLedger.verdict).toBe("THESIS STRENGTHENED");
+      expect(s.json.finalLedgerUnverified).toBeUndefined();
+      // counterexample 3: conflicting conclusion → OPEN, no finalLedger payload
+      const orig = readFileSync(path.join(expA, "final-ledger.json"), "utf8");
+      const ledger = JSON.parse(orig);
+      ledger.verdict = "THESIS CHALLENGED";
+      writeFileSync(path.join(expA, "final-ledger.json"), JSON.stringify(ledger, null, 2) + "\n");
+      s = await call(base, "GET", "/api/state");
+      expect(s.json.facts.ledger).toBe("OPEN");
+      expect(s.json.finalLedger).toBeUndefined();
+      expect(s.json.finalLedgerUnverified).toBe(true);
+      expect(s.json.evidenceErrors.join(" ")).toContain("!= derived");
+      // counterexample 1: delete the replay report AFTER finalize → un-finalized, not silent
+      writeFileSync(path.join(expA, "final-ledger.json"), orig);
+      const report = readFileSync(path.join(expA, "replay-report.json"), "utf8");
+      rmSync(path.join(expA, "replay-report.json"));
+      s = await call(base, "GET", "/api/state");
+      expect(s.json.facts.tier1_entitlement).toBe("PENDING");
+      expect(s.json.facts.ledger).toBe("OPEN");
+      expect(s.json.finalLedgerUnverified).toBe(true);
+      expect(s.json.evidenceErrors.join(" ")).toContain("underlying evidence chain no longer verifies");
+      // restore both → verified FINALIZED again
+      writeFileSync(path.join(expA, "replay-report.json"), report);
+      s = await call(base, "GET", "/api/state");
+      expect(s.json.facts.ledger).toBe("FINALIZED");
+      expect(s.json.finalLedger.verdict).toBe("THESIS STRENGTHENED");
+    } finally {
+      server.close();
+    }
+  });
+});
+
 describe("[HOLD-6 acceptance] Experiment B — INVALID is terminal", () => {
   test("8b. wrong-but-applicable patch → INVALID terminal; no retry, no replacement, no replay, no payer path", { timeout: 1_800_000 }, async () => {
     await call(baseB, "POST", "/api/prepare", preparePayload({ worker_identity: "worker:carol-external" }));

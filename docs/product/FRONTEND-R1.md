@@ -274,3 +274,19 @@ Compatibility (Commander ruling 2026-10-03): LEDGER ADDITIVE-EXPORT
 COMPATIBILITY = PASS — reverting the three disclosed exports restores
 ledger.ts byte-identical to the fe18be0 baseline; scope = those
 exports only, no frozen-semantics extension.
+
+## Review round-3 fixes (2026-10-03) — finalized-ledger authenticity
+
+Three reviewer counterexamples closed: (1) a FINALIZED ledger must sit on
+a CURRENTLY-valid evidence chain — deleting/staling the replay evidence
+after finalize un-finalizes (ledger OPEN + named integrity error
+"underlying evidence chain no longer verifies"; REVIEW-3A machine-tested
+at derivation level and over HTTP); (2) the ledger cross-check now
+covers rule-change attempts (tampered 999 → OPEN + "rule-change
+attempts disagree"; REVIEW-3B); (3) /api/state exposes ONLY the verified
+ledger view — a tampered/stale final ledger is never sent as
+`finalLedger`; it surfaces as `finalLedgerUnverified` + named evidence
+errors, and F5 consumes exclusively that verified view (a
+ledger-integrity panel replaces the finalized summary; the machine
+result block renders CURRENT verified facts instead of hardcoded
+EARNED/PASS wording; REVIEW-3C machine-tested over HTTP).

@@ -275,6 +275,74 @@ describe("[FR-1] the verified evidence chain", () => {
   });
 });
 
+/** Valid observation + ledger fixtures bound to the synthetic chain (seq 1, accepts, 0 attempts, YES). */
+function writeValidObsAndLedger(d: string): void {
+  const p = experimentPaths(d);
+  mkdirSync(p.observationsDir, { recursive: true });
+  const report = JSON.parse(readFileSync(p.replayReport, "utf8"));
+  const manifestSha = sha256OfFile(path.join(p.proofDir, "proof-manifest.json"));
+  const transcript = "Q1 → YES";
+  const obs = {
+    schema_version: "real-task-observation.v1", seq: 1, recorded_at: "2026-10-03T00:00:00Z",
+    pack_binding: { proof_manifest_sha256: manifestSha, files_binding: report.files_binding },
+    replay_check: { status: "PASS", tier1_verdict: "VALID" },
+    observations: {
+      schema_version: "real-task-ledger-observations.v1", third_party_replay: "SAME",
+      payer_accepts_tier1: true, payer_ack_verbatim: "yes", payer_ack_timestamp: "2026-10-03T00:00:00Z",
+      posthoc_rule_change_attempts: 0, posthoc_rule_change_details: [], repeat_fund_intent: "YES",
+      observation_source: "INTERVIEW", observer_identity: "op", source_record: transcript,
+      source_record_sha256: sha256Of(transcript), payer_attestation: "UNSIGNED_RECORDED", recorded_at: "2026-10-03T00:00:00Z",
+    },
+  };
+  wj(path.join(p.observationsDir, "001.json"), obs);
+  wj(p.finalLedger, {
+    schema_version: "real-task-ledger.v1", experiment_id: "ue-x", finalized_at: "2026-10-03T00:00:00Z",
+    finality: { observation_seq: 1, observations_total: 1, final: true },
+    technical: { tier1_verdict: "VALID", third_party_replay: "SAME", proof_manifest_sha256: manifestSha },
+    user_evidence: { payer_accepts_tier1: true, repeat_fund_intent: "YES", posthoc_rule_change_attempts: 0, posthoc_rule_change_details: [] },
+    verdict: "THESIS STRENGTHENED", rendered: "",
+  });
+}
+
+describe("[FR-1] review round-3 counterexamples (finalized-ledger authenticity)", () => {
+  test("REVIEW-3A: FINALIZED with replay evidence DELETED afterwards → un-finalized + named integrity error", () => {
+    const d = freshChain();
+    try {
+      buildChain(d);
+      writeValidObsAndLedger(d);
+      expect(deriveExperimentState(d).facts.ledger).toBe("FINALIZED");
+      const orig = readFileSync(experimentPaths(d).replayReport, "utf8");
+      rmSync(experimentPaths(d).replayReport);
+      const s = deriveExperimentState(d);
+      expect(s.facts.tier1_entitlement).toBe("PENDING");
+      expect(s.facts.ledger).toBe("OPEN"); // the finalized claim does not survive broken evidence
+      expect(s.phase).not.toBe("FINALIZED");
+      expect(s.evidenceErrors.join(" ")).toContain("underlying evidence chain no longer verifies");
+      w(experimentPaths(d).replayReport, orig);
+      expect(deriveExperimentState(d).facts.ledger).toBe("FINALIZED");
+    } finally {
+      rmSync(d, { recursive: true, force: true });
+    }
+  });
+
+  test("REVIEW-3B: ledger rule-change attempts tampered to 999 → OPEN + named disagreement", () => {
+    const d = freshChain();
+    try {
+      buildChain(d);
+      writeValidObsAndLedger(d);
+      const p = experimentPaths(d);
+      const ledger = JSON.parse(readFileSync(p.finalLedger, "utf8"));
+      ledger.user_evidence.posthoc_rule_change_attempts = 999;
+      wj(p.finalLedger, ledger);
+      const s = deriveExperimentState(d);
+      expect(s.facts.ledger).toBe("OPEN");
+      expect(s.evidenceErrors.join(" ")).toContain("rule-change attempts disagree");
+    } finally {
+      rmSync(d, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("[FR-1] review round-2 counterexamples", () => {
   test("REVIEW-2A: an INCOMPLETE pack (manifest+verify.mjs only) with recomputed digests → never EARNED", () => {
     const d = freshChain();

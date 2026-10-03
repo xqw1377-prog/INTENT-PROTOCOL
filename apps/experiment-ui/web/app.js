@@ -466,15 +466,32 @@ function renderVerification(state) {
 /* ── F5 · Payer Response (D9) ── */
 function renderPayerResponse(state) {
   const latest = state.latestObservation;
-  const finalized = state.finalLedger;
+  // Review round-3: FINALIZED is consumed ONLY from the verified ledger view
+  // (facts.ledger === FINALIZED); a tampered/stale ledger on disk is never
+  // rendered as finalized, and the machine-result block renders CURRENT
+  // verified facts — no hardcoded EARNED / PASS wording.
+  const finalized = state.facts.ledger === "FINALIZED" && state.finalLedger ? state.finalLedger : null;
+  const f = state.facts;
+  const earnedNow = f.tier1_entitlement === "EARNED";
   const machine = `
     <div class="card frozen-card"><div class="card-title">Machine result — a technical fact</div>
-      <div class="card-value frozen">TIER 1 — EARNED</div>
+      <div class="card-value frozen">TIER 1 — ${earnedNow ? "EARNED" : f.tier1_entitlement}</div>
       <div class="kv" style="margin-top:8px">
-        <span class="k">Primary verification</span><span class="v">Pass (derived)</span>
-        <span class="k">Independent replay</span><span class="v">Pass (same verdict, current binding)</span>
+        <span class="k">Primary verification</span><span class="v">${f.primary_verification === "VALID" ? "Pass (derived)" : f.primary_verification}</span>
+        <span class="k">Independent replay</span><span class="v">${f.replay === "PASS" ? "Pass (same verdict, current binding)" : f.replay}</span>
       </div>
     </div>`;
+
+  if (state.finalLedgerUnverified) {
+    $("#main").innerHTML = `
+      ${machine}
+      <hr class="divider-strong" />
+      <h1 class="page-title">Ledger integrity error</h1>
+      <p class="error-note">A final ledger exists on disk but does NOT verify against the current evidence. It is not shown as finalized.</p>
+      <ul class="check-list">${(state.evidenceErrors || []).map((e) => `<li><span class="check-mark">!</span><span class="main-line mono">${esc(e)}</span></li>`).join("")}</ul>
+      <p class="note">Operator inspection required. The machine result above reflects the currently verified facts only.</p>`;
+    return;
+  }
 
   if (finalized) {
     $("#main").innerHTML = `

@@ -555,7 +555,16 @@ export function createExperimentServer(expDir: string): Server {
         };
       }
     }
-    if (existsSync(p.finalLedger)) payload.finalLedger = readJson(p.finalLedger);
+    if (existsSync(p.finalLedger)) {
+      // Review round-3: the UI consumes ONLY the verified ledger view — a
+      // tampered/stale ledger is exposed as unverified + named evidence
+      // errors, never as finalLedger the page could render as FINALIZED.
+      if (view.facts.ledger === "FINALIZED") {
+        payload.finalLedger = readJson(p.finalLedger);
+      } else {
+        payload.finalLedgerUnverified = true;
+      }
+    }
     return payload;
   }
 

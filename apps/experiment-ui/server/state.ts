@@ -316,11 +316,20 @@ function derivePayerResponse(expDir: string, pack: ProofPackView, errors: string
 }
 
 /**
- * P0-2 (review fix): FINALIZED requires the ledger to verify against a valid
- * pack AND agree with the LATEST valid observation (seq, user evidence,
- * derived conclusion via the frozen mapping).
+ * P0-2 + review round-3: FINALIZED requires the ledger to verify against a
+ * valid pack, AGREE with the latest valid observation on every evidence
+ * field (acceptance, rule-change attempts, repeat funding) and the DERIVED
+ * conclusion, AND sit on a currently-valid evidence chain (primary VALID ∧
+ * replay PASS ∧ EARNED). A finalized ledger whose underlying evidence no
+ * longer verifies is an integrity error, never a FINALIZED state.
  */
-function deriveLedger(expDir: string, pack: ProofPackView, latest: ValidObservation | null, errors: string[]): LedgerState {
+function deriveLedger(
+  expDir: string,
+  pack: ProofPackView,
+  latest: ValidObservation | null,
+  chain: { primary: PrimaryVerification; replay: ReplayState; tier1: Tier1Entitlement },
+  errors: string[],
+): LedgerState {
   const p = experimentPaths(expDir);
   if (!existsSync(p.finalLedger)) return "OPEN";
   const ledger = tryReadJson(p.finalLedger);
@@ -341,6 +350,7 @@ function deriveLedger(expDir: string, pack: ProofPackView, latest: ValidObservat
   } else {
     if (finality?.observation_seq !== latest.seq) problems.push("finality seq != latest valid observation");
     if (ue?.payer_accepts_tier1 !== latest.payer_accepts_tier1) problems.push("user evidence disagrees with the observation");
+    if (ue?.posthoc_rule_change_attempts !== latest.posthoc_rule_change_attempts) problems.push("rule-change attempts disagree with the observation");
     if (ue?.repeat_fund_intent !== latest.repeat_fund_intent) problems.push("repeat funding disagrees with the observation");
     const derived = thesisVerdictOf({
       payer_accepts_tier1: latest.payer_accepts_tier1,
@@ -348,6 +358,11 @@ function deriveLedger(expDir: string, pack: ProofPackView, latest: ValidObservat
       repeat_fund_intent: latest.repeat_fund_intent as "YES" | "NO" | "NOT_ASKED",
     });
     if (ledger?.verdict !== derived) problems.push(`verdict ${String(ledger?.verdict)} != derived ${derived}`);
+  }
+  // review round-3 counterexample 1: the finalized ledger must still sit on a
+  // CURRENTLY-valid evidence chain — deleted/staled replay evidence un-finalizes
+  if (chain.primary !== "VALID" || chain.replay !== "PASS" || chain.tier1 !== "EARNED") {
+    problems.push(`underlying evidence chain no longer verifies (primary ${chain.primary}, replay ${chain.replay}, tier1 ${chain.tier1})`);
   }
   if (problems.length) {
     errors.push(`final ledger invalid: ${problems.join(", ")}`);
@@ -427,7 +442,7 @@ export function deriveExperimentFacts(expDir: string): ExperimentFacts & { evide
   }
 
   const payer = derivePayerResponse(expDir, proofPack, evidenceErrors);
-  const ledger = deriveLedger(expDir, proofPack, payer.latest, evidenceErrors);
+  const ledger = deriveLedger(expDir, proofPack, payer.latest, { primary: primary_verification, replay: replay.state, tier1: tier1_entitlement }, evidenceErrors);
 
   return { rules_state, submission_state, primary_verification, replay: replay.state, tier1_entitlement, payer_response: payer.response, ledger, evidenceErrors, patchBindingMatch, proofChainMatch: proofPack.chainBound };
 }
