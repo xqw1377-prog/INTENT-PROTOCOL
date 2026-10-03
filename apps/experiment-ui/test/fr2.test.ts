@@ -103,7 +103,8 @@ describe("[FR-2] F1 — Prepare / Check eligibility / Payer review / Freeze", ()
 
   test("[FR2-NO-DOUBLE-FREEZE] a second freeze is refused; state derivation stays FROZEN from disk", { timeout: 1_200_000 }, async () => {
     const r = await call("POST", "/api/freeze", { precommitAcknowledged: true });
-    expect(r.status).toBe(500); // freezeExperiment refuses outdir-exists → surfaced, pack intact
+    expect(r.status).toBe(409); // duplicate freeze requests are disabled
+    expect(r.json.error).toContain("already frozen");
     expect(deriveExperimentState(exp).phase).toBe("FROZEN");
     const r2 = await call("POST", "/api/check-eligibility");
     expect(r2.status).toBe(409); // no re-checking after freeze

@@ -50,17 +50,18 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-05 durable journal w/ coupled ruleset identity)
 NEXT DEVELOPMENT   = FRONTEND-R1 — minimal experiment product
                      (docs/product/FRONTEND-R1.md + frozen spec
-                     docs/product/FRONTEND-R1-SPEC.md). FR-1 + FR-2
-                     IMPLEMENTED (apps/experiment-ui): AppShell, phase
-                     derivation from artifacts (no second backend
-                     truth), F1 Prepare → Check eligibility (preflight
-                     BEFORE precommit) → payer review → Freeze with the
-                     pre-commit moment; unfrozen-context sidecar per D1.
-                     NEXT CUT: FR-3…FR-6 (F2–F5). PROTOCOL WORK = HOLD.
-                     "Stop self-proving" ≠ "stop developing":
-                     product/front-end/experiment-UI work continues;
-                     protocol/chain/payments/auto-release/concurrent-
-                     claim/Tier-2 work does not.
+                     docs/product/FRONTEND-R1-SPEC.md incl. HOLD-6
+                     REVISION 2). IMPLEMENTED END-TO-END
+                     (apps/experiment-ui): F1 snapshot-readiness
+                     Prepare/Check/Freeze, F2 Frozen Task, F3 write-once
+                     Submit, F4 two-stage verification (EARNED only on
+                     derived-VALID ∧ fresh-bound replay PASS; INVALID
+                     terminal), F5 payer response (verbatim, Answer-
+                     later blocks finalize, one final ledger). The
+                     10-item HOLD-6 acceptance contract is machine-
+                     tested (apps/experiment-ui/test/fr3456.test.ts);
+                     implementation correctness awaits Commander
+                     review. PROTOCOL WORK = HOLD.
 EXPERIMENT-001     = WAITING FOR FRONTEND-R1 MINIMUM FLOW (trust anchor
                      frozen at docs/experiments/EXPERIMENT-001.md:
                      MAIN fe18be0 / audit ca0c646 / release

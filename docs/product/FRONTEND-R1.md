@@ -1,11 +1,15 @@
 # PRODUCT-UX-R0 / FRONTEND-R1 — Minimal Experiment Product
 
-Status: **DESIGN FROZEN (docs/product/FRONTEND-R1-SPEC.md, Commander
-2026-10-03). FIRST CUT FR-1 + FR-2 IMPLEMENTED at
-apps/experiment-ui (Local Orchestrator: server calls the frozen UE
-modules; web is dependency-free vanilla). FR-3…FR-6 (F2 Frozen Task ·
-F3 Submit · F4 Verification + EARNED moment · F5 Payer Response +
-Finalize) remain for the next cuts — do not build ahead of review.**
+Status: **HOLD-6 contract incorporated (docs/product/FRONTEND-R1-SPEC.md
+REVISION 2: D4–D9 + P1 rulings + the 10-item implementation acceptance
+contract). IMPLEMENTED END-TO-END at apps/experiment-ui — F1 Prepare/
+Check/Freeze (snapshot readiness, pre-commit moment), F2 Frozen Task,
+F3 Submit (write-once), F4 two-stage verification + EARNED (derived
+VALID ∧ fresh-bound replay PASS only) + INVALID terminal, F5 payer
+response (verbatim capture, Answer-later blocks finalize, explicit
+NOT_ASKED closure, one final ledger). All 10 acceptance gates
+machine-tested (test/fr3456.test.ts). Implementation correctness
+awaits Commander review.**
 
 Run: `node --experimental-strip-types apps/experiment-ui/server/index.ts
 --exp-dir <dir> [--port 4319]` → http://127.0.0.1:4319 (127.0.0.1 only;

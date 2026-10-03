@@ -106,6 +106,10 @@ export type ThesisVerdict = LedgerV1["verdict"];
 const sha256File = (p: string): string => "sha256:" + createHash("sha256").update(readFileSync(p)).digest("hex");
 const sha256Text = (s: string): string => "sha256:" + createHash("sha256").update(Buffer.from(s, "utf8")).digest("hex");
 
+/** CUT-2R2/F-R1 additive export: hash helpers reused by the orchestrator (it must not implement its own). */
+export const sha256Of = sha256Text;
+export const sha256OfFile = sha256File;
+
 /** The frozen §10 mapping — total, deterministic, no free variable. */
 export function thesisVerdictOf(o: Pick<LedgerObservationsV1, "payer_accepts_tier1" | "posthoc_rule_change_attempts" | "repeat_fund_intent">): ThesisVerdict {
   if (!o.payer_accepts_tier1) return "THESIS CHALLENGED";
@@ -159,7 +163,7 @@ function assertReplayReport(report: unknown, proofManifestSha: string, filesBind
 }
 
 /** Digest over every actual pack byte (proof-manifest.json excluded — it is the hashed, not the hasher). */
-function filesBindingOf(packDir: string): string {
+export function filesBindingOf(packDir: string): string {
   const names = readdirSync(packDir)
     .filter((f) => f !== "proof-manifest.json")
     .sort();
