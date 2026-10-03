@@ -1,8 +1,16 @@
 # EXPERIMENT-001 — Candidate Shortlist & Screening Record
 
-Status: **FIRST CONTACT SENT 2026-10-03T13:47:01Z — awaiting reply
-(UNANSWERED until proven otherwise).** Recruitment is IN PROGRESS; no
-participant is secured; the experiment has not run.
+Status: **CONTACTED / UNANSWERED (Commander registration 2026-10-03).**
+First contact sent 2026-10-03T13:47:01Z; awaiting reply; no polling
+automation (Commander ruling: leave response time, check on demand).
+PREP is entered only after ALL THREE: explicit agreement to participate +
+actual payer secured + external worker pre-designated.
+
+Commander ruling (awaiting-reply period): if the reward ends up sponsored
+by us with the maintainer only validating, that is a DIFFERENT experiment
+relationship and requires SEPARATE adjudication before any freeze —
+evidence conclusions from the "maintainer as payer" framing do NOT carry
+over to it. Frontend stays FROZEN during the wait (no expansion work).
 
 ```text
 SENT RECORD

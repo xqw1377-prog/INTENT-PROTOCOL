@@ -56,16 +56,23 @@ FRONTEND-R1         = PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03;
                      only; browser acceptance passed end-to-end). Frontend
                      expansion STOPPED by ruling. LEDGER ADDITIVE-EXPORT
                      COMPATIBILITY = PASS (maintained).
-NEXT                = EXPERIMENT-001 — RECRUITMENT IN PROGRESS (Commander
-                     GO 2026-10-03; registration per closing confirmation:
-                     IN FIELD means the recruitment-execution phase has
-                     started — the experiment has NOT run). Real
-                     participants: NOT YET SECURED. Experiment: NOT
-                     STARTED. Real user evidence: ZERO. Product thesis:
-                     NOT validated. Status ladder: recruit maintainer +
-                     pre-designated worker → technical screening passes →
-                     Freeze (docs/experiments/EXPERIMENT-001.md; ops kit
-                     docs/experiments/EXPERIMENT-001-OPS.md).
+NEXT                = EXPERIMENT-001 — RECRUITMENT IN PROGRESS · CONTACTED /
+                     UNANSWERED (Commander GO 2026-10-03; first contact
+                     SENT to gcode-preview#530 2026-10-03T13:47:01Z,
+                     issuecomment-5969774088 — awaiting reply; explicit
+                     refusal = verbatim recruitment evidence; no reply =
+                     UNANSWERED, never refusal). Real participants: NOT
+                     YET SECURED. Experiment: NOT STARTED. Real user
+                     evidence: ZERO. Product thesis: NOT validated. PREP
+                     only after: explicit agreement AND actual payer AND
+                     external worker all secured. Ruling: if we sponsor
+                     and the maintainer only validates, the experiment
+                     relationship requires SEPARATE adjudication —
+                     "maintainer as payer" evidence conclusions do NOT
+                     carry over. No polling automation; check on demand.
+                     (docs/experiments/EXPERIMENT-001.md; ops kit
+                     docs/experiments/EXPERIMENT-001-OPS.md; screening
+                     record docs/experiments/EXPERIMENT-001-CANDIDATES.md).
 NEXT DEVELOPMENT    = (superseded — see NEXT above) minimal experiment product
                      (docs/product/FRONTEND-R1.md + frozen spec
                      docs/product/FRONTEND-R1-SPEC.md incl. HOLD-6
