@@ -315,11 +315,24 @@ function reexecute(packDir, task) {
     const manifests = parsed.touchedPaths.filter((p) => p === "package.json" || p.endsWith("/package.json"));
     const before = new Map(manifests.map((p) => [p, existsSync(path.join(repo, p)) ? readFileSync(path.join(repo, p), "utf8") : null]));
 
-    // UE2-R-INSTALL: bootstrap with lifecycle scripts force-disabled, then
-    // every frozen byte the verdict depends on is re-hashed after install.
+    // UE2-R-INSTALL / CUT-2R1: dependency materialization with ZERO shell
+    // authority — direct argv, identical to the runner's contract (INSTALL-R4)
+    const INSTALL_ARGV = ["npm", "ci", "--ignore-scripts"];
     rmSync(path.join(repo, "node_modules"), { recursive: true, force: true });
-    const install = sh(task.commands.install_command, repo, 15 * 60_000, { ...process.env, npm_config_ignore_scripts: "true" });
-    if (install.code !== 0) return { tier1_verdict: "INVALID", reason: "install-failed" };
+    let installCode = 0;
+    try {
+      execFileSync(INSTALL_ARGV[0], INSTALL_ARGV.slice(1), {
+        cwd: repo,
+        encoding: "utf8",
+        timeout: 15 * 60_000,
+        maxBuffer: 256 * 1024 * 1024,
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, npm_config_ignore_scripts: "true" },
+      });
+    } catch (e) {
+      installCode = e.status ?? 1;
+    }
+    if (installCode !== 0) return { tier1_verdict: "INVALID", reason: "install-failed" };
     if (shaFile(suitePath) !== task.acceptance_suite_sha256) return { tier1_verdict: "INVALID", reason: "post-install-suite-drift" };
     if (shaFile(lockPath) !== task.lockfile_sha256) return { tier1_verdict: "INVALID", reason: "post-install-lockfile-drift" };
     try {
@@ -475,6 +488,9 @@ export function replayPack(packDir, opts = {}) {
   for (const f of ["regression_command", "baseline_health_command", "patched_acceptance_command", "install_command"]) {
     if (typeof cmds[f] !== "string" || cmds[f].trim() === "") return fail("freeze", "task-command:" + f);
   }
+  // CUT-2R1 install authority at intake: canonical npm form only
+  if (cmds.package_manager !== "npm") return fail("freeze", "task-package-manager");
+  if (cmds.install_command !== "npm ci --ignore-scripts") return fail("freeze", "task-install-command");
   let rulesetFile;
   let contractFile;
   let freezeManifest;

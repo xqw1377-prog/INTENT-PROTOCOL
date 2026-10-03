@@ -20,7 +20,7 @@ import { createHash } from "node:crypto";
 import { closeSync, existsSync, fsyncSync, mkdtempSync, openSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
-import { assertFreezeComplete, contractFreezeHash, contractFreezeOf, precommitBinding, verificationRulesetHash, verificationRulesetOf, type RealTaskExperimentV1 } from "./schema.ts";
+import { assertFreezeComplete, assertInstallAuthority, contractFreezeHash, contractFreezeOf, precommitBinding, verificationRulesetHash, verificationRulesetOf, type RealTaskExperimentV1 } from "./schema.ts";
 
 export interface FreezeTaskConfig {
   experiment_id: string;
@@ -45,7 +45,7 @@ export interface FreezeTaskConfig {
     patched_acceptance_command: string;
     build_command?: string;
     typecheck_command?: string;
-    package_manager: "npm" | "pnpm" | "yarn" | "none";
+    package_manager: "npm";
     install_command: string;
   };
 }
@@ -146,6 +146,7 @@ function determinismCheck(cfg: FreezeTaskConfig, cwd: string): `${number}/${numb
 
 /** Full preflight in a temp staging dir; returns the preflight record on success. */
 export function runPreflight(repoDir: string, cfg: FreezeTaskConfig): { suiteHash: string; lockHash: string; preflight: FreezeManifest["preflight"] } {
+  assertInstallAuthority(cfg.commands); // CUT-2R1: reject non-canonical install BEFORE anything executes
   const stage = mkdtempSync(path.join(tmpdir(), "ue1-stage-"));
   try {
     materializeBase(repoDir, cfg.base_commit_sha, stage);
@@ -187,6 +188,7 @@ export function runPreflight(repoDir: string, cfg: FreezeTaskConfig): { suiteHas
 
 /** Freeze with ATOMIC PUBLISH (R6): preflight fully in temp; publish only on success. */
 export function freezeExperiment(repoDir: string, cfg: FreezeTaskConfig, outDir: string): FreezeManifest {
+  assertInstallAuthority(cfg.commands); // CUT-2R1: install authority is checked before preflight executes anything
   const pre = runPreflight(repoDir, cfg); // throws INELIGIBLE → outDir untouched
 
   const experiment: RealTaskExperimentV1 = {

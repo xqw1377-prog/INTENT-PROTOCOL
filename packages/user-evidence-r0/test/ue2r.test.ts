@@ -99,21 +99,18 @@ describe("[UE2-R-PATH] pure-layer canonical path wall (zero commands)", () => {
 });
 
 describe("[UE2-R-INSTALL] explicit bootstrap boundary + post-install revalidation", () => {
-  test("[UE2R-INSTALL-DRIFT] a frozen install_command that tampers the suite after ci → INVALID post-install-suite-drift", { timeout: 1_200_000 }, () => {
-    const cfg = fixableConfig(repoDir, repoSha, {
-      commands: {
-        ...fixableConfig(repoDir, repoSha).commands,
-        install_command: "npm ci --no-audit --no-fund --ignore-scripts && printf ' ' >> test/regression.test.ts",
-      },
-    });
-    const driftDir = path.join(tmp, "gen-drift");
-    freezeExperiment(repoDir, cfg, driftDir); // freeze itself stays eligible (UE-1 semantics untouched)
+  // CUT-2R1 supersedes the former DRIFT negative: a non-canonical
+  // install_command can no longer be FROZEN at all (INSTALL-R1/R2 in
+  // ue2r1.test.ts); post-install revalidation remains in the runner and
+  // the portable verifier as defense-in-depth behind the argv contract.
+  test("[UE2R-INSTALL-ARGV] a VALID run executes install as the canonical argv, recorded verbatim", { timeout: 1_200_000 }, () => {
     const rec = runWorkerPatch(
-      { repoDir, freezePackDir: driftDir, patchPath: patchFile("fix", fixPatch(repoDir)), ranAt: "2026-10-03T20:10:00.000Z" },
-    ) as InvalidRunRecordV1;
-    expect(rec.verdict).toBe("INVALID");
-    expect(rec.invalid_reason).toBe("post-install-suite-drift");
-    expect(rec.runs.map((r) => r.stage)).toContain("install"); // the bootstrap is recorded…
-    expect(rec.runs.some((r) => r.command.includes("vitest"))).toBe(false); // …and NO verdict command ever ran
+      { repoDir, freezePackDir: packDir, patchPath: patchFile("fix", fixPatch(repoDir)), ranAt: "2026-10-03T20:15:00.000Z" },
+    );
+    expect(rec.verdict).toBe("VALID");
+    const install = rec.runs.find((r) => r.stage === "install");
+    expect(install?.command).toBe("npm ci --ignore-scripts");
+    expect(install?.code).toBe(0);
+    expect(/[;&|`$><]/.test(install?.command ?? "")).toBe(false); // argv, not shell
   });
 });

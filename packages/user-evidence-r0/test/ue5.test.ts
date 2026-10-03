@@ -89,9 +89,11 @@ describe("[UE-5 CUT-2R] provenance + finality", () => {
     const e2 = path.join(tmp, "exp-signed");
     recordObservation(proofDir, observations({ observation_source: "SIGNED_STATEMENT", payer_attestation: "SIGNED", source_record: signedSource, source_record_sha256: sha256Text(signedSource) }), e2, { replayReport: report });
     const l2 = finalizeLedger(proofDir, e2, { replayReport: report });
-    expect(l2.user_evidence.attestation_class).toBe("PAYER-ATTESTED");
-    expect(l2.rendered).toContain("USER EVIDENCE: PAYER-ATTESTED");
-    expect(l2.rendered).toContain("PAYER ATTESTATION: SIGNED");
+    // CUT-2R1 wording ruling: SIGNED is RECORDED, never presented as machine-attested
+    expect(l2.user_evidence.attestation_class).toBe("SIGNED_STATEMENT / RECORDED");
+    expect(l2.rendered).toContain("USER EVIDENCE: SIGNED_STATEMENT / RECORDED");
+    expect(l2.rendered).toContain("PAYER ATTESTATION: SIGNED / NOT MACHINE-VERIFIED");
+    expect(l2.rendered).not.toContain("PAYER-ATTESTED");
     expect(l2.verdict).toBe("THESIS STRENGTHENED"); // same behavior, honestly different evidence class
   });
 

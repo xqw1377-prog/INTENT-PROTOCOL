@@ -1,9 +1,9 @@
 {
   "schema_version": "portable-verifier-release.v1",
   "verifier": "packages/user-evidence-r0/src/portable-replay.mjs",
-  "verifier_sha256": "sha256:bb94a7e070652fc060127263ba5e60aa397bb7299dec366aabb7bee00c51b89f",
-  "released_at": "2026-10-03T18:00:00.000Z",
-  "release_basis": "USER-EVIDENCE-R0 / CUT-2R (AUDIT-B blocker UE4-R-TRUST: a proof pack can never vouch for its own verifier)",
+  "verifier_sha256": "sha256:292d580430dbe39c2978060340d2e4d27dd8debcfc807ba5f0a5e6157cbc8493",
+  "released_at": "2026-10-03T21:00:00.000Z",
+  "release_basis": "USER-EVIDENCE-R0 / CUT-2R1 (supersedes the CUT-2R release; includes CUT-2R1 install-authority argv contract and intake enforcement). A proof pack can never vouch for its own verifier.",
   "third_party_verification_order": [
     "1. obtain this VERIFIER-RELEASE.json from the repository/release you trust",
     "2. shasum -a 256 <pack>/verify.mjs and compare against verifier_sha256 here",

@@ -43,16 +43,21 @@ const GREEN_TEST = [
 ].join("\n");
 
 /** A REAL mini repo: own package.json + lockfile, a seeded bug, red + green suites.
- *  opts.symlink adds `link -> test` (a symlinked directory inside the frozen base,
- *  used by UE2-R-PATH base-tree symlink attack tests). */
-export function makeFixableRepo(opts: { symlink?: boolean } = {}): { dir: string; sha: string } {
+ *  opts.symlink adds `link -> test` (UE2-R-PATH base-tree symlink attacks).
+ *  opts.hostilePreinstall adds a root preinstall script that WOULD tamper the
+ *  acceptance suite if lifecycle scripts ever executed (INSTALL-R3 probe). */
+export function makeFixableRepo(opts: { symlink?: boolean; hostilePreinstall?: boolean } = {}): { dir: string; sha: string } {
   const dir = mkdtempSync(path.join(tmpdir(), "ue2-repo-"));
   const wr = (rel: string, content: string): void => {
     execFileSync("mkdir", ["-p", path.dirname(path.join(dir, rel))]);
     writeFileSync(path.join(dir, rel), content);
   };
   const vitestVersion = JSON.parse(readFileSync(path.join(repoRoot, "node_modules/vitest/package.json"), "utf8")).version;
-  wr("package.json", JSON.stringify({ name: "fixable", private: true, type: "module", devDependencies: { vitest: vitestVersion } }, null, 2) + "\n");
+  const pkg: Record<string, unknown> = { name: "fixable", private: true, type: "module", devDependencies: { vitest: vitestVersion } };
+  if (opts.hostilePreinstall) {
+    pkg.scripts = { preinstall: "node -e \"require('fs').appendFileSync('test/regression.test.ts',' // touched')\"" };
+  }
+  wr("package.json", JSON.stringify(pkg, null, 2) + "\n");
   execFileSync("npm", ["install", "--package-lock-only", "--no-audit", "--no-fund", "--ignore-scripts"], { cwd: dir, encoding: "utf8", timeout: 300_000 });
   wr("src/add.ts", BUGGY_ADD);
   wr("test/regression.test.ts", REGRESSION_TEST);
@@ -118,7 +123,7 @@ export function fixableConfig(repoDir: string, sha: string, over: Partial<Freeze
       baseline_health_command: "node node_modules/vitest/vitest.mjs run test/green.test.ts --reporter=json",
       patched_acceptance_command: "node node_modules/vitest/vitest.mjs run test --reporter=json",
       package_manager: "npm",
-      install_command: "npm ci --no-audit --no-fund --ignore-scripts",
+      install_command: "npm ci --ignore-scripts",
     },
     ...over,
   };

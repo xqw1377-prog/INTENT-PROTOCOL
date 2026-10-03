@@ -48,25 +48,31 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-01 devnet program IMMUTABLE / PH-02 byte portability /
                      PH-03 independent verifier / PH-04 input-domain closure /
                      PH-05 durable journal w/ coupled ruleset identity)
-NEXT TARGET         = USER-EVIDENCE-R0: Commander re-audit of CUT-2R
-                     (the five blocker gates) at
-                     audit/user-evidence-r0-cut2-cut4, then the REAL
-                     experiment — find the first real maintainer, repo,
-                     and bug. Frozen regardless:
+NEXT TARGET         = USER-EVIDENCE-R0: Commander re-audit of CUT-2R1
+                     (install authority) at
+                     audit/user-evidence-r0-cut2-cut4 → sign
+                     UE-0..UE-5 PASS / FROZEN-R0 → freeze the external
+                     verifier trust anchor into the experiment
+                     governance record → FIND THE FIRST REAL
+                     MAINTAINER (EXPERIMENT-001). Frozen regardless:
                      MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
                      TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED;
                      UNIFIED CLI = HOLD; PROTOCOL EXPANSION = HOLD;
                      NO new UI / payments / auto-release / concurrent
                      claims / Tier-2 engine.
-USER-EVIDENCE-R0    = OPEN (Commander 2026-10-03 three-knife audit:
-                     UE-2 = IMPLEMENTED / HOLD-2 · UE-3 = IMPLEMENTED /
-                     STRUCTURALLY SOUND · UE-4 = IMPLEMENTED / HOLD-1 ·
-                     UE-5 = IMPLEMENTED / HOLD-2 — implemented ≠
-                     independently inspected ≠ PASS).
-                     CUT-2R (the five blocker gates UE2-R-PATH,
-                     UE2-R-INSTALL, UE4-R-TRUST, UE5-R-PROVENANCE,
-                     UE5-R-FINALITY) implemented, awaiting re-audit at
-                     audit/user-evidence-r0-cut2-cut4.
+USER-EVIDENCE-R0    = OPEN — ONE REMAINING GATE (Commander re-audit
+                     2026-10-03: UE-2 = HOLD-1 / INSTALL AUTHORITY
+                     ONLY; UE-3 = PASS / FROZEN; UE-4 = PASS /
+                     FROZEN-R0 — external trust anchor must be frozen
+                     into the experiment governance record before
+                     EXPERIMENT-001; UE-5 = PASS / FROZEN-R0 with
+                     wording fix applied — SIGNED renders
+                     SIGNED_STATEMENT / RECORDED, NOT MACHINE-VERIFIED).
+                     CUT-2R1 (install authority: npm-only, canonical
+                     argv, INSTALL-R1..R4) implemented at
+                     audit/user-evidence-r0-cut2-cut4, awaiting
+                     re-audit → then UE-0..UE-5 = PASS / FROZEN-R0
+                     and the machine is READY FOR EXPERIMENT-001.
 CUT-1R2             = PASS CANDIDATE (Commander audit 2026-10-03: no
                      blocker found); LANDED REMOTE (main @ 13b0145).
 EVIDENCE SCENE evidence/3b941db2 = CLOSED WITH PERMANENT LOSS

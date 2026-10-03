@@ -42,7 +42,7 @@ function validConfig(): FreezeTaskConfig {
       baseline_health_command: "node node_modules/vitest/vitest.mjs run packages/user-evidence-r0/fixtures/green.test.ts --reporter=json",
       patched_acceptance_command: "node node_modules/vitest/vitest.mjs run packages/user-evidence-r0/fixtures --reporter=json",
       package_manager: "npm",
-      install_command: "npm ci --no-audit --no-fund --ignore-scripts",
+      install_command: "npm ci --ignore-scripts",
     },
   };
 }
@@ -75,7 +75,7 @@ function validExperiment(over: Partial<RealTaskExperimentV1> = {}): RealTaskExpe
       baseline_health_command: "true",
       patched_acceptance_command: "true",
       package_manager: "npm",
-      install_command: "npm ci",
+      install_command: "npm ci --ignore-scripts",
     },
     payer_precommit_text: "I agree.",
     payer_precommit_timestamp: "2026-10-01T00:00:00Z",

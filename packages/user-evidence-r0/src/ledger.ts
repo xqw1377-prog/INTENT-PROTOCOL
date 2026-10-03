@@ -95,7 +95,7 @@ export interface LedgerV1 {
     source_record: string;
     source_record_sha256: string;
     payer_attestation: PayerAttestation;
-    attestation_class: "OBSERVED / UNSIGNED" | "PAYER-ATTESTED";
+    attestation_class: "OBSERVED / UNSIGNED" | "SIGNED_STATEMENT / RECORDED";
   };
   verdict: "THESIS STRENGTHENED" | "THESIS MIXED" | "THESIS CHALLENGED";
   rendered: string;
@@ -264,7 +264,10 @@ export function finalizeLedger(packDir: string, expDir: string, opts: { replayRe
 
   const o = obsFile.observations;
   const verdict = thesisVerdictOf(o);
-  const attestationClass: LedgerV1["user_evidence"]["attestation_class"] = o.payer_attestation === "SIGNED" ? "PAYER-ATTESTED" : "OBSERVED / UNSIGNED";
+  // CUT-2R1 wording ruling: the machine verifies NO signature — a SIGNED
+  // observation is RECORDED as such, never presented as machine-attested
+  const attestationClass: LedgerV1["user_evidence"]["attestation_class"] =
+    o.payer_attestation === "SIGNED" ? "SIGNED_STATEMENT / RECORDED" : "OBSERVED / UNSIGNED";
   const ledger: LedgerV1 = {
     schema_version: "real-task-ledger.v1",
     experiment_id: ctx.task.experiment_id,
@@ -309,7 +312,7 @@ export function finalizeLedger(packDir: string, expDir: string, opts: { replayRe
       `REPEAT-FUND INTENT: ${o.repeat_fund_intent}`,
       `OBSERVATION SOURCE: ${o.observation_source} (seq ${latestSeq}/${seqs.length}, record ${o.source_record_sha256})`,
       `OBSERVER: ${o.observer_identity}`,
-      `PAYER ATTESTATION: ${o.payer_attestation}`,
+      `PAYER ATTESTATION: ${o.payer_attestation}${o.payer_attestation === "SIGNED" ? " / NOT MACHINE-VERIFIED" : ""}`,
       `TECHNICAL EVIDENCE: VERIFIED`,
       `USER EVIDENCE: ${attestationClass}`,
       `VERDICT: ${verdict}`,

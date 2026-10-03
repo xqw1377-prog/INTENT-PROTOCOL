@@ -1,12 +1,12 @@
 # USER-EVIDENCE-R0 — Experiment Contract (UE-0 Freeze)
 
-Status: **CUT-2R implemented (2026-10-03) — the five AUDIT-A/B/C blocker
-gates §7a/§9a/§10a — awaiting Commander re-audit. Ledger per ruling:
-UE-2 = IMPLEMENTED/HOLD-2 · UE-3 = IMPLEMENTED/STRUCTURALLY SOUND ·
-UE-4 = IMPLEMENTED/HOLD-1 · UE-5 = IMPLEMENTED/HOLD-2 · CUT-1R2 =
-PASS CANDIDATE (no blocker found) · EVIDENCE-SCENE-RECON/3b941db2 =
-CLOSED WITH PERMANENT LOSS. UNIFIED CLI = HOLD; no features pending
-audit.**
+Status: **CUT-2R1 implemented (2026-10-03) — install authority closed per
+Commander GO; UE5 wording downgraded. Ruling ledger: UE2-R-PATH = PASS /
+FROZEN · UE2-R-INSTALL = was HOLD-1, closed by §7b pending re-audit ·
+UE-3 = PASS / FROZEN · UE-4 = PASS / FROZEN-R0 (external trust anchor
+to be frozen into the experiment governance record before
+EXPERIMENT-001) · UE-5 PROVENANCE = PASS (wording fix applied) ·
+UE-5 FINALITY = PASS / FROZEN. UNIFIED CLI = HOLD; no features.**
 
 Authority: Commander order `USER-EVIDENCE-R0 / CUT-1 = GO` (2026-10-01);
 `USER-EVIDENCE-R0 / CUT-2..CUT-4 = GO` (2026-10-03, repo-authority directive:
@@ -247,6 +247,47 @@ UE2-R-INSTALL (A2) the install boundary is EXPLICIT and choice B is
       is enforced identically by the portable verifier's re-execution.
       UE-1 freeze preflight semantics are UNTOUCHED (CUT-1R2 is a
       separate landed cut).
+```
+
+### 7b. CUT-2R1 — INSTALL AUTHORITY (the A2 closure; Commander GO 2026-10-03)
+
+```text
+R0 INSTALL CONTRACT (single source: schema.ts)
+  package_manager = npm ONLY (non-npm repos are INELIGIBLE for
+                    EXPERIMENT-001 — by ruling, acceptable)
+  install_command = EXACTLY "npm ci --ignore-scripts"
+  execution       = DIRECT ARGV: execFile("npm", ["ci","--ignore-
+                    scripts"]) in BOTH the runner and the portable
+                    verifier — install is a dependency-materialization
+                    operation, never shell authority. Chaining is
+                    structurally impossible: no other string can be
+                    frozen.
+
+INSTALL-R1  non-canonical install_command (curl|sh, node setup.js,
+      npm install, extra flags, pnpm/yarn forms, non-npm
+      package_manager) is rejected at FREEZE and at INTAKE — before
+      anything executes, nothing published.
+INSTALL-R2  shell chaining after the canonical prefix
+      ("npm ci --ignore-scripts && …", "; …") = rejected — exact-match,
+      no parsing games.
+INSTALL-R3  a hostile root lifecycle script (fixture: preinstall that
+      appends to the frozen acceptance suite) does NOT execute — the
+      canonical argv runs with --ignore-scripts (flag) + env double-
+      disable; the suite bytes survive install and the run stays
+      VALID. Post-install re-hash retained as defense-in-depth, not as
+      the only boundary.
+INSTALL-R4  runner and portable verifier execute the exact same argv
+      contract — verified at source level (schema.ts is the single
+      literal source; run.ts derives, verify.mjs re-declares) and
+      behaviorally (hostile-repo VALID verdict reproduced end-to-end
+      by the replayer's independent direct-argv execution).
+
+UE5 WORDING (CUT-2R1): payer_attestation = SIGNED renders
+      "SIGNED_STATEMENT / RECORDED" and "PAYER ATTESTATION: SIGNED /
+      NOT MACHINE-VERIFIED" — the machine verifies NO signature; a
+      signed observation is recorded, never presented as
+      machine-attested. ("PAYER-ATTESTED" is retired until real
+      signature verification exists.)
 ```
 
 ## 8. CUT-3 — UE-3 Portable Outcome Proof pack

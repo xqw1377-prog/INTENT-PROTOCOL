@@ -21,6 +21,7 @@ import { existsSync, lstatSync, mkdtempSync, readFileSync, renameSync, rmSync, w
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { inNetSandbox, materializeBase, verifyNetSandbox, FreezeError } from "./freeze.ts";
+import { CANONICAL_INSTALL_COMMAND } from "./schema.ts";
 import { verifyFreezePackDir } from "./pack.ts";
 import { dependencySectionsUnchanged, evaluatePatchPolicy, isCanonicalRepoRelativePath, isDependencyManifestPath, parseUnifiedPatch } from "./policy.ts";
 
@@ -229,17 +230,34 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
       manifests.map((p) => [p, existsSync(path.join(stage, p)) ? readFileSync(path.join(stage, p), "utf8") : null]),
     );
 
-    // UE2-R-INSTALL (CUT-2R): install is an EXPLICIT bootstrap phase whose
-    // only authority is dependency materialization — lifecycle scripts are
-    // FORCE-disabled via env (project .npmrc cannot re-enable them), so no
-    // dependency code executes during install; and the install is NOT
-    // trusted: every frozen byte the verdict depends on is RE-HASHED after
-    // it (a bootstrap that mutates the tree disqualifies the run).
+    // UE2-R-INSTALL / CUT-2R1: install is a dependency-materialization
+    // operation with ZERO shell authority — the frozen command is executed
+    // as a DIRECT argv (execFile, no shell; chaining is structurally
+    // impossible because the schema only ever freezes the canonical form),
+    // lifecycle scripts are double-disabled (flag + env). The bootstrap is
+    // NOT trusted: every frozen byte the verdict depends on is re-hashed
+    // after it (defense-in-depth on top of the argv contract).
     rmSync(path.join(stage, "node_modules"), { recursive: true, force: true });
-    execRecorded(runs, stage, "install", task.commands.install_command, /* sandbox */ false, {
-      ...process.env,
-      npm_config_ignore_scripts: "true",
-    });
+    const installArgv = CANONICAL_INSTALL_COMMAND.split(" ");
+    const t0 = Date.now();
+    let installCode = 0;
+    let installStdout = "";
+    try {
+      installStdout = execFileSync(installArgv[0]!, installArgv.slice(1), {
+        cwd: stage,
+        encoding: "utf8",
+        timeout: 15 * 60_000,
+        maxBuffer: 256 * 1024 * 1024,
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, npm_config_ignore_scripts: "true" },
+      });
+    } catch (e) {
+      const err = e as { status?: number; stdout?: string };
+      installCode = err.status ?? 1;
+      installStdout = err.stdout ?? "";
+    }
+    runs.push({ stage: "install", command: CANONICAL_INSTALL_COMMAND, code: installCode, stdout_sha256: sha256Text(installStdout), duration_ms: Date.now() - t0 });
+    if (installCode !== 0) return invalid("install-failed");
     if (sha256File(suitePath) !== task.acceptance_suite_sha256) return invalid("post-install-suite-drift");
     if (sha256File(lockPath) !== task.lockfile_sha256) return invalid("post-install-lockfile-drift");
 

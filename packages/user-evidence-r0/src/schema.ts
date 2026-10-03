@@ -14,6 +14,25 @@ import { createHash } from "node:crypto";
 const HASH_RE = /^sha256:[0-9a-f]{64}$/;
 const NONEMPTY = (s: string | undefined): boolean => typeof s === "string" && s.trim().length > 0;
 
+/**
+ * CUT-2R1 / INSTALL AUTHORITY — the single canonical install form for R0.
+ * install is a dependency-materialization operation, NOT shell authority:
+ * the string is executed as a DIRECT argv (execFile, no shell), so it must
+ * be exactly this form — no chaining, no extra flags, no other package
+ * manager. Non-npm repos are INELIGIBLE for EXPERIMENT-001 by ruling.
+ */
+export const CANONICAL_INSTALL_COMMAND = "npm ci --ignore-scripts";
+
+/** Throws before any execution when the install contract is not canonical. */
+export function assertInstallAuthority(commands: { package_manager?: string; install_command?: string }): void {
+  if (commands?.package_manager !== "npm") {
+    throw new Error(`install-authority: package_manager must be "npm" for R0 (got ${JSON.stringify(commands?.package_manager)})`);
+  }
+  if (commands?.install_command !== CANONICAL_INSTALL_COMMAND) {
+    throw new Error(`install-authority: install_command must be exactly ${JSON.stringify(CANONICAL_INSTALL_COMMAND)} — no shell chaining, no other form (got ${JSON.stringify(commands?.install_command)})`);
+  }
+}
+
 export interface FrozenCommandsV1 {
   /** MUST FAIL (non-zero / failing tests) on the frozen base — the seeded red. */
   regression_command: string;
@@ -23,8 +42,10 @@ export interface FrozenCommandsV1 {
   patched_acceptance_command: string;
   build_command?: string;
   typecheck_command?: string;
-  package_manager: "npm" | "pnpm" | "yarn" | "none";
-  install_command: string;
+  /** R0: npm only (CUT-2R1 install authority). */
+  package_manager: "npm";
+  /** R0: EXACTLY the canonical form (CUT-2R1) — executed as argv, never via shell. */
+  install_command: typeof CANONICAL_INSTALL_COMMAND;
 }
 
 export interface RealTaskExperimentV1 {
@@ -185,8 +206,8 @@ export function assertFreezeComplete(e: RealTaskExperimentV1): void {
   if (!NONEMPTY(e.commands?.regression_command)) fail("commands.regression_command");
   if (!NONEMPTY(e.commands?.baseline_health_command)) fail("commands.baseline_health_command");
   if (!NONEMPTY(e.commands?.patched_acceptance_command)) fail("commands.patched_acceptance_command");
-  if (!NONEMPTY(e.commands?.install_command)) fail("commands.install_command");
-  if (!["npm", "pnpm", "yarn", "none"].includes(e.commands?.package_manager ?? "")) fail("commands.package_manager");
+  if (e.commands?.package_manager !== "npm") fail("commands.package_manager");
+  if (e.commands?.install_command !== CANONICAL_INSTALL_COMMAND) fail("commands.install_command");
   if (!NONEMPTY(e.payer_precommit_text)) fail("payer_precommit_text");
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(e.payer_precommit_timestamp)) fail("payer_precommit_timestamp");
 }
