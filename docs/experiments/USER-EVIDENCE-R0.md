@@ -1,6 +1,10 @@
 # USER-EVIDENCE-R0 — Experiment Contract (UE-0 Freeze)
 
-Status: **CUT-1R/1R2 + CUT-2 implemented — awaiting adjudication**
+Status: **OPEN (Commander ruling 2026-10-03) — CUT-1R2 LANDED REMOTE /
+FINAL AUDIT PENDING; UE-2/3/4/5 = IMPLEMENTED-LOCAL /
+NO-INDEPENDENT-EVIDENCE, under source-level audit at
+`audit/user-evidence-r0-cut2-cut4` (implemented ≠ independently
+inspected ≠ PASS). UNIFIED CLI = HOLD; no new code pending audit.**
 
 Authority: Commander order `USER-EVIDENCE-R0 / CUT-1 = GO` (2026-10-01);
 `USER-EVIDENCE-R0 / CUT-2..CUT-4 = GO` (2026-10-03, repo-authority directive:

@@ -20,7 +20,9 @@ GP4                 = PASS / FROZEN
 GP5                 = PASS / FROZEN (COMMANDER SIGNED)
 MAIN-CLOSURE-R1     = PASS / CLOSED
 
-CURRENT GATE        = PRODUCT-THESIS-R0 (PRODUCT THESIS — NOT ENGINEERING)
+CURRENT GATE        = USER-EVIDENCE-R0 (Commander ruling 2026-10-03:
+                     PRODUCT-THESIS-R0 = PASS / FROZEN;
+                     USER-EVIDENCE-R0 = OPEN)
 EXE-R0              = PASS / FROZEN (Commander, 2026-09-29 @ 38ac0fb)
 TESTNET-R1 / T0     = PASS / FROZEN (Commander, 2026-09-29, basis
                      8648376 + ebf1ed9, adjudicated @ 75407f3)
@@ -46,21 +48,29 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-01 devnet program IMMUTABLE / PH-02 byte portability /
                      PH-03 independent verifier / PH-04 input-domain closure /
                      PH-05 durable journal w/ coupled ruleset identity)
-NEXT TARGET         = PRODUCT-THESIS-R0: who pays for verified outcomes,
-                     which high-stakes action requires them, why existing
-                     payment rails are insufficient, our minimal unique
-                     capability, the first real task. NOT engineering; no
-                     features. Frozen regardless:
+NEXT TARGET         = USER-EVIDENCE-R0: independent source-level audit of
+                     UE-2..UE-5 at audit/user-evidence-r0-cut2-cut4
+                     (AUDIT-A runner / AUDIT-B proof+replay / AUDIT-C
+                     ledger), then CUT-1R2 final audit, then the REAL
+                     experiment. Frozen regardless:
                      MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
-                     TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED.
-USER-EVIDENCE-R0    = IMPLEMENTED (CUT-1/1R/1R2 + CUT-2/3/4 @ f15b8ad),
-                     AWAITING COMMANDER ADJUDICATION — implemented ≠ PASS.
-                     Experiment machinery complete: UE-0 dual-hash contract,
-                     UE-1 freezer, UE-2 runner (pre-execution policy wall),
-                     UE-3 portable proof pack, UE-4 standalone third-party
-                     replayer, UE-5 verified-replay-only ledger. The REAL
-                     experiment (experiments/001) still requires a REAL
-                     maintainer + repo + bug; no fictional fixtures.
+                     TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED;
+                     UNIFIED CLI = HOLD; PROTOCOL EXPANSION = HOLD.
+USER-EVIDENCE-R0    = OPEN. CUT-1R2 = LANDED REMOTE (main @ 13b0145),
+                     FINAL AUDIT PENDING.
+                     UE-2 / UE-3 / UE-4 / UE-5 = IMPLEMENTED-LOCAL /
+                     NO-INDEPENDENT-EVIDENCE — implemented ≠ independently
+                     inspected ≠ PASS (Commander ruling 2026-10-03).
+                     Under audit at audit/user-evidence-r0-cut2-cut4
+                     (local 45f0f4e..7c2518d, 5 SHAs preserved).
+EVIDENCE SCENE evidence/3b941db2 = DELETED LOCALLY 2026-10-03;
+                     PROVENANCE RECON RECORDED = MISSING / UNRECOVERED
+                     (docs/incidents/EVIDENCE-SCENE-3b941db2-DELETION.md);
+                     V3.12 GREEN ≠ evidence-loss adjudicated; no
+                     replacement scene fabricated.
+EXPERIMENT-001      = NOT STARTED (requires REAL maintainer + REAL repo +
+                     REAL bug; no fictional fixtures).
+REAL PAYER / REAL TASK / REAL EXTERNAL WORKER = 0 / 0 / 0.
 
 LOCAL SETTLEMENT    = PROVEN / SIGNED
 LOCAL GOLDEN PATH   = PROVEN
