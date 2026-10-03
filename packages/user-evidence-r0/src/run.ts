@@ -171,7 +171,11 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
   // 3./4. clean-room execution
   const runs: ExecutedRun[] = [];
   const stage = mkdtempSync(path.join(tmpdir(), "ue2-run-"));
-  const invalid = (reason: string): InvalidRunRecordV1 => ({ ...base, checks: {}, runs, verdict: "INVALID", invalid_reason: reason, ran_at: input.ranAt });
+  const invalid = (reason: string): InvalidRunRecordV1 => {
+    const rec: InvalidRunRecordV1 = { ...base, checks: {}, runs, verdict: "INVALID", invalid_reason: reason, ran_at: input.ranAt };
+    if (outPath) writeRecordAtomic(rec, outPath);
+    return rec;
+  };
 
   try {
     materializeBase(input.repoDir, task.base_commit_sha, stage);

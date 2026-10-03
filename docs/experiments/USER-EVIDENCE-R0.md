@@ -210,4 +210,71 @@ Normative grammar (frozen):
   glob         = "**" crosses "/", "*" does not; forbidden wins over allowed
 ```
 
+## 8. CUT-3 — UE-3 Portable Outcome Proof pack
+
+CLI: `intent experiment proof <repo> <freeze-pack> <patch> <run-record>
+<built-at> <out-dir>`. The pack IS the entire portable Tier-1 evidence.
+
+```text
+PACK CONTENTS (exactly nine files, no more, no less)
+  task.json / ruleset.json / contract-freeze.json / freeze-manifest.json
+    — byte-verbatim copies of the freeze generation
+  worker.patch     — the patch bytes (hash-bound to the run record)
+  run-record.json  — byte-verbatim UE-2 record
+  base.bundle      — git bundle carrying the EXACT frozen base commit
+                     (local clone → pinned ref ue-base → bundle; self-checked
+                     by cloning the bundle back and rev-parsing)
+  verify.mjs       — the standalone third-party verifier (see §9)
+  proof-manifest.json — root of trust: sha256 + byte size of every file,
+                     re-derived freeze identities, patch sha, tier1_verdict
+
+UE3-ATOMIC   generation-atomic publish (staging sibling → fsync → full
+      self-check → rename); outDir must not pre-exist; 9/9 or 0/9.
+UE3-BASE-BYTES  the bundle ALONE materializes the exact frozen base
+      (rev-parse == base_commit_sha); suite + lockfile byte hashes
+      re-verify from the bundle contents.
+UE3-VERBATIM  worker.patch and run-record.json enter byte-identical.
+UE3-NO-INVALID  only a run whose DERIVED verdict is VALID may enter a
+      Tier-1 proof pack (INVALID runs are evidence, not entitlement).
+UE3-VERDICT   tier1_verdict is a FUNCTION of the record, never an
+      assertion: VALID iff verdict==VALID ∧ every check field equals its
+      required constant ∧ determinism is a full n/n (n>=1) ∧ runs
+      non-empty and well-formed. Flipping any single check flips it.
+```
+
+## 9. CUT-3 — UE-4 Third-party replayer (verify.mjs)
+
+STANDALONE BY CONTRACT: plain JavaScript, Node built-ins only, zero
+imports from src/ — every identity formula, policy rule, and execution
+step is re-implemented independently (verifier independence over code
+sharing). Third party: unpack the pack, run `node verify.mjs` with only
+node+git+npm on PATH. Four stages, in order:
+
+```text
+UE4-INTEGRITY  exact 9-file set; every file's sha256 + byte size must
+      match proof-manifest.json; no unlisted file survives.
+UE4-CLOSURE    freeze identities re-derive from the pack bytes alone
+      (ruleset/contract projection, both hash formulas, precommit
+      binding, hard-coded contracts: network=disabled,
+      new_dependencies=false, SINGLE_CLAIMANT).
+UE4-BINDING    the manifest's tier1_verdict re-derives from
+      run-record.json; record is hash-bound to THIS freeze and patch.
+UE4-REALITY    the full pipeline re-executes from the pack ALONE: clone
+      the bundle at ue-base, verify suite/lockfile bytes, policy wall,
+      clean-room install, net-sandbox probe, base red, patch apply,
+      patched green, baseline green, N-run determinism. The reproduced
+      verdict MUST equal the recorded one.
+
+Tamper lattice (all machine-tested):
+  one flipped byte in worker.patch          → integrity FAIL
+  edited run record (no manifest rehash)    → integrity FAIL
+  edited money term + rehashed manifest     → closure FAIL
+  fully rehashed coordinated lie (swapped
+  patch, consistent record + manifest)      → binding passes,
+                                              REALITY FAILS — the bytes
+                                              have to actually work
+  standalone run (bare node, cwd = pack)    → same verdict, no repo,
+                                              no vitest, no service
+```
+
 
