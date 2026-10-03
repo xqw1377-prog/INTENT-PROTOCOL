@@ -277,4 +277,36 @@ Tamper lattice (all machine-tested):
                                               no vitest, no service
 ```
 
+## 10. CUT-4 — UE-5 user-evidence recorder + final ledger
+
+CLI: `intent experiment ledger <proof-pack> <observations.json> <out>`.
+The ledger is the ONLY allowed report form (§6). Technical evidence and
+user evidence live in separate fields and are never conflated (PT-5R1).
+
+```text
+UE5-R1  VERIFIED-ONLY  user evidence may be recorded ONLY on top of a
+      proof pack whose INDEPENDENT replay PASSES with reproduced Tier-1
+      verdict VALID. The replay report binds to the pack by manifest
+      hash AND a digest over every pack byte — a pack tampered after
+      the replay is refused (stale-report attack closed).
+UE5-R2  ACCEPT-FLIPS   payer rejection → THESIS CHALLENGED; acceptance
+      requires the payer's VERBATIM words + timestamp as a durable
+      record (never reconstructed from memory).
+UE5-R3  RULE-CHANGE    any post-hoc rule-change attempt (with one
+      detail per attempt) blocks STRENGTHENED → MIXED.
+UE5-R4  DETERMINISTIC  same observations → byte-identical ledger.
+UE5-R5  APPEND-ONLY    a written ledger is never overwritten.
+UE5-RENDER  the ledger renders the exact §6 line form; the verdict is
+      derived, not asserted.
+
+Frozen verdict mapping (total, no free variable):
+  payer does NOT accept the Tier-1 entitlement      → THESIS CHALLENGED
+  payer accepts ∧ any post-hoc rule-change attempt  → THESIS MIXED
+  payer accepts ∧ 0 attempts ∧ repeat-fund ≠ YES    → THESIS MIXED
+  payer accepts ∧ 0 attempts ∧ repeat-fund = YES    → THESIS STRENGTHENED
+third_party_replay = DIFFERENT refuses the ledger entirely (an
+irreproducible pack carries no user evidence). One experiment ≠
+product-market fit; the ledger records, it never advertises.
+```
+
 

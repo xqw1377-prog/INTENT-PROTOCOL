@@ -347,6 +347,7 @@ export function replayPack(packDir, opts = {}) {
     replayed_at: opts.replayedAt ?? new Date().toISOString(),
     pack_dir: path.resolve(packDir),
     proof_manifest_sha256: existsSync(path.join(packDir, PROOF_MANIFEST)) ? shaFile(path.join(packDir, PROOF_MANIFEST)) : null,
+    files_binding: null,
     integrity: stage === "integrity" ? reason : "OK",
     freeze_closure: stage === "freeze" ? reason : stage === "integrity" ? "SKIPPED" : "OK",
     verdict_binding: stage === "binding" ? reason : stage === "integrity" || stage === "freeze" ? "SKIPPED" : "OK",
@@ -369,12 +370,20 @@ export function replayPack(packDir, opts = {}) {
   if (manifest.schema_version !== "outcome-proof-manifest.v1") return fail("integrity", "proof-manifest-schema");
   const onDisk = readdirSync(packDir).sort();
   if (JSON.stringify(onDisk) !== JSON.stringify([...EXPECTED_FILES].sort())) return fail("integrity", "file-set:" + onDisk.join(","));
+  const filesBindingObj = {};
   for (const [f, entry] of Object.entries(manifest.files ?? {})) {
     const p = path.join(packDir, f);
     if (!existsSync(p)) return fail("integrity", "missing:" + f);
-    if (shaFile(p) !== entry.sha256) return fail("integrity", "hash:" + f);
+    const diskSha = shaFile(p);
+    if (diskSha !== entry.sha256) return fail("integrity", "hash:" + f);
     if (readFileSync(p).length !== entry.bytes) return fail("integrity", "bytes:" + f);
+    filesBindingObj[f] = diskSha;
   }
+  // binds a replay report to EVERY pack byte, not just the manifest file
+  // (sorted keys — the ledger recomputes this digest independently)
+  const sortedBinding = {};
+  for (const k of Object.keys(filesBindingObj).sort()) sortedBinding[k] = filesBindingObj[k];
+  const filesBinding = "sha256:" + createHash("sha256").update(JSON.stringify(sortedBinding)).digest("hex");
 
   // 2. freeze closure, re-derived from the pack bytes
   let task;
@@ -477,6 +486,7 @@ export function replayPack(packDir, opts = {}) {
       replayed_at: opts.replayedAt ?? new Date().toISOString(),
       pack_dir: path.resolve(packDir),
       proof_manifest_sha256: shaFile(manifestPath),
+      files_binding: filesBinding,
       integrity,
       freeze_closure: freezeClosure,
       verdict_binding: binding,
