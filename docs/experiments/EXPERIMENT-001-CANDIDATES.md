@@ -1,7 +1,22 @@
 # EXPERIMENT-001 — Candidate Shortlist & Screening Record
 
-Status: **FIRST CONTACT PREPARED — not yet sent.** Recruitment is IN
-PROGRESS; no participant is secured; the experiment has not run.
+Status: **FIRST CONTACT SENT 2026-10-03T13:47:01Z — awaiting reply
+(UNANSWERED until proven otherwise).** Recruitment is IN PROGRESS; no
+participant is secured; the experiment has not run.
+
+```text
+SENT RECORD
+  channel   public issue comment (remcoder's own issue, he is watch-author)
+  author    xqw1377-prog (Commander's account, keychain credential,
+            used on direct order; token never printed/stored by ZCode)
+  comment   https://github.com/xyz-tools/gcode-preview/issues/530#issuecomment-5969774088
+  comment_id 5969774088
+  created   2026-10-03T13:47:01Z
+  text      byte-identical to the FINAL draft below (committed aa7d659
+            BEFORE sending; draft preceded the act, record follows it)
+  next      reply → PREP with maintainer · explicit refusal → verbatim
+            recruitment evidence · no reply → UNANSWERED (never refusal)
+```
 Operator: ZCode. Sending channel: the Commander's stored GitHub credential
 (keychain PAT, login xqw1377-prog, verified read-only 2026-10-03) — used
 only on the Commander's direct order to send.
