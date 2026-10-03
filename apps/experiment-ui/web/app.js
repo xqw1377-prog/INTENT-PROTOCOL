@@ -102,6 +102,8 @@ function renderPrepare(state) {
         ${field("regression_command", "Regression command (rule: red on base)", d.regression_command, { full: true })}
         ${field("baseline_health_command", "Baseline command (rule: green on base)", d.baseline_health_command, { full: true })}
         ${field("patched_acceptance_command", "Patched acceptance command (rule)", d.patched_acceptance_command, { full: true })}
+        ${field("acceptance_suite", "Acceptance suite file (explicit — never guessed)", d.acceptance_suite ?? "", { full: true, ph: "test/regression.test.ts" })}
+        ${field("acceptance_full_suite", "Full-suite files (comma-separated, explicit)", (d.acceptance_full_suite ?? []).join(", "), { full: true, ph: "test/green.test.ts" })}
         ${field("allowed_paths", "Allowed paths", (d.allowed_paths || []).join(", "), { ph: "src/**" })}
         ${field("forbidden_paths", "Protected paths", (d.forbidden_paths || []).join(", "), { ph: "test/**, package-lock.json, .github/**" })}
         ${field("max_diff_lines", "Diff bound (changed lines)", d.max_diff_lines ?? 40)}
@@ -140,6 +142,8 @@ function renderPrepare(state) {
         regression_command: get("regression_command").trim(),
         baseline_health_command: get("baseline_health_command").trim(),
         patched_acceptance_command: get("patched_acceptance_command").trim(),
+        acceptance_suite: get("acceptance_suite").trim(),
+        acceptance_full_suite: get("acceptance_full_suite").split(",").map((s) => s.trim()).filter(Boolean),
         notes: { issue_url: get("issue_url").trim(), summary: get("summary").trim(), payer_quote: "" },
       });
       await refresh();
@@ -219,7 +223,8 @@ function renderReadyToFreeze(state) {
   $("#btn-freeze").addEventListener("click", async () => {
     busy("Freezing — re-running the preflight from the reviewed snapshot and publishing atomically…");
     try {
-      await api("/api/freeze", { precommitAcknowledged: true });
+      const eligibility = STATE.eligibility;
+      await api("/api/freeze", { precommitAcknowledged: true, reviewId: eligibility.review_id, reviewedTerms: eligibility.draft });
       await refresh();
     } catch (err) {
       await refresh();
@@ -452,7 +457,7 @@ function renderVerification(state) {
       <button class="primary" id="btn-goto-f5">Record the payer's response →</button>
     </div>
     ${technicalDetails([["contract freeze hash", state.frozen?.contract_freeze_hash], ["precommit binding", state.frozen?.precommit_binding]])}`;
-  $("#btn-goto-f5").addEventListener("click", () => renderPayerResponse(STATE));
+  $("#btn-goto-f5").addEventListener("click", () => { window.location.hash = "#f5"; renderPayerResponse(STATE); });
 }
 
 /* ── F5 · Payer Response (D9) ── */
@@ -610,7 +615,11 @@ function render(state) {
     // submitted → verification view (outcome panels for INVALID / replay-fail / pending)
     return renderVerification(state);
   }
-  if (state.phase === "AWAITING_PAYER") return renderPayerResponse(state);
+  if (state.phase === "AWAITING_PAYER") {
+    // the EARNED page (F4) is the landing view; the payer-response screen is an explicit step
+    if (window.location.hash === "#f5") return renderPayerResponse(state);
+    return renderVerification(state);
+  }
   if (state.phase === "FINALIZED") return renderPayerResponse(state);
   busy("Working…");
 }

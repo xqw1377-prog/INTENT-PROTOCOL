@@ -21,6 +21,9 @@ import { recordObservation, finalizeLedger, sha256OfFile, sha256Of, type LedgerO
 import { deriveExperimentState, experimentPaths } from "./state.ts";
 import { TRUST_ANCHOR } from "./trust-anchor.ts";
 
+/** P0-5: the file whose bytes we hash before replay IS the module imported above. */
+const PORTABLE_REPLAY_PATH = fileURLToPath(new URL("../../../packages/user-evidence-r0/src/portable-replay.mjs", import.meta.url));
+
 /**
  * The cardinal pre-commit statement shown at the F1 pre-commit moment and
  * frozen VERBATIM as payer_precommit_text (hash-bound into the contract).
@@ -53,6 +56,9 @@ export interface DraftConfig {
   regression_command: string;
   baseline_health_command: string;
   patched_acceptance_command: string;
+  /** P0-6: explicit protocol inputs — never guessed from commands */
+  acceptance_suite: string;
+  acceptance_full_suite: string[];
 }
 
 const MIME: Record<string, string> = {
@@ -105,8 +111,8 @@ export function createExperimentServer(expDir: string): Server {
     base_commit_sha: String(snapshot.base_commit_sha),
     payer_identity: String(snapshot.payer_identity),
     worker_identity: String(snapshot.worker_identity),
-    acceptance_suite: acceptanceSuiteOf(String(snapshot.regression_command)),
-    acceptance_full_suite: [acceptanceSuiteOf(String(snapshot.baseline_health_command))].filter((x) => x !== ""),
+    acceptance_suite: String(snapshot.acceptance_suite),
+    acceptance_full_suite: (snapshot.acceptance_full_suite as string[]) ?? [],
     lockfile_path: "package-lock.json",
     allowed_paths: snapshot.allowed_paths as string[],
     forbidden_paths: snapshot.forbidden_paths as string[],
@@ -149,6 +155,8 @@ export function createExperimentServer(expDir: string): Server {
       }
       if (!Array.isArray(body.allowed_paths) || body.allowed_paths.length === 0) return json(res, 400, { error: "allowed_paths required" });
       if (!Array.isArray(body.forbidden_paths) || body.forbidden_paths.length === 0) return json(res, 400, { error: "forbidden_paths required" });
+      if (typeof body.acceptance_suite !== "string" || !body.acceptance_suite.trim()) return json(res, 400, { error: "acceptance_suite required (explicit protocol input — never guessed from commands)" });
+      if (!Array.isArray(body.acceptance_full_suite) || body.acceptance_full_suite.length === 0) return json(res, 400, { error: "acceptance_full_suite required (explicit list)" });
       const draft: DraftConfig = {
         schema_version: "experiment-draft.v1",
         repoPath: body.repoPath!,
@@ -164,6 +172,8 @@ export function createExperimentServer(expDir: string): Server {
         regression_command: body.regression_command!,
         baseline_health_command: body.baseline_health_command!,
         patched_acceptance_command: body.patched_acceptance_command!,
+        acceptance_suite: body.acceptance_suite,
+        acceptance_full_suite: body.acceptance_full_suite.map(String),
       };
       const notes: ExperimentNotes = {
         schema_version: "experiment-notes.v1",
@@ -200,8 +210,10 @@ export function createExperimentServer(expDir: string): Server {
           lockHash: pre.lockHash,
           proven: pre.preflight,
         };
+        // P0-4: the snapshot identity the payer's consent must bind to
+        record.review_id = sha256Of(JSON.stringify(record));
         writeAtomic(p.eligibility, JSON.stringify(record, null, 2) + "\n");
-        return json(res, 200, { ok: true, proven: pre.preflight });
+        return json(res, 200, { ok: true, proven: pre.preflight, review_id: record.review_id });
       } catch (e) {
         const record = { schema_version: "eligibility.v2", checked_at: new Date().toISOString(), ok: false, reason: String((e as Error).message) };
         writeAtomic(p.eligibility, JSON.stringify(record, null, 2) + "\n");
@@ -212,7 +224,7 @@ export function createExperimentServer(expDir: string): Server {
     }
 
     if (req.method === "POST" && url.pathname === "/api/freeze") {
-      const body = JSON.parse(await readBody(req)) as { precommitAcknowledged?: boolean };
+      const body = JSON.parse(await readBody(req)) as { precommitAcknowledged?: boolean; reviewId?: string; reviewedTerms?: Record<string, unknown> };
       if (body.precommitAcknowledged !== true) {
         return json(res, 400, { error: "payer pre-commit acknowledgement required — the rules cannot be frozen without the payer's explicit action" });
       }
@@ -220,9 +232,17 @@ export function createExperimentServer(expDir: string): Server {
       const st = deriveExperimentState(expDir, transient);
       if (!st.readiness.ready) return json(res, 409, { error: `not ready to freeze — ${st.readiness.reason}` });
       if (st.facts.rules_state === "FROZEN") return json(res, 409, { error: "experiment already frozen" });
+      // P0-4: the consent must bind the EXACT snapshot the payer read. A stale
+      // review (draft changed and re-checked elsewhere) is refused — re-read, re-review.
+      const eligibility = readJson(p.eligibility);
+      if (typeof body.reviewId !== "string" || body.reviewId !== eligibility.review_id) {
+        return json(res, 409, { error: "review expired — the reviewed snapshot changed after this review; read the terms again before freezing" });
+      }
+      if (!body.reviewedTerms || JSON.stringify(body.reviewedTerms) !== JSON.stringify(eligibility.draft)) {
+        return json(res, 409, { error: "reviewed terms do not match the current reviewed snapshot — re-read the complete terms before freezing" });
+      }
       transient.publishing = true;
       try {
-        const eligibility = readJson(p.eligibility);
         const cfg = snapshotToFreezeConfig(eligibility.draft as Record<string, unknown>); // reviewed snapshot, not mutable input
         const manifest: FreezeManifest = freezeExperiment(String((eligibility.draft as Record<string, unknown>).repoPath), cfg, p.freezeDir);
         // D5: compare published identities/terms against the reviewed snapshot; mismatch blocks the UI frozen claim
@@ -241,7 +261,8 @@ export function createExperimentServer(expDir: string): Server {
       if (typeof body.patch !== "string" || body.patch.trim() === "") return json(res, 400, { error: "a unified diff is required (paste or choose a .patch file)" });
       if (st_(expDir).facts.rules_state !== "FROZEN") return json(res, 409, { error: "submit is available only for a frozen task" });
       if (existsSync(p.workerPatch)) return json(res, 409, { error: "a patch is already submitted for this run — submission is immutable and cannot be replaced (operator action required for a new attempt)" });
-      writeAtomic(p.workerPatch, body.patch.endsWith("\n") ? body.patch : body.patch + "\n"); // written ONCE (P1/D3 marker)
+      // EXACT bytes — "this exact patch" means no normalization, not even a trailing newline
+      writeAtomic(p.workerPatch, body.patch);
       return json(res, 200, { ok: true, bytes: readFileSync(p.workerPatch).length, state: statePayload() });
     }
 
@@ -266,12 +287,18 @@ export function createExperimentServer(expDir: string): Server {
       if (existsSync(p.replayReport)) return json(res, 409, { error: "replay evidence already exists for this run — no auto-retry; operator action required" });
       const derived = tier1VerdictOf(readJson(p.runRecord) as never);
       if (derived !== "VALID") return json(res, 409, { error: `replay is available only for a derived-VALID run (got ${derived})` });
-      // D6: verify the trusted verifier's identity against the EXPERIMENT-001 external anchor BEFORE executing
+      // P0-5: verify the identity of the release file AND of the ACTUAL verifier
+      // bytes that are about to execute (the module imported at the top of this
+      // file — hashed here from disk, so what is checked is what runs).
       const releasePath = path.join(repoRoot, "packages/user-evidence-r0/VERIFIER-RELEASE.json");
       if (!existsSync(releasePath)) return json(res, 500, { error: "VERIFIER-RELEASE.json not found — the trusted verifier cannot be established" });
       const releaseSha = sha256OfFile(releasePath);
       if (releaseSha !== TRUST_ANCHOR.verifier_release_sha256) {
         return json(res, 500, { error: `VERIFIER-RELEASE.json hash ${releaseSha} does not match the EXPERIMENT-001 anchor — trusted verifier NOT established` });
+      }
+      const verifierSha = sha256OfFile(PORTABLE_REPLAY_PATH);
+      if (verifierSha !== TRUST_ANCHOR.portable_replay_sha256) {
+        return json(res, 500, { error: `the verifier module about to execute hashes to ${verifierSha}, not the EXPERIMENT-001 anchor ${TRUST_ANCHOR.portable_replay_sha256} — execution refused` });
       }
       transient.verifying = true;
       try {
@@ -334,23 +361,47 @@ export function createExperimentServer(expDir: string): Server {
     }
 
     if (req.method === "POST" && url.pathname === "/api/close-followup") {
-      const body = JSON.parse(await readBody(req)) as { hesitation_verbatim?: string; close_reason?: string; observation_source?: string; observer_identity?: string };
+      // P0-3: closes an unresolved Q3 WITHOUT requiring a prior observation —
+      // the FIRST answer being "Answer later" is the real path this serves.
+      // The operator supplies the full Q1/Q2 answers plus the hesitation
+      // verbatim and the close reason; the ledger records NOT_ASKED with
+      // provenance, never fabricating a YES/NO first.
+      const body = JSON.parse(await readBody(req)) as {
+        payer_accepts?: boolean; payer_ack_verbatim?: string; no_reason?: string;
+        rule_change_attempts?: number; rule_change_details?: string[];
+        hesitation_verbatim?: string; close_reason?: string;
+        observation_source?: string; observer_identity?: string;
+      };
       if (!existsSync(p.replayReport)) return json(res, 409, { error: "no verified evidence path" });
+      const st = deriveExperimentState(expDir, transient);
+      if (st.facts.tier1_entitlement !== "EARNED") return json(res, 409, { error: "closure is available only on the EARNED evidence path" });
+      if (typeof body.payer_accepts !== "boolean") return json(res, 400, { error: "Q1 answer required (part of the closure record)" });
+      if (body.payer_accepts && !(body.payer_ack_verbatim ?? "").trim()) return json(res, 400, { error: "acceptance requires the payer's own words" });
+      if (!body.payer_accepts && !(body.payer_ack_verbatim ?? "").trim() && !(body.no_reason ?? "").trim()) return json(res, 400, { error: "a rejection requires the payer's own words" });
       if (!(body.hesitation_verbatim ?? "").trim() || !(body.close_reason ?? "").trim()) {
         return json(res, 400, { error: "explicit operator closure requires the hesitation verbatim AND the reason the experiment closed without an answer" });
       }
       const now = new Date().toISOString();
-      const latest = latestObservation(expDir);
-      const base = latest?.observations;
-      if (!base) return json(res, 409, { error: "record the payer response first (Q1/Q2 are part of that observation)" });
       const transcript = [
-        "OPERATOR CLOSURE of an unresolved follow-up (D9) — the question was shown; the payer chose 'Answer later'.",
+        "OPERATOR CLOSURE of an unresolved follow-up (D9) — the question was shown; the payer chose 'Answer later' on FIRST answer.",
+        `Q1 According to the rules you agreed to before work began, has this worker earned the Tier-1 reward? → ${body.payer_accepts ? "YES" : "NO"}`,
+        body.payer_ack_verbatim?.trim() ? `Payer's own words: ${body.payer_ack_verbatim.trim()}` : "",
+        body.no_reason?.trim() ? `Reason for No: ${body.no_reason.trim()}` : "",
+        `Q2 After seeing the result, did you attempt to change any Tier-1 rule? → ${body.rule_change_attempts ?? 0} attempt(s)`,
+        ...(body.rule_change_details ?? []).map((d, i) => `  detail ${i + 1}: ${d}`),
+        "Q3 Would you fund another task using this structure? → ANSWER LATER (unresolved at close).",
         `Hesitation verbatim: ${body.hesitation_verbatim.trim()}`,
         `Reason the experiment closed without an answer: ${body.close_reason.trim()}`,
         "NOT_ASKED here means: unresolved at close by explicit operator decision — it is NOT an explicit No and NOT evidence the question was never shown.",
-      ].join("\n");
+      ].filter(Boolean).join("\n");
       const observations: LedgerObservationsV1 = {
-        ...base,
+        schema_version: "real-task-ledger-observations.v1",
+        third_party_replay: "SAME",
+        payer_accepts_tier1: body.payer_accepts,
+        payer_ack_verbatim: body.payer_ack_verbatim ?? "",
+        payer_ack_timestamp: now,
+        posthoc_rule_change_attempts: Number.isInteger(body.rule_change_attempts) ? body.rule_change_attempts! : 0,
+        posthoc_rule_change_details: body.rule_change_details ?? [],
         repeat_fund_intent: "NOT_ASKED",
         observation_source: (["INTERVIEW", "GITHUB_COMMENT", "EMAIL", "SIGNED_STATEMENT", "OTHER"].includes(body.observation_source ?? "") ? body.observation_source : "INTERVIEW") as LedgerObservationsV1["observation_source"],
         observer_identity: (body.observer_identity ?? "operator").trim() || "operator",
@@ -503,12 +554,6 @@ function readdirSyncSafe(dir: string): string[] {
   } catch {
     return [];
   }
-}
-
-/** Display-only file-path extraction from a frozen command — never used for verification. */
-function acceptanceSuiteOf(command: string): string {
-  const m = /(\S+\.test\.[cm]?[jt]sx?)\s*$/.exec(command.trim()) ?? /(\S+\.test\.[cm]?[jt]sx?)/.exec(command.trim());
-  return m?.[1] ?? "";
 }
 
 function writeAtomic(file: string, content: string): void {

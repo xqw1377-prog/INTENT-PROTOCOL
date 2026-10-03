@@ -52,6 +52,8 @@ describe("[FR-2] F1 — Prepare / Check eligibility / Payer review / Freeze", ()
       regression_command: c.commands.regression_command,
       baseline_health_command: c.commands.baseline_health_command,
       patched_acceptance_command: c.commands.patched_acceptance_command,
+      acceptance_suite: c.acceptance_suite,
+      acceptance_full_suite: c.acceptance_full_suite,
       notes: { issue_url: "#412 — Fix parser crash", summary: "Parser crashes on nested input.", payer_quote: "" },
     });
     expect(r.status).toBe(200);
@@ -78,14 +80,19 @@ describe("[FR-2] F1 — Prepare / Check eligibility / Payer review / Freeze", ()
   });
 
   test("[FR2-FREEZE-GATE] freeze REFUSES without the explicit payer acknowledgement", async () => {
-    const r = await call("POST", "/api/freeze", {});
+    const r = await call("POST", "/api/freeze", { reviewId: "x", reviewedTerms: {} });
     expect(r.status).toBe(400);
     expect(r.json.error).toContain("payer pre-commit acknowledgement required");
     expect(existsSync(path.join(exp, "freeze"))).toBe(false);
   });
 
-  test("[FR2-FREEZE] explicit payer action → REAL freeze; precommit statement frozen verbatim; phase FROZEN", { timeout: 1_200_000 }, async () => {
-    const r = await call("POST", "/api/freeze", { precommitAcknowledged: true });
+  test("[FR2-FREEZE] explicit payer action bound to the reviewed snapshot → REAL freeze; precommit verbatim; phase FROZEN", { timeout: 1_200_000 }, async () => {
+    const st = (await call("GET", "/api/state")).json;
+    // P0-4: a consent without the snapshot identity is refused
+    const noReview = await call("POST", "/api/freeze", { precommitAcknowledged: true });
+    expect(noReview.status).toBe(409);
+    expect(noReview.json.error).toContain("review expired");
+    const r = await call("POST", "/api/freeze", { precommitAcknowledged: true, reviewId: st.eligibility.review_id, reviewedTerms: st.eligibility.draft });
     expect(r.status).toBe(200);
     expect(r.json.ok).toBe(true);
     const task = JSON.parse(readFileSync(path.join(exp, "freeze", "task.json"), "utf8"));
@@ -102,7 +109,7 @@ describe("[FR-2] F1 — Prepare / Check eligibility / Payer review / Freeze", ()
   });
 
   test("[FR2-NO-DOUBLE-FREEZE] a second freeze is refused; state derivation stays FROZEN from disk", { timeout: 1_200_000 }, async () => {
-    const r = await call("POST", "/api/freeze", { precommitAcknowledged: true });
+    const r = await call("POST", "/api/freeze", { precommitAcknowledged: true, reviewId: "stale", reviewedTerms: {} });
     expect(r.status).toBe(409); // duplicate freeze requests are disabled
     expect(r.json.error).toContain("already frozen");
     expect(deriveExperimentState(exp).phase).toBe("FROZEN");

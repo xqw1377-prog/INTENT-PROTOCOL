@@ -215,3 +215,25 @@ Identity: Maintainer / Worker / Observer are role labels bound to the
 frozen strings `payer_identity` / `worker_identity` (single claimant);
 no accounts, no sessions in R1.
 
+
+## HOLD-6 review fixes (2026-10-03, implementation revision)
+
+Recorded findings and fixes from the Commander's independent review of
+9550d4c: (P0-1/P0-2) state derivation rebuilt as ONE verified evidence
+chain — freeze closure re-verified, published terms == reviewed
+snapshot, run-record patch binding against the CURRENT worker.patch,
+proof-pack binding to the current task/patch/record, replay freshness ∧
+source-trust; observations and the final ledger are structurally
+verified, never presence-decided. (P0-3) first-answer "Answer later"
+closes via a complete closure record without a prior observation.
+(P0-4) consent binds review_id + the full reviewed terms; a stale
+review is refused (409). (P0-5) the ACTUAL verifier module bytes are
+hashed and anchored before execution — what is checked is what runs.
+(P0-6) acceptance_suite / acceptance_full_suite are explicit inputs;
+command-regex guessing removed. F4 EARNED is the landing view of
+AWAITING_PAYER; submitted patch bytes are stored EXACTLY as submitted.
+Runnable start: apps/experiment-ui/start.sh (uses
+--experimental-transform-types; plain strip-types cannot load the frozen
+modules' parameter properties). Disclosure: ledger.ts additive exports
+changed frozen-module BYTES — compatibility ruling requested; until
+ruled, acceptance item 10 is NOT claimed as "bytes unchanged".

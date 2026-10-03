@@ -34,6 +34,11 @@ async function call(base: string, method: string, p: string, body?: unknown): Pr
   return { status: res.status, json: await res.json().catch(() => ({})) };
 }
 
+async function freezeWithCurrentReview(base: string): Promise<{ status: number; json: any }> {
+  const st = (await call(base, "GET", "/api/state")).json;
+  return call(base, "POST", "/api/freeze", { precommitAcknowledged: true, reviewId: st.eligibility.review_id, reviewedTerms: st.eligibility.draft });
+}
+
 const preparePayload = (over: Record<string, unknown> = {}) => {
   const c = fixableConfig(repo.dir, repo.sha);
   return {
@@ -50,6 +55,8 @@ const preparePayload = (over: Record<string, unknown> = {}) => {
     regression_command: c.commands.regression_command,
     baseline_health_command: c.commands.baseline_health_command,
     patched_acceptance_command: c.commands.patched_acceptance_command,
+    acceptance_suite: c.acceptance_suite,
+    acceptance_full_suite: c.acceptance_full_suite,
     notes: { issue_url: "#412 — Fix parser crash", summary: "Parser crashes on nested input.", payer_quote: "" },
     ...over,
   };
@@ -96,7 +103,7 @@ describe("[HOLD-6 acceptance] Experiment A — full happy path", () => {
     s = await call(baseA, "GET", "/api/state");
     expect(s.json.phase).toBe("DRAFT");
     expect(s.json.readiness.reason).toContain("tier1_reward");
-    expect((await call(baseA, "POST", "/api/freeze", { precommitAcknowledged: true })).status).toBe(409); // cannot silently freeze different reviewed terms
+    expect((await call(baseA, "POST", "/api/freeze", { precommitAcknowledged: true, reviewId: "stale", reviewedTerms: {} })).status).toBe(409); // cannot silently freeze different reviewed terms
     // restore the reviewed config; missing worker identity blocks preparation (acceptance 2)
     expect((await call(baseA, "POST", "/api/prepare", preparePayload({ worker_identity: " " }))).status).toBe(400);
     await call(baseA, "POST", "/api/prepare", preparePayload());
@@ -108,7 +115,14 @@ describe("[HOLD-6 acceptance] Experiment A — full happy path", () => {
 
   test("1c. freeze ONLY on explicit reviewed agreement; published terms match the snapshot; frozen pack verified", { timeout: 1_200_000 }, async () => {
     expect((await call(baseA, "POST", "/api/freeze", {})).status).toBe(400); // no acknowledgement → refuse
-    const r = await call(baseA, "POST", "/api/freeze", { precommitAcknowledged: true });
+    // P0-4 cross-snapshot consent: the FIRST review's id is stale after a re-check with different terms
+    const firstReviewId = ((await call(baseA, "GET", "/api/state")).json.eligibility as { review_id: string }).review_id;
+    await call(baseA, "POST", "/api/prepare", preparePayload({ max_diff_lines: 41 }));
+    await call(baseA, "POST", "/api/check-eligibility");
+    const stale = await call(baseA, "POST", "/api/freeze", { precommitAcknowledged: true, reviewId: firstReviewId, reviewedTerms: preparePayload() });
+    expect(stale.status).toBe(409);
+    expect(stale.json.error).toMatch(/review expired|do not match/);
+    const r = await freezeWithCurrentReview(baseA);
     expect(r.status).toBe(200);
     expect(r.json.ok).toBe(true);
     const s = await call(baseA, "GET", "/api/state");
@@ -124,15 +138,15 @@ describe("[HOLD-6 acceptance] Experiment A — full happy path", () => {
     expect(await dl.text()).toBe(readFileSync(path.join(expA, "freeze", "task.json"), "utf8"));
   });
 
-  test("8a. submission is write-once; the submitted bytes are immutable for this run", async () => {
-    const patch = fixPatch(repo.dir);
+  test("8a. submission is write-once; the EXACT bytes (no normalization) are immutable for this run", async () => {
+    const patch = fixPatch(repo.dir); // as generated — the server must store these EXACT bytes
     const r = await call(baseA, "POST", "/api/submit", { patch });
     expect(r.status).toBe(200);
     expect(r.json.bytes).toBeGreaterThan(0);
     const again = await call(baseA, "POST", "/api/submit", { patch: patch + "\n" });
     expect(again.status).toBe(409);
     expect(again.json.error).toContain("cannot be replaced");
-    expect(readFileSync(path.join(expA, "worker.patch"), "utf8")).toBe(patch.endsWith("\n") ? patch : patch + "\n");
+    expect(readFileSync(path.join(expA, "worker.patch"), "utf8")).toBe(patch); // EXACT bytes — no newline appended
   });
 
   test("3a. UE-2 VALID alone NEVER renders EARNED (replay pending)", { timeout: 1_200_000 }, async () => {
@@ -197,8 +211,14 @@ describe("[HOLD-6 acceptance] Experiment A — full happy path", () => {
     expect(s.json.facts.tier1_entitlement).toBe("EARNED");
     expect(s.json.facts.primary_verification).toBe("VALID");
     expect(s.json.latestObservation.payer_accepts_tier1).toBe(false);
-    // acceptance 9: explicit operator closure of an unresolved follow-up (NOT_ASKED, provenance recorded)
+    // acceptance 9: explicit operator closure of an unresolved follow-up — the COMPLETE
+    // Q1/Q2 answers ride along (P0-3: no prior observation is required, and none fabricated)
     const close = await call(baseA, "POST", "/api/close-followup", {
+      payer_accepts: false,
+      payer_ack_verbatim: "",
+      no_reason: "The tests pass but I wanted a different implementation style.",
+      rule_change_attempts: 1,
+      rule_change_details: ["I wanted a code-review step added after seeing the patch"],
       hesitation_verbatim: "Payer: ask me again next week.",
       close_reason: "Experiment session ended before the payer decided on repeat funding.",
     });
@@ -219,6 +239,21 @@ describe("[HOLD-6 acceptance] Experiment A — full happy path", () => {
     expect(yes.status).toBe(200);
     // acceptance 7: acceptance without verbatim is refused
     expect((await call(baseA, "POST", "/api/observe", { payer_accepts: true, payer_ack_verbatim: " ", repeat_fund: "YES" })).status).toBe(400);
+  });
+
+  test("3c. LIVE chain break after EARNED (submitted patch bytes changed) → entitlement falls, then restores with the bytes", { timeout: 1_200_000 }, async () => {
+    const patchFile = path.join(expA, "worker.patch");
+    const orig = readFileSync(patchFile);
+    writeFileSync(patchFile, orig + "\n"); // bytes no longer the ones the record binds
+    let s = await call(baseA, "GET", "/api/state");
+    expect(s.json.patchBindingMatch).toBe(false);
+    expect(s.json.facts.primary_verification).toBe("INVALID");
+    expect(s.json.facts.tier1_entitlement).toBe("NOT_EARNED");
+    expect(s.json.phase).toBe("SUBMITTED");
+    expect(s.json.evidenceErrors.join(" ")).toContain("current submitted patch");
+    writeFileSync(patchFile, orig);
+    s = await call(baseA, "GET", "/api/state");
+    expect(s.json.facts.tier1_entitlement).toBe("EARNED");
   });
 
   test("9b. final ledger created ONCE from the LATEST observation; badges retained; restart derives the same state", { timeout: 1_200_000 }, async () => {
@@ -256,7 +291,7 @@ describe("[HOLD-6 acceptance] Experiment B — INVALID is terminal", () => {
   test("8b. wrong-but-applicable patch → INVALID terminal; no retry, no replacement, no replay, no payer path", { timeout: 1_800_000 }, async () => {
     await call(baseB, "POST", "/api/prepare", preparePayload({ worker_identity: "worker:carol-external" }));
     await call(baseB, "POST", "/api/check-eligibility");
-    const fr = await call(baseB, "POST", "/api/freeze", { precommitAcknowledged: true });
+    const fr = await freezeWithCurrentReview(baseB);
     expect(fr.status).toBe(200);
     const sub = await call(baseB, "POST", "/api/submit", { patch: wrongFixPatch(repo.dir) }); // applies cleanly, does NOT fix the bug
     expect(sub.status).toBe(200);
@@ -275,6 +310,50 @@ describe("[HOLD-6 acceptance] Experiment B — INVALID is terminal", () => {
     expect((await call(baseB, "POST", "/api/observe", { payer_accepts: true, payer_ack_verbatim: "x", repeat_fund: "YES" })).status).toBe(409);
     expect((await call(baseB, "POST", "/api/finalize", {})).status).toBe(409);
     expect(s.json.facts.payer_response).toBe("NONE");
+  });
+});
+
+describe("[HOLD-6 acceptance] Experiment C — FIRST answer is Answer later (P0-3)", () => {
+  test("close-followup creates the FIRST observation with NOT_ASKED; finalize → THESIS MIXED", { timeout: 1_800_000 }, async () => {
+    const expC = mkdtempSync(path.join(tmpdir(), "fr3456-c-"));
+    const { server, base } = await startServer(expC);
+    try {
+      await call(base, "POST", "/api/prepare", preparePayload({ worker_identity: "worker:dave-external" }));
+      await call(base, "POST", "/api/check-eligibility");
+      expect((await freezeWithCurrentReview(base)).status).toBe(200);
+      const patch = fixPatch(repo.dir);
+      expect((await call(base, "POST", "/api/submit", { patch })).status).toBe(200);
+      expect((await call(base, "POST", "/api/verify")).json.verdict).toBe("VALID");
+      expect((await call(base, "POST", "/api/replay")).json.ok).toBe(true);
+      let s = await call(base, "GET", "/api/state");
+      expect(s.json.facts.tier1_entitlement).toBe("EARNED");
+      expect(s.json.facts.payer_response).toBe("NONE"); // nothing recorded yet — Answer later records nothing
+      // P0-3: closure WITHOUT any prior observation — the first answer was hesitation
+      const close = await call(base, "POST", "/api/close-followup", {
+        payer_accepts: true,
+        payer_ack_verbatim: "Yes. Under the frozen rules, this worker earned Tier 1.",
+        rule_change_attempts: 0,
+        rule_change_details: [],
+        hesitation_verbatim: "Payer: ask me again next week about funding another one.",
+        close_reason: "Session ended before the payer decided on repeat funding.",
+        observation_source: "INTERVIEW",
+        observer_identity: "operator",
+      });
+      expect(close.status).toBe(200);
+      expect(close.json.seq).toBe(1); // the FIRST observation
+      const obs1 = JSON.parse(readFileSync(path.join(expC, "observations", "001.json"), "utf8"));
+      expect(obs1.observations.repeat_fund_intent).toBe("NOT_ASKED");
+      expect(obs1.observations.payer_accepts_tier1).toBe(true);
+      expect(obs1.observations.source_record).toContain("FIRST answer");
+      s = await call(base, "GET", "/api/state");
+      expect(s.json.facts.payer_response).toBe("RECORDED");
+      const fin = await call(base, "POST", "/api/finalize", {});
+      expect(fin.status).toBe(200);
+      expect(fin.json.verdict).toBe("THESIS MIXED"); // accepts ∧ 0 attempts ∧ repeat ≠ YES
+    } finally {
+      server.close();
+      rmSync(expC, { recursive: true, force: true });
+    }
   });
 });
 
