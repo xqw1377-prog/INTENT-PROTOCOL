@@ -17,12 +17,12 @@
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { inNetSandbox, materializeBase, verifyNetSandbox, FreezeError } from "./freeze.ts";
 import { verifyFreezePackDir } from "./pack.ts";
-import { dependencySectionsUnchanged, evaluatePatchPolicy, isDependencyManifestPath, parseUnifiedPatch } from "./policy.ts";
+import { dependencySectionsUnchanged, evaluatePatchPolicy, isCanonicalRepoRelativePath, isDependencyManifestPath, parseUnifiedPatch } from "./policy.ts";
 
 export interface ExecutedRun {
   stage: string;
@@ -53,7 +53,10 @@ export interface ValidRunRecordV1 extends RunRecordBaseV1 {
   policy_result: "OK";
   checks: {
     freeze_closure: "VERIFIED";
+    symlink_free_paths: "OK";
     base_regression_recheck: "RED";
+    install_boundary: "LIFECYCLE_SCRIPTS_DISABLED";
+    post_install_bytes: "OK";
     lockfile_unchanged: "OK";
     suite_unchanged: "OK";
     dependency_policy: "OK";
@@ -94,14 +97,21 @@ const sha256File = (p: string): string => "sha256:" + createHash("sha256").updat
 const sha256Text = (s: string): string => "sha256:" + createHash("sha256").update(s).digest("hex");
 
 /** Execute one command (sandboxed by default) and append it to the run ledger. */
-function execRecorded(runs: ExecutedRun[], stageDir: string, stageName: string, cmd: string, sandbox: boolean): { code: number; stdout: string } {
+function execRecorded(
+  runs: ExecutedRun[],
+  stageDir: string,
+  stageName: string,
+  cmd: string,
+  sandbox: boolean,
+  env?: NodeJS.ProcessEnv,
+): { code: number; stdout: string } {
   const t0 = Date.now();
   let r: { code: number; stdout: string };
   if (sandbox) {
     r = inNetSandbox(cmd, stageDir);
   } else {
     try {
-      const out = execFileSync("sh", ["-c", cmd], { cwd: stageDir, encoding: "utf8", timeout: 15 * 60_000, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
+      const out = execFileSync("sh", ["-c", cmd], { cwd: stageDir, encoding: "utf8", timeout: 15 * 60_000, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"], env: env ?? process.env });
       r = { code: 0, stdout: out };
     } catch (e) {
       const err = e as { status?: number; stdout?: string };
@@ -110,6 +120,24 @@ function execRecorded(runs: ExecutedRun[], stageDir: string, stageName: string, 
   }
   runs.push({ stage: stageName, command: cmd, code: r.code, stdout_sha256: sha256Text(r.stdout), duration_ms: Date.now() - t0 });
   return r;
+}
+
+/**
+ * UE2-R-PATH (CUT-2R): no component of any touched path may be a symlink in
+ * the materialized base tree — a patch writing through a symlinked directory
+ * modifies files OUTSIDE the hashed tree. Runs after base materialization
+ * and BEFORE any command (zero executions on violation).
+ */
+function assertPathsSymlinkFree(stage: string, touchedPaths: readonly string[]): boolean {
+  for (const p of touchedPaths) {
+    let cur = stage;
+    for (const seg of p.split("/")) {
+      cur = path.join(cur, seg);
+      const st = lstatSync(cur, { throwIfNoEntry: false });
+      if (st?.isSymbolicLink()) return false;
+    }
+  }
+  return true;
 }
 
 /** Write the record atomically (temp sibling + rename); refuse to overwrite. */
@@ -181,6 +209,12 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
     materializeBase(input.repoDir, task.base_commit_sha, stage);
     execFileSync("git", ["init", "--quiet"], { cwd: stage }); // git apply needs a repo root
 
+    // UE2-R-PATH: no touched path may traverse a symlink of the base tree —
+    // checked BEFORE any command executes (zero executions on violation)
+    if (!assertPathsSymlinkFree(stage, parsed.touchedPaths)) {
+      return invalid("symlink-in-path");
+    }
+
     // byte re-checks against the materialized base (the pack binds bytes, not trust)
     const suitePath = path.join(stage, task.acceptance_suite);
     if (!existsSync(suitePath)) return invalid("suite-missing-at-base");
@@ -195,9 +229,19 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
       manifests.map((p) => [p, existsSync(path.join(stage, p)) ? readFileSync(path.join(stage, p), "utf8") : null]),
     );
 
-    // clean-room dependency reconstruction (UE-1 parity, recorded)
+    // UE2-R-INSTALL (CUT-2R): install is an EXPLICIT bootstrap phase whose
+    // only authority is dependency materialization — lifecycle scripts are
+    // FORCE-disabled via env (project .npmrc cannot re-enable them), so no
+    // dependency code executes during install; and the install is NOT
+    // trusted: every frozen byte the verdict depends on is RE-HASHED after
+    // it (a bootstrap that mutates the tree disqualifies the run).
     rmSync(path.join(stage, "node_modules"), { recursive: true, force: true });
-    execRecorded(runs, stage, "install", task.commands.install_command, /* sandbox */ false);
+    execRecorded(runs, stage, "install", task.commands.install_command, /* sandbox */ false, {
+      ...process.env,
+      npm_config_ignore_scripts: "true",
+    });
+    if (sha256File(suitePath) !== task.acceptance_suite_sha256) return invalid("post-install-suite-drift");
+    if (sha256File(lockPath) !== task.lockfile_sha256) return invalid("post-install-lockfile-drift");
 
     try {
       verifyNetSandbox(stage);
@@ -238,7 +282,10 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
       policy_result: "OK",
       checks: {
         freeze_closure: "VERIFIED",
+        symlink_free_paths: "OK",
         base_regression_recheck: "RED",
+        install_boundary: "LIFECYCLE_SCRIPTS_DISABLED",
+        post_install_bytes: "OK",
         lockfile_unchanged: "OK",
         suite_unchanged: "OK",
         dependency_policy: "OK",

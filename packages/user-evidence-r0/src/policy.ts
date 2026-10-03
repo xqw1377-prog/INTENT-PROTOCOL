@@ -30,6 +30,8 @@ export interface ParsedPatch {
   addedLines: number;
   removedLines: number;
   binary: boolean;
+  /** any file entry carried git mode 120000 (symlink) — R0 rejects symlink patches */
+  symlink: boolean;
 }
 
 /** Split the two path tokens of a `diff --git a/x b/y` header, honoring quotes. */
@@ -74,14 +76,33 @@ function stripSide(p: string): string {
   return t;
 }
 
+/**
+ * UE2-R-PATH (CUT-2R): a touched path is admissible ONLY as a canonical
+ * repo-relative POSIX path — no leading "/", no ".."/"." segments, no empty
+ * segments ("a//b", trailing "/"), no backslash, no NUL, no ":" (kills
+ * Windows drive/colon forms). The check is pure and runs BEFORE any glob
+ * matching, so traversal/absolute-path patches are disqualified with zero
+ * commands executed — git's own apply safety is never relied upon.
+ */
+export function isCanonicalRepoRelativePath(p: string): boolean {
+  if (p === "" || p.includes("\\") || p.includes("\0") || p.includes(":")) return false;
+  if (p.startsWith("/")) return false;
+  for (const seg of p.split("/")) {
+    if (seg === "" || seg === "." || seg === "..") return false;
+  }
+  return true;
+}
+
 export function parseUnifiedPatch(raw: string | Buffer): ParsedPatch {
   const text = typeof raw === "string" ? raw : raw.toString("utf8");
   const touched = new Set<string>();
   let added = 0;
   let removed = 0;
   let binary = false;
+  let symlink = false;
   for (const line of text.split("\n")) {
     if (line.startsWith("GIT binary patch")) binary = true;
+    if (/(?:^|\s)(?:new file mode|old mode|new mode|deleted file mode) 120000(?:\s|$)/.test(line)) symlink = true;
     if (line.startsWith("diff --git ")) {
       for (const side of splitGitPaths(line.slice("diff --git ".length))) {
         const p = stripSide(side);
@@ -103,7 +124,7 @@ export function parseUnifiedPatch(raw: string | Buffer): ParsedPatch {
     if (/^\+(?!\+\+\+)/.test(line)) added++;
     else if (/^-(?!---)/.test(line)) removed++;
   }
-  return { touchedPaths: [...touched].sort(), addedLines: added, removedLines: removed, binary };
+  return { touchedPaths: [...touched].sort(), addedLines: added, removedLines: removed, binary, symlink };
 }
 
 /** Frozen glob grammar: "**" crosses "/", "*" does not; "x/**" covers every path under x/. */
@@ -148,8 +169,10 @@ export interface PolicyDecision {
 
 export function evaluatePatchPolicy(patch: ParsedPatch, rules: PatchRuleset): PolicyDecision {
   if (patch.binary) return { ok: false, reason: "binary-patch" };
+  if (patch.symlink) return { ok: false, reason: "symlink-patch" };
   if (patch.touchedPaths.length === 0) return { ok: false, reason: "empty-patch" };
   for (const p of patch.touchedPaths) {
+    if (!isCanonicalRepoRelativePath(p)) return { ok: false, reason: `non-canonical-path:${p}` };
     const d = pathScope(p, rules.allowed_paths, rules.forbidden_paths);
     if (d.scope === "forbidden") return { ok: false, reason: `forbidden-path:${p}` };
     if (d.scope === "out-of-scope") return { ok: false, reason: `out-of-scope:${p}` };

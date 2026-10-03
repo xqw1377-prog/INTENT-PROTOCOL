@@ -1,10 +1,12 @@
 # USER-EVIDENCE-R0 — Experiment Contract (UE-0 Freeze)
 
-Status: **OPEN (Commander ruling 2026-10-03) — CUT-1R2 LANDED REMOTE /
-FINAL AUDIT PENDING; UE-2/3/4/5 = IMPLEMENTED-LOCAL /
-NO-INDEPENDENT-EVIDENCE, under source-level audit at
-`audit/user-evidence-r0-cut2-cut4` (implemented ≠ independently
-inspected ≠ PASS). UNIFIED CLI = HOLD; no new code pending audit.**
+Status: **CUT-2R implemented (2026-10-03) — the five AUDIT-A/B/C blocker
+gates §7a/§9a/§10a — awaiting Commander re-audit. Ledger per ruling:
+UE-2 = IMPLEMENTED/HOLD-2 · UE-3 = IMPLEMENTED/STRUCTURALLY SOUND ·
+UE-4 = IMPLEMENTED/HOLD-1 · UE-5 = IMPLEMENTED/HOLD-2 · CUT-1R2 =
+PASS CANDIDATE (no blocker found) · EVIDENCE-SCENE-RECON/3b941db2 =
+CLOSED WITH PERMANENT LOSS. UNIFIED CLI = HOLD; no features pending
+audit.**
 
 Authority: Commander order `USER-EVIDENCE-R0 / CUT-1 = GO` (2026-10-01);
 `USER-EVIDENCE-R0 / CUT-2..CUT-4 = GO` (2026-10-03, repo-authority directive:
@@ -214,6 +216,39 @@ Normative grammar (frozen):
   glob         = "**" crosses "/", "*" does not; forbidden wins over allowed
 ```
 
+### 7a. CUT-2R — UE-2 blocker closures (AUDIT-A)
+
+```text
+UE2-R-PATH  (A1) path canonicalization is a PURE-LAYER wall that runs
+      before any glob and any command. A touched path is admissible
+      ONLY as a canonical repo-relative POSIX path: no leading "/",
+      no ".."/"." segments, no empty segments, no backslash, no NUL,
+      no ":" (kills Windows drive/colon forms). Quoted headers are
+      unquoted FIRST, then canonicalized. Symlink patches (git mode
+      120000 anywhere in the diff) are rejected outright in R0.
+      Additionally, after base materialization and BEFORE any command,
+      no component of any touched path may be a symlink in the base
+      tree (writing through a symlinked directory modifies bytes the
+      hashes never covered). Machine-tested with zero-command
+      negatives: ../ traversal, absolute header, rename-to-../,
+      quoted traversal, empty/dot segments, symlink patch, and a
+      canonical in-scope path through a base-tree symlink.
+      Git's own apply safety is NEVER relied upon.
+
+UE2-R-INSTALL (A2) the install boundary is EXPLICIT and choice B is
+      frozen for R0: install_command is a bootstrap phase whose only
+      authority is dependency materialization — lifecycle scripts are
+      FORCE-disabled via environment (project .npmrc cannot re-enable
+      them), so no dependency code executes during install. The
+      bootstrap is NOT trusted: after install, the acceptance-suite
+      bytes and lockfile bytes are RE-HASHED against the frozen values
+      (post-install-suite-drift / post-install-lockfile-drift =
+      INVALID with zero verdict commands executed). The same boundary
+      is enforced identically by the portable verifier's re-execution.
+      UE-1 freeze preflight semantics are UNTOUCHED (CUT-1R2 is a
+      separate landed cut).
+```
+
 ## 8. CUT-3 — UE-3 Portable Outcome Proof pack
 
 CLI: `intent experiment proof <repo> <freeze-pack> <patch> <run-record>
@@ -281,6 +316,33 @@ Tamper lattice (all machine-tested):
                                               no vitest, no service
 ```
 
+### 9a. CUT-2R — UE-4 blocker closure (AUDIT-B)
+
+```text
+UE4-R-TRUST  (B1) a proof pack can NEVER vouch for its own verifier.
+      Trust root: packages/user-evidence-r0/VERIFIER-RELEASE.json —
+      package-external, frozen sha256 of portable-replay.mjs.
+        · proof-manifest.json stamps verifier_sha256 (== the hash of
+          the verify.mjs bytes in the pack) so the identity is
+          checkable BEFORE running anything;
+        · when the verifier runs FROM THE REPOSITORY (release file
+          present), a pack whose embedded verify.mjs differs from the
+          release — even with a fully rehashed manifest — fails at
+          integrity (verifier-identity). Machine-tested with exactly
+          that coordinated swap;
+        · standalone mode prints VERIFIER_SHA256 for OUT-OF-BAND
+          comparison and states outright that a pack cannot vouch for
+          its own verifier — the printed value is a convenience,
+          never a proof;
+        · third-party order (frozen in the release file): obtain the
+          release from a trusted source → compare the pack's
+          verify.mjs hash → only then run.
+      Also closed: proof-manifest.files must list EXACTLY the expected
+      file set (minus the manifest itself) — an attacker cannot
+      silently drop an entry they chose not to rehash
+      (manifest-file-set).
+```
+
 ## 10. CUT-4 — UE-5 user-evidence recorder + final ledger
 
 CLI: `intent experiment ledger <proof-pack> <observations.json> <out>`.
@@ -311,6 +373,33 @@ Frozen verdict mapping (total, no free variable):
 third_party_replay = DIFFERENT refuses the ledger entirely (an
 irreproducible pack carries no user evidence). One experiment ≠
 product-market fit; the ledger records, it never advertises.
+```
+
+### 10a. CUT-2R — UE-5 blocker closures (AUDIT-C)
+
+```text
+UE5-R-PROVENANCE (C1) user evidence is HUMAN observation; the machine
+      cannot verify humans, so it must never be presented as machine
+      proof. Every observation carries: observation_source
+      (INTERVIEW / GITHUB_COMMENT / EMAIL / SIGNED_STATEMENT /
+      OTHER), observer_identity, source_record (the exact observed
+      text/reference) and source_record_sha256 (RECOMPUTED — a
+      mismatch refuses the observation). The final report separates
+      the evidence classes explicitly and permanently:
+        TECHNICAL EVIDENCE = VERIFIED            (replay-derived)
+        USER EVIDENCE      = OBSERVED / UNSIGNED (payer_attestation
+                             = UNSIGNED_RECORDED)
+                        or  = PAYER-ATTESTED     (= SIGNED)
+      Never one conflated PASS.
+
+UE5-R-FINALITY (C2) one experiment cannot silently produce
+      contradictory final ledgers. Discipline (R0, deliberately
+      simple): observations append as observations/001.json, 002.json,
+      … (each immutable, each bound to the CURRENT pack bytes);
+      the FINAL ledger is ONE file per experiment
+      (final-ledger.json), derived from the LATEST observation,
+      written ONCE, never regenerated (no-overwrite). Revisions stay
+      recorded; the final word cannot fork.
 ```
 
 

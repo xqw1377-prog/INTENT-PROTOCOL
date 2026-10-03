@@ -1,5 +1,6 @@
-/** USER-EVIDENCE-R0 CUT-4 machine tests — UE-5 user-evidence ledger. */
+/** USER-EVIDENCE-R0 CUT-2R machine tests — AUDIT-C blockers C1/C2 (UE5-R-PROVENANCE, UE5-R-FINALITY). */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
@@ -8,7 +9,7 @@ import { freezeExperiment } from "../src/freeze.ts";
 import { runWorkerPatch } from "../src/run.ts";
 import { buildProofPack } from "../src/proof.ts";
 import { replayPack } from "../src/portable-replay.mjs";
-import { recordLedger, thesisVerdictOf, type LedgerObservationsV1 } from "../src/ledger.ts";
+import { finalizeLedger, recordObservation, thesisVerdictOf, type LedgerObservationsV1 } from "../src/ledger.ts";
 import { fixableConfig, fixPatch, makeFixableRepo } from "./helpers.ts";
 
 let tmp = "";
@@ -17,7 +18,7 @@ let proofDir = "";
 let report: unknown;
 
 beforeAll(() => {
-  tmp = mkdtempSync(path.join(tmpdir(), "ue5-test-"));
+  tmp = mkdtempSync(path.join(tmpdir(), "ue5r-test-"));
   const repo = makeFixableRepo();
   repoDir = repo.dir;
   const freezeDir = path.join(tmp, "freeze");
@@ -36,6 +37,9 @@ afterAll(() => {
   rmSync(repoDir, { recursive: true, force: true });
 });
 
+const SOURCE_TEXT = "maintainer, in issue #42, 2026-10-03: According to the rules I agreed to before work began, this worker earned the Tier-1 reward.";
+const sha256Text = (s: string): string => "sha256:" + createHash("sha256").update(Buffer.from(s, "utf8")).digest("hex");
+
 function observations(over: Partial<LedgerObservationsV1> = {}): LedgerObservationsV1 {
   return {
     schema_version: "real-task-ledger-observations.v1",
@@ -46,91 +50,95 @@ function observations(over: Partial<LedgerObservationsV1> = {}): LedgerObservati
     posthoc_rule_change_attempts: 0,
     posthoc_rule_change_details: [],
     repeat_fund_intent: "YES",
+    observation_source: "GITHUB_COMMENT",
+    observer_identity: "operator:zcode",
+    source_record: SOURCE_TEXT,
+    source_record_sha256: sha256Text(SOURCE_TEXT),
+    payer_attestation: "UNSIGNED_RECORDED",
     recorded_at: "2026-10-03T17:30:00.000Z",
     ...over,
   };
 }
 
-describe("[UE-5 CUT-4] user-evidence ledger", () => {
-  test("[UE5-R1-VERIFIED-ONLY] user evidence requires a PASSING independent replay bound to THESE pack bytes", () => {
-    // a tampered pack is refused even when a (stale) report is supplied
+describe("[UE-5 CUT-2R] provenance + finality", () => {
+  test("[UE5-R1-VERIFIED-ONLY] observations require a PASSING independent replay bound to THESE pack bytes", () => {
+    const expDir = path.join(tmp, "exp-r1");
     const c = path.join(tmp, "tampered");
     cpSync(proofDir, c, { recursive: true });
     writeFileSync(path.join(c, "worker.patch"), readFileSync(path.join(c, "worker.patch"), "utf8") + "\n");
-    expect(() => recordLedger(c, observations(), path.join(tmp, "l1.json"), { replayReport: report })).toThrow(/LEDGER-REFUSED \(replay\): pack-binding/);
-    // ...and refused again when it re-replays itself
-    expect(() => recordLedger(c, observations(), path.join(tmp, "l2.json"))).toThrow(/LEDGER-REFUSED/);
-    // the honest pack with the honest report records fine
-    expect(recordLedger(proofDir, observations(), path.join(tmp, "l3.json"), { replayReport: report }).verdict).toBe("THESIS STRENGTHENED");
+    expect(() => recordObservation(c, observations(), expDir, { replayReport: report })).toThrow(/LEDGER-REFUSED \(replay\): pack-binding/);
+    expect(() => recordObservation(c, observations(), expDir)).toThrow(/LEDGER-REFUSED/);
+    const f = recordObservation(proofDir, observations(), expDir, { replayReport: report });
+    expect(f.seq).toBe(1);
+    expect(f.pack_binding.proof_manifest_sha256).toMatch(/^sha256:[0-9a-f]{64}$/);
   });
 
-  test("[UE5-R2-ACCEPT-FLIPS] payer rejection reads THESIS CHALLENGED; verbatim words + timestamp are durable record", () => {
-    const out = path.join(tmp, "l4.json");
-    const l = recordLedger(proofDir, observations({ payer_accepts_tier1: false, payer_ack_verbatim: "", repeat_fund_intent: "NOT_ASKED" }), out, { replayReport: report });
-    expect(l.verdict).toBe("THESIS CHALLENGED");
-    expect(l.user_evidence.payer_ack_verbatim).toBe("");
-    const ledger = JSON.parse(readFileSync(out, "utf8"));
-    expect(ledger.technical.tier1_verdict).toBe("VALID");
-    expect(ledger.technical.third_party_replay).toBe("SAME");
-    // the ack path keeps the durable record
-    const l2 = recordLedger(proofDir, observations(), path.join(tmp, "l5.json"), { replayReport: report });
-    expect(l2.user_evidence.payer_ack_verbatim).toContain("earned the Tier-1 reward");
-    expect(l2.user_evidence.payer_ack_timestamp).toBe("2026-10-03T17:00:00.000Z");
+  test("[UE5-R-PROVENANCE] no observation without source/observer/hash-bound record; attestation class splits the report", () => {
+    const expDir = path.join(tmp, "exp-prov");
+    expect(() => recordObservation(proofDir, observations({ observation_source: undefined as never }), expDir, { replayReport: report })).toThrow(/observation_source/);
+    expect(() => recordObservation(proofDir, observations({ observer_identity: " " }), expDir, { replayReport: report })).toThrow(/observer_identity/);
+    expect(() => recordObservation(proofDir, observations({ source_record: "different text" }), expDir, { replayReport: report })).toThrow(/source_record_sha256/);
+    // unsigned vs signed: attestation class is carried, never conflated with technical proof
+    const e1 = path.join(tmp, "exp-unsigned");
+    recordObservation(proofDir, observations(), e1, { replayReport: report });
+    const l1 = finalizeLedger(proofDir, e1, { replayReport: report });
+    expect(l1.user_evidence.attestation_class).toBe("OBSERVED / UNSIGNED");
+    expect(l1.rendered).toContain("USER EVIDENCE: OBSERVED / UNSIGNED");
+    expect(l1.rendered).toContain("TECHNICAL EVIDENCE: VERIFIED");
+    const signedSource = "Signed statement (PGP, detached): the Tier-1 entitlement was earned.";
+    const e2 = path.join(tmp, "exp-signed");
+    recordObservation(proofDir, observations({ observation_source: "SIGNED_STATEMENT", payer_attestation: "SIGNED", source_record: signedSource, source_record_sha256: sha256Text(signedSource) }), e2, { replayReport: report });
+    const l2 = finalizeLedger(proofDir, e2, { replayReport: report });
+    expect(l2.user_evidence.attestation_class).toBe("PAYER-ATTESTED");
+    expect(l2.rendered).toContain("USER EVIDENCE: PAYER-ATTESTED");
+    expect(l2.rendered).toContain("PAYER ATTESTATION: SIGNED");
+    expect(l2.verdict).toBe("THESIS STRENGTHENED"); // same behavior, honestly different evidence class
   });
 
-  test("[UE5-R3-RULE-CHANGE] any post-hoc rule-change attempt blocks STRENGTHENED (→ MIXED); NOT_ASKED repeat-fund also → MIXED", () => {
+  test("[UE5-R3-RULE-CHANGE] mapping lattice unchanged (total, deterministic)", () => {
     expect(thesisVerdictOf({ payer_accepts_tier1: true, posthoc_rule_change_attempts: 0, repeat_fund_intent: "YES" })).toBe("THESIS STRENGTHENED");
     expect(thesisVerdictOf({ payer_accepts_tier1: true, posthoc_rule_change_attempts: 1, repeat_fund_intent: "YES" })).toBe("THESIS MIXED");
     expect(thesisVerdictOf({ payer_accepts_tier1: true, posthoc_rule_change_attempts: 0, repeat_fund_intent: "NOT_ASKED" })).toBe("THESIS MIXED");
     expect(thesisVerdictOf({ payer_accepts_tier1: true, posthoc_rule_change_attempts: 0, repeat_fund_intent: "NO" })).toBe("THESIS MIXED");
     expect(thesisVerdictOf({ payer_accepts_tier1: false, posthoc_rule_change_attempts: 0, repeat_fund_intent: "YES" })).toBe("THESIS CHALLENGED");
-    const l = recordLedger(
-      proofDir,
-      observations({ posthoc_rule_change_attempts: 1, posthoc_rule_change_details: ["payer asked to add a code-review requirement after seeing the patch"] }),
-      path.join(tmp, "l6.json"),
-      { replayReport: report },
-    );
-    expect(l.verdict).toBe("THESIS MIXED");
-    expect(l.user_evidence.posthoc_rule_change_details).toHaveLength(1);
-    expect(l.rendered).toContain("POST-HOC RULE CHANGE REQUEST: 1");
   });
 
-  test("[UE5-R4-DETERMINISTIC] the same observations produce a byte-identical ledger", () => {
-    const a = path.join(tmp, "la.json");
-    const b = path.join(tmp, "lb.json");
-    recordLedger(proofDir, observations(), a, { replayReport: report });
-    recordLedger(proofDir, observations(), b, { replayReport: report });
-    expect(readFileSync(a, "utf8")).toBe(readFileSync(b, "utf8"));
+  test("[UE5-R-FINALITY] one experiment, one FINAL ledger: revisions recorded, latest wins, never regenerated", () => {
+    const expDir = path.join(tmp, "exp-final");
+    recordObservation(proofDir, observations({ payer_accepts_tier1: false, payer_ack_verbatim: "", repeat_fund_intent: "NOT_ASKED", recorded_at: "2026-10-03T18:00:00.000Z" }), expDir, { replayReport: report });
+    recordObservation(proofDir, observations({ recorded_at: "2026-10-03T18:30:00.000Z" }), expDir, { replayReport: report });
+    // both revisions live, append-only
+    const files = execFileSync("ls", [path.join(expDir, "observations")], { encoding: "utf8" }).split("\n").filter(Boolean).sort();
+    expect(files).toEqual(["001.json", "002.json"]);
+    // final ledger derives from the LATEST observation
+    const l = finalizeLedger(proofDir, expDir, { replayReport: report });
+    expect(l.finality).toEqual({ observation_seq: 2, observations_total: 2, final: true });
+    expect(l.finalized_at).toBe("2026-10-03T18:30:00.000Z");
+    expect(l.verdict).toBe("THESIS STRENGTHENED");
+    // regeneration is refused — a contradictory second final is structurally impossible
+    const bytes = readFileSync(path.join(expDir, "final-ledger.json"), "utf8");
+    expect(() => finalizeLedger(proofDir, expDir, { replayReport: report })).toThrow(/LEDGER-REFUSED \(out-exists\)/);
+    expect(readFileSync(path.join(expDir, "final-ledger.json"), "utf8")).toBe(bytes);
   });
 
-  test("[UE5-R5-IMMUTABLE] a ledger is append-only — never overwritten", () => {
-    const out = path.join(tmp, "lc.json");
-    recordLedger(proofDir, observations(), out, { replayReport: report });
-    const bytes = readFileSync(out, "utf8");
-    expect(() => recordLedger(proofDir, observations(), out, { replayReport: report })).toThrow(/LEDGER-REFUSED \(out-exists\)/);
-    expect(readFileSync(out, "utf8")).toBe(bytes);
+  test("[UE5-R-FINALITY-EMPTY] no observations → finalize refuses", () => {
+    expect(() => finalizeLedger(proofDir, path.join(tmp, "exp-empty"), { replayReport: report })).toThrow(/no-observations/);
   });
 
-  test("[UE5-RENDER] the rendered ledger IS the frozen §6 report form", () => {
-    const l = recordLedger(proofDir, observations(), path.join(tmp, "ld.json"), { replayReport: report });
-    const lines = l.rendered.split("\n");
-    expect(lines.map((x) => x.split(":")[0])).toEqual([
-      "REAL PAYER", "REAL TASK", "REAL EXTERNAL WORKER", "PAYER PRE-COMMIT",
-      "BASE RED / PATCH GREEN / FULL SUITE", "THIRD-PARTY REPLAY",
-      "PAYER ACCEPTS TIER-1 ENTITLEMENT", "POST-HOC RULE CHANGE REQUEST",
-      "REPEAT-FUND INTENT", "VERDICT",
-    ]);
-    expect(l.rendered).toContain("VERDICT: THESIS STRENGTHENED");
+  test("[UE5-R4-DETERMINISTIC] same observation + same pack → byte-identical final ledger", () => {
+    const a = path.join(tmp, "exp-det-a");
+    const b = path.join(tmp, "exp-det-b");
+    recordObservation(proofDir, observations(), a, { replayReport: report });
+    recordObservation(proofDir, observations(), b, { replayReport: report });
+    finalizeLedger(proofDir, a, { replayReport: report });
+    finalizeLedger(proofDir, b, { replayReport: report });
+    expect(readFileSync(path.join(a, "final-ledger.json"), "utf8")).toBe(readFileSync(path.join(b, "final-ledger.json"), "utf8"));
   });
 
   test("[UE5-DIFFERENT-REPLAY] an irreproducible pack carries NO user evidence (refused)", () => {
-    expect(() =>
-      recordLedger(proofDir, observations({ third_party_replay: "DIFFERENT" }), path.join(tmp, "le.json"), { replayReport: report }),
-    ).toThrow(/third_party_replay/);
-    // acceptance without verbatim words is refused too
-    expect(() =>
-      recordLedger(proofDir, observations({ payer_ack_verbatim: "  " }), path.join(tmp, "lf.json"), { replayReport: report }),
-    ).toThrow(/payer_ack_verbatim/);
-    expect(execFileSync("ls", [tmp], { encoding: "utf8" }).split("\n").filter((f) => f.endsWith(".json") && f.startsWith("le"))).toEqual([]);
+    const expDir = path.join(tmp, "exp-diff");
+    expect(() => recordObservation(proofDir, observations({ third_party_replay: "DIFFERENT" }), expDir, { replayReport: report })).toThrow(/third_party_replay/);
+    // the refusal left no experiment directory behind
+    expect(execFileSync("ls", [tmp], { encoding: "utf8" }).split("\n").filter((f) => f.startsWith("exp-diff"))).toEqual([]);
   });
 });

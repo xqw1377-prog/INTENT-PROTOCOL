@@ -4,12 +4,15 @@ import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { freezeExperiment } from "../src/freeze.ts";
 import { runWorkerPatch, type ValidRunRecordV1 } from "../src/run.ts";
 import { buildProofPack, tier1VerdictOf } from "../src/proof.ts";
 import { replayPack } from "../src/portable-replay.mjs";
 import { fixableConfig, fixPatch, makeFixableRepo } from "./helpers.ts";
+
+const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 let tmp = "";
 let repoDir = "";
@@ -101,7 +104,10 @@ describe("[UE-3 CUT-3] portable outcome proof pack", () => {
   test("[UE3-VERDICT] tier1VerdictOf is a total function — flipping ANY single check flips it", () => {
     const rec = JSON.parse(readFileSync(recordPath, "utf8")) as ValidRunRecordV1;
     expect(tier1VerdictOf(rec)).toBe("VALID");
-    for (const key of ["freeze_closure", "base_regression_recheck", "lockfile_unchanged", "suite_unchanged", "dependency_policy", "patched_acceptance", "baseline_health_patched", "network_sandbox"]) {
+    for (const key of [
+      "freeze_closure", "symlink_free_paths", "base_regression_recheck", "install_boundary", "post_install_bytes",
+      "lockfile_unchanged", "suite_unchanged", "dependency_policy", "patched_acceptance", "baseline_health_patched", "network_sandbox",
+    ]) {
       const flipped = JSON.parse(JSON.stringify(rec));
       flipped.checks[key] = "TAMPERED";
       expect(tier1VerdictOf(flipped), key).toBe("INVALID");
@@ -200,5 +206,53 @@ describe("[UE-4 CUT-3] third-party replayer", () => {
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
     expect(report.status).toBe("PASS");
     expect(report.same_verdict).toBe(true);
+  });
+});
+
+describe("[UE-4 CUT-2R] verifier trust root (AUDIT-B / UE4-R-TRUST)", () => {
+  test("[UE4R-TRUST-STAMP] manifest.verifier_sha256 == pack verify.mjs bytes == package-external VERIFIER-RELEASE.json", () => {
+    const release = JSON.parse(readFileSync(path.resolve(pkgDir, "VERIFIER-RELEASE.json"), "utf8"));
+    const manifest = JSON.parse(readFileSync(path.join(proofDir, "proof-manifest.json"), "utf8"));
+    expect(manifest.verifier_sha256).toBe(sha256File(path.join(proofDir, "verify.mjs")));
+    expect(manifest.verifier_sha256).toBe(manifest.files["verify.mjs"].sha256);
+    expect(manifest.verifier_sha256).toBe(release.verifier_sha256);
+    // the release truly is package-external to the pack: the pack file set does not contain it
+    expect(execFileSync("ls", [proofDir], { encoding: "utf8" }).includes("VERIFIER-RELEASE")).toBe(false);
+  });
+
+  test("[UE4R-TRUST-TAMPER] swapped verifier + fully rehashed manifest → the ONLY catch is the external trust root", () => {
+    const c = packCopy("trust-tamper");
+    // attacker ships their own verifier and rehashes the manifest entry —
+    // on-disk consistency is perfect; the pack cannot vouch for itself
+    writeFileSync(path.join(c, "verify.mjs"), 'console.log("REPLAY_STATUS=PASS"); console.log("TIER1_VERDICT=VALID");\n');
+    const manifestPath = path.join(c, "proof-manifest.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    manifest.files["verify.mjs"].sha256 = sha256File(path.join(c, "verify.mjs"));
+    manifest.files["verify.mjs"].bytes = readFileSync(path.join(c, "verify.mjs")).length;
+    manifest.verifier_sha256 = manifest.files["verify.mjs"].sha256;
+    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+    const r = replayPack(c, { replayedAt: "2026-10-03T19:00:00.000Z" });
+    expect(r.status).toBe("FAIL");
+    expect(r.integrity).toMatch(/^verifier-identity$/);
+  });
+
+  test("[UE4R-TRUST-STANDALONE-PRINT] standalone mode prints its own identity for out-of-band comparison (never as proof)", { timeout: 1_200_000 }, () => {
+    const c = packCopy("trust-print");
+    const out = execFileSync("node", ["verify.mjs"], { cwd: c, encoding: "utf8", timeout: 10 * 60_000 });
+    const release = JSON.parse(readFileSync(path.resolve(pkgDir, "VERIFIER-RELEASE.json"), "utf8"));
+    const printed = /VERIFIER_SHA256=sha256:[0-9a-f]{64}/.exec(out)?.[0]?.slice("VERIFIER_SHA256=".length);
+    expect(printed).toBe(release.verifier_sha256);
+    expect(out).toContain("a pack cannot vouch for its own verifier");
+  });
+
+  test("[UE4R-MANIFEST-SET] a manifest listing fewer files than exist (attacker drops an entry) → integrity FAIL", () => {
+    const c = packCopy("manifest-set");
+    const manifestPath = path.join(c, "proof-manifest.json");
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    delete manifest.files["base.bundle"];
+    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+    const r = replayPack(c, { replayedAt: "2026-10-03T19:01:00.000Z" });
+    expect(r.status).toBe("FAIL");
+    expect(r.integrity).toBe("manifest-file-set");
   });
 });

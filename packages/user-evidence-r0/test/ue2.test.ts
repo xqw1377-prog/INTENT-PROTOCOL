@@ -43,7 +43,10 @@ test("[UE2-ACCEPT] correct fix: base red re-proven, patched green, baseline gree
   expect(rec.policy_result).toBe("OK");
   expect(rec.checks).toEqual({
     freeze_closure: "VERIFIED",
+    symlink_free_paths: "OK",
     base_regression_recheck: "RED",
+    install_boundary: "LIFECYCLE_SCRIPTS_DISABLED",
+    post_install_bytes: "OK",
     lockfile_unchanged: "OK",
     suite_unchanged: "OK",
     dependency_policy: "OK",

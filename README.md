@@ -48,26 +48,36 @@ PRODUCTION-HARDENING-R0 = COMPLETE / CLOSED (Commander; EPOCH B sealed:
                      PH-01 devnet program IMMUTABLE / PH-02 byte portability /
                      PH-03 independent verifier / PH-04 input-domain closure /
                      PH-05 durable journal w/ coupled ruleset identity)
-NEXT TARGET         = USER-EVIDENCE-R0: independent source-level audit of
-                     UE-2..UE-5 at audit/user-evidence-r0-cut2-cut4
-                     (AUDIT-A runner / AUDIT-B proof+replay / AUDIT-C
-                     ledger), then CUT-1R2 final audit, then the REAL
-                     experiment. Frozen regardless:
+NEXT TARGET         = USER-EVIDENCE-R0: Commander re-audit of CUT-2R
+                     (the five blocker gates) at
+                     audit/user-evidence-r0-cut2-cut4, then the REAL
+                     experiment — find the first real maintainer, repo,
+                     and bug. Frozen regardless:
                      MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
                      TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED;
-                     UNIFIED CLI = HOLD; PROTOCOL EXPANSION = HOLD.
-USER-EVIDENCE-R0    = OPEN. CUT-1R2 = LANDED REMOTE (main @ 13b0145),
-                     FINAL AUDIT PENDING.
-                     UE-2 / UE-3 / UE-4 / UE-5 = IMPLEMENTED-LOCAL /
-                     NO-INDEPENDENT-EVIDENCE — implemented ≠ independently
-                     inspected ≠ PASS (Commander ruling 2026-10-03).
-                     Under audit at audit/user-evidence-r0-cut2-cut4
-                     (local 45f0f4e..7c2518d, 5 SHAs preserved).
-EVIDENCE SCENE evidence/3b941db2 = DELETED LOCALLY 2026-10-03;
-                     PROVENANCE RECON RECORDED = MISSING / UNRECOVERED
-                     (docs/incidents/EVIDENCE-SCENE-3b941db2-DELETION.md);
+                     UNIFIED CLI = HOLD; PROTOCOL EXPANSION = HOLD;
+                     NO new UI / payments / auto-release / concurrent
+                     claims / Tier-2 engine.
+USER-EVIDENCE-R0    = OPEN (Commander 2026-10-03 three-knife audit:
+                     UE-2 = IMPLEMENTED / HOLD-2 · UE-3 = IMPLEMENTED /
+                     STRUCTURALLY SOUND · UE-4 = IMPLEMENTED / HOLD-1 ·
+                     UE-5 = IMPLEMENTED / HOLD-2 — implemented ≠
+                     independently inspected ≠ PASS).
+                     CUT-2R (the five blocker gates UE2-R-PATH,
+                     UE2-R-INSTALL, UE4-R-TRUST, UE5-R-PROVENANCE,
+                     UE5-R-FINALITY) implemented, awaiting re-audit at
+                     audit/user-evidence-r0-cut2-cut4.
+CUT-1R2             = PASS CANDIDATE (Commander audit 2026-10-03: no
+                     blocker found); LANDED REMOTE (main @ 13b0145).
+EVIDENCE SCENE evidence/3b941db2 = CLOSED WITH PERMANENT LOSS
+                     (Commander 2026-10-03; disclosure PASS; incident
+                     record docs/incidents/EVIDENCE-SCENE-3b941db2-DELETION.md;
                      V3.12 GREEN ≠ evidence-loss adjudicated; no
-                     replacement scene fabricated.
+                     replacement scene fabricated).
+VERIFIER RELEASE    = packages/user-evidence-r0/VERIFIER-RELEASE.json —
+                     the package-external trust root for portable
+                     proof packs (a pack can never vouch for its own
+                     verifier).
 EXPERIMENT-001      = NOT STARTED (requires REAL maintainer + REAL repo +
                      REAL bug; no fictional fixtures).
 REAL PAYER / REAL TASK / REAL EXTERNAL WORKER = 0 / 0 / 0.

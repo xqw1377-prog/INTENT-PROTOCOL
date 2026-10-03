@@ -42,8 +42,10 @@ const GREEN_TEST = [
   "",
 ].join("\n");
 
-/** A REAL mini repo: own package.json + lockfile, a seeded bug, red + green suites. */
-export function makeFixableRepo(): { dir: string; sha: string } {
+/** A REAL mini repo: own package.json + lockfile, a seeded bug, red + green suites.
+ *  opts.symlink adds `link -> test` (a symlinked directory inside the frozen base,
+ *  used by UE2-R-PATH base-tree symlink attack tests). */
+export function makeFixableRepo(opts: { symlink?: boolean } = {}): { dir: string; sha: string } {
   const dir = mkdtempSync(path.join(tmpdir(), "ue2-repo-"));
   const wr = (rel: string, content: string): void => {
     execFileSync("mkdir", ["-p", path.dirname(path.join(dir, rel))]);
@@ -55,6 +57,7 @@ export function makeFixableRepo(): { dir: string; sha: string } {
   wr("src/add.ts", BUGGY_ADD);
   wr("test/regression.test.ts", REGRESSION_TEST);
   wr("test/green.test.ts", GREEN_TEST);
+  if (opts.symlink) execFileSync("ln", ["-s", "test", path.join(dir, "link")]);
   const g = (args: string[]): string => execFileSync("git", args, { cwd: dir, encoding: "utf8" }).trim();
   g(["init", "--quiet"]);
   g(["add", "-A"]);

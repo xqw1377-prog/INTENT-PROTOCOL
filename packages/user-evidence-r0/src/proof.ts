@@ -38,6 +38,9 @@ export interface ProofManifestV1 {
   contract_freeze_hash: string;
   precommit_binding: string;
   patch_sha256: string;
+  /** UE4-R-TRUST: the pack-embedded verifier's hash — the third party compares
+   *  this against VERIFIER-RELEASE.json from a trusted source BEFORE running. */
+  verifier_sha256: string;
   files: Record<string, ProofFileEntry>;
 }
 
@@ -53,7 +56,10 @@ export function tier1VerdictOf(record: RunRecordV1): "VALID" | "INVALID" {
   if (record.verdict !== "VALID" || record.checks === undefined || record.checks === null) return "INVALID";
   const expected = {
     freeze_closure: "VERIFIED",
+    symlink_free_paths: "OK",
     base_regression_recheck: "RED",
+    install_boundary: "LIFECYCLE_SCRIPTS_DISABLED",
+    post_install_bytes: "OK",
     lockfile_unchanged: "OK",
     suite_unchanged: "OK",
     dependency_policy: "OK",
@@ -167,6 +173,7 @@ export function buildProofPack(input: BuildProofInput): ProofManifestV1 {
       contract_freeze_hash: contractFreezeHash(task),
       precommit_binding: precommitBinding(task),
       patch_sha256: patchSha,
+      verifier_sha256: "", // filled below from the staged verify.mjs bytes
       files: {},
     };
     manifest = m;
@@ -174,6 +181,9 @@ export function buildProofPack(input: BuildProofInput): ProofManifestV1 {
       const p = path.join(staging, f);
       manifest.files[f] = { sha256: sha256File(p), bytes: statBytes(p) };
     }
+    // UE4-R-TRUST: stamp the embedded verifier's identity — the third party
+    // compares it against the package-external VERIFIER-RELEASE.json
+    manifest.verifier_sha256 = manifest.files["verify.mjs"]!.sha256;
     writeFileSync(path.join(staging, "proof-manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 
     for (const f of readdirSync(staging)) {

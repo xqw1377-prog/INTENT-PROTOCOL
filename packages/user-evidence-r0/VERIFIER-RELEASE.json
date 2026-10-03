@@ -1,0 +1,13 @@
+{
+  "schema_version": "portable-verifier-release.v1",
+  "verifier": "packages/user-evidence-r0/src/portable-replay.mjs",
+  "verifier_sha256": "sha256:bb94a7e070652fc060127263ba5e60aa397bb7299dec366aabb7bee00c51b89f",
+  "released_at": "2026-10-03T18:00:00.000Z",
+  "release_basis": "USER-EVIDENCE-R0 / CUT-2R (AUDIT-B blocker UE4-R-TRUST: a proof pack can never vouch for its own verifier)",
+  "third_party_verification_order": [
+    "1. obtain this VERIFIER-RELEASE.json from the repository/release you trust",
+    "2. shasum -a 256 <pack>/verify.mjs and compare against verifier_sha256 here",
+    "3. also compare proof-manifest.json verifier_sha256 against verifier_sha256 here",
+    "4. only then run: node verify.mjs (it prints VERIFIER_SHA256 as a convenience, never as proof)"
+  ]
+}

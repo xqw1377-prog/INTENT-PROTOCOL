@@ -30,9 +30,10 @@
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const PROOF_MANIFEST = "proof-manifest.json";
 const EXPECTED_FILES = [
@@ -159,8 +160,10 @@ function parsePatch(raw) {
   let added = 0;
   let removed = 0;
   let binary = false;
+  let symlink = false;
   for (const line of text.split("\n")) {
     if (line.startsWith("GIT binary patch")) binary = true;
+    if (/(?:^|\s)(?:new file mode|old mode|new mode|deleted file mode) 120000(?:\s|$)/.test(line)) symlink = true;
     if (line.startsWith("diff --git ")) {
       for (const side of splitGitPaths(line.slice("diff --git ".length))) {
         const p = stripSide(side);
@@ -182,7 +185,17 @@ function parsePatch(raw) {
     if (/^\+(?!\+\+\+)/.test(line)) added++;
     else if (/^-(?!---)/.test(line)) removed++;
   }
-  return { touchedPaths: [...touched].sort(), addedLines: added, removedLines: removed, binary };
+  return { touchedPaths: [...touched].sort(), addedLines: added, removedLines: removed, binary, symlink };
+}
+
+/** UE2-R-PATH: canonical repo-relative POSIX path only — rejected in the pure policy layer. */
+function isCanonicalRepoPath(p) {
+  if (p === "" || p.includes("\\") || p.includes("\0") || p.includes(":")) return false;
+  if (p.startsWith("/")) return false;
+  for (const seg of p.split("/")) {
+    if (seg === "" || seg === "." || seg === "..") return false;
+  }
+  return true;
 }
 function globRe(pattern) {
   let re = "";
@@ -204,8 +217,10 @@ function globRe(pattern) {
 }
 function evaluatePolicy(patch, task) {
   if (patch.binary) return "binary-patch";
+  if (patch.symlink) return "symlink-patch";
   if (patch.touchedPaths.length === 0) return "empty-patch";
   for (const p of patch.touchedPaths) {
+    if (!isCanonicalRepoPath(p)) return "non-canonical-path:" + p;
     if (task.forbidden_paths.some((g) => globRe(g).test(p))) return "forbidden-path:" + p;
     if (!task.allowed_paths.some((g) => globRe(g).test(p))) return "out-of-scope:" + p;
   }
@@ -241,13 +256,26 @@ function depsUnchanged(before, after) {
 
 /* ── execution (network-denied sandbox; independent of src/freeze.ts) ── */
 
-function sh(cmd, cwd, timeoutMs = 10 * 60_000) {
+function sh(cmd, cwd, timeoutMs = 10 * 60_000, env = process.env) {
   try {
-    const out = execFileSync("sh", ["-c", cmd], { cwd, encoding: "utf8", timeout: timeoutMs, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
+    const out = execFileSync("sh", ["-c", cmd], { cwd, encoding: "utf8", timeout: timeoutMs, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"], env });
     return { code: 0, stdout: out };
   } catch (e) {
     return { code: e.status ?? 1, stdout: e.stdout ?? "" };
   }
+}
+
+/** UE2-R-PATH: no component of a touched path may be a symlink in the base tree. */
+function pathsSymlinkFree(root, touchedPaths) {
+  for (const p of touchedPaths) {
+    let cur = root;
+    for (const seg of p.split("/")) {
+      cur = path.join(cur, seg);
+      const st = lstatSync(cur, { throwIfNoEntry: false });
+      if (st && st.isSymbolicLink()) return false;
+    }
+  }
+  return true;
 }
 function inNetSandbox(cmd, cwd, timeoutMs = 10 * 60_000) {
   const wrapped =
@@ -282,13 +310,18 @@ function reexecute(packDir, task) {
     const parsed = parsePatch(readFileSync(patchAbs));
     const policyReason = evaluatePolicy(parsed, task);
     if (policyReason) return { tier1_verdict: "INVALID", reason: policyReason, executed: false };
+    if (!pathsSymlinkFree(repo, parsed.touchedPaths)) return { tier1_verdict: "INVALID", reason: "symlink-in-path", executed: false };
 
     const manifests = parsed.touchedPaths.filter((p) => p === "package.json" || p.endsWith("/package.json"));
     const before = new Map(manifests.map((p) => [p, existsSync(path.join(repo, p)) ? readFileSync(path.join(repo, p), "utf8") : null]));
 
+    // UE2-R-INSTALL: bootstrap with lifecycle scripts force-disabled, then
+    // every frozen byte the verdict depends on is re-hashed after install.
     rmSync(path.join(repo, "node_modules"), { recursive: true, force: true });
-    const install = sh(task.commands.install_command, repo, 15 * 60_000);
+    const install = sh(task.commands.install_command, repo, 15 * 60_000, { ...process.env, npm_config_ignore_scripts: "true" });
     if (install.code !== 0) return { tier1_verdict: "INVALID", reason: "install-failed" };
+    if (shaFile(suitePath) !== task.acceptance_suite_sha256) return { tier1_verdict: "INVALID", reason: "post-install-suite-drift" };
+    if (shaFile(lockPath) !== task.lockfile_sha256) return { tier1_verdict: "INVALID", reason: "post-install-lockfile-drift" };
     try {
       verifyNetSandbox(repo);
     } catch (e) {
@@ -321,7 +354,10 @@ function tier1VerdictOfRecord(record) {
   if (!record || record.verdict !== "VALID" || !record.checks) return "INVALID";
   const expected = {
     freeze_closure: "VERIFIED",
+    symlink_free_paths: "OK",
     base_regression_recheck: "RED",
+    install_boundary: "LIFECYCLE_SCRIPTS_DISABLED",
+    post_install_bytes: "OK",
     lockfile_unchanged: "OK",
     suite_unchanged: "OK",
     dependency_policy: "OK",
@@ -370,6 +406,26 @@ export function replayPack(packDir, opts = {}) {
   if (manifest.schema_version !== "outcome-proof-manifest.v1") return fail("integrity", "proof-manifest-schema");
   const onDisk = readdirSync(packDir).sort();
   if (JSON.stringify(onDisk) !== JSON.stringify([...EXPECTED_FILES].sort())) return fail("integrity", "file-set:" + onDisk.join(","));
+  // UE4-R-TRUST detail: the manifest must list EXACTLY the expected file set
+  // (minus itself) — not merely a subset the attacker chose to rehash
+  const listedFiles = Object.keys(manifest.files ?? {}).sort();
+  const expectedListed = EXPECTED_FILES.filter((f) => f !== PROOF_MANIFEST).sort();
+  if (JSON.stringify(listedFiles) !== JSON.stringify(expectedListed)) return fail("integrity", "manifest-file-set");
+  // UE4-R-TRUST: when run from the repository (verifier release present),
+  // the pack's embedded verifier must be byte-identical to the frozen
+  // release — a swapped verify.mjs with a rehashed manifest is refused here
+  const releasePath = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "VERIFIER-RELEASE.json");
+  let verifierIdentity = null;
+  if (existsSync(releasePath)) {
+    try {
+      const release = JSON.parse(readFileSync(releasePath, "utf8"));
+      verifierIdentity = release.verifier_sha256 ?? null;
+      const packVerifierSha = shaFile(path.join(packDir, "verify.mjs"));
+      if (verifierIdentity && packVerifierSha !== verifierIdentity) return fail("integrity", "verifier-identity");
+    } catch {
+      return fail("integrity", "verifier-release-unparsable");
+    }
+  }
   const filesBindingObj = {};
   for (const [f, entry] of Object.entries(manifest.files ?? {})) {
     const p = path.join(packDir, f);
@@ -528,6 +584,11 @@ if (isMain()) {
     fs.writeFileSync(reportPath, text);
   }
   process.stdout.write(text);
+  // UE4-R-TRUST: a pack can never prove its own verifier — the identity of
+  // THIS file must be compared, out of band, against a release you trust
+  const selfSha = "sha256:" + createHash("sha256").update(readFileSync(new URL(import.meta.url))).digest("hex");
+  console.log("VERIFIER_SHA256=" + selfSha);
+  console.log("TRUST ROOT: a pack cannot vouch for its own verifier. Compare VERIFIER_SHA256 against VERIFIER-RELEASE.json from a source you trust BEFORE accepting this output.");
   console.log("REPLAY_STATUS=" + report.status);
   console.log("TIER1_VERDICT=" + (report.reproduced ? report.reproduced.tier1_verdict : "UNREPRODUCIBLE"));
   process.exit(report.status === "PASS" ? 0 : 1);
