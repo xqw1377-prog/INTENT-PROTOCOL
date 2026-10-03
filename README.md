@@ -53,6 +53,14 @@ NEXT TARGET         = PRODUCT-THESIS-R0: who pays for verified outcomes,
                      features. Frozen regardless:
                      MAINNET = DENIED; REAL-VALUE FUNDS = DENIED;
                      TOKEN = NOT-IN-SCOPE; PRODUCTION READINESS = NOT CLAIMED.
+USER-EVIDENCE-R0    = IMPLEMENTED (CUT-1/1R/1R2 + CUT-2/3/4 @ f15b8ad),
+                     AWAITING COMMANDER ADJUDICATION — implemented ≠ PASS.
+                     Experiment machinery complete: UE-0 dual-hash contract,
+                     UE-1 freezer, UE-2 runner (pre-execution policy wall),
+                     UE-3 portable proof pack, UE-4 standalone third-party
+                     replayer, UE-5 verified-replay-only ledger. The REAL
+                     experiment (experiments/001) still requires a REAL
+                     maintainer + repo + bug; no fictional fixtures.
 
 LOCAL SETTLEMENT    = PROVEN / SIGNED
 LOCAL GOLDEN PATH   = PROVEN
