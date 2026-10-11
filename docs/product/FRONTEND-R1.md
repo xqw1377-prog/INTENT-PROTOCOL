@@ -8,8 +8,9 @@ F3 Submit (write-once), F4 two-stage verification + EARNED (derived
 VALID ∧ fresh-bound replay PASS only) + INVALID terminal, F5 payer
 response (verbatim capture, Answer-later blocks finalize, explicit
 NOT_ASKED closure, one final ledger). All 10 acceptance gates
-machine-tested (test/fr3456.test.ts). Implementation correctness
-awaits Commander review.**
+machine-tested (test/fr3456.test.ts). [Historical note: the prior
+"implementation correctness awaits Commander review" state was closed by
+the sign-off above.]**
 
 Run: `node --experimental-strip-types apps/experiment-ui/server/index.ts
 --exp-dir <dir> [--port 4319]` → http://127.0.0.1:4319 (127.0.0.1 only;
@@ -17,6 +18,11 @@ the experiment directory is an explicit argument by design).
 
 Objective: make EXPERIMENT-001 usable by a real maintainer and a real
 worker — without us hand-running JSON, CLIs, and hash explanations.
+
+[HISTORICAL prior-state snapshot at implementation time — the README
+status block is the current authoritative ledger; in particular
+FRONTEND-R1 is now PASS / FROZEN-R0 and EXPERIMENT-001 is in the field
+(RECRUITMENT IN PROGRESS / CONTACTED-UNANSWERED).]
 
 ```text
 BACKEND MACHINE  UE-0..UE-5 = PASS / FROZEN-R0 (code frozen; no changes

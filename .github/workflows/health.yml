@@ -1,0 +1,66 @@
+name: Main Health
+
+# REPO-CLOSURE-R1 / R1 — the repo-wide continuous health gate.
+# The six per-gate evidence workflows prove their frozen gates; this workflow
+# proves TODAY'S main: fresh install, build, every package typecheck, the
+# FULL vitest suite, and checkout purity (TEST-HYGIENE-R1: the suite is a
+# pure function of the checkout — it must leave the tree byte-clean).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: health-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22 (CI reference environment)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Fresh install
+        run: npm ci
+
+      - name: Build (root tsc project graph)
+        run: npm run build
+
+      - name: Typecheck every package
+        run: |
+          set -euo pipefail
+          status=0
+          for t in packages/*/tsconfig.json; do
+            d=$(dirname "$t")
+            if ! npx tsc -p "$d"; then
+              echo "TYPECHECK FAILED: $d"
+              status=1
+            fi
+          done
+          exit $status
+
+      - name: Full vitest health suite
+        run: npx vitest run
+
+      - name: Hygiene gate — the suite leaves the checkout byte-clean
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "HYGIENE FAILED — the suite is not a pure function of the checkout:"
+            git status --porcelain
+            exit 1
+          fi
+          echo "HYGIENE OK — worktree clean after the full suite"

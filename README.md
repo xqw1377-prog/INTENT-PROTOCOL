@@ -96,15 +96,21 @@ NEXT DEVELOPMENT    = (superseded — see NEXT above) minimal experiment product
                      ONLY the verified ledger view (tampered/stale →
                      ledger-integrity panel, never FINALIZED); all
                      three counterexamples machine-tested. Awaiting
-                     re-review. PROTOCOL WORK = HOLD.
+                     re-review. PROTOCOL WORK = HOLD. [HISTORICAL
+                     round-3 wording — FRONTEND-R1 was subsequently
+                     signed PASS / FROZEN-R0 @ d09c18a; current field
+                     status: see NEXT above.]
 LEDGER ADDITIVE-EXPORT COMPATIBILITY = PASS (Commander 2026-10-03:
                      reverting the three disclosed exports restores
                      ledger.ts byte-identical to the fe18be0 baseline;
                      scope = those exports only).
-EXPERIMENT-001     = WAITING FOR FRONTEND-R1 MINIMUM FLOW (trust anchor
-                     frozen at docs/experiments/EXPERIMENT-001.md:
+EXPERIMENT-001 TRUST ANCHOR = frozen (docs/experiments/EXPERIMENT-001.md:
                      MAIN fe18be0 / audit ca0c646 / release
                      sha256:25286e96… / verifier sha256:292d5804…).
+                     [The former "WAITING FOR FRONTEND-R1 MINIMUM FLOW"
+                     gate is SUPERSEDED — FRONTEND-R1 = PASS / FROZEN-R0;
+                     current experiment status is NEXT above:
+                     RECRUITMENT IN PROGRESS / CONTACTED-UNANSWERED.]
 USER-EVIDENCE-R0    = PASS / FROZEN-R0 (Commander @ CUT-2R1 ca0c646,
                      2026-10-03). UE-0 / UE-1 / UE-2 / UE-3 / UE-4 /
                      UE-5 = PASS / FROZEN-R0. Technical readiness for
