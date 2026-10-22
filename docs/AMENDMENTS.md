@@ -76,3 +76,47 @@ CUT-2 audit classified as frozen-string → arbitrary-shell authority. CUT-2R1
 (@ ca0c646, Commander-signed PASS) closed it to a canonical direct-argv
 operation. This entry exists so the narrowing is governed history, not an
 unrecorded change to a landed cut.
+
+## EXPERIMENT-001-AMENDMENT-1 — sponsored-relationship adjudication
+
+Status: **RATIFIED (Commander order 2026-10-22 “根据你的建议执行”， adopting
+the operator's decision-point path 1; this entry IS that adjudication,
+recorded by the operator on order).**
+
+```text
+BASIS
+  = round-1 refusal (gcode-preview: "We don't pay for contributions.
+    This is a hobby project. Non-commercial.", 2026-10-03, verbatim in
+    EXPERIMENT-001-CANDIDATES.md) + round-2 structural finding (the
+    {npm+lockfile ∧ offline-pure-suite ∧ payer-culture ∧ small-bug}
+    intersection is empty in the searched pool)
+
+CHANGE (recruitment + recording semantics for EXPERIMENT-001 only)
+  = the symbolic Tier-1 reward is funded by the experiment SPONSOR
+    (the Commander), never by the maintainer
+  = ledger/identity recording: funder = SPONSOR (declared identity);
+    maintainer role = rule-co-author + ACCEPTOR
+  = the F5 question keeps its frozen wording; under this framing its
+    answer is ACKNOWLEDGMENT evidence — "the maintainer accepts that
+    the frozen Tier-1 was earned under rules agreed before work began"
+  = every ledger/conclusion of a sponsored run MUST name the framing
+    (e.g. "THESIS MIXED (SPONSORED-RELATIONSHIP)"); such conclusions
+    are NOT citable as maintainer-as-payer / payment-behavior evidence
+    in any later claim (PRODUCT-THESIS-R0's PAYER-ACCEPTS line is NOT
+    converted by a sponsored run)
+  = the charter ledger line "REAL PAYER 0→1" is NOT converted by a
+    sponsored run; it stays 0 until a maintainer-funded transaction
+  = a maintainer who refused the payer role may be re-approached under
+    these terms ONLY in a new round, with the terms change stated up
+    front and the prior refusal acknowledged (new-round re-approach,
+    not same-round shopping)
+
+UNCHANGED
+  = PRE-MONEY / symbolic amount only · REAL FUNDS DENIED · MAINNET
+    DENIED · single claimant · Tier-1 only · no auto-release · UI /
+    protocol expansion HOLD
+  = the frozen flow (PREP → F1 … F5 → FINALIZE), the trust anchor,
+    and UE-0..UE-5 frozen bytes
+  = recruitment discipline (experiment first, no protocol/blockchain
+    talk, one qualifying question, plain reply = agree, no signatures)
+```

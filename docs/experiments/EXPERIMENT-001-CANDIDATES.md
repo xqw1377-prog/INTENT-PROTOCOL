@@ -238,6 +238,56 @@ refused the PAYER role, not the tech.
 Worker side: 3 screened candidates remain parked/uncontacted (they are
 engaged only after a payer exists).
 
+## Recruitment Round 3 (2026-10-22) — SPONSORED-RELATIONSHIP, Commander path 1 ordered
+
+EXPERIMENT-001-AMENDMENT-1 ratified (docs/AMENDMENTS.md): sponsor-funded
+symbolic Tier-1, maintainer = rule-co-author + acceptor, F5 answer =
+ACKNOWLEDGMENT evidence (never citable as payer/payment evidence);
+"REAL PAYER 0→1" not converted by sponsored runs.
+
+Target: **gcode-preview #530 re-approach** — re-verified 2026-10-22
+before contact: issue still open, no comments since the refusal,
+`src/extra/dom-utils.ts` at develop HEAD still has no listener-cleanup
+path (bug unfixed). Rationale: the only repo that passed the FULL
+technical screen (sandbox-verified red test, 980-green offline suite,
+3/3 determinism), a demonstrably responsive maintainer, and the
+round-1 refusal reason ("we don't pay") is exactly what the new terms
+remove. The terms change is stated up front, per the amendment.
+
+### Second-contact message (remcoder, #530) — acknowledging the refusal, new terms
+
+> Hi Remcoder — following up on #530, and thank you for the straight
+> answer: you don't pay for contributions, this is a hobby project,
+> non-commercial. Understood — and that's on us for burying the lead.
+>
+> We've restructured the experiment so that question is gone: the
+> reward is funded entirely by us (a small symbolic amount). You would
+> never pay anything, now or later.
+>
+> What we'd still love to test with you, if you're willing:
+>
+> 1. Before anyone touches the bug, we freeze — with you — exactly what
+>    counts as fixed: a behavior-level test written together (after
+>    dispose(), a drop must do nothing — not any particular
+>    implementation), which files may change, how big the patch may be.
+> 2. An external contributor fixes it. A separate machine re-runs
+>    everything from the frozen baseline, offline, from your
+>    package-lock.
+> 3. Then one question to you, before any authorship or preferences are
+>    shown: per the rules you agreed to in advance, has this fix earned
+>    the reward?
+>
+> That's the whole experiment: whether pre-agreed rules hold their
+> shape after the outcome is known. Would you take part on those terms?
+> (A plain reply is all it takes — no signatures, no accounts, nothing
+> to install.)
+
+If refused again: record verbatim; gcode-preview is then CLOSED for
+this experiment (two refusals = final). If agreed: PREP per the frozen
+runbook (maintainer co-authors the frozen behavior test → identities
+declared → F1 real preflight → Review → Freeze → worker engaged → F4
+two-stage verification → F5 acknowledgment under the sponsored framing).
+
 ## Worker-candidate shortlist (2026-10-03, parked) — NONE CONTACTED
 
 Commander order: find one external worker (TS-capable, accepts frozen
