@@ -190,7 +190,55 @@ If the answer is "no": keep the refusal verbatim as recruitment-stage
 evidence; do NOT shop for a friendlier maintainer in the same round. If
 there is no reply: record UNANSWERED — never refusal (ruling above).
 
-## Worker-candidate shortlist (2026-10-03) — NONE CONTACTED YET
+## Recruitment Round 2 (2026-10-22) — Commander order "全部解决好": COMPLETED, NO ELIGIBLE CANDIDATE, NOTHING SENT
+
+Pre-screen added per the round-1 lesson (remcoder: "We don't pay" —
+hobby/non-commercial): candidate repos must show PAID-WORK signals
+(active bounty program, paid history). Searched: label/title "bounty"
+(JS+TS), Algora label, Algora mentions, Opire label, closed-bounty
+(paid-history) pass. Every hit eliminated with evidence:
+
+| Repo / task | Verdict | Evidence |
+|---|---|---|
+| copperheadhq/copperhead #301 (skill compat settings) | INELIGIBLE — sandbox baseline RED | Real $ bounty culture ($50, paid-on-merge, Discord-tracked); npm+lockfile; bug real at 476cc15, no PR collision. BUT full suite inside the frozen net-denied sandbox: **22 files / 53 tests FAILED** (provider tests spin loopback HTTP servers) → charter "baseline GREEN in sandbox" impossible. |
+| paraspell/xcm-tools #2176 (ED subtracted twice) | INELIGIBLE — pnpm + fix in flight | Root package.json = pnpm/turbo monorepo (pnpm-lock.yaml; no package-lock) → install-authority ruling; fix PR #2182 open + contested by two claimants. |
+| tscircuit/core (Algora flagship payer) | INELIGIBLE — bun | bun scripts, no npm lockfile. #3927 additionally fix-in-archived-dep (murky task boundary). |
+| FreezingMoon/AncientBeast | INELIGIBLE — bun | engines/packageManager bun@1.4.2. |
+| Mantitup-Org/vista #62 | INELIGIBLE — scope | "Hunt and fix remaining deployment bugs" across hosts = open-ended, not small/unambiguous. |
+| ritik4ever/stellar-bounty-board #1198/#1199 | INELIGIBLE — supertest loopback | backend tests import supertest (binds loopback) → sandbox EPERM, same class as build-with-ai. |
+| picsoritdidnthappen/poidh-app (real crypto payouts) | INELIGIBLE — no npm lockfile | default branch `prod`, jest, no package-lock (any branch checked). |
+| lambdaclass/stabileo, arakoodev/EdgeChains, others | OUT | Rust-side bounty pool; EdgeChains bounties are network-integration tasks (AWS Comprehend/qdrant) — charter bans external-API scope. |
+
+### Structural finding (round 2)
+
+The eligible-payer intersection {npm+package-lock ∧ offline-pure FULL
+suite ∧ real payer culture ∧ small boring open bug ∧ no in-flight fix}
+came up EMPTY in the searched pool. Measured pattern: payer-culture
+repos are dominated by app/agent/server architectures whose suites
+require loopback HTTP (copperhead: 22 sandbox-red files is the proof);
+pure-logic libraries with payer culture are on bun/pnpm (tscircuit,
+xcm-tools, AncientBeast). gcode-preview (round 1) passed tech screening
+precisely because it is a pure rendering library — and its maintainer
+refused the PAYER role, not the tech.
+
+### Decision point for the Commander (paths, no action taken)
+
+1. **Sponsor-funded relationship** — per the standing ruling, if WE fund
+   the symbolic Tier-1 and the maintainer only validates, the
+   experiment relationship needs SEPARATE adjudication first. If
+   adjudicated, the candidate pool reopens to every tech-eligible repo
+   (gcode-preview-class pure libraries), and even gcode-preview's
+   refusal ("WE don't pay") dissolves — though re-contacting the same
+   maintainer under new terms spends a second one-shot and should be
+   weighed. Requires explicit Commander ruling; not self-executed.
+2. **Extended hunting** — another search round on order (Algora-listed
+   npm projects, Opire without language filter, paid-history mining).
+3. **Hold recruitment** until the Commander defines direction.
+
+Worker side: 3 screened candidates remain parked/uncontacted (they are
+engaged only after a payer exists).
+
+## Worker-candidate shortlist (2026-10-03, parked) — NONE CONTACTED
 
 Commander order: find one external worker (TS-capable, accepts frozen
 standards, unaffiliated with the maintainer); confirm willingness first;
