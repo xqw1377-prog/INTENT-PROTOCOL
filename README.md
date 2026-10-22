@@ -141,6 +141,19 @@ PROOF PACK          = PROVEN / REPRODUCIBLE / THIRD-PARTY-VERIFIABLE
                       (packages/gp5-proof-pack/pack: cd pack && node verify.mjs)
 OFFICIAL CI         = 6/6 SUCCESS @ main 41c0076 (runs 36363313584 / 36363317605 /
                       36363321434 / 36363427164 / 36363432051 / 36363436750)
+MAIN HEALTH CI      = RED since 2026-10-11 @ 84798ce (found by the
+                      2026-10-22 full-system audit). Root causes are
+                      ENVIRONMENT PORTABILITY, not protocol regression:
+                      (1) shallow checkout (depth 1) breaks historical-seal
+                      tests reading pinned SHAs (ebf1ed9/40b9ff0/bcea992/
+                      b0d7d39…); (2) GitHub-hosted Linux runners deny
+                      unprivileged unshare -n → UE eligibility/sandbox
+                      tests fail there. Reference-platform suite (darwin,
+                      full clone) GREEN: 60 files / 665 passed / hygiene
+                      clean @ e633747. Fix plan (fetch-depth:0 + a
+                      sandbox-capable runner, or darwin-only marking)
+                      PENDING Commander ruling — the gate must NOT be
+                      weakened just to go green.
 TEST SUITE          = HEALTH SUITE GREEN; TEST HYGIENE ENFORCED (R1)
 TESTNET             = NOT AUTOMATICALLY AUTHORIZED — GP5 PASS PROVES THE LOCAL
                       GOLDEN PATH + EVIDENCE CHAIN ONLY, NOT DEPLOYMENT
