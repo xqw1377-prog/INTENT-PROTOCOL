@@ -76,11 +76,19 @@ FRONTEND-R1         = PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03;
                      only; browser acceptance passed end-to-end). Frontend
                      expansion STOPPED by ruling. LEDGER ADDITIVE-EXPORT
                      COMPATIBILITY = PASS (maintained).
-NEXT                = EXPERIMENT-001 (MECHANISM ACCEPTANCE rung of the
-                     three-rung ladder: EXP-002 ECONOMIC ACCEPTANCE and
-                     EXP-003 REPEATABILITY are separate future gates;
-                     EXP-001 success ≠ business model proven) —
-                     RECRUITMENT ROUND 3 IN PROGRESS ·
+NEXT                = DIRECTION-R1 LINES (Commander full-project audit
+                     2026-10-22; docs/product/DIRECTION-R1.md). P0 =
+                     run EXPERIMENT-001 (MECHANISM ACCEPTANCE rung;
+                     round-3 sponsored contact UNANSWERED; second
+                     refusal → CLOSE gcode-preview, no third contact).
+                     P1 = ICP re-validation, 10 interviews
+                     (docs/product/ICP-INTERVIEW-KIT.md) — OSS bounty
+                     demoted FIRST MARKET → FIRST LAB; product
+                     hypothesis = AI WORK ACCEPTANCE LAYER (pending P1,
+                     not a claim). P2 = EXPERIMENT-002 ECONOMIC
+                     ACCEPTANCE (real payer's own money, $20–100).
+                     Project main question: "谁会为 Frozen Outcome
+                     买单？" Engineering = SUFFICIENT FOR VALIDATION.
                      SPONSORED-RELATIONSHIP (EXPERIMENT-001-AMENDMENT-1
                      ratified 2026-10-22: sponsor funds the symbolic
                      Tier-1, maintainer = rule-co-author + acceptor, F5
@@ -169,18 +177,33 @@ PROOF PACK          = PROVEN / REPRODUCIBLE / THIRD-PARTY-VERIFIABLE
                       (packages/gp5-proof-pack/pack: cd pack && node verify.mjs)
 OFFICIAL CI         = 6/6 SUCCESS @ main 41c0076 (runs 36363313584 / 36363317605 /
                       36363321434 / 36363427164 / 36363432051 / 36363436750)
-MAIN HEALTH CI      = GREEN @ b513285 (2026-10-22) — macos-latest +
+MAIN HEALTH CI      = PROVEN WORKING; green lineage b513285 / 0a2e872 /
+                      ba7b437 (2026-10-22) — macos-latest +
                       full-history checkout (the suite's reference
-                      environment; fixed from RED-since-birth @ 84798ce:
-                      ubuntu+shallow broke sandbox capability and the
-                      historical-seal premise). Known infra-flake class:
-                      hosted-runner CPU throttling can stall one
-                      end-of-run vitest worker RPC past its ceiling on an
-                      otherwise all-green run ("Timeout calling
-                      onTaskUpdate" with 60/60 files passed — seen on
-                      4c92137) → rpcTimeout=600s infra knob set
-                      (vitest.config.ts); such a run is RE-RUN, a real
-                      failure shows failing tests/typecheck/hygiene.
+                      environment; fixed from RED-since-birth @ 84798ce).
+                      Discipline: a tip is called green ONLY after its
+                      run lands (08ec661 was still queued at the
+                      DIRECTION-R1 audit; never pre-claim). Known
+                      infra-flake class: hosted-runner CPU throttling
+                      can stall one end-of-run vitest worker RPC past
+                      its ceiling on an otherwise all-green run
+                      ("Timeout calling onTaskUpdate" with 60/60 files
+                      passed — seen on 4c92137) → rpcTimeout=600s infra
+                      knob set (vitest.config.ts); such a run is
+                      RE-RUN, a real failure shows failing
+                      tests/typecheck/hygiene.
+DIRECTION-R1        = RATIFIED (Commander full-project audit 2026-10-22;
+                      docs/product/DIRECTION-R1.md). Direction PASS;
+                      engineering SUFFICIENT FOR VALIDATION; STOP list
+                      in force (protocol/Solana/mainnet/token/Tier-2/
+                      concurrent-claim/marketplace/wallet/accounts/
+                      complex-UI/new-proof-primitives — none except a
+                      real-experiment blocker). OSS bounty = FIRST LAB
+                      not FIRST MARKET; ICP re-opened (P1 interviews);
+                      project ≈45% as a startup; main question = "谁会
+                      为 Frozen Outcome 买单？". Doc discipline:
+                      OVERVIEW = product truth · README = governance
+                      truth · historical docs stay historical.
 TEST SUITE          = HEALTH SUITE GREEN; TEST HYGIENE ENFORCED (R1)
 TESTNET             = NOT AUTOMATICALLY AUTHORIZED — GP5 PASS PROVES THE LOCAL
                       GOLDEN PATH + EVIDENCE CHAIN ONLY, NOT DEPLOYMENT

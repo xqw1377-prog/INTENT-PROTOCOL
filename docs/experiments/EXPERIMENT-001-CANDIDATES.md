@@ -209,17 +209,21 @@ hobby/non-commercial): candidate repos must show PAID-WORK signals
 | picsoritdidnthappen/poidh-app (real crypto payouts) | INELIGIBLE — no npm lockfile | default branch `prod`, jest, no package-lock (any branch checked). |
 | lambdaclass/stabileo, arakoodev/EdgeChains, others | OUT | Rust-side bounty pool; EdgeChains bounties are network-integration tasks (AWS Comprehend/qdrant) — charter bans external-API scope. |
 
-### Structural finding (round 2)
+### Structural finding (round 2) — RECLASSIFIED as PRODUCT EVIDENCE by DIRECTION-R1 (2026-10-22)
 
 The eligible-payer intersection {npm+package-lock ∧ offline-pure FULL
 suite ∧ real payer culture ∧ small boring open bug ∧ no in-flight fix}
-came up EMPTY in the searched pool. Measured pattern: payer-culture
-repos are dominated by app/agent/server architectures whose suites
-require loopback HTTP (copperhead: 22 sandbox-red files is the proof);
-pure-logic libraries with payer culture are on bun/pnpm (tscircuit,
-xcm-tools, AncientBeast). gcode-preview (round 1) passed tech screening
-precisely because it is a pure rendering library — and its maintainer
-refused the PAYER role, not the tech.
+came up EMPTY in the searched pool. **Commander ruling: this is not an
+operations shortfall — it is product evidence.** Repos with pay culture
+run large/complex/server/network-bound/pnpm-bun shapes that fail the R0
+machine's conditions; tech-clean repos skew hobby/non-commercial whose
+maintainers decline the payer role. Consequence (DIRECTION-R1): OSS
+bounty is demoted from FIRST MARKET to FIRST LAB; the ICP is re-opened
+for P1 interviews (docs/product/ICP-INTERVIEW-KIT.md). Measured pattern
+kept for the record: copperhead = 22 sandbox-red files (loopback
+suites); gcode-preview passed tech screening because it is a pure
+rendering library — and its maintainer refused the PAYER role, not the
+tech.
 
 ### Decision point for the Commander (paths, no action taken)
 

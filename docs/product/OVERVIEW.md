@@ -1,15 +1,13 @@
 # INTENT PROTOCOL — Product Overview
 
-Status: **CURRENT PRODUCT NARRATIVE (R2, 2026-10-22).** Commander ruling
-2026-10-22: PRODUCT DIRECTION / SCOPE DISCIPLINE / EVIDENCE DISCIPLINE /
-EXPERIMENT DISCIPLINE = PASS; PRODUCT NARRATIVE = **HOLD-3** — N1
-protocol-language over user-problem, N2 sponsored-experiment not split
-from real-payer validation in the roadmap, N3 implementation written up
-as the product. All three fixed in this R2; the four confirmed-keep
-items (Tier-1 focus, EARNED ≠ PAID, evidence-class separation,
-whitepaper-as-vision) are preserved verbatim in intent. R1 superseded.
-Change discipline: any change that widens a standing boundary requires a
-Commander ruling first.
+Status: **CURRENT PRODUCT NARRATIVE (R3, 2026-10-22).** R2 narrative =
+Commander PASS. R3 applies **DIRECTION-R1** (full-project audit ruling,
+docs/product/DIRECTION-R1.md): engineering declared SUFFICIENT FOR
+VALIDATION (STOP list in force); OSS bounty demoted FIRST MARKET →
+FIRST LAB; product repositioned as an **AI work acceptance layer**
+hypothesis pending P1 interviews; the project's main question is now
+"谁会为 Frozen Outcome 买单？". Change discipline: any change that
+widens a standing boundary requires a Commander ruling first.
 
 ---
 
@@ -43,10 +41,39 @@ PRODUCT FIRST PRINCIPLE（产品第一原则）
   discretionary entitlement.
   （机械判定的应得，不得事后转化为自由裁量的恩赐。）
 
-BRAND 第二句（品牌层，不作第一句解释）
+BRAND 第二句（品牌层，不作第一句解释产品）
   You may reserve the right to reject.
   You may not reserve the right to disappear.
 ```
+
+> 项目主问题（DIRECTION-R1 起）：**谁会为 Frozen Outcome 买单？**
+
+## 市场入口与 ICP（DIRECTION-R1 裁定）
+
+```text
+OSS bounty   = FIRST LAB（保留为首个实验场）
+             ≠ FIRST MARKET（不再默认为商业入口）
+```
+
+依据（round-2 招募空交集 = 产品证据，非运营问题）：有付费文化的
+repo 大/复杂/server/网络绑定/pnpm-bun，不满足 R0 机器条件；技术
+最干净的 repo 多为 hobby/非商业，维护者拒绝付费角色。
+
+当前能力真正指向的假设（**待 P1 验证，不是主张**）：
+
+```text
+PRODUCT HYPOTHESIS = AI WORK ACCEPTANCE LAYER
+  企业/团队把工作交给 AI、外包或 agent 执行时，
+  "什么算完成"在开工前冻结、交付后独立复演、
+  达标部分自动成为已完成。
+```
+
+P1 = 访谈 10 人（AI coding 团队 / 外包采购 / 技术负责人 / agent
+builder / 按结果采购者），两问定案（痛 + 机制意愿）——工具包：
+docs/product/ICP-INTERVIEW-KIT.md。竞争面（2026-10 核查）：TaskBounty
+验证不授权付款、openbounty 仍是 mock-payment MVP、Taskuler 卖
+escrow+沉默超时+仲裁；"再做赏金+结算"无差异，独特性锁定在
+**Frozen Outcome**。
 
 ## LAYER 2 · PRODUCT — Frozen Outcome Contract
 
