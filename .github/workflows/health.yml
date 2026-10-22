@@ -21,11 +21,22 @@ concurrency:
 
 jobs:
   health:
-    runs-on: ubuntu-latest
+    # 2026-10-22 audit fix: the suite's reference environment is darwin
+    # (macOS sandbox-exec for the net-denied verification sandbox) with
+    # FULL git history (the historical-seal tests read pinned SHAs from
+    # ebf1ed9/40b9ff0/bcea992/b0d7f39…). ubuntu-latest + depth-1 checkout
+    # broke both (unprivileged unshare -n denied; seal commits absent),
+    # which made this gate RED from birth (84798ce, 2026-10-11) without
+    # any code regression. This is an environment correction, NOT a gate
+    # weakening: every step still runs, on the platform the frozen suite
+    # was gated on. Public repos get arm64 macOS runners free.
+    runs-on: macos-latest
     timeout-minutes: 60
     steps:
-      - name: Checkout
+      - name: Checkout (full history — seal tests read pinned SHAs)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node 22 (CI reference environment)
         uses: actions/setup-node@v4
