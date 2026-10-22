@@ -1,71 +1,90 @@
 # INTENT PROTOCOL — Product Overview
 
-Status: **CURRENT PRODUCT NARRATIVE (R1, 2026-10-22).** This document is
-the entry point for what the product IS today. It supersedes nothing that
-is frozen; it reconciles the frozen layers (thesis → spec → experiment)
-and marks the vision layer's place. Owner: Commander; maintained by the
-operator on order. Change discipline: any change here that widens a
-standing boundary requires a Commander ruling first.
+Status: **CURRENT PRODUCT NARRATIVE (R2, 2026-10-22).** Commander ruling
+2026-10-22: PRODUCT DIRECTION / SCOPE DISCIPLINE / EVIDENCE DISCIPLINE /
+EXPERIMENT DISCIPLINE = PASS; PRODUCT NARRATIVE = **HOLD-3** — N1
+protocol-language over user-problem, N2 sponsored-experiment not split
+from real-payer validation in the roadmap, N3 implementation written up
+as the product. All three fixed in this R2; the four confirmed-keep
+items (Tier-1 focus, EARNED ≠ PAID, evidence-class separation,
+whitepaper-as-vision) are preserved verbatim in intent. R1 superseded.
+Change discipline: any change that widens a standing boundary requires a
+Commander ruling first.
 
 ---
 
-## 对齐摘要（one-screen TL;DR）
+## 第一屏 — 用户为什么需要它（LAYER 1 · USER PROBLEM）
 
 ```text
-产品一句话   Intent 把"谁已经赚到 / 谁仍可拒绝 / 沉默意味着什么"
-             变成任何人都能独立验证的一份可携契约状态。
-今天的产品   ①冻结证据机器（UE-0..UE-5，PASS/FROZEN-R0）
-             ②本地协作实验编排器（F1–F5，PASS/FROZEN-R0）
-             ③包外信任锚 + 可携验证器（第三方可离线复演）
-当前阶段     EXPERIMENT-001 招募第三轮（赞助制条款，AMENDMENT-1），
-             等待维护者回应；参与者 0、实验未跑、真实用户证据 0。
-证据纪律     技术证据（机器可验证）与用户证据（观察到的行为）永远
-             分开记录，绝不互相冒充。
-不在产品内   链上结算（testnet 已证明、未授权）、mainnet、真实资金、
-             代币、自动放款、并发认领、Tier-2 引擎、实验以外的 UI。
+Intent 让双方在开工前把"什么算完成"冻结。
+
+完成以后，
+机器只回答一个问题：
+
+这部分结果，
+按开工前的规则，
+是不是已经赚到了？
 ```
 
-## 1. The wedge (frozen in PRODUCT-THESIS-R0)
+**Freeze the rules before work. Prove the outcome after work.**
 
-The first real transaction is deliberately small: a repository owner
-(the payer side of the relationship), one real bug whose fix is
-regression-verifiable, and an external worker. Everything the product
-asserts lives in one sentence pair:
+三个支柱：**规则可冻结 · 结果可复演 · 结论可独立验证。**
+
+两边用户各自的痛点：
 
 ```text
-CORE SENTENCE (EN)
-  You may reserve the right to reject. You may not reserve the
-  right to disappear.
+WORKER      "我不想做完以后才发现，对方又换了一套标准。"
+MAINTAINER  "我不想为一个看起来完成、但实际没满足标准的东西付钱。"
+```
 
-THE FOURTH QUESTION (what the product actually sells)
-  WHAT HAS ALREADY BECOME IRREVOCABLE?
-  Which entitlement, once mechanically earned, cannot be clawed back
-  by later subjective judgment.
-
-CARDINAL PRINCIPLE
+```text
+PRODUCT FIRST PRINCIPLE（产品第一原则）
   Mechanical entitlement cannot be retroactively converted into
   discretionary entitlement.
+  （机械判定的应得，不得事后转化为自由裁量的恩赐。）
+
+BRAND 第二句（品牌层，不作第一句解释）
+  You may reserve the right to reject.
+  You may not reserve the right to disappear.
 ```
 
-Anti-ghost (silence consequence) is a commercially proven primitive
-(Upwork/Fiverr), not an Intent invention. Intent's difference: the fact
-that starts the countdown is **mechanically frozen and replayable**, not
-a discretionary submission.
+## LAYER 2 · PRODUCT — Frozen Outcome Contract
 
-## 2. What exists and is proven (2026-10-22)
+```text
+PRODUCT       = Frozen Outcome Contract
+USER PROMISE  = Rules before work. Proof after work.
+                No moving the goalposts.
+```
 
-| Artifact | What it is | Status |
-|---|---|---|
-| UE-0..UE-5 evidence machine (`packages/user-evidence-r0`) | dual-hash freeze contract · clean-room freezer · net-denied runner · 9-file proof pack · standalone portable verifier · append-only observation ledger | PASS / FROZEN-R0 |
-| Local Orchestrator (`apps/experiment-ui`) | F1 freeze-with-precommit · F2 frozen task view · F3 one-patch submission · F4 two-stage verification (EARNED iff primary VALID ∧ trusted replay PASS) · F5 acknowledgment + verified-ledger view | PASS / FROZEN-R0 |
-| Trust anchor | pinned main SHA + verifier-release SHA256 + portable-replay SHA256 (package-external by design: a pack can never vouch for its own verifier) | frozen in docs/experiments/EXPERIMENT-001.md |
-| Main Health CI | full suite + typecheck sweep + checkout-purity gate on the reference environment | GREEN @ b513285 lineage |
-| Chain settlement primitives (OutcomeReceipt → devnet exactly-once → failure reconciliation → third-party proof pack → golden run) | a closed, auditable loop | PROVEN on TESTNET; **NOT part of the experiment product; NOT authorized for any deployment** |
+产品动作只有三步：
 
-All of the above is TECHNICAL evidence — machine-verifiable, and all of
-it local/simulated so far.
+```text
+开工前    冻结完成条件（哪条测试必须红→绿、哪些文件可改、补丁多大）
+交付后    独立验证（另一台机器从冻结基线复演，机器下结论）
+达到条件  明确什么已经 EARNED —— 并且 EARNED ≠ PAID（边界见 §6）
+```
 
-## 3. What is NOT proven (the honest scoreboard)
+## LAYER 3 · PROTOCOL — 结论为什么可信（HOW，不是 WHAT）
+
+这一层是产品实现，不是产品本体。用户买的是 §LAYER 1 的承诺；
+以下只是承诺成立的工程原因。
+
+```text
+ENGINE         UE-0..UE-5 证据机器（双哈希冻结契约 · 干净房间 ·
+               净禁沙箱执行 · 9 文件证明包 · 只追加账本）
+               = PASS / FROZEN-R0
+EXPERIMENT UI  Local Orchestrator（F1 冻结/预commit → F2 冻结任务视图
+               → F3 单次补丁 → F4 双阶段验证 → F5 承认 + 已验证账本视图）
+               = PASS / FROZEN-R0
+TRUST          可携验证器 + 包外信任锚（证明包永远不能为自己背书；
+               第三方可离线复演）
+(HELD)         链上结算原语 — testnet 已证明、不属于当前实验产品、
+               未获任何部署授权
+```
+
+全部为技术证据（机器可验证）；全部至今在本地/模拟环境达成。
+
+## 诚实的计分板（不变）
 
 ```text
 REAL PAYER                                 = 0
@@ -77,92 +96,81 @@ WILLINGNESS TO REPEAT-FUND                = NO-EVIDENCE
 PRODUCT-MARKET FIT / DEMAND / VIABILITY   = UNPROVEN
 ```
 
-Field status: recruitment ROUND 3 under sponsored terms (see §4) —
-first contact re-sent 2026-10-22, UNANSWERED. One experiment, even
-successful, is not evidence of product-market fit.
+证据纪律（保留）：**技术证据（VERIFIED）与用户证据（OBSERVED）永远
+分开记录，绝不互相冒充。**
 
-## 4. The experiment model (current operating shape)
+## 实验阶梯（N2 修正）——三级实验，各答各的问题
 
-Sponsored relationship per **EXPERIMENT-001-AMENDMENT-1** (ratified
-2026-10-22): the sponsor funds the symbolic Tier-1; the maintainer is
-rule-co-author + **acceptor** and never pays; the F5 answer is
-ACKNOWLEDGMENT evidence ("the maintainer accepts that the frozen Tier-1
-was earned under rules agreed before work began") — never citable as
-payment-behavior evidence; sponsored conclusions are tagged
-`(SPONSORED-RELATIONSHIP)`; "REAL PAYER 0→1" is not converted by a
-sponsored run.
+赞助制（AMENDMENT-1）事实上已把原"商业验证"拆成了两半；这里正式
+命名，防止把一次赞助实验的成功解释过头。
 
 ```text
-PREP   identities declared · base pinned · frozen acceptance test
-       co-authored WITH the maintainer (behavior-level: freeze the
-       behavior, never the fix shape) · real preflight (F1 check)
-F1     maintainer reads the complete terms and freezes them
-       themselves (their action; consent observed, not authenticated)
-F2     frozen task view goes to the pre-designated worker
-F3     ONE patch submission — write-once, no retry semantics
-F4     primary verification + independent trusted replay
-       (EARNED only if BOTH pass with current bindings)
-F5     the one question, verbatim, before any authorship is revealed;
-       "answer later" records nothing and blocks finalize
-FINAL  one final ledger; conclusion STRENGTHENED / MIXED / CHALLENGED
-       with the framing tag; durable record third parties can replay
+EXPERIMENT-001 = MECHANISM ACCEPTANCE（当前 · 赞助制）
+  Question:
+    Will a real maintainer freeze the rules before seeing the solution,
+    and honor the mechanically proven result afterward?
+  能验证：
+    A. maintainer 愿不愿意事前冻结客观完成标准
+    B. maintainer 愿不愿意接受"机器已证明完成"
+    C. worker 是否愿意在冻结规则下工作
+  不能验证：
+    D. maintainer 愿不愿意掏钱
+    E. 有真实预算时是否愿意让 entitlement 约束自己
+    F. 是否愿意重复购买
+
+EXPERIMENT-002 = ECONOMIC ACCEPTANCE（未开始）
+  Question: Will a real payer put real money behind the same rule
+  structure?
+
+EXPERIMENT-003 = REPEATABILITY（未开始）
+  Question: Will the same payer fund another one?
+
+阶梯纪律：
+  任何一级的结论不得被引用为更高一级的结论。
+  EXPERIMENT-001 成功 ≠ 商业模式成立 —— 最多证明：
+  "规则冻结 + 独立证明"这个机制，有人愿意接受。
+  赞助运行的结论一律带 (SPONSORED-RELATIONSHIP) 标注。
 ```
 
-Trust model: identities are DECLARED (no authentication is claimed or
-implied — R1 provides none); the verifier is anchored outside the pack;
-any technically capable third party can re-derive the verdict offline.
+现场状态：EXPERIMENT-001 招募第三轮（赞助条款），2026-10-22 二次
+接触已发，**UNANSWERED**。一次实验，即使成功，也不是 PMF 证据。
 
-## 5. Relationship to the whitepaper (V0.1, 2026-09-17)
+## 楔子（冻结于 PRODUCT-THESIS-R0，此处只引用）
 
-The whitepaper and technical-architecture documents (V0.1, 2026-09-17,
-`.docx` under docs/) are the **long-term Intent Infrastructure vision**:
-Intent Contract (Goal ≠ Task, versioning), AI execution layer, six
-first-class citizens, settlement infrastructure. Narrative status:
-**HISTORICAL VISION — breadth unvalidated.**
+首笔真实交易刻意收窄：仓库所有者 + 一个可回归验证的 bug + 外部
+worker；几乎全部落在 Tier-1；第四问（什么已经不可撤销）与反消失
+比较学（Upwork/Fiverr 的沉默后果是商业已证原语）见冻结论题卡。
+Tier-1 聚焦不变，不做"大协议"。
 
-Nothing in them is invalidated; the product DELIBERATELY narrowed (PT-5R
-first-card discipline: land almost entirely in Tier 1; do not carry
-dispute machinery into the first transaction) before making any breadth
-claims. Mapping:
+## 与白皮书的关系（V0.1，2026-09-17）
+
+白皮书与技术架构 V0.1 = **长期 Intent Infrastructure 愿景层**——
+Intent Contract、执行层、一等公民体系、结算基础设施。叙事地位：
+**HISTORICAL VISION，广度未验证。** 其中没有任何内容被证伪；产品
+是刻意收窄（PT-5R 首卡纪律）。映射：Proof 支柱 → 已实现为证据链；
+Settlement → testnet 原语已证明、被持有；其余 → 未来工作，且以尚
+不存在的用户证据为门。**产品主张只引用本文档及其下冻结层，不引用
+愿景层。**
+
+## 文档地图
 
 ```text
-Whitepaper pillar            Where it actually stands (2026-10-22)
-Outcome First / Proof        → REALIZED as the UE/GP evidence chain and
-  Before Payment               the frozen acceptance model (proven)
-Settlement / chain           → testnet primitives PROVEN, held behind
-                               "COMPLETE ≠ production authorization"
-Intent Contract, execution   → future work, NOT current product, and
-layer, token economics,        gated on user evidence that does not
-six first-class citizens       exist yet (REAL PAYERS = 0)
+docs/product/OVERVIEW.md                  ← 你在这里；当前叙事（R2）
+docs/product/PRODUCT-THESIS-R0.md         冻结论题卡（楔子、分层、首实验设计）
+docs/product/FRONTEND-R1-SPEC.md          冻结产品规格（F1–F5、D1–D9、验收契约）
+docs/product/FRONTEND-R1.md
+docs/experiments/EXPERIMENT-001.md        章程 + 冻结信任锚（MECHANISM ACCEPTANCE）
+docs/experiments/EXPERIMENT-001-OPS.md    操作手册 / 首联模板 / 筛查清单
+docs/experiments/EXPERIMENT-001-CANDIDATES.md  招募日志（活）
+docs/AMENDMENTS.md                        受治变更（含 AMENDMENT-1 赞助裁定）
+docs/USER-EVIDENCE-R0.md                  UE 机器门记录
+README.md                                 治理台账
+docs/*.docx (Whitepaper / Tech Arch V0.1) 历史愿景层
 ```
 
-Product claims must cite THIS document (or the frozen layer below it),
-not the vision layer.
+## 常设边界（不变）
 
-## 6. Document map
-
-```text
-docs/product/OVERVIEW.md            ← you are here; current narrative
-docs/product/PRODUCT-THESIS-R0.md     frozen thesis card (wedge, tiers,
-                                      first experiment, comparators)
-docs/product/FRONTEND-R1-SPEC.md      frozen product spec (F1–F5, D1–D9,
-docs/product/FRONTEND-R1.md           state machine, acceptance contract)
-docs/experiments/EXPERIMENT-001.md    charter + frozen trust anchor
-docs/experiments/EXPERIMENT-001-OPS.md  operator runbook, first-contact
-                                        template, screening checklist
-docs/experiments/EXPERIMENT-001-CANDIDATES.md  recruitment log (LIVE)
-docs/AMENDMENTS.md                   governed changes (AMENDMENT-1 =
-                                      sponsored relationship)
-docs/USER-EVIDENCE-R0.md             UE machine gate record
-README.md                            live governance ledger
-docs/Intent_Protocol_Whitepaper_V0.1_2026-09-17.docx        historical
-docs/Intent_Protocol_Technical_Architecture_V0.1_2026-09-17.docx  vision
-```
-
-## 7. Standing boundaries (unchanged)
-
-PRE-MONEY / symbolic amounts only · single claimant · Tier-1 only · no
-auto-release · no chain writes required by the experiment · MAINNET
-DENIED · REAL FUNDS DENIED · TOKEN NOT-IN-SCOPE · PROTOCOL EXPANSION /
-UNIFIED CLI / UI BEYOND THE EXPERIMENT PRODUCT / PAYMENTS / CONCURRENT
-CLAIM / TIER-2 ENGINE = HOLD.
+PRE-MONEY / 象征金额 · 单人认领 · 仅 Tier-1 · 无自动放款 · 实验不
+需链写入 · MAINNET DENIED · REAL FUNDS DENIED · TOKEN NOT-IN-SCOPE ·
+协议扩张 / 统一 CLI / 实验以外 UI / 付款 / 并发认领 / Tier-2 引擎 =
+HOLD。下一阶段的问题只有一个：**真实的人为什么愿意使用这套规则。**

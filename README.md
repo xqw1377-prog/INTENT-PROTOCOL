@@ -6,17 +6,22 @@ Intent Protocol is a Verifiable Outcome Protocol: a system for turning a human i
 
 ## Start here — what the product IS today
 
+**Freeze the rules before work. Prove the outcome after work.**
+（开工前把"什么算完成"冻结；完成后任何人可独立复验这部分到底有
+没有被赚到。）
+
 The current product narrative lives in **docs/product/OVERVIEW.md**
-(R1, 2026-10-22): the local experiment product (frozen evidence machine
-UE-0..UE-5 + Local Orchestrator F1–F5 + package-external trust anchor),
-the sponsored-relationship experiment model (AMENDMENT-1), the honest
-scoreboard (technical proof: proven locally; real user evidence: ZERO),
-and the standing boundaries. The whitepaper / tech-architecture V0.1
-documents are the long-term vision layer — historical narrative, not a
-claim set. Product claims cite OVERVIEW.md or the frozen layer beneath
-it (PRODUCT-THESIS-R0 → FRONTEND-R1-SPEC → EXPERIMENT-001 charter), not
-the vision layer. The ledger below is governance history and current
-field status.
+(R2, 2026-10-22, Commander narrative ruling HOLD-3 applied: user-problem
+first, product/implementation separated, three-rung experiment ladder —
+EXP-001 MECHANISM ACCEPTANCE (current, sponsored) → EXP-002 ECONOMIC
+ACCEPTANCE → EXP-003 REPEATABILITY; no rung's conclusion cites a lower
+rung). Honest scoreboard: technical proof proven locally; real user
+evidence ZERO. The whitepaper / tech-architecture V0.1 documents are the
+long-term vision layer — historical narrative, not a claim set. Product
+claims cite OVERVIEW.md or the frozen layer beneath it
+(PRODUCT-THESIS-R0 → FRONTEND-R1-SPEC → EXPERIMENT-001 charter), not the
+vision layer. The ledger below is governance history and current field
+status.
 
 ## Project status
 
@@ -71,7 +76,11 @@ FRONTEND-R1         = PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03;
                      only; browser acceptance passed end-to-end). Frontend
                      expansion STOPPED by ruling. LEDGER ADDITIVE-EXPORT
                      COMPATIBILITY = PASS (maintained).
-NEXT                = EXPERIMENT-001 — RECRUITMENT ROUND 3 IN PROGRESS ·
+NEXT                = EXPERIMENT-001 (MECHANISM ACCEPTANCE rung of the
+                     three-rung ladder: EXP-002 ECONOMIC ACCEPTANCE and
+                     EXP-003 REPEATABILITY are separate future gates;
+                     EXP-001 success ≠ business model proven) —
+                     RECRUITMENT ROUND 3 IN PROGRESS ·
                      SPONSORED-RELATIONSHIP (EXPERIMENT-001-AMENDMENT-1
                      ratified 2026-10-22: sponsor funds the symbolic
                      Tier-1, maintainer = rule-co-author + acceptor, F5
