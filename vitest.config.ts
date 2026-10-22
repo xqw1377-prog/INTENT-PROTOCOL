@@ -25,5 +25,13 @@ export default defineConfig({
     // pack verifiers). Parallel files saturate the host and starve the race
     // tests non-deterministically.
     fileParallelism: false,
+    // CI-runner infra timeout, NOT a test property: on a ~3x-slower hosted
+    // macOS runner the whole suite takes ~10min and vitest's worker→main
+    // RPC (onTaskUpdate, default 60s) can expire at end-of-run under load,
+    // turning a 60/60-green run red with unhandled
+    // "[vitest-worker]: Timeout calling onTaskUpdate" (2026-10-22 run on
+    // 270317b: 60 files / 665 tests passed, exit 1). Raising the RPC
+    // ceiling changes no assertion, no skip, no test timeout.
+    rpcTimeout: 300_000,
   },
 });
