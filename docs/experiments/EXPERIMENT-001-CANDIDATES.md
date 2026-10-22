@@ -1,10 +1,31 @@
 # EXPERIMENT-001 — Candidate Shortlist & Screening Record
 
-Status: **CONTACTED / UNANSWERED (Commander registration 2026-10-03).**
-First contact sent 2026-10-03T13:47:01Z; awaiting reply; no polling
-automation (Commander ruling: leave response time, check on demand).
-PREP is entered only after ALL THREE: explicit agreement to participate +
-actual payer secured + external worker pre-designated.
+Status: **RECRUITMENT ROUND 1 CLOSED — REFUSED (maintainer side).**
+Recorded 2026-10-22 (reply arrived 2026-10-03T13:54:49Z, 8 minutes after
+first contact; discovered during the 2026-10-22 full-system audit — the
+gap in registration is an operator miss, now corrected). Real payer
+remains 0; the experiment has not run; worker candidates remain parked
+(uncontacted). A next recruitment round is a Commander decision, not an
+operator action (same-round shopping is forbidden by charter).
+
+```text
+REFUSAL RECORD (recruitment-stage, verbatim)
+  who       remcoder (gcode-preview owner) — the first-contact target
+  when      2026-10-03T13:54:49Z, in reply to issuecomment-5969774088
+  verbatim  "We don't pay for contributions. This is a hobby project.
+             Non-commercial."
+  class     RECRUITMENT-STAGE REFUSAL of the payer role
+  NOT       a payer observation of any completed task; NOT evidence
+             against the thesis (the thesis concerns post-delivery
+             acceptance under pre-agreed rules; this is a pre-agreement
+             funding refusal); NOT a reason to shop within this round
+  reading   refusal grounded in a non-commercial project stance
+             ("hobby project"), i.e. a pre-filterable property — any
+             next round should pre-screen candidate repos for paid-work
+             signals (existing bounty programs, sponsorships) before
+             first contact. Learning recorded for adjudication; applying
+             it (new target list) requires a Commander GO.
+```
 
 Commander ruling (awaiting-reply period): if the reward ends up sponsored
 by us with the maintainer only validating, that is a DIFFERENT experiment

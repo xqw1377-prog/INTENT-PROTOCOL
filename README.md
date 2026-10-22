@@ -56,20 +56,21 @@ FRONTEND-R1         = PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03;
                      only; browser acceptance passed end-to-end). Frontend
                      expansion STOPPED by ruling. LEDGER ADDITIVE-EXPORT
                      COMPATIBILITY = PASS (maintained).
-NEXT                = EXPERIMENT-001 — RECRUITMENT IN PROGRESS · CONTACTED /
-                     UNANSWERED (Commander GO 2026-10-03; first contact
-                     SENT to gcode-preview#530 2026-10-03T13:47:01Z,
-                     issuecomment-5969774088 — awaiting reply; explicit
-                     refusal = verbatim recruitment evidence; no reply =
-                     UNANSWERED, never refusal). Real participants: NOT
-                     YET SECURED. Experiment: NOT STARTED. Real user
-                     evidence: ZERO. Product thesis: NOT validated. PREP
-                     only after: explicit agreement AND actual payer AND
-                     external worker all secured. Ruling: if we sponsor
-                     and the maintainer only validates, the experiment
-                     relationship requires SEPARATE adjudication —
-                     "maintainer as payer" evidence conclusions do NOT
-                     carry over. No polling automation; check on demand.
+NEXT                = EXPERIMENT-001 — RECRUITMENT ROUND 1 CLOSED —
+                     REFUSED (gcode-preview maintainer, verbatim recorded
+                     2026-10-03T13:54:49Z: "We don't pay for
+                     contributions. This is a hobby project.
+                     Non-commercial."; docs/experiments/
+                     EXPERIMENT-001-CANDIDATES.md). RECRUITMENT-STAGE
+                     refusal of the payer role — NOT a payer observation,
+                     NOT thesis evidence. Real payer: 0. Real task: 0.
+                     Real external worker: 0 (3 candidates screened,
+                     parked, uncontacted). Experiment: NOT STARTED. Real
+                     user evidence: ZERO. Product thesis: NOT validated.
+                     Next round (new candidate pool w/ paid-work
+                     pre-screen) requires Commander GO. PREP gate
+                     unchanged: explicit agreement + actual payer +
+                     external worker. No polling automation.
                      (docs/experiments/EXPERIMENT-001.md; ops kit
                      docs/experiments/EXPERIMENT-001-OPS.md; screening
                      record docs/experiments/EXPERIMENT-001-CANDIDATES.md).
