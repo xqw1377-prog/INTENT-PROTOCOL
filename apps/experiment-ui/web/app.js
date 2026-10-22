@@ -832,8 +832,10 @@ function render(state) {
 }
 
 async function refresh() {
+  // VIEW survives a refresh: post-action landings (freeze → CONTRACT,
+  // submit → PROOF) must not be clobbered; VIEW changes only on explicit
+  // navigation (nav click sets it; brand-home resets it to null).
   const state = await api("/api/state", undefined, "GET");
-  VIEW = null;
   render(state);
 }
 
