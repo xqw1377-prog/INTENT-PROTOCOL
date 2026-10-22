@@ -26,12 +26,13 @@ export default defineConfig({
     // tests non-deterministically.
     fileParallelism: false,
     // CI-runner infra timeout, NOT a test property: on a ~3x-slower hosted
-    // macOS runner the whole suite takes ~10min and vitest's worker→main
-    // RPC (onTaskUpdate, default 60s) can expire at end-of-run under load,
-    // turning a 60/60-green run red with unhandled
-    // "[vitest-worker]: Timeout calling onTaskUpdate" (2026-10-22 run on
-    // 270317b: 60 files / 665 tests passed, exit 1). Raising the RPC
-    // ceiling changes no assertion, no skip, no test timeout.
-    rpcTimeout: 300_000,
+    // macOS runner the whole suite takes ~7-10min and vitest's worker→main
+    // RPC (onTaskUpdate, default 60s) can stall past any fixed ceiling at
+    // end-of-run under CPU throttling — turning 60/60-green runs red with
+    // unhandled "[vitest-worker]: Timeout calling onTaskUpdate" (seen
+    // 2026-10-22: runs on 270317b and 4c92137, both 665/665 passed, exit 1).
+    // 600s = a full-suite-length stall budget; the 60min job timeout still
+    // bounds a truly wedged run. No assertion, skip, or test timeout changes.
+    rpcTimeout: 600_000,
   },
 });
