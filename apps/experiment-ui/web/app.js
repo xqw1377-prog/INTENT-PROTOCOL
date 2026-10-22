@@ -93,7 +93,8 @@ function renderHome() {
   $("#main").innerHTML = `
     <div class="home-hero">
       <h1 class="home-title">Freeze the rules before work.<br/>Prove the outcome after work.</h1>
-      <p class="home-tagline">No moving the goalposts.</p>
+      <p class="home-tagline">Intent lets both sides agree on what “done” means before work begins — then independently proves whether the outcome met those rules.</p>
+      <p class="home-promise">No moving the goalposts.</p>
     </div>
 
     <div class="arc-strip">
@@ -106,7 +107,7 @@ function renderHome() {
 
     <div class="twosided">
       <div class="side">
-        <div class="side-role">MAINTAINER</div>
+        <div class="side-role">FOR THE MAINTAINER</div>
         <p class="side-line">"Protect me from fake completion."</p>
         <p class="note">Don't pay for work that only looks done.</p>
       </div>
@@ -115,7 +116,7 @@ function renderHome() {
         <p class="side-line">Freeze the standard.<br/>Prove the outcome.</p>
       </div>
       <div class="side">
-        <div class="side-role">WORKER</div>
+        <div class="side-role">FOR THE WORKER</div>
         <p class="side-line">"Protect me from moving goalposts."</p>
         <p class="note">Don't finish first and hear new standards later.</p>
       </div>
@@ -169,11 +170,11 @@ function renderContractDraft(state) {
         ${field("tier1_reward", "Reward for the frozen part (declared, experimental)", d.tier1_reward || "")}
         ${field("tier2_reward", "Discretionary part", "0", { disabled: true, hint: "Zero for EXPERIMENT-001 — the Tier-2 engine is not used in this experiment." })}
         <div class="form-field full">
-          <label for="f-issue_url">Issue <span class="badge unfrozen">Unfrozen context</span></label>
+          <label for="f-issue_url">Issue <span class="badge unfrozen">Context — not part of the frozen contract</span></label>
           <input id="f-issue_url" data-field="issue_url" value="${esc(n.issue_url || "")}" />
         </div>
         <div class="form-field full">
-          <label for="f-summary">What is the work, in one line <span class="badge unfrozen">Unfrozen context</span></label>
+          <label for="f-summary">What is the work, in one line <span class="badge unfrozen">Context — not part of the frozen contract</span></label>
           <textarea id="f-summary" data-field="summary">${esc(n.summary || "")}</textarea>
         </div>
       </div>
@@ -257,7 +258,7 @@ function renderContractReview(state) {
     ["The result is deterministic", `${esc(String(e.proven.determinism))} reproductions`],
   ];
   $("#main").innerHTML = `
-    <div class="state-banner unfrozen-banner">DRAFT CONDITIONS — still open to discussion</div>
+    <div class="state-banner frozen-banner">CHECKED AND CURRENT — everything below has been verified by the machine. The next action freezes it.</div>
     <h1 class="page-title">Review the complete terms before freezing</h1>
     <p class="page-subtitle">Freezing is the moment the goalposts lock. After this, satisfying these rules creates an irreversible entitlement to the frozen reward.</p>
 
@@ -293,7 +294,7 @@ function renderContractReview(state) {
       <p class="note">The operator records your agreement as OBSERVED consent — declared identity, not authenticated; not a verified signature.</p>
       <label class="ack-row"><input type="checkbox" id="ack" /><span>I understand that these rules cannot be changed after freezing.</span></label>
       <div class="actions">
-        <button class="primary" id="btn-freeze" disabled>Freeze these rules</button>
+        <button class="primary" id="btn-freeze" disabled>Freeze this outcome</button>
         <button class="secondary" id="btn-back">← Edit conditions</button>
       </div>
     </div>`;
@@ -385,8 +386,8 @@ function renderWork(state) {
   const n = state.notes || {};
   $("#main").innerHTML = `
     <div class="state-banner frozen-banner">THE RULES ARE LOCKED — they cannot change for this work</div>
-    <h1 class="page-title">The work</h1>
-    <p class="page-subtitle">${esc(n.summary || "")} ${n.issue_url ? `<span class="badge unfrozen">Unfrozen context</span> ${esc(n.issue_url)}` : ""}</p>
+    <h1 class="page-title">Work against the frozen contract</h1>
+    <p class="page-subtitle">${esc(n.summary || "")} ${n.issue_url ? `<span class="badge unfrozen">Context — not part of the frozen contract</span> ${esc(n.issue_url)}` : ""}</p>
     <div class="card outcome-card" style="border-color:var(--frozen-line)">
       <div class="card-title">You earn</div>
       <div class="card-value frozen" style="font-size:26px">${esc(f.tier1_reward)}</div>
@@ -421,7 +422,7 @@ function renderWork(state) {
     <div class="card" style="border-color:var(--frozen-line)">
       <p class="cardinal"><strong>This exact patch will be verified. It cannot be replaced after submission for this run.</strong></p>
       <p class="note">An invalid outcome is terminal for this submission — there is no retry and no patch replacement; a new attempt requires operator action.</p>
-      <div class="actions"><button class="primary" id="btn-submit" disabled>Submit for verification</button></div>
+      <div class="actions"><button class="primary" id="btn-submit" disabled>Submit for proof</button></div>
     </div>`;
 
   let bytes = null;
@@ -531,6 +532,12 @@ function renderVerification(state) { // F4 · PROOF view (internal name kept for
       <div class="card frozen-card"><div class="card-title">Stage A</div><div class="card-value frozen">PRIMARY VERIFICATION — PASS</div></div>
       <ul class="check-list">${humanRows.map(([l, v]) => `<li><span class="check-mark">✓</span><span class="check-body"><span class="main-line">${esc(l)}</span><span class="sub-line">${esc(v)}</span></span></li>`).join("")}</ul>
       <p class="cardinal">Stage A passed. <strong>Stage B — independent replay — is required before anything is earned.</strong></p>
+      <div class="replay-steps">
+        <div class="replay-step"><span class="rs-n">1</span>Rebuild the frozen base</div>
+        <div class="replay-step"><span class="rs-n">2</span>Apply the exact submitted patch</div>
+        <div class="replay-step"><span class="rs-n">3</span>Run the exact frozen rules</div>
+        <div class="replay-step"><span class="rs-n">4</span>Compare the verdict — it must match</div>
+      </div>
       <div class="actions"><button class="primary" id="btn-replay">Run Stage B — independent replay</button></div>`;
     $("#btn-replay").addEventListener("click", () => doReplay());
     return;
@@ -556,6 +563,11 @@ function renderVerification(state) { // F4 · PROOF view (internal name kept for
       <div class="earned-word">EARNED</div>
       <p class="earned-line">The outcome satisfied the rules frozen before work began.</p>
       <p class="earned-line">This conclusion is independently replayable — by anyone, offline, from the proof pack alone.</p>
+      <p class="earned-boundary">Earned is a protocol fact. Paid is a separate event.</p>
+      <div class="twosided earned-sides">
+        <div class="side"><div class="side-role">FOR THE WORKER</div><p class="side-line">The standard cannot be changed after delivery.</p></div>
+        <div class="side"><div class="side-role">FOR THE MAINTAINER</div><p class="side-line">The outcome had to satisfy every frozen condition.</p></div>
+      </div>
       <div class="triad">
         <div class="triad-cell"><span class="triad-k">PROTOCOL FACT</span><span class="triad-v frozen">Earned</span></div>
         <div class="triad-cell"><span class="triad-k">PAYMENT</span><span class="triad-v">Not part of this experiment</span></div>
@@ -627,6 +639,7 @@ function renderPayerResponse(state) {
   $("#main").innerHTML = `
     ${machine}
     <hr class="divider-strong" />
+    <div class="human-divider"><span>HUMAN RESPONSE</span></div>
     <h1 class="page-title">Now record the response</h1>
     <p class="page-subtitle">Above the line: technical fact. Below the line: human evidence — observed, declared identity, not authenticated.</p>
     ${latest ? `

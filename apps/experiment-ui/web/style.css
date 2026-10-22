@@ -186,3 +186,15 @@ button.brand { font-weight: 700; letter-spacing: 0.18em; font-size: 14px; color:
 .triad-k { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-faint); }
 .triad-v { font-size: 13.5px; font-weight: 600; }
 .triad-v.frozen { color: var(--earned); }
+
+/* blueprint R2 refinements */
+.home-promise { font-size: 15px; font-weight: 650; color: var(--ink); margin: 14px 0 0; }
+.earned-boundary { font-size: 17px; font-weight: 700; color: var(--earned); margin: 18px auto 0; max-width: 560px; }
+.earned-sides { grid-template-columns: 1fr 1fr; margin: 18px auto 6px; max-width: 640px; text-align: left; }
+.human-divider { display: flex; align-items: center; gap: 14px; margin: 26px 0 14px; }
+.human-divider::before, .human-divider::after { content: ""; flex: 1; border-top: 2px solid var(--line-strong); }
+.human-divider span { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: var(--human-evidence); }
+.replay-steps { display: flex; flex-direction: column; gap: 0; margin: 14px 0 4px; border: 1px solid var(--frozen-line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.replay-step { display: flex; align-items: center; gap: 12px; padding: 9px 16px; border-bottom: 1px solid var(--frozen-line); font-size: 14px; }
+.replay-step:last-child { border-bottom: none; }
+.rs-n { width: 20px; height: 20px; border-radius: 50%; background: var(--frozen-bg); border: 1px solid var(--frozen-line); color: var(--frozen); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
