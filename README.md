@@ -56,24 +56,28 @@ FRONTEND-R1         = PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03;
                      only; browser acceptance passed end-to-end). Frontend
                      expansion STOPPED by ruling. LEDGER ADDITIVE-EXPORT
                      COMPATIBILITY = PASS (maintained).
-NEXT                = EXPERIMENT-001 — RECRUITMENT ROUND 1 CLOSED —
-                     REFUSED (gcode-preview maintainer, verbatim recorded
-                     2026-10-03T13:54:49Z: "We don't pay for
-                     contributions. This is a hobby project.
-                     Non-commercial."; docs/experiments/
-                     EXPERIMENT-001-CANDIDATES.md). RECRUITMENT-STAGE
-                     refusal of the payer role — NOT a payer observation,
-                     NOT thesis evidence. Real payer: 0. Real task: 0.
-                     Real external worker: 0 (3 candidates screened,
-                     parked, uncontacted). Experiment: NOT STARTED. Real
-                     user evidence: ZERO. Product thesis: NOT validated.
-                     Next round (new candidate pool w/ paid-work
-                     pre-screen) requires Commander GO. PREP gate
-                     unchanged: explicit agreement + actual payer +
-                     external worker. No polling automation.
-                     (docs/experiments/EXPERIMENT-001.md; ops kit
-                     docs/experiments/EXPERIMENT-001-OPS.md; screening
-                     record docs/experiments/EXPERIMENT-001-CANDIDATES.md).
+NEXT                = EXPERIMENT-001 — RECRUITMENT ROUND 3 IN PROGRESS ·
+                     SPONSORED-RELATIONSHIP (EXPERIMENT-001-AMENDMENT-1
+                     ratified 2026-10-22: sponsor funds the symbolic
+                     Tier-1, maintainer = rule-co-author + acceptor, F5
+                     answer = ACKNOWLEDGMENT evidence only — never
+                     citable as payer/payment evidence; "REAL PAYER
+                     0→1" NOT converted by sponsored runs). Second
+                     contact SENT to gcode-preview#530 under stated new
+                     terms 2026-10-22T09:02:21Z (issuecomment-6336937290
+                     — refusal acknowledged, "you never pay" terms;
+                     UNANSWERED). First refusal verbatim on record
+                     (2026-10-03: "We don't pay for contributions.
+                     This is a hobby project. Non-commercial."). A
+                     second refusal closes gcode-preview permanently.
+                     Real payer: 0 (unchanged by sponsored runs). Real
+                     task: 0. Real external worker: 0 (3 candidates
+                     screened, parked, uncontacted). Experiment: NOT
+                     STARTED. Real user evidence: ZERO. Product thesis:
+                     NOT validated. (docs/experiments/EXPERIMENT-001.md;
+                     ops kit docs/experiments/EXPERIMENT-001-OPS.md;
+                     screening record docs/experiments/
+                     EXPERIMENT-001-CANDIDATES.md).
 NEXT DEVELOPMENT    = (superseded — see NEXT above) minimal experiment product
                      (docs/product/FRONTEND-R1.md + frozen spec
                      docs/product/FRONTEND-R1-SPEC.md incl. HOLD-6

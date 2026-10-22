@@ -240,6 +240,26 @@ engaged only after a payer exists).
 
 ## Recruitment Round 3 (2026-10-22) — SPONSORED-RELATIONSHIP, Commander path 1 ordered
 
+Status: **SECOND CONTACT SENT 2026-10-22T09:02:21Z — awaiting reply
+(UNANSWERED).**
+
+```text
+SENT RECORD (round 3)
+  amendment EXPERIMENT-001-AMENDMENT-1 committed c725c1d BEFORE the
+            send (draft preceded act, record follows)
+  comment   https://github.com/xyz-tools/gcode-preview/issues/530#issuecomment-6336937290
+  comment_id 6336937290
+  author    xqw1377-prog (Commander account, keychain credential,
+            direct order path)
+  created   2026-10-22T09:02:21Z
+  text      byte-identical to the second-contact draft below
+  terms     SPONSORED-RELATIONSHIP per AMENDMENT-1 (maintainer never
+            pays; F5 = acknowledgment evidence only)
+  next      agree → PREP per frozen runbook · refuse again → verbatim
+            record + gcode-preview CLOSED for this experiment (two
+            refusals = final) · no reply → UNANSWERED
+```
+
 EXPERIMENT-001-AMENDMENT-1 ratified (docs/AMENDMENTS.md): sponsor-funded
 symbolic Tier-1, maintainer = rule-co-author + acceptor, F5 answer =
 ACKNOWLEDGMENT evidence (never citable as payer/payment evidence);
