@@ -1,4 +1,6 @@
-/* FRONTEND-R1 (HOLD-6 contract) — Facilitated Experiment UI (vanilla, no deps).
+/* PRODUCT-UX-R2 (VALUE-FIRST) — Facilitated Experiment UI (vanilla, no deps).
+   The user sees a contract product — HOME · CONTRACT · WORK · PROOF · OUTCOME —
+   not an experiment runner. Internal F1–F5 names remain in comments only.
    Every displayed state comes from /api/state, which derives it from the
    experiment artifacts by calling the frozen verification boundaries.
    This script never computes verdicts, hashes, or entitlements — it renders
@@ -6,6 +8,7 @@
 
 const $ = (sel) => document.querySelector(sel);
 let STATE = null;
+let VIEW = null; // user-side view override via nav; null = phase default
 
 async function api(path, body, method = "POST") {
   // actions are ALWAYS explicit-method requests — a missing body must never
@@ -21,7 +24,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const mono = (s) => `<span class="mono">${esc(s)}</span>`;
 const note = (s) => `<p class="note">${s}</p>`;
 
-/* ── header: independent facts that never merge (D7) ── */
+/* ── header: contract state pill + independent facts (never merged, D7) ── */
 const FACT_LABELS = [
   ["rules_state", "RULES"],
   ["primary_verification", "TIER 1"],
@@ -30,16 +33,50 @@ const FACT_LABELS = [
 ];
 const FACT_CLASS = { FROZEN: "frozen", EARNED: "frozen", PASS: "frozen", VALID: "frozen", NOT_EARNED: "invalid", FAIL: "invalid", INVALID: "invalid", PENDING: "pending", DRAFT: "pending", NONE: "pending", OPEN: "pending", RECORDED: "frozen" };
 
+function contractState(state) {
+  if (state.facts.tier1_entitlement === "EARNED") return "EARNED";
+  if (state.facts.rules_state === "FROZEN") return "FROZEN";
+  return "UNFROZEN";
+}
+
 function renderHeader(state) {
-  const dot = $("#phase-dot");
-  dot.className = "phase-dot " + ({ FROZEN: "frozen", READY_TO_FREEZE: "ready", AWAITING_PAYER: "awaiting", CHECKING: "checking", VERIFYING: "checking" }[state.phase] || "pending");
-  $("#phase-name").textContent = state.phase.replace(/_/g, " ");
+  const cs = contractState(state);
+  const pill = $("#state-pill");
+  pill.textContent = cs;
+  pill.className = "state-pill " + cs.toLowerCase();
   $("#facts-strip").innerHTML =
+    `<span class="fact"><span class="k">PHASE</span><span class="v">${esc(state.phase.replace(/_/g, " "))}</span></span>` +
     FACT_LABELS.map(([key, label]) => {
       const v = state.facts[key];
       return `<span class="fact"><span class="k">${label}</span><span class="v ${FACT_CLASS[v] || ""}">${esc(v)}</span></span>`;
     }).join("") +
     (state.facts.ledger === "FINALIZED" ? `<span class="fact"><span class="k">LEDGER</span><span class="v frozen">FINALIZED</span></span>` : "");
+}
+
+function renderNav(state) {
+  const unlocked = {
+    CONTRACT: true,
+    WORK: ["FROZEN", "SUBMITTED", "VERIFYING", "AWAITING_PAYER", "FINALIZED"].includes(state.phase),
+    PROOF: ["SUBMITTED", "VERIFYING", "AWAITING_PAYER", "FINALIZED"].includes(state.phase),
+    OUTCOME: ["AWAITING_PAYER", "FINALIZED"].includes(state.phase),
+  };
+  const active = VIEW || phaseDefaultView(state);
+  document.querySelectorAll(".navlink").forEach((b) => {
+    const v = b.dataset.view;
+    b.disabled = !unlocked[v];
+    b.classList.toggle("active", v === active);
+    b.title = unlocked[v] ? "" : "not reached yet";
+  });
+  $("#brand-home").style.visibility = state.phase === "DRAFT" && !state.hasDraft ? "hidden" : "visible";
+}
+
+function phaseDefaultView(state) {
+  if (state.phase === "DRAFT" || state.phase === "READY_TO_FREEZE" || state.phase === "CHECKING") return "CONTRACT";
+  if (state.phase === "FROZEN") return "WORK";
+  if (state.phase === "SUBMITTED" || state.phase === "VERIFYING") return "PROOF";
+  if (state.phase === "AWAITING_PAYER") return window.location.hash === "#f5" ? "OUTCOME" : "PROOF";
+  if (state.phase === "FINALIZED") return "OUTCOME";
+  return "CONTRACT";
 }
 
 function technicalDetails(entries) {
@@ -51,8 +88,48 @@ const busy = (msg) => {
   $("#main").innerHTML = `<h1 class="page-title">${esc(msg)}</h1><p class="note">This runs the real frozen machinery — no simulation, no optimistic results.</p>`;
 };
 
-/* ── F1 · DRAFT: Prepare the task (D4/D5) ── */
-function renderPrepare(state) {
+/* ── HOME — the 10-second value screen ── */
+function renderHome() {
+  $("#main").innerHTML = `
+    <div class="home-hero">
+      <h1 class="home-title">Freeze the rules before work.<br/>Prove the outcome after work.</h1>
+      <p class="home-tagline">No moving the goalposts.</p>
+    </div>
+
+    <div class="arc-strip">
+      <div class="arc-step"><span class="arc-k">BEFORE WORK</span><span class="arc-v">What counts as done?</span></div>
+      <div class="arc-step"><span class="arc-k">FROZEN CONTRACT</span><span class="arc-v">The goalposts can no longer move.</span></div>
+      <div class="arc-step"><span class="arc-k">WORK HAPPENS</span><span class="arc-v">&nbsp;</span></div>
+      <div class="arc-step"><span class="arc-k">PROOF</span><span class="arc-v">Did the outcome satisfy the frozen contract?</span></div>
+      <div class="arc-step earned"><span class="arc-k">EARNED</span><span class="arc-v">No longer anyone's opinion.</span></div>
+    </div>
+
+    <div class="twosided">
+      <div class="side">
+        <div class="side-role">MAINTAINER</div>
+        <p class="side-line">"Protect me from fake completion."</p>
+        <p class="note">Don't pay for work that only looks done.</p>
+      </div>
+      <div class="side middle">
+        <div class="side-role">INTENT</div>
+        <p class="side-line">Freeze the standard.<br/>Prove the outcome.</p>
+      </div>
+      <div class="side">
+        <div class="side-role">WORKER</div>
+        <p class="side-line">"Protect me from moving goalposts."</p>
+        <p class="note">Don't finish first and hear new standards later.</p>
+      </div>
+    </div>
+
+    <div class="actions home-cta">
+      <button class="primary" id="btn-define">Define an outcome →</button>
+      <span class="note">Rules are frozen only when both sides have seen and agreed to the complete terms.</span>
+    </div>`;
+  $("#btn-define").addEventListener("click", () => { VIEW = "CONTRACT"; render(STATE); });
+}
+
+/* ── CONTRACT · draft (F1 prepare, D4/D5) — conditions still open ── */
+function renderContractDraft(state) {
   const d = state.draft || {};
   const n = state.notes || {};
   const eligibility = state.eligibility;
@@ -67,64 +144,65 @@ function renderPrepare(state) {
   const eligCard = eligibility
     ? eligibility.ok
       ? readiness.ready
-        ? `<div class="card frozen-card"><div class="card-title">Eligibility</div><div class="card-value frozen">ELIGIBLE FOR FREEZE</div><div class="note">Prepare report is current and matches the reviewed inputs.</div></div>`
-        : `<div class="card"><div class="card-title">Eligibility</div><div class="error-note">REVIEWED INPUTS CHANGED — re-check eligibility before freeze (${esc(readiness.reason)})</div></div>`
-      : `<div class="card" style="border-color:var(--invalid)"><div class="card-title">Eligibility</div><div class="error-note">NOT ELIGIBLE — ${esc(eligibility.reason)}</div></div>`
-    : `<p class="note">Checks are pending until you run them — nothing is assumed green.</p>`;
+        ? `<div class="card frozen-card"><div class="card-title">Readiness</div><div class="card-value frozen">READY TO FREEZE</div><div class="note">The machine re-checked everything and the reviewed inputs still match.</div></div>`
+        : `<div class="card"><div class="card-title">Readiness</div><div class="error-note">REVIEWED INPUTS CHANGED — re-check before freezing (${esc(readiness.reason)})</div></div>`
+      : `<div class="card" style="border-color:var(--invalid)"><div class="card-title">Readiness</div><div class="error-note">NOT ELIGIBLE — ${esc(eligibility.reason)}</div></div>`
+    : `<p class="note">Nothing is assumed green until the real check runs.</p>`;
 
   $("#main").innerHTML = `
-    <h1 class="page-title">Prepare the task</h1>
-    <p class="page-subtitle">Define what must be true before anyone starts working.</p>
+    <div class="state-banner unfrozen-banner">DRAFT CONDITIONS — still open to discussion</div>
+    <h1 class="page-title">Define an outcome</h1>
+    <p class="page-subtitle">Say what counts as done before anyone starts working. Nothing here is frozen yet.</p>
     <p class="note">${esc(state.operating_mode || "")}</p>
     <form id="prepare-form">
       <h2 class="section-title">Who</h2>
       <div class="form-grid">
-        ${field("payer_identity", "Payer (maintainer)", d.payer_identity, { ph: "must be selected before preparation" })}
+        ${field("payer_identity", "Rule author / acceptor (maintainer)", d.payer_identity, { ph: "must be selected before preparation" })}
         ${field("worker_identity", "Assigned worker", d.worker_identity, { ph: "must be selected before preparation" })}
       </div>
-      <p class="note">Claim mode: <strong>Single claimant</strong> — this task is frozen for this worker only.</p>
+      <p class="note">Claim mode: <strong>Single claimant</strong> — this contract is frozen for this worker only.</p>
 
-      <h2 class="section-title">Context</h2>
+      <h2 class="section-title">The work</h2>
       <div class="form-grid">
         ${field("repoPath", "Repository (local path for the experiment)", d.repoPath, { full: true })}
         ${field("base_commit_sha", "Base commit (exact)", d.base_commit_sha)}
-        ${field("tier1_reward", "Tier-1 reward (declared, experimental)", d.tier1_reward || "")}
-        ${field("tier2_reward", "Tier-2 reward", "0", { disabled: true, hint: "Zero for EXPERIMENT-001 — Tier-2 engine is not used in this experiment." })}
+        ${field("tier1_reward", "Reward for the frozen part (declared, experimental)", d.tier1_reward || "")}
+        ${field("tier2_reward", "Discretionary part", "0", { disabled: true, hint: "Zero for EXPERIMENT-001 — the Tier-2 engine is not used in this experiment." })}
         <div class="form-field full">
           <label for="f-issue_url">Issue <span class="badge unfrozen">Unfrozen context</span></label>
           <input id="f-issue_url" data-field="issue_url" value="${esc(n.issue_url || "")}" />
         </div>
         <div class="form-field full">
-          <label for="f-summary">Summary <span class="badge unfrozen">Unfrozen context</span></label>
+          <label for="f-summary">What is the work, in one line <span class="badge unfrozen">Unfrozen context</span></label>
           <textarea id="f-summary" data-field="summary">${esc(n.summary || "")}</textarea>
         </div>
       </div>
 
-      <h2 class="section-title">What must be true (rules — not completed checks)</h2>
+      <h2 class="section-title">What counts as done (rules — decided now, judged later by machine)</h2>
       <div class="form-grid">
-        ${field("regression_command", "Regression command (rule: red on base)", d.regression_command, { full: true })}
-        ${field("baseline_health_command", "Baseline command (rule: green on base)", d.baseline_health_command, { full: true })}
-        ${field("patched_acceptance_command", "Patched acceptance command (rule)", d.patched_acceptance_command, { full: true })}
+        ${field("regression_command", "The promised bug must be fixed (rule: red on base)", d.regression_command, { full: true })}
+        ${field("baseline_health_command", "Everything else must stay healthy (rule: green on base)", d.baseline_health_command, { full: true })}
+        ${field("patched_acceptance_command", "After the work (rule)", d.patched_acceptance_command, { full: true })}
         ${field("acceptance_suite", "Acceptance suite file (explicit — never guessed)", d.acceptance_suite ?? "", { full: true, ph: "test/regression.test.ts" })}
         ${field("acceptance_full_suite", "Full-suite files (comma-separated, explicit)", (d.acceptance_full_suite ?? []).join(", "), { full: true, ph: "test/green.test.ts" })}
-        ${field("allowed_paths", "Allowed paths", (d.allowed_paths || []).join(", "), { ph: "src/**" })}
-        ${field("forbidden_paths", "Protected paths", (d.forbidden_paths || []).join(", "), { ph: "test/**, package-lock.json, .github/**" })}
-        ${field("max_diff_lines", "Diff bound (changed lines)", d.max_diff_lines ?? 40)}
+        ${field("allowed_paths", "Files the work may touch", (d.allowed_paths || []).join(", "), { ph: "src/**" })}
+        ${field("forbidden_paths", "Files the work must not touch", (d.forbidden_paths || []).join(", "), { ph: "test/**, package-lock.json, .github/**" })}
+        ${field("max_diff_lines", "Size bound (changed lines)", d.max_diff_lines ?? 40)}
         ${field("determinism_runs", "Determinism (N runs)", d.determinism_runs ?? 3)}
         <div class="form-field full"><label>Install</label><input value="npm ci --ignore-scripts" disabled /></div>
         <div class="form-field full"><label>Network during verification</label><input value="Denied (verification sandbox)" disabled /><span class="hint">Describes the verification-sandbox commands — not a claim that dependency install never used the network.</span></div>
       </div>
       <div class="actions">
-        <button class="primary" type="submit">Save configuration</button>
-        <span class="note">Nothing is frozen yet. Any change here invalidates readiness and requires re-checking.</span>
+        <button class="primary" type="submit">Save conditions</button>
+        <span class="note">Still unfrozen. Any change invalidates readiness and requires re-checking.</span>
       </div>
     </form>
     <hr class="divider-strong" />
-    <h2 class="section-title">Check eligibility</h2>
+    <h2 class="section-title">Check it for real</h2>
     ${eligCard}
     <div class="actions">
       <button class="secondary" id="btn-check" ${state.hasDraft ? "" : "disabled"}>Check eligibility</button>
-      ${readiness.ready ? `<button class="primary" id="btn-to-review">Review before freeze →</button>` : ""}
+      ${readiness.ready ? `<button class="primary" id="btn-to-review">Review before freezing →</button>` : ""}
     </div>`;
 
   $("#prepare-form").addEventListener("submit", async (ev) => {
@@ -164,43 +242,41 @@ function renderPrepare(state) {
       alert(e.message);
     }
   });
-  $("#btn-to-review")?.addEventListener("click", () => renderReadyToFreeze(STATE));
+  $("#btn-to-review")?.addEventListener("click", () => renderContractReview(STATE));
 }
 
-/* ── F1 · READY_TO_FREEZE: full terms + pre-commit moment (D5) ── */
-function renderReadyToFreeze(state) {
+/* ── CONTRACT · review + freeze moment (F1, D5) ── */
+function renderContractReview(state) {
   const s = state.eligibility.draft;
   const e = state.eligibility;
   const proven = [
-    ["Base regression is red", "rule proven at prepare"],
-    ["Baseline is green", "rule proven at prepare"],
-    ["Network denial verified in the sandbox", "verification-sandbox commands"],
-    ["Install succeeded", "clean-room dependency reconstruction"],
-    ["Deterministic", `${esc(String(e.proven.determinism))} reproductions`],
+    ["The promised bug is real", "its frozen test fails on the base, proven at prepare"],
+    ["Everything else is healthy", "the rest of the suite is green on the base"],
+    ["No network during verification", "denial verified in the sandbox"],
+    ["Dependencies reconstruct cleanly", "clean-room install"],
+    ["The result is deterministic", `${esc(String(e.proven.determinism))} reproductions`],
   ];
   $("#main").innerHTML = `
-    <div class="card frozen-card"><div class="card-title">Status</div><div class="card-value frozen">READY TO FREEZE</div></div>
+    <div class="state-banner unfrozen-banner">DRAFT CONDITIONS — still open to discussion</div>
     <h1 class="page-title">Review the complete terms before freezing</h1>
-    <p class="page-subtitle">Everything below has been checked. If you freeze now, satisfying these rules creates an irreversible Tier-1 entitlement.</p>
+    <p class="page-subtitle">Freezing is the moment the goalposts lock. After this, satisfying these rules creates an irreversible entitlement to the frozen reward.</p>
 
     <h2 class="section-title">Proven at prepare (evidence, not the frozen checklist)</h2>
     <ul class="check-list">${proven.map(([l, sub]) => `<li><span class="check-mark">✓</span><span class="check-body"><span class="main-line">${l}</span> <span class="sub-line">${sub}</span></span></li>`).join("")}</ul>
 
-    <h2 class="section-title">The complete terms <span class="badge frozen-tag">to be frozen</span></h2>
+    <h2 class="section-title">WHAT COUNTS AS DONE <span class="badge frozen-tag">to be frozen</span></h2>
     <div class="kv">
-      <span class="k">Payer</span><span class="v">${esc(s.payer_identity)}</span>
+      <span class="k">Rule author / acceptor</span><span class="v">${esc(s.payer_identity)}</span>
       <span class="k">Assigned worker</span><span class="v">${esc(s.worker_identity)} (single claimant — frozen for this worker only)</span>
-      <span class="k">Tier-1 reward</span><span class="v">${esc(s.tier1_reward)} <span class="note">(declared, experimental)</span></span>
-      <span class="k">Tier-2 reward</span><span class="v">0 — not used in this experiment</span>
-      <span class="k">Base commit</span><span class="v mono">${esc(s.base_commit_sha)}</span>
-      <span class="k">Regression rule</span><span class="v mono">${esc(s.regression_command)}</span>
-      <span class="k">Baseline rule</span><span class="v mono">${esc(s.baseline_health_command)}</span>
-      <span class="k">Patched acceptance rule</span><span class="v mono">${esc(s.patched_acceptance_command)}</span>
-      <span class="k">Install</span><span class="v mono">npm ci --ignore-scripts</span>
-      <span class="k">Allowed paths</span><span class="v mono">${esc(s.allowed_paths.join(", "))}</span>
-      <span class="k">Protected paths</span><span class="v mono">${esc(s.forbidden_paths.join(", "))}</span>
-      <span class="k">Diff bound</span><span class="v">${esc(String(s.max_diff_lines))} changed lines</span>
+      <span class="k">Reward for the frozen part</span><span class="v">${esc(s.tier1_reward)} <span class="note">(declared, experimental)</span></span>
+      <span class="k">Discretionary part</span><span class="v">0 — not used in this experiment</span>
+      <span class="k">The promised bug must be fixed</span><span class="v mono">${esc(s.regression_command)}</span>
+      <span class="k">Everything else must stay healthy</span><span class="v mono">${esc(s.baseline_health_command)}</span>
+      <span class="k">Files the work may touch</span><span class="v mono">${esc(s.allowed_paths.join(", "))}</span>
+      <span class="k">Files that must not change</span><span class="v mono">${esc(s.forbidden_paths.join(", "))}</span>
+      <span class="k">Size bound</span><span class="v">${esc(String(s.max_diff_lines))} changed lines</span>
       <span class="k">Determinism</span><span class="v">${esc(String(s.determinism_runs))} consecutive passes</span>
+      <span class="k">Install</span><span class="v mono">npm ci --ignore-scripts</span>
     </div>
 
     <h2 class="section-title">Earning requires BOTH</h2>
@@ -213,21 +289,22 @@ function renderReadyToFreeze(state) {
     <div class="card frozen-card" style="padding:24px">
       <h2 class="section-title" style="margin-top:0">Before you freeze — the full pre-commit text</h2>
       <p class="cardinal mono" style="font-size:13px">${esc(state.precommit_statement)}</p>
-      <p class="cardinal">If these conditions are satisfied, the Tier-1 reward is earned. <strong>You cannot later turn that earned Tier-1 amount into discretionary review because you dislike the implementation.</strong></p>
+      <p class="cardinal">If these conditions are satisfied, the frozen reward is earned. <strong>You cannot later turn that earned amount into discretionary review because you dislike the implementation.</strong></p>
       <p class="note">The operator records your agreement as OBSERVED consent — declared identity, not authenticated; not a verified signature.</p>
-      <label class="ack-row"><input type="checkbox" id="ack" /><span>I understand that these Tier-1 rules cannot be changed after freezing.</span></label>
+      <label class="ack-row"><input type="checkbox" id="ack" /><span>I understand that these rules cannot be changed after freezing.</span></label>
       <div class="actions">
         <button class="primary" id="btn-freeze" disabled>Freeze these rules</button>
-        <button class="secondary" id="btn-back">← Edit configuration</button>
+        <button class="secondary" id="btn-back">← Edit conditions</button>
       </div>
     </div>`;
   $("#ack").addEventListener("change", (ev) => { $("#btn-freeze").disabled = !ev.target.checked; });
-  $("#btn-back").addEventListener("click", () => renderPrepare(STATE));
+  $("#btn-back").addEventListener("click", () => renderContractDraft(STATE));
   $("#btn-freeze").addEventListener("click", async () => {
-    busy("Freezing — re-running the preflight from the reviewed snapshot and publishing atomically…");
+    busy("Freezing — re-running the preflight from the reviewed snapshot and locking the contract…");
     try {
       const eligibility = STATE.eligibility;
       await api("/api/freeze", { precommitAcknowledged: true, reviewId: eligibility.review_id, reviewedTerms: eligibility.draft });
+      VIEW = "CONTRACT";
       await refresh();
     } catch (err) {
       await refresh();
@@ -236,45 +313,39 @@ function renderReadyToFreeze(state) {
   });
 }
 
-/* ── FROZEN integrity error (D5/D7) ── */
-function renderFrozenIntegrityError(state, why) {
-  $("#main").innerHTML = `
-    <h1 class="page-title">Evidence error — the frozen claim is blocked</h1>
-    <p class="error-note">${esc(why)}</p>
-    <p class="note">This is an evidence error, not a frozen task. Operator inspection is required; the UI will not present these terms as agreed.</p>`;
-}
-
-/* ── F2 · Frozen Task (worker) ── */
-function renderFrozenTask(state) {
+/* ── CONTRACT · frozen — the living contract card ── */
+function renderContractFrozen(state) {
   const f = state.frozen;
   const n = state.notes || {};
   $("#main").innerHTML = `
-    <h1 class="page-title">Fix this</h1>
-    <p class="page-subtitle">The rules of this task can no longer be changed.</p>
-    ${n.issue_url || n.summary ? `<p class="note"><span class="badge unfrozen">Unfrozen context</span> ${esc(n.issue_url)} — ${esc(n.summary)}</p>` : ""}
-    <div class="card outcome-card" style="border-color:var(--frozen-line)">
-      <div class="card-title">Tier-1 reward (declared, experimental)</div>
-      <div class="card-value frozen" style="font-size:26px">${esc(f.tier1_reward)}</div>
-      <div class="note">Earned when the frozen conditions below are satisfied.</div>
-    </div>
-    <div class="kv"><span class="k">Assigned worker</span><span class="v">${esc(f.worker_identity)}</span><span class="k">Claim mode</span><span class="v">Single claimant</span></div>
-    <h2 class="section-title">You earn the reward when</h2>
-    <ul class="check-list">
-      <li><span class="check-mark">✓</span><span class="main-line">The bug is fixed</span></li>
-      <li><span class="check-mark">✓</span><span class="main-line">Existing tests stay green</span></li>
-      <li><span class="check-mark">✓</span><span class="main-line">Only allowed files change <span class="sub-line">${esc(f.allowed_paths.join(", "))}</span></span></li>
-      <li><span class="check-mark">✓</span><span class="main-line">Protected files stay untouched <span class="sub-line">${esc(f.forbidden_paths.join(", "))}</span></span></li>
-      <li><span class="check-mark">✓</span><span class="main-line">Dependencies stay unchanged</span></li>
-      <li><span class="check-mark">✓</span><span class="main-line">The patch stays within ${esc(String(f.max_diff_lines))} changed lines</span></li>
-      <li><span class="check-mark">✓</span><span class="main-line">Deterministic verification passes ${esc(String(f.determinism_runs))}/${esc(String(f.determinism_runs))}</span></li>
-      <li><span class="check-mark">✓</span><span class="main-line">Independent replay reaches the same result</span></li>
-    </ul>
-    <p class="cardinal">These conditions were frozen before you started and cannot be changed for this experiment.</p>
-    <p class="note">Tier 2 — not used in this experiment.</p>
-    <div class="actions">
-      <a class="secondary" href="/api/freeze-file/task.json">Download frozen task (task.json)</a>
-      <a class="secondary" href="/api/freeze-file/ruleset.json">ruleset.json</a>
-      <button class="primary" id="btn-goto-submit">Submit your work →</button>
+    <div class="state-banner frozen-banner">FROZEN OUTCOME CONTRACT — rules locked before work began. The goalposts can no longer move.</div>
+    <div class="contract-card">
+      <div class="contract-title">${esc(n.summary || "The work")}</div>
+      <div class="contract-kv">
+        <span class="k">Reward</span><span class="v">${esc(f.tier1_reward)}</span>
+        <span class="k">Worker</span><span class="v">${esc(f.worker_identity)}</span>
+        <span class="k">Frozen at</span><span class="v">${esc(f.frozen_at ?? "—")}</span>
+        <span class="k">Claim mode</span><span class="v">Single claimant</span>
+      </div>
+      <div class="contract-section">WHAT COUNTS AS DONE</div>
+      <ul class="check-list">
+        <li><span class="check-mark">✓</span><span class="main-line">The promised bug is fixed <span class="sub-line">frozen test goes red → green</span></span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">Existing behavior stays healthy <span class="sub-line">rest of the suite stays green</span></span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">Only approved files change <span class="sub-line">${esc(f.allowed_paths.join(", "))}</span></span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">Protected files stay untouched <span class="sub-line">${esc(f.forbidden_paths.join(", "))}</span></span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">No dependency changes</span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">Patch within ${esc(String(f.max_diff_lines))} changed lines</span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">Deterministic ${esc(String(f.determinism_runs))}/${esc(String(f.determinism_runs))} verification runs</span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">Independent replay reaches the same verdict</span></li>
+      </ul>
+      <div class="contract-section">OUTCOME — when the work is done</div>
+      <p class="cardinal">If every line above holds, <strong>this part is earned</strong> — and that conclusion is independently replayable by anyone.</p>
+      <p class="note">Discretionary part — not used in this experiment.</p>
+      <div class="actions">
+        <a class="secondary" href="/api/freeze-file/task.json">Download frozen task (task.json)</a>
+        <a class="secondary" href="/api/freeze-file/ruleset.json">ruleset.json</a>
+        <button class="primary" id="btn-goto-work">Go to WORK →</button>
+      </div>
     </div>
     ${technicalDetails([
       ["base SHA", f.base_commit_sha],
@@ -286,40 +357,73 @@ function renderFrozenTask(state) {
       ["acceptance", f.commands.patched_acceptance_command],
       ["trust anchor", "docs/experiments/EXPERIMENT-001.md"],
     ])}`;
-  $("#btn-goto-submit").addEventListener("click", () => renderSubmit(STATE));
+  $("#btn-goto-work").addEventListener("click", () => { VIEW = "WORK"; render(STATE); });
 }
 
-/* ── F3 · Submit Work (P1) ── */
-function renderSubmit(state) {
-  const sub = state.submitted;
+/* ── FROZEN integrity error (D5/D7) ── */
+function renderFrozenIntegrityError(state, why) {
   $("#main").innerHTML = `
-    <h1 class="page-title">Submit your work</h1>
-    <p class="page-subtitle">Submit one patch for this verification run.</p>
-    ${sub ? `
-      <div class="card frozen-card"><div class="card-title">Submitted</div><div class="card-value frozen">worker.patch · ${esc(String(sub.bytes))} bytes · immutable for this run</div></div>
-      <p class="note">This exact patch will be verified. It cannot be replaced after submission for this run.</p>
-      <div class="actions"><button class="primary" id="btn-verify">Run primary verification</button></div>
-    ` : `
-      <div class="form-field full">
-        <label for="patch-input">Choose .patch file</label>
-        <input type="file" id="patch-input" accept=".patch,.diff,text/plain" />
-        <span class="hint">or paste the unified diff below</span>
-      </div>
-      <div class="form-field full">
-        <label for="patch-text">Paste unified diff</label>
-        <textarea id="patch-text" style="min-height:160px" placeholder="diff --git a/src/add.ts b/src/add.ts&#10;--- a/src/add.ts&#10;+++ b/src/add.ts&#10;@@ …"></textarea>
-      </div>
-      <p class="note" id="patch-preview"></p>
-      <div class="card" style="border-color:var(--frozen-line)">
-        <p class="cardinal"><strong>This exact patch will be verified. It cannot be replaced after submission for this run.</strong></p>
-        <p class="note">An invalid outcome is terminal for this submission — there is no retry and no patch replacement; a new attempt requires operator action.</p>
-        <div class="actions"><button class="primary" id="btn-submit" disabled>Submit for verification</button></div>
-      </div>`}
-  `;
+    <h1 class="page-title">Evidence error — the frozen claim is blocked</h1>
+    <p class="error-note">${esc(why)}</p>
+    <p class="note">This is an evidence error, not a frozen contract. Operator inspection is required; the UI will not present these terms as agreed.</p>`;
+}
+
+/* ── WORK (F2 + F3) — the deal from the worker side ── */
+function renderWork(state) {
+  const sub = state.submitted;
   if (sub) {
-    $("#btn-verify").addEventListener("click", () => doVerify());
+    $("#main").innerHTML = `
+      <div class="state-banner frozen-banner">WORK SUBMITTED — the exact bytes are locked for this run</div>
+      <h1 class="page-title">Your work is in</h1>
+      <div class="card frozen-card"><div class="card-title">Submission</div><div class="card-value frozen">worker.patch · ${esc(String(sub.bytes))} bytes · immutable for this run</div></div>
+      <p class="note">It cannot be replaced after submission for this run. Verification judges exactly these bytes against exactly the frozen rules.</p>
+      <div class="actions"><button class="primary" id="btn-goto-proof">Go to PROOF →</button></div>`;
+    $("#btn-goto-proof").addEventListener("click", () => { VIEW = "PROOF"; render(STATE); });
     return;
   }
+  const f = state.frozen;
+  const n = state.notes || {};
+  $("#main").innerHTML = `
+    <div class="state-banner frozen-banner">THE RULES ARE LOCKED — they cannot change for this work</div>
+    <h1 class="page-title">The work</h1>
+    <p class="page-subtitle">${esc(n.summary || "")} ${n.issue_url ? `<span class="badge unfrozen">Unfrozen context</span> ${esc(n.issue_url)}` : ""}</p>
+    <div class="card outcome-card" style="border-color:var(--frozen-line)">
+      <div class="card-title">You earn</div>
+      <div class="card-value frozen" style="font-size:26px">${esc(f.tier1_reward)}</div>
+      <div class="note">When every frozen condition below holds. Decided by machine, not by mood.</div>
+    </div>
+    <h2 class="section-title">You earn it when</h2>
+    <ul class="check-list">
+      <li><span class="check-mark">✓</span><span class="main-line">The promised bug is fixed <span class="sub-line">frozen test: red → green</span></span></li>
+      <li><span class="check-mark">✓</span><span class="main-line">Existing tests stay green</span></li>
+      <li><span class="check-mark">✓</span><span class="main-line">Only allowed files change <span class="sub-line">${esc(f.allowed_paths.join(", "))}</span></span></li>
+      <li><span class="check-mark">✓</span><span class="main-line">Protected files stay untouched <span class="sub-line">${esc(f.forbidden_paths.join(", "))}</span></span></li>
+      <li><span class="check-mark">✓</span><span class="main-line">Dependencies stay unchanged</span></li>
+      <li><span class="check-mark">✓</span><span class="main-line">The patch stays within ${esc(String(f.max_diff_lines))} changed lines</span></li>
+      <li><span class="check-mark">✓</span><span class="main-line">Deterministic verification passes ${esc(String(f.determinism_runs))}/${esc(String(f.determinism_runs))}</span></li>
+      <li><span class="check-mark">✓</span><span class="main-line">Independent replay reaches the same result</span></li>
+    </ul>
+    <p class="cardinal">These conditions were frozen before you started and cannot be changed for this work.</p>
+    <p class="note">Discretionary part — not used in this experiment.</p>
+    <hr class="divider-strong" />
+    <h2 class="section-title">Submit your work</h2>
+    <p class="page-subtitle">One patch for this run.</p>
+    <div class="form-field full">
+      <label for="patch-input">Choose .patch file</label>
+      <input type="file" id="patch-input" accept=".patch,.diff,text/plain" />
+      <span class="hint">or paste the unified diff below</span>
+    </div>
+    <div class="form-field full">
+      <label for="patch-text">Paste unified diff</label>
+      <textarea id="patch-text" style="min-height:160px" placeholder="diff --git a/src/add.ts b/src/add.ts&#10;--- a/src/add.ts&#10;+++ b/src/add.ts&#10;@@ …"></textarea>
+    </div>
+    <p class="note" id="patch-preview"></p>
+    <div class="card" style="border-color:var(--frozen-line)">
+      <p class="cardinal"><strong>This exact patch will be verified. It cannot be replaced after submission for this run.</strong></p>
+      <p class="note">An invalid outcome is terminal for this submission — there is no retry and no patch replacement; a new attempt requires operator action.</p>
+      <div class="actions"><button class="primary" id="btn-submit" disabled>Submit for verification</button></div>
+    </div>`;
+
   let bytes = null;
   const update = () => {
     const file = $("#patch-input").files[0];
@@ -338,6 +442,7 @@ function renderSubmit(state) {
     try {
       const r = await api("/api/submit", { patch: text });
       note(`Submitted: ${r.bytes} bytes. Immutable for this run.`);
+      VIEW = "PROOF";
       await refresh();
     } catch (e) {
       await refresh();
@@ -347,7 +452,7 @@ function renderSubmit(state) {
 }
 
 async function doVerify() {
-  busy("Primary verification — running the frozen UE-2 rules (clean-room base, network-denied sandbox, N determinism runs)…");
+  busy("Proving the outcome — Stage A: running the frozen rules (clean-room base, network-denied sandbox, N determinism runs)…");
   try {
     const r = await api("/api/verify");
     await refresh();
@@ -359,7 +464,7 @@ async function doVerify() {
 }
 
 async function doReplay() {
-  busy("Independent replay — verifying the trusted verifier against the EXPERIMENT-001 anchor, rebuilding the frozen base, reapplying the exact patch…");
+  busy("Proving the outcome — Stage B: independent replay from the anchored verifier, rebuilding the frozen base, reapplying the exact patch…");
   try {
     const r = await api("/api/replay");
     await refresh();
@@ -369,7 +474,7 @@ async function doReplay() {
   }
 }
 
-/* ── F4 · Verification (D6) ── */
+/* ── PROOF (F4, D6) — "Prove the outcome" ── */
 const INVALID_REASONS = {
   "forbidden-path": "A protected file was changed",
   "out-of-scope": "A file outside the allowed paths was changed",
@@ -380,21 +485,20 @@ const INVALID_REASONS = {
   "dependency-change": "Dependencies changed",
   "post-install-suite-drift": "The frozen suite bytes changed during install",
   "patch-not-applicable": "The patch does not apply to the frozen base",
-  "patched-acceptance-red": "The bug is not fixed — the frozen regression is still red",
+  "patched-acceptance-red": "The promised bug is not fixed — the frozen regression is still red",
   "baseline-broken": "Existing tests no longer pass",
   "determinism-unstable": "Verification was not deterministic",
 };
 
-function renderVerification(state) {
+function renderVerification(state) { // F4 · PROOF view (internal name kept for the frozen routing contract)
   const r = state.runRecord;
-  const replay = state.replayReport;
   const derived = r?.derived ?? "PENDING";
 
   if (!r) {
     $("#main").innerHTML = `
-      <h1 class="page-title">Verification</h1>
-      <p class="page-subtitle">The patch is submitted and immutable for this run. Primary verification has not completed.</p>
-      <div class="actions"><button class="primary" id="btn-verify2">Run primary verification</button>
+      <h1 class="page-title">Prove the outcome</h1>
+      <p class="page-subtitle">The patch is submitted and immutable for this run. Stage A has not run yet.</p>
+      <div class="actions"><button class="primary" id="btn-verify2">Run Stage A — primary verification</button>
       <span class="note">If a run was interrupted, nothing is fabricated: the submitted bytes are kept and the operator must inspect.</span></div>`;
     $("#btn-verify2").addEventListener("click", () => doVerify());
     return;
@@ -403,67 +507,73 @@ function renderVerification(state) {
   if (derived === "INVALID") {
     const key = String(r.invalid_reason ?? "").split(":")[0];
     $("#main").innerHTML = `
-      <div class="card" style="border-color:var(--invalid)"><div class="card-title">Outcome</div><div class="card-value" style="color:var(--invalid)">TIER 1 NOT EARNED IN THIS RUN</div></div>
+      <div class="card" style="border-color:var(--invalid)"><div class="card-title">Outcome</div><div class="card-value" style="color:var(--invalid)">NOT EARNED IN THIS RUN</div></div>
       <h1 class="page-title">A frozen rule was not satisfied</h1>
-      <div class="kv"><span class="k">Reason</span><span class="v">${esc(INVALID_REASONS[key] ?? r.invalid_reason)}</span></div>
-      <p class="note">Frozen rule that decided it: the terms shown on the task page. This verification run is complete — INVALID is terminal for this submission; there is no retry and no patch replacement. A new attempt requires operator action.</p>
+      <div class="kv"><span class="k">Why</span><span class="v">${esc(INVALID_REASONS[key] ?? r.invalid_reason)}</span></div>
+      <p class="note">The frozen rules decided — the terms on the contract page. INVALID is terminal for this submission; there is no retry and no patch replacement. A new attempt requires operator action.</p>
       <p class="note">A payer-response step is not available on this path.</p>`;
     return;
   }
 
-  const rows = [
-    ["Frozen base", r.checks?.freeze_closure === "VERIFIED" ? "Verified" : "—"],
-    ["Regression on base", r.checks?.base_regression_recheck === "RED" ? "Red" : "—"],
-    ["Patch scope", r.policy_result === "OK" ? "Pass" : "—"],
-    ["Dependency policy", r.checks?.dependency_policy === "OK" ? "Pass" : "—"],
-    ["Regression after patch", r.checks?.patched_acceptance === "GREEN" ? "Green" : "—"],
-    ["Existing suite", r.checks?.baseline_health_patched === "GREEN" ? "Green" : "—"],
-    ["Determinism", r.determinism ?? "—"],
+  const humanRows = [
+    ["The frozen base is genuine", r.checks?.freeze_closure === "VERIFIED" ? "verified" : "—"],
+    ["The promised bug really failed on the base", r.checks?.base_regression_recheck === "RED" ? "confirmed" : "—"],
+    ["The patch stayed inside the frozen scope", r.policy_result === "OK" ? "yes" : "—"],
+    ["No dependency changes", r.checks?.dependency_policy === "OK" ? "yes" : "—"],
+    ["The promised bug is fixed", r.checks?.patched_acceptance === "GREEN" ? "yes — frozen test green" : "—"],
+    ["Everything else still healthy", r.checks?.baseline_health_patched === "GREEN" ? "yes — suite green" : "—"],
+    ["Same answer every time", r.determinism ?? "—"],
   ];
 
   if (derived === "VALID" && state.facts.replay === "PENDING") {
     $("#main").innerHTML = `
+      <h1 class="page-title">Prove the outcome</h1>
       <div class="card frozen-card"><div class="card-title">Stage A</div><div class="card-value frozen">PRIMARY VERIFICATION — PASS</div></div>
-      <ul class="check-list">${rows.map(([l, v]) => `<li><span class="check-mark">✓</span><span class="check-body"><span class="main-line">${esc(l)}</span><span class="sub-line">${esc(v)}</span></span></li>`).join("")}</ul>
-      <p class="cardinal">Primary verification passed. <strong>Independent replay is required before Tier 1 is considered earned.</strong></p>
-      <div class="actions"><button class="primary" id="btn-replay">Run independent replay</button></div>`;
+      <ul class="check-list">${humanRows.map(([l, v]) => `<li><span class="check-mark">✓</span><span class="check-body"><span class="main-line">${esc(l)}</span><span class="sub-line">${esc(v)}</span></span></li>`).join("")}</ul>
+      <p class="cardinal">Stage A passed. <strong>Stage B — independent replay — is required before anything is earned.</strong></p>
+      <div class="actions"><button class="primary" id="btn-replay">Run Stage B — independent replay</button></div>`;
     $("#btn-replay").addEventListener("click", () => doReplay());
     return;
   }
 
   if (derived === "VALID" && state.facts.replay === "FAIL") {
     $("#main").innerHTML = `
+      <h1 class="page-title">Prove the outcome</h1>
       <div class="card frozen-card"><div class="card-title">Stage A</div><div class="card-value frozen">PRIMARY VERIFICATION — PASS</div></div>
       <div class="card" style="border-color:var(--invalid)"><div class="card-title">Stage B</div><div class="card-value" style="color:var(--invalid)">INDEPENDENT REPLAY — FAIL / UNTRUSTED</div></div>
       <p class="error-note">${esc(state.replayUntrustedReason ?? "replay failed")}</p>
-      <p class="cardinal">The primary result may stand, but the entitlement remains unverified. Operator action is required — there is no automatic retry.</p>`;
+      <p class="cardinal">The Stage A result may stand, but nothing is earned until the replay independently agrees. Operator action required — no automatic retry.</p>`;
     return;
   }
 
-  // EARNED — only on derived VALID ∧ fresh-bound replay PASS
+  // EARNED — only on derived VALID ∧ fresh-bound replay PASS (D6)
   $("#main").innerHTML = `
     <div class="card frozen-card"><div class="card-title">Stage A</div><div class="card-value frozen">PRIMARY VERIFICATION — PASS</div></div>
-    <ul class="check-list">${rows.map(([l, v]) => `<li><span class="check-mark">✓</span><span class="check-body"><span class="main-line">${esc(l)}</span><span class="sub-line">${esc(v)}</span></span></li>`).join("")}</ul>
+    <ul class="check-list">${humanRows.map(([l, v]) => `<li><span class="check-mark">✓</span><span class="check-body"><span class="main-line">${esc(l)}</span><span class="sub-line">${esc(v)}</span></span></li>`).join("")}</ul>
     <div class="card frozen-card"><div class="card-title">Stage B</div><div class="card-value frozen">INDEPENDENT REPLAY — PASS (same verdict, current pack binding)</div></div>
     <hr class="divider-strong" />
-    <div style="text-align:center; padding: 24px 0 8px">
-      <div class="card-title" style="text-align:center">TIER 1</div>
-      <div style="font-size:44px; font-weight:700; letter-spacing:0.04em; color:var(--earned)">EARNED</div>
-      <p class="cardinal" style="margin-top:14px"><strong>This reward has been earned under the rules frozen before work began.</strong></p>
-      <p class="note">Primary verification and independent replay reached the same Tier-1 verdict.</p>
+    <div class="earned-moment">
+      <div class="earned-word">EARNED</div>
+      <p class="earned-line">The outcome satisfied the rules frozen before work began.</p>
+      <p class="earned-line">This conclusion is independently replayable — by anyone, offline, from the proof pack alone.</p>
+      <div class="triad">
+        <div class="triad-cell"><span class="triad-k">PROTOCOL FACT</span><span class="triad-v frozen">Earned</span></div>
+        <div class="triad-cell"><span class="triad-k">PAYMENT</span><span class="triad-v">Not part of this experiment</span></div>
+        <div class="triad-cell"><span class="triad-k">ACCEPTOR'S OPINION</span><span class="triad-v">Asked separately, recorded separately</span></div>
+      </div>
       <p class="note">This is a derived protocol result. It is not a maintainer approval.</p>
       <p class="note">Machine replay was facilitated by the operator on this machine — it is machine evidence of replayability, not by itself evidence of third-party participation.</p>
     </div>
     <div class="actions" style="justify-content:center">
-      <a class="secondary" href="/api/proof-file/proof-manifest.json">Download proof manifest</a>
+      <a class="secondary" href="/api/proof-file/proof-manifest.json">View proof → manifest</a>
       <a class="secondary" href="/api/proof-file/verify.mjs">verify.mjs</a>
-      <button class="primary" id="btn-goto-f5">Record the payer's response →</button>
+      <button class="primary" id="btn-goto-f5">Go to OUTCOME — record the response →</button>
     </div>
     ${technicalDetails([["contract freeze hash", state.frozen?.contract_freeze_hash], ["precommit binding", state.frozen?.precommit_binding]])}`;
-  $("#btn-goto-f5").addEventListener("click", () => { window.location.hash = "#f5"; renderPayerResponse(STATE); });
+  $("#btn-goto-f5").addEventListener("click", () => { window.location.hash = "#f5"; VIEW = "OUTCOME"; renderPayerResponse(STATE); });
 }
 
-/* ── F5 · Payer Response (D9) ── */
+/* ── OUTCOME (F5, D9) — the human answer, kept strictly separate ── */
 function renderPayerResponse(state) {
   const latest = state.latestObservation;
   // Review round-3: FINALIZED is consumed ONLY from the verified ledger view
@@ -474,8 +584,8 @@ function renderPayerResponse(state) {
   const f = state.facts;
   const earnedNow = f.tier1_entitlement === "EARNED";
   const machine = `
-    <div class="card frozen-card"><div class="card-title">Machine result — a technical fact</div>
-      <div class="card-value frozen">TIER 1 — ${earnedNow ? "EARNED" : f.tier1_entitlement}</div>
+    <div class="card frozen-card"><div class="card-title">What the proof established — a technical fact</div>
+      <div class="card-value frozen">THE FROZEN PART — ${earnedNow ? "EARNED" : f.tier1_entitlement}</div>
       <div class="kv" style="margin-top:8px">
         <span class="k">Primary verification</span><span class="v">${f.primary_verification === "VALID" ? "Pass (derived)" : f.primary_verification}</span>
         <span class="k">Independent replay</span><span class="v">${f.replay === "PASS" ? "Pass (same verdict, current binding)" : f.replay}</span>
@@ -495,12 +605,15 @@ function renderPayerResponse(state) {
 
   if (finalized) {
     $("#main").innerHTML = `
-      <h1 class="page-title">FINALIZED</h1>
+      <h1 class="page-title">OUTCOME — the record, closed</h1>
       ${machine}
       <hr class="divider-strong" />
       <div class="kv">
-        <span class="k">Technical result</span><span class="v frozen">Tier 1 earned</span>
-        <span class="k">Payer response</span><span class="v">${esc(finalized.user_evidence.payer_accepts_tier1 ? "Accepted" : "Rejected")} — recorded, not a machine fact</span>
+        <span class="k">What was promised</span><span class="v">${esc(finalized.task?.summary ?? "The frozen conditions on the contract page")}</span>
+        <span class="k">What was frozen</span><span class="v frozen">the complete terms — locked before work began</span>
+        <span class="k">What the proof established</span><span class="v frozen">Tier 1 earned</span>
+        <span class="k">What is now irreversible</span><span class="v frozen">the earned conclusion — independently replayable</span>
+        <span class="k">Acceptor's answer</span><span class="v">${esc(finalized.user_evidence.payer_accepts_tier1 ? "Accepted" : "Rejected")} — recorded, not a machine fact</span>
         <span class="k">Post-hoc rule change</span><span class="v">${esc(String(finalized.user_evidence.posthoc_rule_change_attempts))}</span>
         <span class="k">Repeat funding</span><span class="v">${esc(finalized.user_evidence.repeat_fund_intent)}</span>
         <span class="k">User evidence class</span><span class="v">${esc(finalized.user_evidence.attestation_class)}</span>
@@ -514,7 +627,7 @@ function renderPayerResponse(state) {
   $("#main").innerHTML = `
     ${machine}
     <hr class="divider-strong" />
-    <h1 class="page-title">Now record the payer's response</h1>
+    <h1 class="page-title">Now record the response</h1>
     <p class="page-subtitle">Above the line: technical fact. Below the line: human evidence — observed, declared identity, not authenticated.</p>
     ${latest ? `
       <div class="card evidence-card"><div class="card-title">Recorded (observation ${esc(String(state.observations.latest_seq))})</div>
@@ -555,7 +668,7 @@ function renderPayerResponse(state) {
         <div id="closure-panel" hidden style="margin-top:14px">
           <div class="card evidence-card">
             <h2 class="section-title" style="margin-top:0">Operator closure of the unresolved follow-up (D9)</h2>
-            <p class="note">The payer chose Answer later. The operator may close the follow-up explicitly: the hesitation is recorded verbatim, Q3 stays NOT_ASKED (never a No, never "never asked"), provenance is preserved.</p>
+            <p class="note">The acceptor chose Answer later. The operator may close the follow-up explicitly: the hesitation is recorded verbatim, Q3 stays NOT_ASKED (never a No, never "never asked"), provenance is preserved.</p>
             <div class="form-field full"><label>Hesitation verbatim</label><textarea id="closure-hesitation" placeholder="Payer: ask me again next week."></textarea></div>
             <div class="form-field full" style="margin-top:10px"><label>Why the experiment closes without an answer</label><textarea id="closure-reason" placeholder="Session ended before the payer decided on repeat funding."></textarea></div>
             <div class="actions"><button class="primary" type="button" id="btn-close-followup">Close follow-up (operator)</button></div>
@@ -662,10 +775,11 @@ function renderPayerResponse(state) {
   });
 }
 
-/* ── router by phase ── */
+/* ── router: user-side views over the frozen phase machine ── */
 function render(state) {
   STATE = state;
   renderHeader(state);
+  renderNav(state);
   if (state.transient.checking) return busy("Checking eligibility — running the real preflight…");
   if (state.transient.verifying) return busy("Verifying — running the frozen verification machinery…");
   if (state.frozenError || state.freezeVerified === false) {
@@ -674,14 +788,29 @@ function render(state) {
   if (state.frozenTermsMatch === false) {
     return renderFrozenIntegrityError(state, "published terms differ from the reviewed snapshot (D5) — operator inspection required");
   }
-  if (state.phase === "DRAFT" || state.phase === "READY_TO_FREEZE") return renderPrepare(state);
-  if (state.phase === "FROZEN") return renderFrozenTask(state);
+  // HOME: only before any draft exists
+  if (state.phase === "DRAFT" && !state.hasDraft && !VIEW) return renderHome();
+
+  const view = VIEW || phaseDefaultView(state);
+  if (view === "CONTRACT") {
+    if (state.phase === "DRAFT" || state.phase === "READY_TO_FREEZE" || state.phase === "CHECKING") {
+      return state.phase === "READY_TO_FREEZE" && VIEW === null ? renderContractReview(state) : renderContractDraft(state);
+    }
+    return renderContractFrozen(state);
+  }
+  if (view === "WORK") return renderWork(state);
+  if (view === "PROOF") return renderVerification(state);
+  if (view === "OUTCOME") return renderPayerResponse(state);
+
+  if (state.phase === "DRAFT" || state.phase === "READY_TO_FREEZE") return renderContractDraft(state);
+  if (state.phase === "FROZEN") return renderWork(state);
   if (state.phase === "SUBMITTED") {
-    // submitted → verification view (outcome panels for INVALID / replay-fail / pending)
+    // submitted → the PROOF view is the landing view (outcome panels for INVALID / replay-fail / pending)
     return renderVerification(state);
   }
   if (state.phase === "AWAITING_PAYER") {
-    // the EARNED page (F4) is the landing view; the payer-response screen is an explicit step
+    // F4 EARNED (renderVerification) is the landing view of AWAITING_PAYER;
+    // the payer screen (F5) is an explicit step: #f5
     if (window.location.hash === "#f5") return renderPayerResponse(state);
     return renderVerification(state);
   }
@@ -691,8 +820,19 @@ function render(state) {
 
 async function refresh() {
   const state = await api("/api/state", undefined, "GET");
+  VIEW = null;
   render(state);
 }
+
+document.querySelectorAll(".navlink").forEach((b) => {
+  b.addEventListener("click", () => {
+    if (b.disabled) return;
+    VIEW = b.dataset.view;
+    if (VIEW !== "OUTCOME") window.location.hash = "";
+    render(STATE);
+  });
+});
+$("#brand-home").addEventListener("click", () => { VIEW = null; render(STATE); });
 
 $("#footer-details-toggle").addEventListener("click", () => {
   const el = $("#footer-details");

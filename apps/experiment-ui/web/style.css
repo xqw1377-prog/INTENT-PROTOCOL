@@ -1,8 +1,9 @@
-/* FRONTEND-R1 — Quiet Authority (spec §29–30)
-   Color SEMANTICS, not decoration:
-   neutral = information · frozen = cool/sealed · pending = muted ·
-   earned = strongest positive (reserved) · invalid = restrained warning ·
-   human evidence = warm-neutral. Two type layers: human (sans) /
+/* PRODUCT-UX-R2 — QUIET CONTRACT (evolves FRONTEND-R1's Quiet Authority)
+   Three contract states, one light:
+   UNFROZEN = open, discussable (warm-neutral) ·
+   FROZEN = sealed, calm, contractual (cool) ·
+   EARNED = the single moment the product lights up (reserved green).
+   PAID / SETTLED never appear as states. Two type layers: human (sans) /
    evidence (mono). No Web3, no SaaS blue, no glow. */
 
 :root {
@@ -129,3 +130,59 @@ details.tech .body { margin-top: 10px; font-family: var(--mono); font-size: 12px
 .kv { display: grid; grid-template-columns: 180px 1fr; gap: 6px 16px; margin: 8px 0; }
 .kv .k { color: var(--ink-muted); font-size: 13.5px; }
 .kv .v { font-weight: 550; }
+
+/* ── PRODUCT-UX-R2 additions ── */
+.brand-row { display: flex; align-items: center; gap: 14px; }
+button.brand { font-weight: 700; letter-spacing: 0.18em; font-size: 14px; color: var(--ink); text-decoration: none; cursor: pointer; }
+
+.state-pill { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; }
+.state-pill.unfrozen { color: var(--human-evidence); background: var(--human-evidence-bg); border: 1px solid #e5d9c9; }
+.state-pill.frozen { color: var(--frozen); background: var(--frozen-bg); border: 1px solid var(--frozen-line); }
+.state-pill.earned { color: #fff; background: var(--earned); border: 1px solid var(--earned); }
+
+.topnav { display: flex; gap: 4px; }
+.navlink { font: inherit; font-size: 11.5px; font-weight: 650; letter-spacing: 0.12em; color: var(--ink-muted); background: none; border: 1px solid transparent; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.navlink:hover:not(:disabled) { color: var(--frozen); }
+.navlink.active { color: var(--frozen); border-color: var(--frozen-line); background: var(--frozen-bg); }
+.navlink:disabled { color: var(--ink-faint); cursor: not-allowed; opacity: 0.55; }
+
+.state-banner { font-size: 12px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 14px; border-radius: 7px; margin: 0 0 18px; }
+.unfrozen-banner { color: var(--human-evidence); background: var(--human-evidence-bg); border: 1px solid #e5d9c9; }
+.frozen-banner { color: var(--frozen); background: var(--frozen-bg); border: 1px solid var(--frozen-line); }
+
+/* HOME */
+.home-hero { text-align: center; padding: 46px 0 10px; }
+.home-title { font-size: 34px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.25; margin: 0 0 10px; }
+.home-tagline { font-size: 17px; color: var(--ink-muted); margin: 0; }
+.arc-strip { display: flex; flex-direction: column; gap: 0; margin: 34px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.arc-step { display: grid; grid-template-columns: 220px 1fr; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--line); align-items: baseline; }
+.arc-step:last-child { border-bottom: none; }
+.arc-k { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; color: var(--frozen); }
+.arc-step.earned .arc-k { color: var(--earned); }
+.arc-step.earned { background: var(--earned-bg); }
+.arc-v { font-size: 14.5px; color: var(--ink); }
+.twosided { display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; margin: 26px 0; align-items: stretch; }
+.side { border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; background: var(--surface); }
+.side.middle { border-color: var(--frozen-line); background: var(--frozen-bg); display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.side-role { font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--ink-faint); margin-bottom: 8px; }
+.side.middle .side-role { color: var(--frozen); }
+.side-line { font-size: 16px; font-weight: 600; margin: 0 0 8px; line-height: 1.4; }
+.home-cta { justify-content: center; margin-top: 34px; }
+
+/* contract card (frozen) */
+.contract-card { background: var(--frozen-bg); border: 1px solid var(--frozen-line); border-radius: 12px; padding: 26px 28px; margin: 12px 0 18px; }
+.contract-title { font-size: 21px; font-weight: 700; margin: 0 0 14px; }
+.contract-kv { display: grid; grid-template-columns: 140px 1fr; gap: 5px 16px; font-size: 14px; margin-bottom: 16px; }
+.contract-kv .k { color: var(--ink-muted); }
+.contract-section { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; color: var(--frozen); margin: 18px 0 6px; }
+.contract-card .check-list li { border-bottom-color: var(--frozen-line); }
+
+/* EARNED moment */
+.earned-moment { text-align: center; background: var(--earned-bg); border: 1px solid var(--earned); border-radius: 12px; padding: 34px 24px 20px; margin: 18px 0; }
+.earned-word { font-size: 52px; font-weight: 800; letter-spacing: 0.06em; color: var(--earned); line-height: 1; }
+.earned-line { font-size: 16px; margin: 12px auto 0; max-width: 560px; }
+.triad { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 22px 0 14px; }
+.triad-cell { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
+.triad-k { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-faint); }
+.triad-v { font-size: 13.5px; font-weight: 600; }
+.triad-v.frozen { color: var(--earned); }

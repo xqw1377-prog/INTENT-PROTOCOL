@@ -3,18 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>INTENT — Experiment 001</title>
+  <title>INTENT — Frozen Outcome Contract</title>
   <link rel="stylesheet" href="/web/style.css" />
 </head>
 <body>
   <header class="app-header">
     <div class="app-header-inner">
-      <div class="brand">INTENT</div>
-      <div class="experiment-id">
-        <span class="label">Experiment 001</span>
-        <span id="phase-dot" class="phase-dot pending" title="primary phase"></span>
-        <span id="phase-name" class="phase-name">—</span>
+      <div class="brand-row">
+        <button class="brand linklike" id="brand-home">INTENT</button>
+        <span id="state-pill" class="state-pill unfrozen" title="contract state">UNFROZEN</span>
       </div>
+      <nav class="topnav" id="topnav">
+        <button class="navlink" data-view="CONTRACT">CONTRACT</button>
+        <button class="navlink" data-view="WORK">WORK</button>
+        <button class="navlink" data-view="PROOF">PROOF</button>
+        <button class="navlink" data-view="OUTCOME">OUTCOME</button>
+      </nav>
     </div>
     <div id="facts-strip" class="facts-strip"></div>
   </header>
