@@ -4,12 +4,27 @@
 
 Intent Protocol is a Verifiable Outcome Protocol: a system for turning a human intent into an executable plan, evidence-backed outcome, verified contribution, and deterministic settlement.
 
+## Start here — what the product IS today
+
+The current product narrative lives in **docs/product/OVERVIEW.md**
+(R1, 2026-10-22): the local experiment product (frozen evidence machine
+UE-0..UE-5 + Local Orchestrator F1–F5 + package-external trust anchor),
+the sponsored-relationship experiment model (AMENDMENT-1), the honest
+scoreboard (technical proof: proven locally; real user evidence: ZERO),
+and the standing boundaries. The whitepaper / tech-architecture V0.1
+documents are the long-term vision layer — historical narrative, not a
+claim set. Product claims cite OVERVIEW.md or the frozen layer beneath
+it (PRODUCT-THESIS-R0 → FRONTEND-R1-SPEC → EXPERIMENT-001 charter), not
+the vision layer. The ledger below is governance history and current
+field status.
+
 ## Project status
 
 ```text
 COMMAND             = ACTIVE
-WHITEPAPER          = V0.1
-TECH ARCHITECTURE   = V0.1
+WHITEPAPER          = V0.1 (2026-09-17) — HISTORICAL VISION layer; current
+                      product narrative = docs/product/OVERVIEW.md
+TECH ARCHITECTURE   = V0.1 (2026-09-17) — HISTORICAL VISION layer
 
 G0/G1               = PASS / FROZEN
 GP0/GP1/GP2/GP3     = PASS / FROZEN
