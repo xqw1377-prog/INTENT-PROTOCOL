@@ -202,6 +202,18 @@ PRODUCT-UX-R2       = PASS / IMPLEMENTED (Commander 2026-10-23; spec
                       RECORD PAGE = HOLD (not needed for validation);
                       HOME LIVE EXAMPLE = HOLD UNTIL A REAL CONTRACT
                       EXISTS (never fabricate a looks-real one).
+                      PRODUCTIZATION POLISH (Commander audit 2026-10-24:
+                      CORE/VALUE/FROZEN-PROVEN-EARNED = PASS; polish =
+                      HOLD-3) — three cuts applied @ 2a4c9bc: P1 contract
+                      draft = HUMAN CONTRACT layer + collapsed
+                      "Verification settings (operator/advanced)"; P2
+                      header de-noised (facts behind "Evidence details");
+                      P3 OUTCOME = product acknowledgment layer +
+                      collapsible "Research instrumentation" (Q2/Q3/
+                      closure; auto-opens when required). UI tests 35/35;
+                      full suite 665 GREEN. Awaiting Commander visual
+                      sign-off; per the ruling, no further frontend work
+                      after these cuts.
 DIRECTION-R1        = RATIFIED (Commander full-project audit 2026-10-22;
                       docs/product/DIRECTION-R1.md). Direction PASS;
                       engineering SUFFICIENT FOR VALIDATION; STOP list
