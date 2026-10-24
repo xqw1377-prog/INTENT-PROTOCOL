@@ -156,43 +156,49 @@ function renderContractDraft(state) {
     <p class="page-subtitle">Say what counts as done before anyone starts working. Nothing here is frozen yet.</p>
     <p class="note">${esc(state.operating_mode || "")}</p>
     <form id="prepare-form">
-      <h2 class="section-title">Who</h2>
+      <h2 class="section-title">The outcome</h2>
       <div class="form-grid">
-        ${field("payer_identity", "Rule author / acceptor (maintainer)", d.payer_identity, { ph: "must be selected before preparation" })}
+        <div class="form-field full">
+          <label for="f-summary">What outcome do you want? <span class="badge unfrozen">Context — not part of the frozen contract</span></label>
+          <textarea id="f-summary" data-field="summary">${esc(n.summary || "")}</textarea>
+        </div>
+        <div class="form-field full">
+          <label for="f-issue_url">Where is it tracked? <span class="badge unfrozen">Context — not part of the frozen contract</span></label>
+          <input id="f-issue_url" data-field="issue_url" value="${esc(n.issue_url || "")}" />
+        </div>
+        ${field("tier1_reward", "What reward becomes earned?", d.tier1_reward || "")}
+        <div class="form-field"><label>Discretionary part</label><input value="0" disabled /><span class="hint">Zero for EXPERIMENT-001 — not used in this experiment.</span></div>
+        ${field("payer_identity", "Rule author / acceptor", d.payer_identity, { ph: "must be selected before preparation" })}
         ${field("worker_identity", "Assigned worker", d.worker_identity, { ph: "must be selected before preparation" })}
       </div>
       <p class="note">Claim mode: <strong>Single claimant</strong> — this contract is frozen for this worker only.</p>
 
-      <h2 class="section-title">The work</h2>
-      <div class="form-grid">
-        ${field("repoPath", "Repository (local path for the experiment)", d.repoPath, { full: true })}
-        ${field("base_commit_sha", "Base commit (exact)", d.base_commit_sha)}
-        ${field("tier1_reward", "Reward for the frozen part (declared, experimental)", d.tier1_reward || "")}
-        ${field("tier2_reward", "Discretionary part", "0", { disabled: true, hint: "Zero for EXPERIMENT-001 — the Tier-2 engine is not used in this experiment." })}
-        <div class="form-field full">
-          <label for="f-issue_url">Issue <span class="badge unfrozen">Context — not part of the frozen contract</span></label>
-          <input id="f-issue_url" data-field="issue_url" value="${esc(n.issue_url || "")}" />
-        </div>
-        <div class="form-field full">
-          <label for="f-summary">What is the work, in one line <span class="badge unfrozen">Context — not part of the frozen contract</span></label>
-          <textarea id="f-summary" data-field="summary">${esc(n.summary || "")}</textarea>
-        </div>
+      <h2 class="section-title">What must be true when it's done</h2>
+      <ul class="check-list">
+        <li><span class="check-mark">✓</span><span class="main-line">The promised outcome is delivered <span class="sub-line">a frozen acceptance test goes red → green</span></span></li>
+        <li><span class="check-mark">✓</span><span class="main-line">Everything else stays healthy <span class="sub-line">the existing suite stays green</span></span></li>
+      </ul>
+      <div class="form-grid" style="margin-top:12px">
+        ${field("allowed_paths", "What is allowed to change", (d.allowed_paths || []).join(", "), { ph: "src/**" })}
+        ${field("forbidden_paths", "What must not change", (d.forbidden_paths || []).join(", "), { ph: "tests, dependencies, CI" })}
       </div>
 
-      <h2 class="section-title">What counts as done (rules — decided now, judged later by machine)</h2>
-      <div class="form-grid">
-        ${field("regression_command", "The promised bug must be fixed (rule: red on base)", d.regression_command, { full: true })}
-        ${field("baseline_health_command", "Everything else must stay healthy (rule: green on base)", d.baseline_health_command, { full: true })}
-        ${field("patched_acceptance_command", "After the work (rule)", d.patched_acceptance_command, { full: true })}
-        ${field("acceptance_suite", "Acceptance suite file (explicit — never guessed)", d.acceptance_suite ?? "", { full: true, ph: "test/regression.test.ts" })}
-        ${field("acceptance_full_suite", "Full-suite files (comma-separated, explicit)", (d.acceptance_full_suite ?? []).join(", "), { full: true, ph: "test/green.test.ts" })}
-        ${field("allowed_paths", "Files the work may touch", (d.allowed_paths || []).join(", "), { ph: "src/**" })}
-        ${field("forbidden_paths", "Files the work must not touch", (d.forbidden_paths || []).join(", "), { ph: "test/**, package-lock.json, .github/**" })}
-        ${field("max_diff_lines", "Size bound (changed lines)", d.max_diff_lines ?? 40)}
-        ${field("determinism_runs", "Determinism (N runs)", d.determinism_runs ?? 3)}
-        <div class="form-field full"><label>Install</label><input value="npm ci --ignore-scripts" disabled /></div>
-        <div class="form-field full"><label>Network during verification</label><input value="Denied (verification sandbox)" disabled /><span class="hint">Describes the verification-sandbox commands — not a claim that dependency install never used the network.</span></div>
-      </div>
+      <details class="advanced-setup" id="verification-setup">
+        <summary>Verification settings — operator / advanced</summary>
+        <div class="form-grid" style="margin-top:14px">
+          ${field("repoPath", "Repository (local path for the experiment)", d.repoPath, { full: true })}
+          ${field("base_commit_sha", "Base commit (exact)", d.base_commit_sha)}
+          ${field("max_diff_lines", "Size bound (changed lines)", d.max_diff_lines ?? 40)}
+          ${field("determinism_runs", "Determinism (N runs)", d.determinism_runs ?? 3)}
+          ${field("regression_command", "The promised bug must be fixed (rule: red on base)", d.regression_command, { full: true })}
+          ${field("baseline_health_command", "Everything else must stay healthy (rule: green on base)", d.baseline_health_command, { full: true })}
+          ${field("patched_acceptance_command", "After the work (rule)", d.patched_acceptance_command, { full: true })}
+          ${field("acceptance_suite", "Acceptance suite file (explicit — never guessed)", d.acceptance_suite ?? "", { full: true, ph: "test/regression.test.ts" })}
+          ${field("acceptance_full_suite", "Full-suite files (comma-separated, explicit)", (d.acceptance_full_suite ?? []).join(", "), { full: true, ph: "test/green.test.ts" })}
+          <div class="form-field full"><label>Install</label><input value="npm ci --ignore-scripts" disabled /></div>
+          <div class="form-field full"><label>Network during verification</label><input value="Denied (verification sandbox)" disabled /><span class="hint">Describes the verification-sandbox commands — not a claim that dependency install never used the network.</span></div>
+        </div>
+      </details>
       <div class="actions">
         <button class="primary" type="submit">Save conditions</button>
         <span class="note">Still unfrozen. Any change invalidates readiness and requires re-checking.</span>
@@ -626,12 +632,17 @@ function renderPayerResponse(state) {
         <span class="k">What the proof established</span><span class="v frozen">Tier 1 earned</span>
         <span class="k">What is now irreversible</span><span class="v frozen">the earned conclusion — independently replayable</span>
         <span class="k">Acceptor's answer</span><span class="v">${esc(finalized.user_evidence.payer_accepts_tier1 ? "Accepted" : "Rejected")} — recorded, not a machine fact</span>
-        <span class="k">Post-hoc rule change</span><span class="v">${esc(String(finalized.user_evidence.posthoc_rule_change_attempts))}</span>
-        <span class="k">Repeat funding</span><span class="v">${esc(finalized.user_evidence.repeat_fund_intent)}</span>
-        <span class="k">User evidence class</span><span class="v">${esc(finalized.user_evidence.attestation_class)}</span>
-        <span class="k">Experiment conclusion</span><span class="v">${esc(finalized.verdict)}</span>
       </div>
-      <p class="note"><strong>One experiment is not evidence of product-market fit.</strong></p>
+      <details class="research-inst" open>
+        <summary>Research record — EXPERIMENT-001 instrumentation</summary>
+        <div class="kv" style="margin-top:10px">
+          <span class="k">Post-hoc rule change</span><span class="v">${esc(String(finalized.user_evidence.posthoc_rule_change_attempts))}</span>
+          <span class="k">Repeat funding</span><span class="v">${esc(finalized.user_evidence.repeat_fund_intent)}</span>
+          <span class="k">User evidence class</span><span class="v">${esc(finalized.user_evidence.attestation_class)}</span>
+          <span class="k">Experiment conclusion</span><span class="v">${esc(finalized.verdict)}</span>
+        </div>
+        <p class="note"><strong>One experiment is not evidence of product-market fit.</strong></p>
+      </details>
       ${technicalDetails([["final ledger", "final-ledger.json (written once)"], ["ledger sha…", "see final-ledger.json on disk"]])}`;
     return;
   }
@@ -643,16 +654,21 @@ function renderPayerResponse(state) {
     <h1 class="page-title">Now record the response</h1>
     <p class="page-subtitle">Above the line: technical fact. Below the line: human evidence — observed, declared identity, not authenticated.</p>
     ${latest ? `
-      <div class="card evidence-card"><div class="card-title">Recorded (observation ${esc(String(state.observations.latest_seq))})</div>
+      <div class="card evidence-card"><div class="card-title">Acknowledgment recorded (observation ${esc(String(state.observations.latest_seq))})</div>
         <div class="kv">
-          <span class="k">Q1 earned?</span><span class="v">${latest.payer_accepts_tier1 ? "Yes" : "No"}</span>
-          <span class="k">Q2 rule-change attempts</span><span class="v">${esc(String(latest.posthoc_rule_change_attempts))}</span>
-          <span class="k">Q3 repeat funding</span><span class="v">${esc(latest.repeat_fund_intent)}</span>
+          <span class="k">Earned, under the frozen rules?</span><span class="v">${latest.payer_accepts_tier1 ? "Yes" : "No"}</span>
+        </div>
+      </div>
+      <details class="research-inst" open>
+        <summary>Research record — EXPERIMENT-001 instrumentation</summary>
+        <div class="kv" style="margin-top:10px">
+          <span class="k">Post-hoc rule-change attempts</span><span class="v">${esc(String(latest.posthoc_rule_change_attempts))}</span>
+          <span class="k">Repeat funding</span><span class="v">${esc(latest.repeat_fund_intent)}</span>
           <span class="k">Evidence class</span><span class="v">USER EVIDENCE — OBSERVED / UNSIGNED</span>
         </div>
-      </div>` : `
+      </details>` : `
       <form id="f5-form">
-        <h2 class="section-title">Question 1</h2>
+        <h2 class="section-title">The acknowledgment</h2>
         <p class="cardinal">According to the rules you agreed to before work began, has this worker earned the Tier-1 reward?</p>
         <div class="actions" style="margin-top:8px">
           <label><input type="radio" name="q1" value="yes" /> Yes</label>
@@ -661,32 +677,37 @@ function renderPayerResponse(state) {
         <div id="q1-yes" hidden class="form-field full" style="margin-top:12px"><label>In your own words</label><textarea id="q1-verbatim" placeholder="Yes. Under the frozen rules, this worker earned Tier 1."></textarea></div>
         <div id="q1-no" hidden class="form-field full" style="margin-top:12px"><label>Tell us why</label><textarea id="q1-why"></textarea></div>
 
-        <h2 class="section-title">Question 2</h2>
-        <p class="cardinal">After seeing the result, did you attempt to change any Tier-1 rule?</p>
-        <div class="actions" style="margin-top:8px">
-          <label><input type="radio" name="q2" value="no" /> No</label>
-          <label><input type="radio" name="q2" value="yes" /> Yes</label>
-        </div>
-        <div id="q2-yes" hidden class="form-field full" style="margin-top:12px"><label>What would you change?</label><textarea id="q2-what"></textarea><span class="hint">Recorded as evidence only — it is not permission to edit the frozen contract.</span></div>
+        <details class="research-inst" id="research-inst">
+          <summary>Research questions — EXPERIMENT-001 instrumentation</summary>
+          <div style="margin-top:12px">
+            <h2 class="section-title">Question 2</h2>
+            <p class="cardinal">After seeing the result, did you attempt to change any Tier-1 rule?</p>
+            <div class="actions" style="margin-top:8px">
+              <label><input type="radio" name="q2" value="no" /> No</label>
+              <label><input type="radio" name="q2" value="yes" /> Yes</label>
+            </div>
+            <div id="q2-yes" hidden class="form-field full" style="margin-top:12px"><label>What would you change?</label><textarea id="q2-what"></textarea><span class="hint">Recorded as evidence only — it is not permission to edit the frozen contract.</span></div>
 
-        <h2 class="section-title">Question 3</h2>
-        <p class="cardinal">Would you fund another task using this structure?</p>
-        <div class="actions" style="margin-top:8px">
-          <label><input type="radio" name="q3" value="YES" /> Yes</label>
-          <label><input type="radio" name="q3" value="NO" /> No</label>
-          <label><input type="radio" name="q3" value="ANSWER_LATER" /> Answer later</label>
-        </div>
-        <p class="note">"Answer later" keeps the question unresolved — it is not a No, and it blocks finalizing until answered or explicitly closed by the operator.</p>
+            <h2 class="section-title">Question 3</h2>
+            <p class="cardinal">Would you fund another task using this structure?</p>
+            <div class="actions" style="margin-top:8px">
+              <label><input type="radio" name="q3" value="YES" /> Yes</label>
+              <label><input type="radio" name="q3" value="NO" /> No</label>
+              <label><input type="radio" name="q3" value="ANSWER_LATER" /> Answer later</label>
+            </div>
+            <p class="note">"Answer later" keeps the question unresolved — it is not a No, and it blocks finalizing until answered or explicitly closed by the operator.</p>
 
-        <div id="closure-panel" hidden style="margin-top:14px">
-          <div class="card evidence-card">
-            <h2 class="section-title" style="margin-top:0">Operator closure of the unresolved follow-up (D9)</h2>
-            <p class="note">The acceptor chose Answer later. The operator may close the follow-up explicitly: the hesitation is recorded verbatim, Q3 stays NOT_ASKED (never a No, never "never asked"), provenance is preserved.</p>
-            <div class="form-field full"><label>Hesitation verbatim</label><textarea id="closure-hesitation" placeholder="Payer: ask me again next week."></textarea></div>
-            <div class="form-field full" style="margin-top:10px"><label>Why the experiment closes without an answer</label><textarea id="closure-reason" placeholder="Session ended before the payer decided on repeat funding."></textarea></div>
-            <div class="actions"><button class="primary" type="button" id="btn-close-followup">Close follow-up (operator)</button></div>
+            <div id="closure-panel" hidden style="margin-top:14px">
+              <div class="card evidence-card">
+                <h2 class="section-title" style="margin-top:0">Operator closure of the unresolved follow-up (D9)</h2>
+                <p class="note">The acceptor chose Answer later. The operator may close the follow-up explicitly: the hesitation is recorded verbatim, Q3 stays NOT_ASKED (never a No, never "never asked"), provenance is preserved.</p>
+                <div class="form-field full"><label>Hesitation verbatim</label><textarea id="closure-hesitation" placeholder="Payer: ask me again next week."></textarea></div>
+                <div class="form-field full" style="margin-top:10px"><label>Why the experiment closes without an answer</label><textarea id="closure-reason" placeholder="Session ended before the payer decided on repeat funding."></textarea></div>
+                <div class="actions"><button class="primary" type="button" id="btn-close-followup">Close follow-up (operator)</button></div>
+              </div>
+            </div>
           </div>
-        </div>
+        </details>
 
         <div class="actions">
           <button class="primary" type="submit" id="btn-record" disabled>Record response</button>
@@ -715,6 +736,7 @@ function renderPayerResponse(state) {
       $("#q2-yes").hidden = q("q2") !== "yes";
       const later = q("q3") === "ANSWER_LATER";
       $("#closure-panel").hidden = !later;
+      if (later) document.getElementById("research-inst")?.setAttribute("open", "");
       const btn = $("#btn-record");
       btn.disabled = !(q("q1") && q("q2") && q("q3")) || later;
       btn.textContent = later ? "Answer later — use the operator closure below" : "Record response";
@@ -726,8 +748,14 @@ function renderPayerResponse(state) {
       const q3 = q("q3");
       if (q3 === "ANSWER_LATER") {
         // P0-4: nothing is recorded on Answer later; the explicit operator closure below writes the FIRST observation
+        document.getElementById("research-inst")?.setAttribute("open", "");
         $("#closure-panel").hidden = false;
         $("#closure-hesitation").focus();
+        return;
+      }
+      if (!q("q2") || !q3) {
+        document.getElementById("research-inst")?.setAttribute("open", "");
+        alert("The research questions (inside the collapsed block) are part of this experiment record — please answer them.");
         return;
       }
       const payload = {

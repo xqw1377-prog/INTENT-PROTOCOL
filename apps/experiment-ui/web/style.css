@@ -198,3 +198,17 @@ button.brand { font-weight: 700; letter-spacing: 0.18em; font-size: 14px; color:
 .replay-step { display: flex; align-items: center; gap: 12px; padding: 9px 16px; border-bottom: 1px solid var(--frozen-line); font-size: 14px; }
 .replay-step:last-child { border-bottom: none; }
 .rs-n { width: 20px; height: 20px; border-radius: 50%; background: var(--frozen-bg); border: 1px solid var(--frozen-line); color: var(--frozen); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+
+/* PRODUCTIZATION POLISH (Commander three-cut ruling, 2026-10-24) */
+details.advanced-setup { margin-top: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+details.advanced-setup > summary { cursor: pointer; padding: 10px 14px; font-size: 12.5px; font-weight: 600; color: var(--ink-muted); }
+details.advanced-setup[open] > summary { border-bottom: 1px solid var(--line); }
+details.advanced-setup > .form-grid { padding: 4px 14px 14px; }
+details.research-inst { margin-top: 16px; border: 1px dashed var(--line-strong); border-radius: 8px; background: var(--human-evidence-bg); }
+details.research-inst > summary { cursor: pointer; padding: 10px 14px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: var(--human-evidence); }
+details.research-inst[open] > summary { border-bottom: 1px dashed var(--line-strong); }
+details.research-inst > *:not(summary) { margin-left: 14px; margin-right: 14px; }
+details.evidence-details { max-width: 880px; margin: 0 auto; padding: 0 24px 8px; }
+details.evidence-details > summary { cursor: pointer; font-size: 11.5px; color: var(--ink-faint); letter-spacing: 0.06em; user-select: none; }
+details.evidence-details[open] > summary { padding-bottom: 6px; }
+details.evidence-details .facts-strip { padding: 8px 0 4px; }
