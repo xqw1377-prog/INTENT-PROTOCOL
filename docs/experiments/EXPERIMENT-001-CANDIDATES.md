@@ -1,5 +1,36 @@
 # EXPERIMENT-001 — Candidate Shortlist & Screening Record
 
+Status: **ROUND 3 CLOSED — TARGET CLOSED (Commander adjudication 2026-10-23).
+RECRUITMENT-STAGE USER SIGNAL: 1 meaningful negative.** EXPERIMENT-001 =
+NOT STARTED; REAL PAYER / TASK / WORKER = 0 / 0 / 0. Next recruitment
+round targets people with a real moving-goalposts pain (P1 ICP line:
+AI-coding/agent teams, outsourcing buyers, result-based commercial
+teams) — OSS hobby maintainers are DEMOTED (two signals: payer-role
+refusal at zero cost; mechanism refusal at zero cost). Commander ruling:
+NEXT ENGINEERING = NONE.
+
+```text
+ROUND-3 REPLY RECORD (verbatim, comment id 6364519166)
+  who       remcoder
+  when      2026-10-23T12:08:20Z (fourth comment on #530)
+  verbatim  "I'm interested in getting the bug fixed. The issue desc is
+             the requirements. I will eval your solution and report. No
+             rewards are needed but i will congratulate you on a good
+             solution."
+  class     RESPONDED · sponsored terms SEEN · PRE-COMMIT AGREEMENT = NO
+            · FROZEN-CONTRACT PARTICIPATION = NOT ACCEPTED
+  counter   "issue description = requirements" + maintainer discretionary
+            evaluation ("I will eval") — the traditional WORK → EVALUATE →
+            DECIDE model, not FREEZE → WORK → PROOF → EARNED
+  weight    HIGHER than the round-1 refusal: every participation cost was
+            already removed (no payment, no install, no signatures, we
+            supply the contributor, sponsor funds the reward) — and the
+            mechanism itself was still not chosen over discretionary eval
+  ruled     NOT "mechanism disproven" (the experiment never ran); recorded
+            as RECRUITMENT-STAGE NEGATIVE SIGNAL. gcode-preview #530 =
+            CLOSED for EXPERIMENT-001. NO third contact.
+```
+
 Status: **RECRUITMENT ROUND 1 CLOSED — REFUSED (maintainer side).**
 Recorded 2026-10-22 (reply arrived 2026-10-03T13:54:49Z, 8 minutes after
 first contact; discovered during the 2026-10-22 full-system audit — the

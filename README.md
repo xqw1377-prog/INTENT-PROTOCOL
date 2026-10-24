@@ -77,35 +77,30 @@ FRONTEND-R1         = PASS / FROZEN-R0 (Commander @ d09c18a, 2026-10-03;
                      expansion STOPPED by ruling. LEDGER ADDITIVE-EXPORT
                      COMPATIBILITY = PASS (maintained).
 NEXT                = DIRECTION-R1 LINES (Commander full-project audit
-                     2026-10-22; docs/product/DIRECTION-R1.md). P0 =
-                     run EXPERIMENT-001 (MECHANISM ACCEPTANCE rung;
-                     round-3 sponsored contact UNANSWERED; second
-                     refusal → CLOSE gcode-preview, no third contact).
-                     P1 = ICP re-validation, 10 interviews
-                     (docs/product/ICP-INTERVIEW-KIT.md) — OSS bounty
-                     demoted FIRST MARKET → FIRST LAB; product
-                     hypothesis = AI WORK ACCEPTANCE LAYER (pending P1,
-                     not a claim). P2 = EXPERIMENT-002 ECONOMIC
-                     ACCEPTANCE (real payer's own money, $20–100).
-                     Project main question: "谁会为 Frozen Outcome
-                     买单？" Engineering = SUFFICIENT FOR VALIDATION.
-                     SPONSORED-RELATIONSHIP (EXPERIMENT-001-AMENDMENT-1
-                     ratified 2026-10-22: sponsor funds the symbolic
-                     Tier-1, maintainer = rule-co-author + acceptor, F5
-                     answer = ACKNOWLEDGMENT evidence only — never
-                     citable as payer/payment evidence; "REAL PAYER
-                     0→1" NOT converted by sponsored runs). Second
-                     contact SENT to gcode-preview#530 under stated new
-                     terms 2026-10-22T09:02:21Z (issuecomment-6336937290
-                     — refusal acknowledged, "you never pay" terms;
-                     UNANSWERED). First refusal verbatim on record
-                     (2026-10-03: "We don't pay for contributions.
-                     This is a hobby project. Non-commercial."). A
-                     second refusal closes gcode-preview permanently.
-                     Real payer: 0 (unchanged by sponsored runs). Real
-                     task: 0. Real external worker: 0 (3 candidates
-                     screened, parked, uncontacted). Experiment: NOT
-                     STARTED. Real user evidence: ZERO. Product thesis:
+                     2026-10-22; docs/product/DIRECTION-R1.md), updated by
+                     the 2026-10-23 round-3 adjudication: gcode-preview
+                     #530 = CLOSED — remcoder replied (verbatim on record,
+                     comment 6364519166: "I'm interested in getting the
+                     bug fixed. The issue desc is the requirements. I
+                     will eval your solution and report. No rewards are
+                     needed…") = counter-proposal of discretionary
+                     evaluation, NOT frozen-contract participation, at
+                     zero participation cost → RECRUITMENT-STAGE NEGATIVE
+                     SIGNAL; OSS hobby maintainers DEMOTED as first ICP;
+                     no third contact. PRIMARY LINE = P1: find people
+                     with real moving-goalposts pain (10 interviews,
+                     docs/product/ICP-INTERVIEW-KIT.md; AI-coding/agent
+                     teams, outsourcing buyers, result-based commercial
+                     teams); EXPERIMENT-001's next target should come
+                     from P1's PAIN-CONFIRMED ∧ MECHANISM-WILLING pool.
+                     P2 = EXPERIMENT-002 ECONOMIC ACCEPTANCE (real
+                     payer's own money). Project main question: "谁会为
+                     Frozen Outcome 买单？" NEXT ENGINEERING = NONE
+                     (Commander 2026-10-23). PRODUCT-UX-R2 = PASS /
+                     IMPLEMENTED (see below). Real payer: 0. Real task:
+                     0. Real external worker: 0 (3 candidates screened,
+                     parked, uncontacted). Experiment: NOT STARTED. Real
+                     user evidence: ZERO. Product thesis:
                      NOT validated. (docs/experiments/EXPERIMENT-001.md;
                      ops kit docs/experiments/EXPERIMENT-001-OPS.md;
                      screening record docs/experiments/
@@ -178,12 +173,16 @@ PROOF PACK          = PROVEN / REPRODUCIBLE / THIRD-PARTY-VERIFIABLE
 OFFICIAL CI         = 6/6 SUCCESS @ main 41c0076 (runs 36363313584 / 36363317605 /
                       36363321434 / 36363427164 / 36363432051 / 36363436750)
 MAIN HEALTH CI      = PROVEN WORKING; green lineage b513285 / 0a2e872 /
-                      ba7b437 (2026-10-22) — macos-latest +
+                      ba7b437 / e8dcd4 / 594f377 (2026-10-22/23) —
+                      macos-latest +
                       full-history checkout (the suite's reference
                       environment; fixed from RED-since-birth @ 84798ce).
+                      TIP GREEN = PROVEN & CLOSED (Commander 2026-10-23:
+                      tip 594f377 = Main Health run #16 / 39807463201
+                      SUCCESS; the interleaved 6c99ec2 cancellation is
+                      neither green nor red).
                       Discipline: a tip is called green ONLY after its
-                      run lands (08ec661 was still queued at the
-                      DIRECTION-R1 audit; never pre-claim). Known
+                      run lands — never pre-claim. Known
                       infra-flake class: hosted-runner CPU throttling
                       can stall one end-of-run vitest worker RPC past
                       its ceiling on an otherwise all-green run
@@ -192,6 +191,17 @@ MAIN HEALTH CI      = PROVEN WORKING; green lineage b513285 / 0a2e872 /
                       knob set (vitest.config.ts); such a run is
                       RE-RUN, a real failure shows failing
                       tests/typecheck/hygiene.
+PRODUCT-UX-R2       = PASS / IMPLEMENTED (Commander 2026-10-23; spec
+                      docs/product/PRODUCT-UX-R2-SPEC.md; commits
+                      e8dc9d4 → 6c99ec2 → 594f377). Value-first
+                      expression layer: HOME / CONTRACT / WORK / PROOF /
+                      OUTCOME; QUIET CONTRACT states UNFROZEN · FROZEN ·
+                      EARNED; "Earned is a protocol fact. Paid is a
+                      separate event."; protocol/server/frozen modules
+                      untouched; full suite 665 GREEN on the clean tree.
+                      RECORD PAGE = HOLD (not needed for validation);
+                      HOME LIVE EXAMPLE = HOLD UNTIL A REAL CONTRACT
+                      EXISTS (never fabricate a looks-real one).
 DIRECTION-R1        = RATIFIED (Commander full-project audit 2026-10-22;
                       docs/product/DIRECTION-R1.md). Direction PASS;
                       engineering SUFFICIENT FOR VALIDATION; STOP list
