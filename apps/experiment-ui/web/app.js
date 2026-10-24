@@ -633,7 +633,7 @@ function renderPayerResponse(state) {
         <span class="k">What is now irreversible</span><span class="v frozen">the earned conclusion — independently replayable</span>
         <span class="k">Acceptor's answer</span><span class="v">${esc(finalized.user_evidence.payer_accepts_tier1 ? "Accepted" : "Rejected")} — recorded, not a machine fact</span>
       </div>
-      <details class="research-inst" open>
+      <details class="research-inst">
         <summary>Research record — EXPERIMENT-001 instrumentation</summary>
         <div class="kv" style="margin-top:10px">
           <span class="k">Post-hoc rule change</span><span class="v">${esc(String(finalized.user_evidence.posthoc_rule_change_attempts))}</span>
@@ -659,7 +659,7 @@ function renderPayerResponse(state) {
           <span class="k">Earned, under the frozen rules?</span><span class="v">${latest.payer_accepts_tier1 ? "Yes" : "No"}</span>
         </div>
       </div>
-      <details class="research-inst" open>
+      <details class="research-inst">
         <summary>Research record — EXPERIMENT-001 instrumentation</summary>
         <div class="kv" style="margin-top:10px">
           <span class="k">Post-hoc rule-change attempts</span><span class="v">${esc(String(latest.posthoc_rule_change_attempts))}</span>

@@ -222,9 +222,22 @@ PRODUCT-UX-R2       = PASS / IMPLEMENTED (Commander 2026-10-23; spec
                       P3 OUTCOME = product acknowledgment layer +
                       collapsible "Research instrumentation" (Q2/Q3/
                       closure; auto-opens when required). UI tests 35/35;
-                      full suite 665 GREEN. Awaiting Commander visual
-                      sign-off; per the ruling, no further frontend work
-                      after these cuts.
+                      full suite 665 GREEN.
+                      FINAL REVIEW (Commander 2026-10-25): CORE / P1
+                      CONTRACT / P2 HEADER = PASS; P3 OUTCOME = PASS-1 →
+                      closed by removing the default-open on the
+                      research-record blocks (finalized + recorded states,
+                      same principle: product layer visible by default,
+                      research layer on demand). FINAL LEDGER:
+                      FUNCTIONAL = PASS · INTERACTION = PASS · VALUE
+                      EXPRESSION = PASS · QUIET CONTRACT STRUCTURE =
+                      PASS · FINALIZED RESEARCH DEFAULT = FIXED · PIXEL/
+                      VISUAL SIGN-OFF = NOT INDEPENDENTLY OBSERVED
+                      (Commander signed code/IA/CI only; local shots not
+                      independently viewable). UI IMPLEMENTATION GREEN =
+                      run #18 @ 2a4c9bc (3 frontend files); per-run tip
+                      discipline unchanged. FRONTEND ENGINEERING =
+                      FROZEN — no further frontend development.
 DIRECTION-R1        = RATIFIED (Commander full-project audit 2026-10-22;
                       docs/product/DIRECTION-R1.md). Direction PASS;
                       engineering SUFFICIENT FOR VALIDATION; STOP list
