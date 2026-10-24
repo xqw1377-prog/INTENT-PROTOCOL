@@ -95,9 +95,20 @@ NEXT                = DIRECTION-R1 LINES (Commander full-project audit
                      from P1's PAIN-CONFIRMED ∧ MECHANISM-WILLING pool.
                      P2 = EXPERIMENT-002 ECONOMIC ACCEPTANCE (real
                      payer's own money). Project main question: "谁会为
-                     Frozen Outcome 买单？" NEXT ENGINEERING = NONE
-                     (Commander 2026-10-23). PRODUCT-UX-R2 = PASS /
-                     IMPLEMENTED (see below). Real payer: 0. Real task:
+                     Frozen Outcome 买单？" NEXT ENGINEERING = NONE — ENGINEERING FROZEN (Commander
+                     2026-10-24). SOLE ACTIVE ORDER = DIRECTION-R1 /
+                     ICP DISCOVERY (military order 2026-10-24): 10
+                     interviews; question set FINAL (open Q1 "how do you
+                     judge done" + factual probes — no leading; mechanism
+                     Q2 only after the case is told); PRODUCT DEMO NOT
+                     SHOWN BEFORE Q1/Q2; metrics PAIN-CONFIRMED ·
+                     MECHANISM-WILLING; high-value = willing to bring one
+                     real task; persona priority: outsourcing/procurement
+                     leads → heavy AI-coding engineering leads → CTOs →
+                     agent-product builders → commercial OSS maintainers
+                     (hobby maintainers not in front). Kit:
+                     docs/product/ICP-INTERVIEW-KIT.md.
+                     PRODUCT-UX-R2 = PASS / IMPLEMENTED (see below). Real payer: 0. Real task:
                      0. Real external worker: 0 (3 candidates screened,
                      parked, uncontacted). Experiment: NOT STARTED. Real
                      user evidence: ZERO. Product thesis:
