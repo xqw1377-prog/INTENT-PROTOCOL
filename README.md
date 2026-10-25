@@ -1,10 +1,10 @@
 # INTENT PROTOCOL
 
-**Freeze the rules before work. Prove the outcome after work.**
+**A safer way to pay for work.**
 
-People who pay for work and people who do the work still end up arguing about what “done” meant, because that rule was never frozen before the work started. Intent Protocol freezes the done-criteria first, escrows the reward, and lets the Solana program — not the deliverer — decide whether the submission earned it. On devnet, one frozen receipt can be settled once: a matching submission pays the vault, and a second settle is rejected.
+Hire work without moving the goalposts. Freeze the rules before the work. Prove the outcome after.
 
-Earned is a protocol fact. Paid is a separate event. There is no mainnet deployment and no protocol token. The public demo uses devnet SOL only.
+On the public devnet demo, the pay is locked together with the rule. A matching delivery is paid once. A wrong delivery is not paid. There is no mainnet deployment and no token. Real external payer, task, and worker recorded here: 0.
 
 The judge brief is [HACKATHON.md](HACKATHON.md). Internal gate history is [docs/GOVERNANCE-LEDGER.md](docs/GOVERNANCE-LEDGER.md).
 
@@ -121,7 +121,7 @@ Encode Club Solana Hackathon 2026 runs 2026-10-12 through 2026-11-08. Work in th
 
 - A new program, `7a6K1m…`, for open intents: on-chain criteria hash, SOL escrow at creation, program-checked delivery, exactly-once settlement. Deployed to devnet on 2026-10-25. The immutable program was not modified.
 - The public wallet demo at `https://intent-protocol-wine.vercel.app`, the judge brief, the slide deck, the demo script, and the submission fields.
-- x402 was evaluated and not entered. The tracks for this submission are Best Consumer App on Solana and Aurora Intents. Reasoning: [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md).
+- The Encode track is Best Consumer App on Solana. Aurora Intents is not entered: the name says “intent”, and there is no Aurora integration, so that track is not qualified. x402 is not entered. Reasoning: [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md).
 
 ## Map
 

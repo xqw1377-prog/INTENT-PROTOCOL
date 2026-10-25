@@ -2,20 +2,23 @@
 
 Due 2026-11-02, 19:59 Asia/Shanghai. Paste each fenced block as written. Do not add users, partners, revenue, or mainnet.
 
-Tracks: Best Consumer App on Solana, and Aurora Intents. x402 is not entered. See [ENCODE-SUBMISSION.md](ENCODE-SUBMISSION.md).
+Track: Best Consumer App on Solana. Aurora Intents is not entered and is not qualified until a real Aurora Intents integration exists. Do not claim the Aurora bounty. An Aurora Intents workshop is on 2026-10-28; decide after it, and do not add a cosmetic Aurora API for the bounty. x402 is not entered. See [ENCODE-SUBMISSION.md](ENCODE-SUBMISSION.md).
 
 ## Description
 
 ```
-People who pay for work and people who do the work still argue about what “done” meant, because that rule was never frozen before the work started. Intent Protocol freezes the done-criteria first, escrows the reward in a Solana program, and lets the program — not the deliverer — decide whether the submission earned it.
+A safer way to pay for work. Hire someone without moving the goalposts: freeze what “done” means before the work starts, then prove the outcome after.
 
-On the public devnet demo, a wallet connects, writes the criteria, and locks 0.05 SOL in a program-owned vault in that same transaction. The criteria text and its hash sit on the intent account. The expected submission is stored only as a hash. A deliverer submits bytes. The program recomputes sha256. A match writes a verification result and pays the vault once. A wrong submission leaves the SOL locked. A second settle is rejected. The creator can cancel before verification and take the escrow back.
+On the public devnet demo, a wallet connects, writes the rule, and locks 0.05 SOL with it. A deliverer submits the work. A match pays that SOL once. Submit 41 on the sample and the pay stays locked. Submit 42 and it pays once. A second pay is rejected. The person who posted the job can cancel before the check and take the SOL back.
 
-The demo is https://intent-protocol-wine.vercel.app. Use Phantom or Solflare on Devnet. The sample criteria are the decimal sum of 17 and 25. The answer that earns the escrow is 42.
+Demo: https://intent-protocol-wine.vercel.app
+Video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+Slides: https://intent-protocol-wine.vercel.app/slides.html
+Escrow program on devnet: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F
 
-Escrow program on devnet: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F. It is deployed. A sample settlement and the deploy transaction are linked from the repository. An older program, ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F, is immutable and was not modified. It still shows one test-token receipt settled once, and later retries rejected with custom error 108.
+Use Phantom or Solflare on Devnet. The sample asks for the decimal sum of 17 and 25.
 
-No mainnet. No protocol token. No claimed users, customers, or partners. Real external payer, task, and worker recorded in this repository: 0.
+No mainnet. No token. No claimed users, customers, or partners. Real external payer, task, and worker recorded in this repository: 0.
 ```
 
 ## Code

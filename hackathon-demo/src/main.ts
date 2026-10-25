@@ -112,12 +112,12 @@ function shell(body: string): string {
 function homeHtml(): string {
   return `
     <p class="kicker">Solana devnet · test SOL only</p>
-    <h1>Freeze the rules before the work. Prove the outcome after.</h1>
-    <p class="lede">A payer and a deliverer can still argue about what “done” meant if that rule was never frozen. Intent locks the done-criteria and the reward on devnet first. The program, not the deliverer, decides whether the submission earned it.</p>
+    <h1>A safer way to pay for work.</h1>
+    <p class="lede">Hire work without moving the goalposts. Freeze the rules before the work. Prove the outcome after. The sample locks 0.05 SOL. A wrong answer leaves it locked. The right answer pays once.</p>
     <div class="grid cards">
-      <article class="card"><h2>1. Freeze and escrow</h2><p class="muted">Your wallet writes the criteria hash on-chain and locks SOL in a vault in the same transaction.</p></article>
-      <article class="card"><h2>2. Deliver</h2><p class="muted">Another wallet, or the same one, submits the work. The expected answer is not stored in plaintext.</p></article>
-      <article class="card"><h2>3. Verify and settle once</h2><p class="muted">The program recomputes the hash. A match pays the vault to the deliverer. A second settle fails.</p></article>
+      <article class="card"><h2>1. Freeze the rule and the pay</h2><p class="muted">Write what “done” means, and lock the SOL in the same step. The rule cannot be edited after delivery.</p></article>
+      <article class="card"><h2>2. Deliver against that rule</h2><p class="muted">Another wallet, or the same one, submits the work. The sample answer is 42. Try 41 first.</p></article>
+      <article class="card"><h2>3. Get paid once, or not at all</h2><p class="muted">A match pays the locked SOL. A mismatch leaves it locked. Paying twice is rejected.</p></article>
     </div>
     <div class="row">
       <a class="btn btn-primary" href="#/create">Create an intent</a>

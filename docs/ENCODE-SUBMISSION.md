@@ -8,25 +8,30 @@ Intent Protocol
 
 ## One-liner
 
-Freeze the done-criteria and escrow the reward on Solana devnet, then let the program — not the deliverer — settle that reward once.
+A safer way to pay for work: hire without moving the goalposts. Freeze the rules before the work. Prove the outcome after.
 
 ## Description
 
-Intent is a consumer flow for paid work where “done” has to be frozen before the work starts.
+A safer way to pay for work. Hire someone without moving the goalposts: freeze what “done” means before the work starts, then prove the outcome after.
 
-A person connects a devnet wallet, writes the done-criteria, and locks SOL in a program-owned vault in that same transaction. The criteria text and its hash are stored on the intent account. The expected submission is stored only as a hash. A deliverer submits the work. The program recomputes the hash. A match writes a verification result and pays the vault to that deliverer once. A mismatch leaves the SOL in escrow. The creator can cancel before verification and take it back.
+On the public devnet demo, a wallet connects, writes the rule, and locks 0.05 SOL with it. A deliverer submits the work. A match pays that SOL once. Submit 41 on the sample and the pay stays locked. Submit 42 and it pays once. A second pay is rejected. The person who posted the job can cancel before the check and take the SOL back.
 
-The demo is a public web app at https://intent-protocol-wine.vercel.app: Phantom or Solflare, devnet airdrop or faucet, a sample intent (17 + 25, answer 42, 0.05 SOL), and Explorer links for every transaction.
+Demo: https://intent-protocol-wine.vercel.app
+Video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+Slides: https://intent-protocol-wine.vercel.app/slides.html
+Escrow program on devnet: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F
 
-An older immutable devnet program, from September 2026, still shows a separate proof: one pre-authorized test-token receipt settled once, and later retries failed on-chain with custom error 108. That program was not modified for this hackathon.
+Use Phantom or Solflare on Devnet. The sample asks for the decimal sum of 17 and 25.
 
-No mainnet. No protocol token. No claimed users, customers, or partners. Real external payer, task, and worker recorded in this repository: 0.
+No mainnet. No token. No claimed users, customers, or partners. Real external payer, task, and worker recorded in this repository: 0.
 
 ## Track
 
-Best Consumer App on Solana, and Aurora Intents.
+Best Consumer App on Solana.
 
-## Why these tracks, and not x402
+Aurora Intents is not entered and is not qualified until there is a real Aurora Intents integration. The product name contains “intent”. That is not an integration. Do not claim the Aurora bounty.
+
+## Why this track, and not x402 or Aurora
 
 x402 is a payment-to-access protocol: a server answers HTTP 402, a client pays, and a successful payment unlocks a resource. Failed payment must not unlock it.
 
@@ -34,9 +39,9 @@ That is a real Solana pattern, and it is a poor fit for this product.
 
 The payment in Intent is conditional escrow. The SOL is locked at the start and released only after the frozen rule passes. It is not a toll to read an API. Charging x402 “to run verification” would put a second payment in front of a check the program already does, and it would need a facilitator, a paid endpoint, and a failure policy that is not the product. That is too much to do honestly before the 2026-11-01 checkpoint, on top of the wallet flow the submission actually requires.
 
-Best Consumer App matches what is built: a user need (rules that cannot move after delivery), onboarding (wallet, devnet faucet, sample data), meaningful Solana use (escrow, on-chain criteria hash, on-chain verification result, exactly-once settlement), and a working end-to-end devnet path.
+Best Consumer App matches what is built: a person can hire work without the rule moving after delivery, get onto devnet with a wallet and a faucet, and watch one sample job pay once. Solana holds the pay from the moment the rule is frozen.
 
-Aurora Intents is the second track. The product is an intent: a frozen done-criteria, a bound reward, and a program that accepts or refuses the delivery. Enter both. Do not drop the consumer track. The demo was built to meet those criteria.
+Aurora Intents is not entered. There is no Aurora Intents integration in this repository, so the track is not qualified and the bounty is not claimed. An Aurora Intents workshop is on 2026-10-28. Decide after that workshop. Do not bolt on a cosmetic Aurora API for the bounty.
 
 ## Repository
 
