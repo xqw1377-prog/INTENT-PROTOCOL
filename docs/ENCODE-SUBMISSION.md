@@ -1,6 +1,6 @@
 # Encode Club submission fields
 
-Paste these. Replace the two placeholders after the website and the video exist. Do not add claims that are not in the repository.
+Paste these. Do not add claims that are not in the repository.
 
 ## Project name
 
@@ -48,7 +48,9 @@ https://intent-protocol-wine.vercel.app
 
 ## Video link
 
-`(paste the hosted video URL after recording. Script: docs/DEMO-SCRIPT.md)`
+https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+
+104 seconds, 1280×720. Source file: `hackathon-demo/public/INTENT-Encode-demo.mp4`. That URL is on the live site after the production build includes this file. An unlisted YouTube URL is not available yet. Narration script: `docs/DEMO-SCRIPT.md`.
 
 ## Slides
 

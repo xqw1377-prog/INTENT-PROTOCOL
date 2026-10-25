@@ -51,11 +51,9 @@ How to try:
 ## Demo Video
 
 ```
-Video URL: (fill in after recording)
+https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
 
-Script: docs/DEMO-SCRIPT.md in https://github.com/xqw1377-prog/INTENT-PROTOCOL
-
-Record about 3 minutes. English narration can be text-to-speech. The founder does not need to speak. Show the live demo: freeze the sample done-criteria, submit a wrong answer, then submit 42, verify, and open the devnet Explorer settlement. Do not claim users, partners, mainnet, or a token.
+104 seconds, 1280×720. The file is hackathon-demo/public/INTENT-Encode-demo.mp4 in https://github.com/xqw1377-prog/INTENT-PROTOCOL. The live site serves that path after the production build includes this file. An unlisted YouTube URL is not available yet. Narration script: docs/DEMO-SCRIPT.md.
 ```
 
 ## Slides

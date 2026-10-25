@@ -128,7 +128,8 @@ Encode Club Solana Hackathon 2026 runs 2026-10-12 through 2026-11-08. Work in th
 | Doc | What it is |
 |---|---|
 | [HACKATHON.md](HACKATHON.md) | Judge brief and deploy notes |
-| [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) | 3-minute English narration |
+| [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) | Narration for the recorded demo |
+| [hackathon-demo/public/INTENT-Encode-demo.mp4](hackathon-demo/public/INTENT-Encode-demo.mp4) | Demo video, 104 seconds |
 | [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md) | Paste-ready form fields and track recommendation |
 | [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md) | Mid-submission fields due 2026-11-02 19:59 Asia/Shanghai |
 | [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html) | Judge slide deck |
