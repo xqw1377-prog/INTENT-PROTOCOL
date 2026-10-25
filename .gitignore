@@ -21,3 +21,6 @@ packages/solana-devnet-adapter/rust/target/
 
 # T2 program build artifacts
 packages/solana-devnet-adapter/program/target/
+
+# Hackathon escrow build artifacts. Keypairs are never stored in this repo.
+packages/hackathon-escrow/program/target/

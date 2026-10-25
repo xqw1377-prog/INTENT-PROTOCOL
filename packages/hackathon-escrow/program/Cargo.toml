@@ -1,0 +1,17 @@
+[package]
+name = "hackathon-escrow"
+version = "0.1.0"
+edition = "2021"
+description = "Encode 2026 devnet program: freeze a done-criteria hash, escrow SOL, verify a delivery, settle once. Separate from the immutable TESTNET-R1 program."
+publish = false
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+# 1.18.17 is the same crate major as the frozen TESTNET-R1 program.
+# This package is a separate program id. It does not upgrade that one.
+solana-program = "=1.18.17"
+
+[profile.release]
+overflow-checks = true

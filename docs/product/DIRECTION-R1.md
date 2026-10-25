@@ -117,6 +117,10 @@ Do NOT rewrite old documents into "current state" (e.g. the
 PRODUCT-THESIS-R0 "awaiting adjudication" header stays as history).
 Governance weight grows if history is constantly rewritten.
 
+2026-10-25 packaging note: the governance ledger text was moved
+verbatim to docs/GOVERNANCE-LEDGER.md. README.md is the judge entry.
+This note does not reopen the ruling.
+
 ## The new main question
 
 > 从今天起，项目的主问题从"协议还有什么没做完？"

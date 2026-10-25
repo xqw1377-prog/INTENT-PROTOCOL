@@ -1,0 +1,10 @@
+{
+  "name": "@intent/hackathon-escrow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Client codec for the Encode 2026 devnet escrow program. No chain calls.",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

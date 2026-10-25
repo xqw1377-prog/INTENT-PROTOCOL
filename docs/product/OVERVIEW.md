@@ -191,7 +191,8 @@ docs/experiments/EXPERIMENT-001-OPS.md    操作手册 / 首联模板 / 筛查�
 docs/experiments/EXPERIMENT-001-CANDIDATES.md  招募日志（活）
 docs/AMENDMENTS.md                        受治变更（含 AMENDMENT-1 赞助裁定）
 docs/USER-EVIDENCE-R0.md                  UE 机器门记录
-README.md                                 治理台账
+docs/GOVERNANCE-LEDGER.md                 治理台账（2026-10-25 自 README 原样移出）
+README.md                                 评委入口（hackathon 包装；产品叙事仍以本文为准）
 docs/*.docx (Whitepaper / Tech Arch V0.1) 历史愿景层
 ```
 
