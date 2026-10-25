@@ -19,10 +19,10 @@ so the release BASE is the parent of the release commit; the release
 commit id and the Commander audit SHA are registered after sign-off.
 
 ```text
-RELEASE BASE (parent commit)   = be22031cdbd018e4aedc8fb2d25c4f244b00173f
+RELEASE BASE (parent commit)   = 2a4325126fc0e8a5b6816aade8aec9c4f9138a38
 IMPLEMENTATION AUDIT SHA       = PENDING-COMMANDER-AUDIT-SECURITY-R1
-VERIFIER-RELEASE.json SHA256   = sha256:f24d83d03c929c40086b04f768e494a5d68e1494b571968324404886cee143bd
-portable-replay.mjs SHA256     = sha256:5345ed1e9d269c9b3e6270a030a78f6e74457f37287dffd6acdbcb12789ab217
+VERIFIER-RELEASE.json SHA256   = sha256:001a12012fd93a7e137c283a92d13baf3636496895565d88a69b377c3c4745c2
+portable-replay.mjs SHA256     = sha256:994b058ea1b0e8a3e80b35a1497f4d55c98bfa457fd13b915b61bb6cdeaf5ca2
 RUNTIME IMAGE (pinned)         = node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdda25ada09b46db68a3f4cc205abf1f5d6bf0913f3384
 EXECUTION                      = Docker REQUIRED · no fallback · worker code
                                  runs with /work READ-ONLY, network none

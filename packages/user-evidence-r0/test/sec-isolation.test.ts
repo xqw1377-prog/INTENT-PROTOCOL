@@ -174,10 +174,11 @@ describe("[SEC] docker invocation contract", () => {
     expect(a.filter((x, i) => a[i - 1] === "-e").every((kv) => /^(HOME=\/tmp|CI=1|NPM_CONFIG_[A-Z_]+=.*)$/.test(kv))).toBe(true);
   });
 
-  test("[SEC-ARGV] install: /work rw + npm cache only; network not disabled; never the host home", () => {
+  test("[SEC-ARGV] install: ONLY the current /work is mounted RW; cache is ephemeral /tmp; never the host home", () => {
     const a = dockerArgv("install", run, ["npm", "ci", "--ignore-scripts"], "n");
     const mounts = a.filter((x, i) => a[i - 1] === "-v");
-    expect(mounts).toEqual([`${run}:/work:rw`, `${path.join(SANDBOX_HOME, "npm-cache")}:/npm-cache:rw`]);
+    expect(mounts).toEqual([`${run}:/work:rw`]);
+    expect(a.filter((x, i) => a[i - 1] === "-e")).toContain("NPM_CONFIG_CACHE=/tmp/npm-cache");
     expect(a).not.toContain("--network");
     expect(a.slice(a.indexOf(RUNTIME_IMAGE) + 1)).toEqual(["npm", "ci", "--ignore-scripts"]);
   });

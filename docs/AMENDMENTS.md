@@ -169,6 +169,7 @@ COMMON TO A AND C
     ONLY as the argument of `sh -lc <cmd>` INSIDE the container
   = environment = explicit whitelist, never process.env:
       HOME=/tmp CI=1 NPM_CONFIG_USERCONFIG=/dev/null
+      NPM_CONFIG_CACHE=/tmp/npm-cache
       NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_UPDATE_NOTIFIER=false
       NPM_CONFIG_FUND=false NPM_CONFIG_AUDIT=false
   = NEVER mounted: host HOME, ~/.ssh, git credentials, docker.sock, the
@@ -185,13 +186,15 @@ ELIGIBILITY CONSEQUENCE
   = a candidate project whose test command must write into the repo is
     EXPERIMENT-001-INELIGIBLE (only /tmp is writable during execution)
 
-OPERATOR DECISION FOR COMMANDER RULING (disclosed, not pre-authorized)
-  = a shared npm cache ~/.intent-sandbox/npm-cache is mounted RW in
-    phase A ONLY (never in phase C). Rationale: install-time speed;
-    npm verifies every tarball against the lockfile integrity hash, so
-    a poisoned cache entry fails closed. Residual: one run's install
-    can write cache entries a later install reads. Removing it = delete
-    two argv elements in isolation.ts + portable-replay.mjs and re-anchor.
+SHARED NPM CACHE (HOLD-1 — Commander 2026-10-25)
+  = REMOVED. Phase A used to mount ~/.intent-sandbox/npm-cache RW.
+    That was a disclosed speed trade: one experiment was no longer one
+    disposable environment. Commander ruling: do not harden, do not
+    keep a read-only shared cache. NPM_CONFIG_CACHE=/tmp/npm-cache
+    (tmpfs, per-container, not host-mounted, not cross-run).
+    HOST RW MOUNTS DURING INSTALL = ONLY the current /work.
+    HOST RW MOUNTS DURING EXEC    = NONE (/work is RO).
+    This is AMENDMENT-2 final closure, not a new amendment.
 
 GATES (packages/user-evidence-r0/test/sec-isolation.test.ts,
        apps/experiment-ui/test/sec-ui.test.ts)

@@ -11,10 +11,10 @@
  * match the anchor document byte-for-byte.
  */
 export const TRUST_ANCHOR = {
-  main_sha: "be22031cdbd018e4aedc8fb2d25c4f244b00173f",
+  main_sha: "2a4325126fc0e8a5b6816aade8aec9c4f9138a38",
   implementation_audit_sha: "PENDING-COMMANDER-AUDIT-SECURITY-R1",
-  verifier_release_sha256: "sha256:f24d83d03c929c40086b04f768e494a5d68e1494b571968324404886cee143bd",
-  portable_replay_sha256: "sha256:5345ed1e9d269c9b3e6270a030a78f6e74457f37287dffd6acdbcb12789ab217",
+  verifier_release_sha256: "sha256:001a12012fd93a7e137c283a92d13baf3636496895565d88a69b377c3c4745c2",
+  portable_replay_sha256: "sha256:994b058ea1b0e8a3e80b35a1497f4d55c98bfa457fd13b915b61bb6cdeaf5ca2",
   runtime_image: "node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdda25ada09b46db68a3f4cc205abf1f5d6bf0913f3384",
 } as const;
 

@@ -28,8 +28,6 @@ export const RUNTIME_IMAGE = "node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdd
 /** Bind sources must live here: Colima shares $HOME with its VM, not /var/folders. */
 export const SANDBOX_HOME = path.join(homedir(), ".intent-sandbox");
 export const SANDBOX_RUNS = path.join(SANDBOX_HOME, "runs");
-/** PHASE A only: npm verifies every tarball against the frozen lockfile integrity. */
-export const SANDBOX_NPM_CACHE = path.join(SANDBOX_HOME, "npm-cache");
 
 export const INSTALL_ARGV: readonly string[] = CANONICAL_INSTALL_COMMAND.split(" ");
 
@@ -37,6 +35,7 @@ const CONTAINER_ENV = [
   "HOME=/tmp",
   "CI=1",
   "NPM_CONFIG_USERCONFIG=/dev/null",
+  "NPM_CONFIG_CACHE=/tmp/npm-cache",
   "NPM_CONFIG_IGNORE_SCRIPTS=true",
   "NPM_CONFIG_UPDATE_NOTIFIER=false",
   "NPM_CONFIG_FUND=false",
@@ -117,7 +116,7 @@ function baseArgv(name: string): string[] {
 export function dockerArgv(phase: "install" | "exec", workDir: string, command: readonly string[], name: string): string[] {
   const work = assertInsideRuns(workDir);
   if (phase === "install") {
-    return [...baseArgv(name), "-e", "NPM_CONFIG_CACHE=/npm-cache", "-v", `${work}:/work:rw`, "-v", `${SANDBOX_NPM_CACHE}:/npm-cache:rw`, RUNTIME_IMAGE, ...command];
+    return [...baseArgv(name), "-v", `${work}:/work:rw`, RUNTIME_IMAGE, ...command];
   }
   return [...baseArgv(name), "--network", "none", "-v", `${work}:/work:ro`, RUNTIME_IMAGE, ...command];
 }
@@ -143,7 +142,6 @@ const containerName = (phase: string): string => `intent-${phase}-${randomUUID()
 
 /** PHASE A — dependency build from the frozen lockfile; no worker patch exists yet. */
 export function installIsolated(workDir: string, timeoutMs = 15 * 60_000): IsolatedResult {
-  ensurePrivateDir(SANDBOX_NPM_CACHE);
   const name = containerName("install");
   return runDocker(dockerArgv("install", workDir, INSTALL_ARGV, name), name, timeoutMs);
 }

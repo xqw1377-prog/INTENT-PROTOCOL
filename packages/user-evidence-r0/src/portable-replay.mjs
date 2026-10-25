@@ -263,11 +263,11 @@ function depsUnchanged(before, after) {
 const RUNTIME_IMAGE = "node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdda25ada09b46db68a3f4cc205abf1f5d6bf0913f3384";
 const SANDBOX_HOME = path.join(homedir(), ".intent-sandbox");
 const SANDBOX_RUNS = path.join(SANDBOX_HOME, "runs");
-const SANDBOX_NPM_CACHE = path.join(SANDBOX_HOME, "npm-cache");
 const CONTAINER_ENV = [
   "HOME=/tmp",
   "CI=1",
   "NPM_CONFIG_USERCONFIG=/dev/null",
+  "NPM_CONFIG_CACHE=/tmp/npm-cache",
   "NPM_CONFIG_IGNORE_SCRIPTS=true",
   "NPM_CONFIG_UPDATE_NOTIFIER=false",
   "NPM_CONFIG_FUND=false",
@@ -320,7 +320,7 @@ function dockerArgv(phase, workDir, command, name) {
     "-w", "/work",
   ];
   if (phase === "install") {
-    argv.push("-e", "NPM_CONFIG_CACHE=/npm-cache", "-v", work + ":/work:rw", "-v", SANDBOX_NPM_CACHE + ":/npm-cache:rw");
+    argv.push("-v", work + ":/work:rw");
   } else {
     argv.push("--network", "none", "-v", work + ":/work:ro");
   }
@@ -399,7 +399,6 @@ function reexecute(packDir, task) {
   if (unavailable) return { tier1_verdict: "UNREPRODUCIBLE", reason: "isolation-" + unavailable, refused: true };
   privateDir(SANDBOX_HOME);
   privateDir(SANDBOX_RUNS);
-  privateDir(SANDBOX_NPM_CACHE);
   const work = mkdtempSync(path.join(SANDBOX_RUNS, "ue4-replay-"));
   chmodSync(work, 0o700);
   try {
