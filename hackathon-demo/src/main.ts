@@ -93,6 +93,7 @@ function shell(body: string): string {
         <nav>
           <a href="#/create">Create</a>
           <a href="#/board">Intents</a>
+          <a href="/slides.html">Slides</a>
           ${walletButtons}
         </nav>
       </div>
