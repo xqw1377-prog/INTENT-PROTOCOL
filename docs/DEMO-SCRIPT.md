@@ -1,24 +1,27 @@
 # Demo video script
 
-Three minutes. English narration for text-to-speech. The founder does not need to speak. Record a desktop browser and, for the closing proof, one Explorer tab.
+A recorded cut is in the repository: [hackathon-demo/public/INTENT-Encode-demo.mp4](../hackathon-demo/public/INTENT-Encode-demo.mp4) (104 seconds, 1280×720). After the production build includes that file, it is [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4). An unlisted YouTube URL is not available yet.
+
+The timings below are the narration of that recorded cut. They are not a second pitch. The submission track is Best Consumer App on Solana. Aurora Intents is not entered: there is no Aurora integration, so it is not qualified and the bounty is not claimed. An Aurora Intents workshop is on 2026-10-28. Decide after that workshop. Do not add a cosmetic Aurora API for the bounty.
+
+Three minutes was the script length. The recorded cut is 104 seconds. English narration is for text-to-speech. The founder does not need to speak. The closing view is one Explorer tab.
 
 Do not claim users, partners, mainnet, or a token. Say “devnet SOL” when you mention the escrow.
 
 ## Before you hit record
 
-1. Solana Explorer (devnet) shows program `7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F` as executable. If the account is missing, do the deploy step in [HACKATHON.md](../HACKATHON.md) before recording. On 2026-10-25 that account was not on devnet yet.
+1. Record against the live demo, [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). Solana Explorer (devnet) already shows program `7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F` as deployed. Deploy transaction: `3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx`.
 2. Phantom or Solflare is installed, unlocked, and set to **Devnet**.
 3. The wallet holds at least 0.2 SOL. If Airdrop fails, use [faucet.solana.com](https://faucet.solana.com) first.
-4. From the repository:
+4. Browser at the live URL, zoomed so the headline fits. Bookmarks bar hidden. Local fallback, only if the live site is down:
 
 ```bash
 cd hackathon-demo
 npm ci
 npm run dev
+# http://127.0.0.1:4173
 ```
-
-5. Browser at `http://127.0.0.1:4173`, zoomed so the headline fits. Bookmarks bar hidden.
-6. Have a second wallet only if you want the two-role shot. One wallet is enough: the program, not the signer, decides the result.
+5. Have a second wallet only if you want the two-role shot. One wallet is enough: the program, not the signer, decides the result.
 
 ## 0:00–0:25 Problem
 
