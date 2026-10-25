@@ -8,6 +8,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { createExperimentServer } from "../server/index.ts";
 import { deriveExperimentState } from "../server/state.ts";
 import { TRUST_ANCHOR } from "../server/trust-anchor.ts";
+import { call } from "./client.ts";
 import { sha256OfFile } from "../../../packages/user-evidence-r0/src/ledger.ts";
 import { fixableConfig, fixPatch, makeFixableRepo, wrongFixPatch } from "../../../packages/user-evidence-r0/test/helpers.ts";
 
@@ -27,11 +28,6 @@ async function startServer(expDir: string): Promise<{ server: Server; base: stri
   const addr = server.address();
   if (!addr || typeof addr !== "object") throw new Error("no port");
   return { server, base: `http://127.0.0.1:${addr.port}` };
-}
-
-async function call(base: string, method: string, p: string, body?: unknown): Promise<{ status: number; json: any }> {
-  const res = await fetch(base + p, body ? { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) } : { method });
-  return { status: res.status, json: await res.json().catch(() => ({})) };
 }
 
 async function freezeWithCurrentReview(base: string): Promise<{ status: number; json: any }> {

@@ -9,11 +9,13 @@
 const $ = (sel) => document.querySelector(sel);
 let STATE = null;
 let VIEW = null; // user-side view override via nav; null = phase default
+// SECURITY-R1 / S3: per-process mutation token injected by the server into index.html
+const CSRF_TOKEN = document.querySelector('meta[name="intent-csrf"]')?.getAttribute("content") ?? "";
 
 async function api(path, body, method = "POST") {
   // actions are ALWAYS explicit-method requests — a missing body must never
   // silently turn an action into a GET (caught by the browser walkthrough)
-  const init = method === "GET" ? undefined : { method, headers: { "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) };
+  const init = method === "GET" ? undefined : { method, headers: { "content-type": "application/json", "x-intent-csrf": CSRF_TOKEN }, body: JSON.stringify(body ?? {}) };
   const res = await fetch(path, init);
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `${res.status} ${res.statusText}`);

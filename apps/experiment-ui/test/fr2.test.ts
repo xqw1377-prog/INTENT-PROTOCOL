@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import type { Server } from "node:http";
 import { createExperimentServer, PRECOMMIT_STATEMENT } from "../server/index.ts";
 import { deriveExperimentState } from "../server/state.ts";
+import { call as pageCall } from "./client.ts";
 import { fixableConfig, makeFixableRepo } from "../../../packages/user-evidence-r0/test/helpers.ts";
 
 let repo = { dir: "", sha: "" };
@@ -28,10 +29,7 @@ afterAll(() => {
   rmSync(repo.dir, { recursive: true, force: true });
 });
 
-async function call(method: string, p: string, body?: unknown): Promise<{ status: number; json: any }> {
-  const res = await fetch(base + p, body ? { method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) } : { method });
-  return { status: res.status, json: await res.json().catch(() => ({})) };
-}
+const call = (method: string, p: string, body?: unknown) => pageCall(base, method, p, body);
 
 const cfg = () => fixableConfig(repo.dir, repo.sha);
 

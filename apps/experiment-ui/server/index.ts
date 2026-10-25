@@ -10,6 +10,7 @@
  */
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { execFileSync } from "node:child_process";
+import { randomBytes, timingSafeEqual } from "node:crypto";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
@@ -112,8 +113,22 @@ const PROOF_FILES = ["task.json", "ruleset.json", "contract-freeze.json", "freez
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
+/** SECURITY-R1 / S3 — the page carries the per-process mutation token in this meta tag. */
+export const CSRF_HEADER = "x-intent-csrf";
+const CSRF_PLACEHOLDER = "__INTENT_CSRF_TOKEN__";
+
+class HttpError extends Error {
+  constructor(readonly status: number, message: string) {
+    super(message);
+  }
+}
+
 export function createExperimentServer(expDir: string): Server {
   const webDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "web");
+  // SECURITY-R1 / S3: per-process secret. A cross-origin page can neither read
+  // it (same-origin policy + Host allowlist against DNS rebinding) nor attach
+  // the custom header without a CORS preflight this server never grants.
+  const csrfToken = randomBytes(32).toString("hex");
   const transient: { checking: boolean; verifying: boolean; publishing: boolean } = { checking: false, verifying: false, publishing: false };
   const p = experimentPaths(expDir);
   mkdirSync(expDir, { recursive: true });
@@ -133,6 +148,39 @@ export function createExperimentServer(expDir: string): Server {
       req.on("end", () => resolve(data));
       req.on("error", reject);
     });
+
+  const readJsonBody = async <T>(req: IncomingMessage): Promise<T> => {
+    const raw = await readBody(req);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      throw new HttpError(400, "request body is not valid JSON");
+    }
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) throw new HttpError(400, "request body must be a JSON object");
+    return parsed as T;
+  };
+
+  const allowedHosts = (req: IncomingMessage): string[] => {
+    const port = req.socket.localPort;
+    return [`127.0.0.1:${port}`, `localhost:${port}`];
+  };
+
+  /** S3: every request must address this loopback server by name (DNS-rebinding guard). */
+  const assertHost = (req: IncomingMessage): void => {
+    if (!allowedHosts(req).includes(String(req.headers.host ?? ""))) throw new HttpError(403, "request refused: Host is not this loopback server");
+  };
+
+  /** S3: a state-changing request must come from this server's own page. */
+  const assertMutationAuthority = (req: IncomingMessage): void => {
+    const origin = String(req.headers.origin ?? "");
+    if (!allowedHosts(req).some((h) => origin === `http://${h}`)) throw new HttpError(403, "request refused: Origin is not this loopback server");
+    const contentType = String(req.headers["content-type"] ?? "").split(";")[0]!.trim().toLowerCase();
+    if (contentType !== "application/json") throw new HttpError(415, "request refused: content-type must be application/json");
+    const presented = Buffer.from(String(req.headers[CSRF_HEADER] ?? ""));
+    const expected = Buffer.from(csrfToken);
+    if (presented.length !== expected.length || !timingSafeEqual(presented, expected)) throw new HttpError(403, "request refused: missing or invalid mutation token");
+  };
 
   const readJson = (file: string): Record<string, unknown> => JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
   const loadDraft = (): Record<string, unknown> => {
@@ -169,12 +217,14 @@ export function createExperimentServer(expDir: string): Server {
 
   const server = createServer((req, res) => {
     void handle(req, res).catch((e) => {
-      if (!res.headersSent) json(res, 500, { error: String((e as Error).message) });
+      if (!res.headersSent) json(res, e instanceof HttpError ? e.status : 500, { error: String((e as Error).message) });
     });
   });
 
   async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const url = new URL(req.url ?? "/", "http://127.0.0.1");
+    assertHost(req);
+    if (req.method !== "GET" && req.method !== "HEAD") assertMutationAuthority(req);
 
     if (req.method === "GET" && (url.pathname === "/" || url.pathname.startsWith("/web/"))) {
       return serveStatic(url.pathname === "/" ? "/web/index.html" : url.pathname, res);
@@ -183,7 +233,7 @@ export function createExperimentServer(expDir: string): Server {
     if (req.method === "GET" && url.pathname === "/api/state") return json(res, 200, statePayload());
 
     if (req.method === "POST" && url.pathname === "/api/prepare") {
-      const body = JSON.parse(await readBody(req)) as Partial<DraftConfig> & { notes?: { issue_url?: string; summary?: string; payer_quote?: string } };
+      const body = await readJsonBody<Partial<DraftConfig> & { notes?: { issue_url?: string; summary?: string; payer_quote?: string } }>(req);
       // D4: both real participants must be selected before preparation
       const required = ["repoPath", "base_commit_sha", "payer_identity", "worker_identity", "tier1_reward", "regression_command", "baseline_health_command", "patched_acceptance_command"] as const;
       for (const f of required) {
@@ -260,7 +310,7 @@ export function createExperimentServer(expDir: string): Server {
     }
 
     if (req.method === "POST" && url.pathname === "/api/freeze") {
-      const body = JSON.parse(await readBody(req)) as { precommitAcknowledged?: boolean; reviewId?: string; reviewedTerms?: Record<string, unknown> };
+      const body = await readJsonBody<{ precommitAcknowledged?: boolean; reviewId?: string; reviewedTerms?: Record<string, unknown> }>(req);
       if (body.precommitAcknowledged !== true) {
         return json(res, 400, { error: "payer pre-commit acknowledgement required — the rules cannot be frozen without the payer's explicit action" });
       }
@@ -293,7 +343,7 @@ export function createExperimentServer(expDir: string): Server {
     }
 
     if (req.method === "POST" && url.pathname === "/api/submit") {
-      const body = JSON.parse(await readBody(req)) as { patch?: string };
+      const body = await readJsonBody<{ patch?: string }>(req);
       if (typeof body.patch !== "string" || body.patch.trim() === "") return json(res, 400, { error: "a unified diff is required (paste or choose a .patch file)" });
       if (st_(expDir).facts.rules_state !== "FROZEN") return json(res, 409, { error: "submit is available only for a frozen task" });
       if (existsSync(p.workerPatch)) return json(res, 409, { error: "a patch is already submitted for this run — submission is immutable and cannot be replaced (operator action required for a new attempt)" });
@@ -347,12 +397,12 @@ export function createExperimentServer(expDir: string): Server {
     }
 
     if (req.method === "POST" && url.pathname === "/api/observe") {
-      const body = JSON.parse(await readBody(req)) as {
+      const body = await readJsonBody<{
         payer_accepts?: boolean; payer_ack_verbatim?: string;
         rule_change_attempts?: number; rule_change_details?: string[];
         repeat_fund?: "YES" | "NO"; // "ANSWER_LATER" never reaches the ledger (client keeps it unresolved)
         observation_source?: string; observer_identity?: string;
-      };
+      }>(req);
       if (!existsSync(p.replayReport)) return json(res, 409, { error: "payer response is recorded only on the verified VALID evidence path" });
       const st = deriveExperimentState(expDir, transient);
       if (st.facts.tier1_entitlement !== "EARNED") return json(res, 409, { error: "payer response requires EARNED (derived VALID ∧ fresh-bound replay PASS)" });
@@ -398,12 +448,12 @@ export function createExperimentServer(expDir: string): Server {
       // The operator supplies the full Q1/Q2 answers plus the hesitation
       // verbatim and the close reason; the ledger records NOT_ASKED with
       // provenance, never fabricating a YES/NO first.
-      const body = JSON.parse(await readBody(req)) as {
+      const body = await readJsonBody<{
         payer_accepts?: boolean; payer_ack_verbatim?: string; no_reason?: string;
         rule_change_attempts?: number; rule_change_details?: string[];
         hesitation_verbatim?: string; close_reason?: string;
         observation_source?: string; observer_identity?: string;
-      };
+      }>(req);
       if (!existsSync(p.replayReport)) return json(res, 409, { error: "no verified evidence path" });
       const st = deriveExperimentState(expDir, transient);
       if (st.facts.tier1_entitlement !== "EARNED") return json(res, 409, { error: "closure is available only on the EARNED evidence path" });
@@ -569,11 +619,16 @@ export function createExperimentServer(expDir: string): Server {
   }
 
   function serveStatic(pathname: string, res: ServerResponse): void {
-    const rel = pathname.replace(/^\/web\//, "");
-    const file = path.normalize(path.join(webDir, rel));
-    if (!file.startsWith(webDir) || !existsSync(file)) {
+    const root = path.resolve(webDir) + path.sep;
+    const file = path.resolve(root, pathname.replace(/^\/web\//, ""));
+    if (!file.startsWith(root) || !existsSync(file)) {
       res.writeHead(404);
       res.end("not found");
+      return;
+    }
+    if (file === path.join(root, "index.html")) {
+      res.writeHead(200, { "content-type": MIME[".html"]!, "cache-control": "no-store" });
+      res.end(readFileSync(file, "utf8").replace(CSRF_PLACEHOLDER, csrfToken));
       return;
     }
     res.writeHead(200, { "content-type": MIME[path.extname(file)] ?? "application/octet-stream" });
