@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Intent Protocol — Encode 2026</title>
+    <style>
+      :root {
+        --bg: #faf9f7;
+        --ink: #1c1f23;
+        --muted: #5c6570;
+        --line: #e2e0db;
+        --frozen: #35576b;
+        --surface: #ffffff;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+      body {
+        font-family: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+        line-height: 1.45;
+      }
+      .deck { height: 100%; display: flex; flex-direction: column; }
+      .slide {
+        display: none;
+        flex: 1;
+        padding: 48px 8vw 24px;
+        max-width: 1100px;
+      }
+      .slide.active { display: block; }
+      .kicker {
+        letter-spacing: 0.16em;
+        font-size: 12px;
+        color: var(--frozen);
+        margin: 0 0 16px;
+      }
+      h1 {
+        font-family: "Iowan Old Style", Palatino, Georgia, serif;
+        font-weight: 650;
+        font-size: clamp(32px, 5vw, 56px);
+        line-height: 1.12;
+        letter-spacing: -0.02em;
+        margin: 0 0 18px;
+      }
+      p { font-size: 20px; margin: 0 0 14px; max-width: 46rem; }
+      ol, ul { font-size: 20px; margin: 0; padding-left: 1.2em; max-width: 46rem; }
+      li { margin: 0 0 8px; }
+      a { color: var(--frozen); }
+      code, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.86em; }
+      .bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 8vw 22px;
+        border-top: 1px solid var(--line);
+      }
+      button {
+        font: inherit;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 16px;
+        cursor: pointer;
+      }
+      .count { color: var(--muted); font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <div class="deck">
+      <section class="slide active">
+        <p class="kicker">INTENT PROTOCOL · ENCODE 2026</p>
+        <h1>The fight starts when “done” was never frozen.</h1>
+        <p>People who pay for work and people who do the work still argue about what finished meant, because that rule moved after the work started.</p>
+        <p>Intent freezes the done-criteria first, escrows the reward, and lets a Solana program decide. Devnet only. No token.</p>
+      </section>
+
+      <section class="slide">
+        <p class="kicker">02 · FREEZE THE RULES</p>
+        <h1>The criteria are written before delivery.</h1>
+        <p>The creator stores the criteria text on the intent account. The program hashes that text in the same transaction. The expected submission is stored only as a hash. The answer itself is not on the account.</p>
+        <p>After that, the deliverer cannot edit the rule, and the creator cannot quietly change what “done” means.</p>
+      </section>
+
+      <section class="slide">
+        <p class="kicker">03 · ON-CHAIN ESCROW</p>
+        <h1>The SOL is locked when the intent is created.</h1>
+        <ul>
+          <li>A program-owned vault holds the reward. The sample intent locks 0.05 SOL.</li>
+          <li>Submit records the bytes and their hash. Verify recomputes sha256 and compares it to the frozen hash.</li>
+          <li>A match writes a verification-result hash and pays the deliverer once. A mismatch leaves the SOL locked.</li>
+          <li>Cancel before verification returns the escrow to the creator. A second settle is rejected.</li>
+        </ul>
+      </section>
+
+      <section class="slide">
+        <p class="kicker">04 · LIVE DEMO</p>
+        <h1>Three minutes, one devnet wallet.</h1>
+        <ol>
+          <li>Open <a href="https://intent-protocol-wine.vercel.app">intent-protocol-wine.vercel.app</a>.</li>
+          <li>Phantom or Solflare, switched to Devnet. Airdrop, or use faucet.solana.com.</li>
+          <li>Sample criteria: the decimal sum of 17 and 25. Submit <span class="mono">41</span>. Verify and settle. The program refuses. The SOL stays.</li>
+          <li>Submit <span class="mono">42</span>. Verify and settle. Open the Explorer link. Settle again. The program refuses.</li>
+        </ol>
+      </section>
+
+      <section class="slide">
+        <p class="kicker">05 · DEVNET PROOF</p>
+        <h1>The escrow program is on devnet.</h1>
+        <p>Program <a href="https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet"><span class="mono">7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F</span></a>. Upgrade authority <span class="mono">4ZJVcnWWJmAdmqz8Trt334HKbx3geXTf5FMBaX2yjpUT</span>. Checked executable on 2026-10-25.</p>
+        <p>Deploy: <a href="https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet">3aGkjKFg…bSjx</a>. Sample settle: <a href="https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet">64N3e5KB…w6jT</a>.</p>
+        <p>Older program <span class="mono">ASvnm4pi…</span> is immutable and was not modified. One test-token receipt settled once. Later retries failed with custom error 108.</p>
+      </section>
+
+      <section class="slide">
+        <p class="kicker">06 · TRACKS</p>
+        <h1>Consumer app, and an intent.</h1>
+        <p><strong>Best Consumer App on Solana.</strong> The need is a rule that cannot move after delivery. Onboarding is a devnet wallet, a faucet, and a sample. Solana holds the escrow, the criteria hash, and the verification result.</p>
+        <p><strong>Aurora Intents.</strong> An intent here is a frozen done-criteria plus a bound reward. The program accepts or refuses the delivery.</p>
+        <p>x402 is not entered. That track is payment-to-access. This payment is conditional escrow, released only after the frozen rule passes.</p>
+      </section>
+
+      <section class="slide">
+        <p class="kicker">07 · WHAT THIS IS NOT</p>
+        <h1>Devnet demo. No invented scale.</h1>
+        <ul>
+          <li>No mainnet deployment. No protocol token. The escrow is devnet SOL.</li>
+          <li>The September asset is a test mint, not Circle USDC.</li>
+          <li>No claimed users, customers, or partners. Real external payer, task, and worker in this repository: 0.</li>
+          <li>Private keys are not in the repository. Upgrade authority of the new program is the pubkey named on the previous slide.</li>
+        </ul>
+      </section>
+
+      <div class="bar">
+        <button type="button" id="prev">Previous</button>
+        <div class="count" id="count"></div>
+        <button type="button" id="next">Next</button>
+      </div>
+    </div>
+    <script>
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const count = document.getElementById("count");
+      let index = 0;
+      function show(next) {
+        index = (next + slides.length) % slides.length;
+        slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+        count.textContent = (index + 1) + " / " + slides.length;
+      }
+      document.getElementById("prev").addEventListener("click", () => show(index - 1));
+      document.getElementById("next").addEventListener("click", () => show(index + 1));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === " ") { event.preventDefault(); show(index + 1); }
+        if (event.key === "ArrowLeft") { event.preventDefault(); show(index - 1); }
+      });
+      show(0);
+    </script>
+  </body>
+</html>

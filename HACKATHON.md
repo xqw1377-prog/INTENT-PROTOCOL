@@ -1,6 +1,8 @@
 # Encode Club Solana Hackathon 2026
 
-Online, with the Solana Foundation. Window: 2026-10-12 through 2026-11-08, 23:59 UTC-12. Mid-point checkpoint: 2026-11-01. This repository is the submission. The demo runs on devnet.
+Online, with the Solana Foundation. Window: 2026-10-12 through 2026-11-08, 23:59 UTC-12. Mid-submission: 2026-11-02, 19:59 Asia/Shanghai. This repository is the submission. The demo runs on devnet.
+
+Live demo: [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app) (HTTP 200 on 2026-10-25). Paste fields for the mid-submission are in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md). Slides: [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html).
 
 ## Problem, solution, Solana
 
@@ -8,13 +10,17 @@ People who pay for work and people who do the work still end up arguing about wh
 
 ## What to run
 
+Open [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). Install Phantom or Solflare, switch that wallet to Devnet, and use Airdrop or [faucet.solana.com](https://faucet.solana.com). The sample criteria ask for the sum of 17 and 25. Submit `42`. Then choose Verify and settle. The page links each transaction on Solana Explorer (devnet).
+
+The same page locally:
+
 ```bash
 cd hackathon-demo
 npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:4173`. Install Phantom or Solflare, switch that wallet to Devnet, and use Airdrop or [faucet.solana.com](https://faucet.solana.com). The sample criteria ask for the sum of 17 and 25. Submit `42`. Then choose Verify and settle. The page links each transaction on Solana Explorer (devnet).
+Open `http://127.0.0.1:4173`.
 
 A wrong submission does not move the SOL. The creator can cancel before verification and take the escrow back. Settling twice is rejected by the program.
 
@@ -30,7 +36,7 @@ There is no `experiments/001/` directory. That path is reserved for a real exter
 
 | Program | Id | Role |
 |---|---|---|
-| Hackathon escrow, new | [`7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F`](https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet) | Open intents. SOL escrow, criteria hash, program-checked delivery, one settlement. Id is pinned. The devnet account did not exist on 2026-10-25. |
+| Hackathon escrow, on devnet | [`7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F`](https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet) | Open intents. SOL escrow, criteria hash, program-checked delivery, one settlement. Executable. |
 | TESTNET-R1, immutable, not modified | [`ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F`](https://explorer.solana.com/address/ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F?cluster=devnet) | One frozen receipt from September 2026. Upgrade authority is null. |
 
 September proof that one reward settled once, re-read from `https://api.devnet.solana.com` on 2026-10-25:
@@ -44,42 +50,22 @@ The new program’s source is `packages/hackathon-escrow/program`. The browser c
 
 ## Devnet deploy status
 
-Checked 2026-10-25 against `https://api.devnet.solana.com`:
+Re-read on 2026-10-25 from `https://api.devnet.solana.com` with `solana program show`:
 
-- `7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F` — account missing
-- `ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F` — executable, program data `AnUxUnVP495vEXzGSwiGpqQAuc1jjyrGARbqxhE1xzzF`, upgrade-authority option byte is 0 (immutable), last deployed slot 505727122
+| | Hackathon escrow | TESTNET-R1 |
+|---|---|---|
+| Program | [`7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F`](https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet) | [`ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F`](https://explorer.solana.com/address/ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F?cluster=devnet) |
+| Program data | [`4R5a3NYMFwaP6bK6GTvfcTpNnx3Nvm6tGagy5AyCJxm3`](https://explorer.solana.com/address/4R5a3NYMFwaP6bK6GTvfcTpNnx3Nvm6tGagy5AyCJxm3?cluster=devnet) | [`AnUxUnVP495vEXzGSwiGpqQAuc1jjyrGARbqxhE1xzzF`](https://explorer.solana.com/address/AnUxUnVP495vEXzGSwiGpqQAuc1jjyrGARbqxhE1xzzF?cluster=devnet) |
+| Authority | `4ZJVcnWWJmAdmqz8Trt334HKbx3geXTf5FMBaX2yjpUT` | none (immutable) |
+| Last deployed slot | 514886402 | 505727122 |
+| Data length | 78640 bytes | 100016 bytes |
+| Account balance | 0.40037004 SOL | 0.50896012 SOL |
 
-The new `.so` was built with Solana CLI 4.3.2 / `cargo-build-sbf` 4.4 / platform-tools v1.57. Loaded on `solana-test-validator` at the pinned id, one local run did all of the following: create the sample intent (0.05 SOL), reject submission `41` with custom error 207, settle submission `42`, reject a second settle with custom error 208, and return escrow lamports on cancel. The script is `hackathon-demo/scripts/local-roundtrip.ts`. It is not part of CI.
+Deploy transaction, finalized: [`3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx`](https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet).
 
-The deployer pubkey is `4ZJVcnWWJmAdmqz8Trt334HKbx3geXTf5FMBaX2yjpUT`. Its balance was 0. `requestAirdrop` returned 429 (“airdrop limit today or the faucet has run dry”). Neither keypair is in this repository. `packages/hackathon-escrow/program/target/` is gitignored, so the `.so` is not in git either.
+Sample settlement on that program, finalized (submit `42`, pay the deliverer once): [`64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT`](https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet). The same devnet run rejected `41` with custom error 207 and a second settle with custom error 208.
 
-Remaining step, on the machine that holds `~/.config/solana/hackathon-escrow.json` (program id) and `~/.config/solana/hackathon-deployer.json` (payer):
-
-1. Send at least 2 devnet SOL to `4ZJVcnWWJmAdmqz8Trt334HKbx3geXTf5FMBaX2yjpUT`. Fund a browser wallet at [faucet.solana.com](https://faucet.solana.com), then transfer. Do not commit either keypair.
-2. Rebuild the gitignored binary if needed. The 1.18 platform-tools cargo cannot parse this lockfile; use CLI 4.x:
-
-```bash
-cargo-build-sbf --manifest-path packages/hackathon-escrow/program/Cargo.toml
-solana program deploy packages/hackathon-escrow/program/target/deploy/hackathon_escrow.so \
-  --url https://api.devnet.solana.com \
-  --program-id ~/.config/solana/hackathon-escrow.json \
-  --keypair ~/.config/solana/hackathon-deployer.json
-solana program show 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F \
-  --url https://api.devnet.solana.com \
-  -k ~/.config/solana/hackathon-deployer.json
-```
-
-3. The program show output has to say the account is executable. Then `cd hackathon-demo && npm run dev` is the end-to-end flow.
-4. Only after that flow works, the deployer may hand upgrade authority to the existing founder pubkey `q9jYp8Jg2uNLrfxRhXs7VR275VYvGPbvYruvSoHpf6B`:
-
-```bash
-solana program set-upgrade-authority 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F \
-  --new-upgrade-authority q9jYp8Jg2uNLrfxRhXs7VR275VYvGPbvYruvSoHpf6B \
-  --url https://api.devnet.solana.com \
-  --keypair ~/.config/solana/hackathon-deployer.json
-```
-
-Do not run that against `ASvnm4pi…`. If the two keypairs above are gone, generate a new program-id keypair, replace `declare_id!` and `PROGRAM_ID` together, rebuild, and deploy with a funded key. The demo reads `PROGRAM_ID` from the codec.
+The program-id keypair and the upgrade-authority keypair are not in this repository. `packages/hackathon-escrow/program/target/` is gitignored. Do not treat `ASvnm4pi…` as upgradeable.
 
 ## Offline checks
 
@@ -96,17 +82,19 @@ Expect `710/710 checks passed` and `54/54 checks passed`. Node.js 22 or newer. N
 
 ## Deploy the website
 
-This checkout does not include a Vercel token. On a machine where `npx vercel login` has already succeeded:
+Production is [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). The slide deck is part of the same static build, at `/slides.html`, after a production deploy that contains `hackathon-demo/public/slides.html`.
+
+To publish a later commit, from a logged-in Vercel CLI at this repository root:
 
 ```bash
 npx vercel --prod
 ```
 
-Run that at the repository root. Do not set a Root Directory override and do not add environment variables. The output directory is `hackathon-demo/dist`.
+Do not set a Root Directory override and do not add environment variables. The output directory is `hackathon-demo/dist`.
 
 ## Track
 
-Enter **Best Consumer App on Solana**. Do not enter Best Use of x402 on Solana for this checkpoint. The reasoning is in [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md).
+Enter **Best Consumer App on Solana** and **Aurora Intents**. Do not enter Best Use of x402 on Solana. The reasoning is in [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md). Mid-submission paste text is in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md).
 
 ## What is not claimed
 

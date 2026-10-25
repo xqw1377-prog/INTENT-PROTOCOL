@@ -10,7 +10,9 @@ The judge brief is [HACKATHON.md](HACKATHON.md). Internal gate history is [docs/
 
 ## Try the devnet demo
 
-The public app is [hackathon-demo/](hackathon-demo/). It talks only to `https://api.devnet.solana.com`. It asks a browser wallet to sign. It never asks for a secret key.
+The public app is live at [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). HTTP 200 was checked on 2026-10-25. It talks only to `https://api.devnet.solana.com`. It asks a browser wallet to sign. It never asks for a secret key. The judge deck is [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html), served at `/slides.html` on that site once this file is in the production build.
+
+The same app runs locally:
 
 ```bash
 cd hackathon-demo
@@ -21,7 +23,7 @@ npm run dev
 
 Onboarding, in the page: install Phantom or Solflare, switch the wallet to Devnet, airdrop 1 SOL (or use [faucet.solana.com](https://faucet.solana.com)), then use the sample intent. The sample done-criteria is the decimal sum of 17 and 25. The answer that earns the escrow is `42`. The sample locks 0.05 SOL.
 
-Production deploy is a static Vite build. From a logged-in Vercel CLI, at this repository root:
+Production is already that Vercel URL. A later static rebuild, from a logged-in Vercel CLI at this repository root:
 
 ```bash
 npx vercel --prod
@@ -50,10 +52,10 @@ flowchart TD
 
 | What | Where |
 |---|---|
-| New hackathon program id (pinned; see deploy note) | [`7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F`](https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet) |
+| Hackathon escrow, on devnet | [`7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F`](https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet) |
 | Immutable TESTNET-R1 program, unchanged | [`ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F`](https://explorer.solana.com/address/ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F?cluster=devnet) |
 
-On 2026-10-25, `getAccountInfo` for `7a6K1m…` on `https://api.devnet.solana.com` was null. The binary is built, and the same program id on a local test validator completed create, reject `41` (custom 207), settle `42`, reject a second settle (custom 208), and cancel. Public devnet airdrop for the deployer returned 429, so the account is not on devnet yet. The one remaining deploy step is in [HACKATHON.md](HACKATHON.md). Do not describe this id as a live devnet program until that account is executable.
+Re-read on 2026-10-25 from `https://api.devnet.solana.com`: `7a6K1m…` is deployed and executable. Program data [`4R5a3NYMFwaP6bK6GTvfcTpNnx3Nvm6tGagy5AyCJxm3`](https://explorer.solana.com/address/4R5a3NYMFwaP6bK6GTvfcTpNnx3Nvm6tGagy5AyCJxm3?cluster=devnet). Upgrade authority `4ZJVcnWWJmAdmqz8Trt334HKbx3geXTf5FMBaX2yjpUT`. Last deployed slot 514886402. Data length 78640 bytes. The program-data account holds 0.40037004 SOL of rent. Deploy transaction: [`3aGkjKFg…bSjx`](https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet). A sample settlement of the public demo’s 0.05 SOL intent: [`64N3e5KB…w6jT`](https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet). Private keys are not in this repository.
 
 The new program stores, for each intent:
 
@@ -117,9 +119,9 @@ Encode Club Solana Hackathon 2026 runs 2026-10-12 through 2026-11-08. Work in th
 
 **From 2026-10-25, for the 2026-11-01 checkpoint**
 
-- A new program, `7a6K1m…`, for open intents: on-chain criteria hash, SOL escrow at creation, program-checked delivery, exactly-once settlement. Proven on a local validator on 2026-10-25. Not on devnet yet; the faucet rate-limited this environment. The immutable program was not modified.
-- This public wallet demo, the judge brief, the demo script, and the submission fields.
-- x402 was evaluated and not implemented. The track we recommend is Best Consumer App on Solana. Reasoning: [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md).
+- A new program, `7a6K1m…`, for open intents: on-chain criteria hash, SOL escrow at creation, program-checked delivery, exactly-once settlement. Deployed to devnet on 2026-10-25. The immutable program was not modified.
+- The public wallet demo at `https://intent-protocol-wine.vercel.app`, the judge brief, the slide deck, the demo script, and the submission fields.
+- x402 was evaluated and not entered. The tracks for this submission are Best Consumer App on Solana and Aurora Intents. Reasoning: [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md).
 
 ## Map
 
@@ -128,5 +130,7 @@ Encode Club Solana Hackathon 2026 runs 2026-10-12 through 2026-11-08. Work in th
 | [HACKATHON.md](HACKATHON.md) | Judge brief and deploy notes |
 | [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) | 3-minute English narration |
 | [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md) | Paste-ready form fields and track recommendation |
+| [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md) | Mid-submission fields due 2026-11-02 19:59 Asia/Shanghai |
+| [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html) | Judge slide deck |
 | [docs/product/OVERVIEW.md](docs/product/OVERVIEW.md) | Product narrative |
 | [docs/GOVERNANCE-LEDGER.md](docs/GOVERNANCE-LEDGER.md) | Internal approval ledger, moved out of this page |
