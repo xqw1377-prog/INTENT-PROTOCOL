@@ -2,7 +2,9 @@
 
 A recorded cut is in the repository: [hackathon-demo/public/INTENT-Encode-demo.mp4](../hackathon-demo/public/INTENT-Encode-demo.mp4) (104 seconds, 1280×720). After the production build includes that file, it is [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4). An unlisted YouTube URL is not available yet.
 
-The timings below are the narration for that recording. Three minutes was the script length. English narration is for text-to-speech. The founder does not need to speak. The closing proof is one Explorer tab.
+The timings below are the narration of that recorded cut. They are not a second pitch. The submission track is Best Consumer App on Solana. Aurora Intents is not entered: there is no Aurora integration, so it is not qualified and the bounty is not claimed. An Aurora Intents workshop is on 2026-10-28. Decide after that workshop. Do not add a cosmetic Aurora API for the bounty.
+
+Three minutes was the script length. The recorded cut is 104 seconds. English narration is for text-to-speech. The founder does not need to speak. The closing view is one Explorer tab.
 
 Do not claim users, partners, mainnet, or a token. Say “devnet SOL” when you mention the escrow.
 

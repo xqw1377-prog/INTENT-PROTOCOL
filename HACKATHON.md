@@ -6,7 +6,9 @@ Live demo: [https://intent-protocol-wine.vercel.app](https://intent-protocol-win
 
 ## Problem, solution, Solana
 
-People who pay for work and people who do the work still end up arguing about what “done” meant, because that rule was never frozen before the work started. Intent freezes the done-criteria, escrows the reward, and lets a Solana program decide whether the submission earned the escrow. The new devnet program stores the criteria hash and the verification result, holds the SOL, and pays the deliverer once.
+A safer way to pay for work. Hire someone without moving the goalposts: freeze what “done” means before the work starts, then prove the outcome after.
+
+On devnet, the pay is locked with that rule. A matching delivery is paid once. A wrong delivery leaves the SOL locked. The person who posted the job can take it back before the check. The program stores the rule and the result, and it holds the SOL.
 
 ## What to run
 
@@ -94,7 +96,11 @@ Do not set a Root Directory override and do not add environment variables. The o
 
 ## Track
 
-Enter **Best Consumer App on Solana** and **Aurora Intents**. Do not enter Best Use of x402 on Solana. The reasoning is in [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md). Mid-submission paste text is in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md).
+Enter **Best Consumer App on Solana**. That is the primary track.
+
+Do not enter **Aurora Intents**. The product name contains “intent”, and there is no Aurora Intents integration, so the track is not qualified. Do not claim the Aurora bounty. An Aurora Intents workshop is on 2026-10-28. Decide after that workshop. Do not add a cosmetic Aurora API to chase the bounty.
+
+Do not enter Best Use of x402 on Solana. The reasoning is in [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md). Mid-submission paste text is in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md).
 
 ## What is not claimed
 
