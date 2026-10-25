@@ -8,19 +8,21 @@
  *      diff bound / binary patch → INVALID record with ZERO commands run;
  *   3. dependency wall at apply time: dependency sections of any touched
  *      package.json must be byte-identical before/after → INVALID;
- *   4. clean-room execution: materialize the EXACT frozen base, reconstruct
- *      deps from the frozen lockfile, re-prove base-red, apply the patch,
- *      require patched green (N-run determinism) and an unbroken baseline,
- *      all inside the network-denied sandbox (negatively probed);
+ *   4. clean-room execution (SECURITY-R1): materialize the EXACT frozen base,
+ *      reconstruct deps in the PHASE A install container (no patch yet),
+ *      re-prove base-red, apply the patch on the host as data (PHASE B),
+ *      then require patched green (N-run determinism) and an unbroken
+ *      baseline in the PHASE C execution container — network none, /work
+ *      read-only, negatively probed. Docker unavailable → run refused;
  *   5. every execution is recorded (command, exit code, stdout hash, ms);
  *      verdict VALID iff every check holds — there is no other path to VALID.
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, lstatSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, lstatSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
 import { inNetSandbox, materializeBase, verifyNetSandbox, FreezeError } from "./freeze.ts";
+import { assertIsolationAvailable, installIsolated, IsolationError, makeRunDir } from "./isolation.ts";
 import { CANONICAL_INSTALL_COMMAND } from "./schema.ts";
 import { verifyFreezePackDir } from "./pack.ts";
 import { dependencySectionsUnchanged, evaluatePatchPolicy, isCanonicalRepoRelativePath, isDependencyManifestPath, parseUnifiedPatch } from "./policy.ts";
@@ -97,30 +99,27 @@ export interface RunInput {
 const sha256File = (p: string): string => "sha256:" + createHash("sha256").update(readFileSync(p)).digest("hex");
 const sha256Text = (s: string): string => "sha256:" + createHash("sha256").update(s).digest("hex");
 
-/** Execute one command (sandboxed by default) and append it to the run ledger. */
-function execRecorded(
-  runs: ExecutedRun[],
-  stageDir: string,
-  stageName: string,
-  cmd: string,
-  sandbox: boolean,
-  env?: NodeJS.ProcessEnv,
-): { code: number; stdout: string } {
+/** Execute one frozen command in the execution container and append it to the run ledger. */
+function execRecorded(runs: ExecutedRun[], stageDir: string, stageName: string, cmd: string): { code: number; stdout: string } {
   const t0 = Date.now();
-  let r: { code: number; stdout: string };
-  if (sandbox) {
-    r = inNetSandbox(cmd, stageDir);
-  } else {
-    try {
-      const out = execFileSync("sh", ["-c", cmd], { cwd: stageDir, encoding: "utf8", timeout: 15 * 60_000, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"], env: env ?? process.env });
-      r = { code: 0, stdout: out };
-    } catch (e) {
-      const err = e as { status?: number; stdout?: string };
-      r = { code: err.status ?? 1, stdout: err.stdout ?? "" };
-    }
-  }
+  const r = inNetSandbox(cmd, stageDir);
   runs.push({ stage: stageName, command: cmd, code: r.code, stdout_sha256: sha256Text(r.stdout), duration_ms: Date.now() - t0 });
   return r;
+}
+
+/** PHASE B: the patch is data — host git applies it; no project code executes. */
+function gitApplyRecorded(runs: ExecutedRun[], stageDir: string, stageName: string, patchAbs: string, check: boolean): number {
+  const t0 = Date.now();
+  const args = check ? ["apply", "--check", patchAbs] : ["apply", patchAbs];
+  let code = 0;
+  let stdout = "";
+  try {
+    stdout = execFileSync("git", ["-C", stageDir, ...args], { encoding: "utf8", timeout: 60_000, stdio: ["ignore", "pipe", "pipe"] });
+  } catch (e) {
+    code = (e as { status?: number }).status ?? 1;
+  }
+  runs.push({ stage: stageName, command: `git ${args.slice(0, -1).join(" ")} ${JSON.stringify(patchAbs)}`, code, stdout_sha256: sha256Text(stdout), duration_ms: Date.now() - t0 });
+  return code;
 }
 
 /**
@@ -197,9 +196,16 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
     return rec;
   }
 
-  // 3./4. clean-room execution
+  // 3./4. clean-room execution — an unavailable isolation runtime is an
+  // operator/environment failure: refuse, write no record, execute nothing
+  try {
+    assertIsolationAvailable();
+  } catch (e) {
+    if (e instanceof IsolationError) throw new RunError(`isolation-${e.reason}`, e.message);
+    throw e;
+  }
   const runs: ExecutedRun[] = [];
-  const stage = mkdtempSync(path.join(tmpdir(), "ue2-run-"));
+  const stage = makeRunDir("ue2-run-");
   const invalid = (reason: string): InvalidRunRecordV1 => {
     const rec: InvalidRunRecordV1 = { ...base, checks: {}, runs, verdict: "INVALID", invalid_reason: reason, ran_at: input.ranAt };
     if (outPath) writeRecordAtomic(rec, outPath);
@@ -230,51 +236,32 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
       manifests.map((p) => [p, existsSync(path.join(stage, p)) ? readFileSync(path.join(stage, p), "utf8") : null]),
     );
 
-    // UE2-R-INSTALL / CUT-2R1: install is a dependency-materialization
-    // operation with ZERO shell authority — the frozen command is executed
-    // as a DIRECT argv (execFile, no shell; chaining is structurally
-    // impossible because the schema only ever freezes the canonical form),
-    // lifecycle scripts are double-disabled (flag + env). The bootstrap is
-    // NOT trusted: every frozen byte the verdict depends on is re-hashed
-    // after it (defense-in-depth on top of the argv contract).
+    // UE2-R-INSTALL / CUT-2R1 + SECURITY-R1 S2: install is a dependency-
+    // materialization operation with ZERO shell authority — the canonical
+    // argv runs in the PHASE A install container (clean env whitelist,
+    // lifecycle scripts disabled by flag + env, only this run dir mounted)
+    // BEFORE any worker byte is applied. The bootstrap is NOT trusted:
+    // every frozen byte the verdict depends on is re-hashed after it.
     rmSync(path.join(stage, "node_modules"), { recursive: true, force: true });
-    const installArgv = CANONICAL_INSTALL_COMMAND.split(" ");
     const t0 = Date.now();
-    let installCode = 0;
-    let installStdout = "";
-    try {
-      installStdout = execFileSync(installArgv[0]!, installArgv.slice(1), {
-        cwd: stage,
-        encoding: "utf8",
-        timeout: 15 * 60_000,
-        maxBuffer: 256 * 1024 * 1024,
-        stdio: ["ignore", "pipe", "pipe"],
-        env: { ...process.env, npm_config_ignore_scripts: "true" },
-      });
-    } catch (e) {
-      const err = e as { status?: number; stdout?: string };
-      installCode = err.status ?? 1;
-      installStdout = err.stdout ?? "";
-    }
-    runs.push({ stage: "install", command: CANONICAL_INSTALL_COMMAND, code: installCode, stdout_sha256: sha256Text(installStdout), duration_ms: Date.now() - t0 });
-    if (installCode !== 0) return invalid("install-failed");
+    const install = installIsolated(stage);
+    runs.push({ stage: "install", command: CANONICAL_INSTALL_COMMAND, code: install.code, stdout_sha256: sha256Text(install.stdout), duration_ms: Date.now() - t0 });
+    if (install.code !== 0) return invalid("install-failed");
     if (sha256File(suitePath) !== task.acceptance_suite_sha256) return invalid("post-install-suite-drift");
     if (sha256File(lockPath) !== task.lockfile_sha256) return invalid("post-install-lockfile-drift");
 
     try {
-      verifyNetSandbox(stage);
+      verifyNetSandbox(stage, task.lockfile_path);
     } catch (e) {
       throw new RunError("network-sandbox", String((e as FreezeError).message));
     }
 
-    const baseRed = execRecorded(runs, stage, "base-regression-recheck", task.commands.regression_command, true);
+    const baseRed = execRecorded(runs, stage, "base-regression-recheck", task.commands.regression_command);
     if (baseRed.code === 0) return invalid("base-not-red-at-run");
 
-    const patchArg = JSON.stringify(path.resolve(input.patchPath));
-    const chk = execRecorded(runs, stage, "patch-apply-check", `git apply --check ${patchArg}`, true);
-    if (chk.code !== 0) return invalid("patch-not-applicable");
-    const ap = execRecorded(runs, stage, "patch-apply", `git apply ${patchArg}`, true);
-    if (ap.code !== 0) return invalid("patch-apply-failed");
+    const patchAbs = path.resolve(input.patchPath);
+    if (gitApplyRecorded(runs, stage, "patch-apply-check", patchAbs, true) !== 0) return invalid("patch-not-applicable");
+    if (gitApplyRecorded(runs, stage, "patch-apply", patchAbs, false) !== 0) return invalid("patch-apply-failed");
 
     if (sha256File(lockPath) !== task.lockfile_sha256) return invalid("lockfile-drift");
     if (sha256File(suitePath) !== task.acceptance_suite_sha256) return invalid("suite-drift");
@@ -283,14 +270,14 @@ export function runWorkerPatch(input: RunInput, outPath?: string): RunRecordV1 {
       if (!dependencySectionsUnchanged(beforeManifests.get(p) ?? null, after)) return invalid(`dependency-change:${p}`);
     }
 
-    const acc = execRecorded(runs, stage, "patched-acceptance", task.commands.patched_acceptance_command, true);
+    const acc = execRecorded(runs, stage, "patched-acceptance", task.commands.patched_acceptance_command);
     if (acc.code !== 0) return invalid("patched-acceptance-red");
-    const health = execRecorded(runs, stage, "baseline-health-patched", task.commands.baseline_health_command, true);
+    const health = execRecorded(runs, stage, "baseline-health-patched", task.commands.baseline_health_command);
     if (health.code !== 0) return invalid("baseline-broken");
 
     let greens = 0;
     for (let i = 0; i < task.determinism_runs; i++) {
-      const r = execRecorded(runs, stage, `determinism-${i + 1}`, task.commands.patched_acceptance_command, true);
+      const r = execRecorded(runs, stage, `determinism-${i + 1}`, task.commands.patched_acceptance_command);
       if (r.code === 0) greens++;
     }
     if (greens !== task.determinism_runs) return invalid("determinism-unstable");

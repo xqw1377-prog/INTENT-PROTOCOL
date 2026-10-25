@@ -3,11 +3,11 @@
  *
  * Command-frozen preflight (real repos are not all Vitest):
  *   materialize EXACT base from the git object database
- *   → clean-room dependency reconstruct from the frozen lockfile (R4)
- *   → NETWORK-DENIED sandbox enforced by the OS, negatively tested (R3):
- *      macOS: sandbox-exec deny network; Linux: unshare -n. Both are
- *      verified at freeze time by a probe that MUST fail to connect and
- *      MUST still run local work — otherwise INELIGIBLE.
+ *   → clean-room dependency reconstruct from the frozen lockfile inside the
+ *      PHASE A install container (R4; SECURITY-R1 S2)
+ *   → PHASE C execution container, negatively probed (R3; SECURITY-R1 S1):
+ *      network none, /work read-only, host $HOME absent, real mount —
+ *      Docker + the pinned image are REQUIRED; no fallback → INELIGIBLE.
  *   → regression_command MUST FAIL on base (R1)
  *   → baseline_health_command MUST PASS on base (R2)
  *   → determinism: N consecutive reproductions of BOTH results (R5)
@@ -18,8 +18,8 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { closeSync, existsSync, fsyncSync, mkdtempSync, openSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
 import * as path from "node:path";
+import { assertIsolationAvailable, execIsolated, installIsolated, IsolationError, makeRunDir, verifyIsolation, type IsolatedResult } from "./isolation.ts";
 import { assertFreezeComplete, assertInstallAuthority, contractFreezeHash, contractFreezeOf, precommitBinding, verificationRulesetHash, verificationRulesetOf, type RealTaskExperimentV1 } from "./schema.ts";
 
 export interface FreezeTaskConfig {
@@ -94,39 +94,24 @@ export function reconstructDependencies(baseDir: string, cfg: FreezeTaskConfig):
   for (const d of ["node_modules"]) {
     rmSync(path.join(baseDir, d), { recursive: true, force: true });
   }
-  try {
-    execFileSync("sh", ["-c", cfg.commands.install_command], {
-      cwd: baseDir, encoding: "utf8", timeout: 15 * 60_000, maxBuffer: 256 * 1024 * 1024,
-      env: { ...process.env, CI: "1", npm_config_frozen_lockfile: "true" },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-  } catch (e) {
-    throw new FreezeError("install-failed", `${cfg.commands.install_command}: ${String((e as Error).message).slice(0, 200)}`);
-  }
+  // install authority was asserted canonical (CUT-2R1) — executed as INSTALL_ARGV, never via a shell
+  const r = installIsolated(baseDir);
+  if (r.code !== 0) throw new FreezeError("install-failed", `${cfg.commands.install_command}: exit ${r.code}`);
 }
 
-/** R3: run a command inside a NETWORK-DENIED sandbox; throws if the wrap is unavailable. */
-export function inNetSandbox(cmd: string, cwd: string, timeoutMs = 10 * 60_000): { code: number; stdout: string } {
-  const wrapped =
-    process.platform === "darwin"
-      ? `sandbox-exec -p '(version 1)(allow default)(deny network*)' sh -c ${JSON.stringify(cmd)}`
-      : `unshare -n sh -c ${JSON.stringify(cmd)}`; // Linux: dedicated empty netns
-  try {
-    const out = execFileSync("sh", ["-c", wrapped], { cwd, encoding: "utf8", timeout: timeoutMs, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
-    return { code: 0, stdout: out };
-  } catch (e) {
-    const err = e as { status?: number; stdout?: string };
-    return { code: err.status ?? 1, stdout: err.stdout ?? "" };
-  }
+/** R3: run a frozen command in the PHASE C execution container (network none, /work read-only). */
+export function inNetSandbox(cmd: string, cwd: string, timeoutMs = 10 * 60_000): IsolatedResult {
+  return execIsolated(cmd, cwd, timeoutMs);
 }
 
-/** R3 negative test: a REAL outbound attempt MUST fail inside the sandbox, local work MUST succeed. */
-export function verifyNetSandbox(cwd: string): void {
-  const probe = `node -e "const net=require('node:net');const s=net.connect({host:'1.1.1.1',port:53,timeout:3000});s.on('error',()=>process.exit(0));s.on('connect',()=>{s.destroy();process.exit(1)});setTimeout(()=>process.exit(0),4000)"`;
-  const r = inNetSandbox(probe, cwd, 30_000);
-  if (r.code !== 0) throw new FreezeError("network-sandbox-ineffective", "TCP connect to 1.1.1.1:53 SUCCEEDED inside the network-denied sandbox");
-  const local = inNetSandbox(`node -e "process.exit(0)"`, cwd, 30_000);
-  if (local.code !== 0) throw new FreezeError("network-sandbox-too-strict", "local process execution broken inside sandbox");
+/** R3 negative test: the execution container must deny network and /work writes and see the real tree. */
+export function verifyNetSandbox(cwd: string, probeRel: string): void {
+  try {
+    verifyIsolation(cwd, probeRel);
+  } catch (e) {
+    if (e instanceof IsolationError) throw new FreezeError(`isolation-${e.reason}`, e.message);
+    throw e;
+  }
 }
 
 /** R5: repeat the pair of commands N times; each repetition must reproduce the SAME outcomes. */
@@ -147,7 +132,13 @@ function determinismCheck(cfg: FreezeTaskConfig, cwd: string): `${number}/${numb
 /** Full preflight in a temp staging dir; returns the preflight record on success. */
 export function runPreflight(repoDir: string, cfg: FreezeTaskConfig): { suiteHash: string; lockHash: string; preflight: FreezeManifest["preflight"] } {
   assertInstallAuthority(cfg.commands); // CUT-2R1: reject non-canonical install BEFORE anything executes
-  const stage = mkdtempSync(path.join(tmpdir(), "ue1-stage-"));
+  try {
+    assertIsolationAvailable();
+  } catch (e) {
+    if (e instanceof IsolationError) throw new FreezeError(`isolation-${e.reason}`, e.message);
+    throw e;
+  }
+  const stage = makeRunDir("ue1-stage-");
   try {
     materializeBase(repoDir, cfg.base_commit_sha, stage);
     const suiteHash = sha256File(path.join(stage, cfg.acceptance_suite));
@@ -163,7 +154,7 @@ export function runPreflight(repoDir: string, cfg: FreezeTaskConfig): { suiteHas
     }
 
     reconstructDependencies(stage, cfg);      // R4 clean-room
-    verifyNetSandbox(stage);                  // R3 negative probe
+    verifyNetSandbox(stage, cfg.lockfile_path); // R3 negative probe
     // R1 + R2 (single-shot; N-run covered by determinismCheck)
     const red = inNetSandbox(cfg.commands.regression_command, stage);
     if (red.code === 0) throw new FreezeError("base-not-red", "regression_command PASSED on base (must FAIL)");

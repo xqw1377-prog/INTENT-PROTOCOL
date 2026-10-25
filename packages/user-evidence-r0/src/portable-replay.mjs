@@ -6,7 +6,9 @@
  * deliberately does NOT import the implementation it verifies (src/*.ts).
  * Every identity formula, policy rule, and execution step is re-implemented
  * here independently — verifier independence over code sharing. A third
- * party unpacks a proof pack and runs, with only node + git + npm on PATH:
+ * party unpacks a proof pack and runs, with node + git + Docker on PATH and
+ * the pinned runtime image pulled (SECURITY-R1 / AMENDMENT-2 — Docker is
+ * REQUIRED, there is no native fallback; unavailable → replay REFUSED):
  *
  *   node verify.mjs [--pack <dir>] [--report <out.json>]
  *
@@ -21,7 +23,9 @@
  *      run-record.json (the verdict is a function, not an assertion);
  *   4. reality — the frozen base is cloned from base.bundle at the exact
  *      frozen commit, dependencies reconstructed from the frozen lockfile,
- *      and the FULL pipeline re-executed in a network-denied sandbox:
+ *      in the install container, the patch applied on the host as data, and
+ *      every frozen command re-executed in the execution container (network
+ *      none, /work READ-ONLY, only /tmp writable, host $HOME absent):
  *      policy wall, base red, patch apply, patched green, baseline green,
  *      N-run determinism. The reproduced outcome must EQUAL the recorded
  *      one (an attacker who rewrites the record AND re-hashes the manifest
@@ -29,9 +33,9 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { createHash, randomUUID } from "node:crypto";
+import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { homedir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -254,13 +258,88 @@ function depsUnchanged(before, after) {
   return canonical(b) === canonical(a);
 }
 
-/* ── execution (network-denied sandbox; independent of src/freeze.ts) ── */
+/* ── execution (container isolation; independent of src/isolation.ts) ── */
 
-function sh(cmd, cwd, timeoutMs = 10 * 60_000, env = process.env) {
+const RUNTIME_IMAGE = "node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdda25ada09b46db68a3f4cc205abf1f5d6bf0913f3384";
+const SANDBOX_HOME = path.join(homedir(), ".intent-sandbox");
+const SANDBOX_RUNS = path.join(SANDBOX_HOME, "runs");
+const SANDBOX_NPM_CACHE = path.join(SANDBOX_HOME, "npm-cache");
+const CONTAINER_ENV = [
+  "HOME=/tmp",
+  "CI=1",
+  "NPM_CONFIG_USERCONFIG=/dev/null",
+  "NPM_CONFIG_IGNORE_SCRIPTS=true",
+  "NPM_CONFIG_UPDATE_NOTIFIER=false",
+  "NPM_CONFIG_FUND=false",
+  "NPM_CONFIG_AUDIT=false",
+];
+
+/** host git on trusted inputs (bundle, pack paths) — direct argv, never a shell */
+function git(args, cwd, timeoutMs = 10 * 60_000) {
   try {
-    const out = execFileSync("sh", ["-c", cmd], { cwd, encoding: "utf8", timeout: timeoutMs, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"], env });
+    const out = execFileSync("git", args, { cwd, encoding: "utf8", timeout: timeoutMs, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
     return { code: 0, stdout: out };
   } catch (e) {
+    return { code: e.status ?? 1, stdout: e.stdout ?? "" };
+  }
+}
+
+function privateDir(dir) {
+  mkdirSync(dir, { recursive: true, mode: 0o700 });
+  chmodSync(dir, 0o700);
+}
+
+function isolationUnavailable() {
+  try {
+    execFileSync("docker", ["version", "--format", "{{.Server.Version}}"], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "pipe"] });
+  } catch {
+    return "docker-unavailable";
+  }
+  try {
+    execFileSync("docker", ["image", "inspect", "--format", "{{.Id}}", RUNTIME_IMAGE], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "pipe"] });
+  } catch {
+    return "image-missing";
+  }
+  return null;
+}
+
+function dockerArgv(phase, workDir, command, name) {
+  const work = path.resolve(workDir);
+  if (!work.startsWith(SANDBOX_RUNS + path.sep)) throw new Error("mount-outside-runs");
+  const argv = [
+    "run", "--rm", "--pull=never", "--name", name,
+    "--read-only",
+    "--tmpfs", "/tmp:rw,exec,nosuid,size=1g",
+    "--cap-drop", "ALL",
+    "--security-opt", "no-new-privileges",
+    "--pids-limit", "1024",
+    "--memory", "4g",
+    "--cpus", "2",
+    "--user", process.getuid() + ":" + process.getgid(),
+    ...CONTAINER_ENV.flatMap((kv) => ["-e", kv]),
+    "-w", "/work",
+  ];
+  if (phase === "install") {
+    argv.push("-e", "NPM_CONFIG_CACHE=/npm-cache", "-v", work + ":/work:rw", "-v", SANDBOX_NPM_CACHE + ":/npm-cache:rw");
+  } else {
+    argv.push("--network", "none", "-v", work + ":/work:ro");
+  }
+  return [...argv, RUNTIME_IMAGE, ...command];
+}
+
+function docker(phase, workDir, command, timeoutMs) {
+  const name = "intent-replay-" + phase + "-" + randomUUID().slice(0, 12);
+  try {
+    const out = execFileSync("docker", dockerArgv(phase, workDir, command, name), { encoding: "utf8", timeout: timeoutMs, maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
+    return { code: 0, stdout: out };
+  } catch (e) {
+    if (e.signal) {
+      try {
+        execFileSync("docker", ["rm", "-f", name], { stdio: "ignore", timeout: 60_000 });
+      } catch {
+        // already gone
+      }
+    }
     return { code: e.status ?? 1, stdout: e.stdout ?? "" };
   }
 }
@@ -277,28 +356,57 @@ function pathsSymlinkFree(root, touchedPaths) {
   }
   return true;
 }
+/** execution container: network none, /work READ-ONLY; the frozen command is only an argument of sh -lc inside */
 function inNetSandbox(cmd, cwd, timeoutMs = 10 * 60_000) {
-  const wrapped =
-    process.platform === "darwin"
-      ? "sandbox-exec -p '(version 1)(allow default)(deny network*)' sh -c " + JSON.stringify(cmd)
-      : "unshare -n sh -c " + JSON.stringify(cmd);
-  return sh(wrapped, cwd, timeoutMs);
+  return docker("exec", cwd, ["sh", "-lc", cmd], timeoutMs);
 }
-function verifyNetSandbox(cwd) {
-  const probe =
-    "node -e \"const net=require('node:net');const s=net.connect({host:'1.1.1.1',port:53,timeout:3000});s.on('error',()=>process.exit(0));s.on('connect',()=>{s.destroy();process.exit(1)});setTimeout(()=>process.exit(0),4000)\"";
-  if (inNetSandbox(probe, cwd, 30_000).code !== 0) throw new Error("network-sandbox-ineffective");
-  if (inNetSandbox("node -e \"process.exit(0)\"", cwd, 30_000).code !== 0) throw new Error("network-sandbox-too-strict");
+
+const PROBE_FILE = ".intent-isolation-probe";
+const PROBE_SCRIPT = String.raw`
+const fs = require("node:fs"), net = require("node:net"), crypto = require("node:crypto");
+const [hostHome, probeRel, probeFile] = process.argv.slice(1);
+const out = {};
+try { fs.writeFileSync("/work/" + probeFile, "x"); out.work_write = "ALLOWED"; } catch { out.work_write = "DENIED"; }
+try { fs.writeFileSync("/tmp/" + probeFile, "x"); out.tmp_write = "ALLOWED"; } catch { out.tmp_write = "DENIED"; }
+out.host_home_visible = fs.existsSync(hostHome);
+try { out.probe_sha256 = "sha256:" + crypto.createHash("sha256").update(fs.readFileSync("/work/" + probeRel)).digest("hex"); } catch { out.probe_sha256 = null; }
+const s = net.connect({ host: "1.1.1.1", port: 53, timeout: 3000 });
+const done = (v) => { out.network = v; s.destroy(); process.stdout.write(JSON.stringify(out)); process.exit(0); };
+s.on("connect", () => done("OPEN"));
+s.on("error", () => done("DENIED"));
+s.on("timeout", () => done("DENIED"));
+`;
+
+/** negative-probed isolation contract: network DENIED, /work write DENIED, /tmp ALLOWED, host $HOME absent, real mount */
+function verifyNetSandbox(cwd, probeRel) {
+  const r = docker("exec", cwd, ["node", "-e", PROBE_SCRIPT, homedir(), probeRel, PROBE_FILE], 60_000);
+  let f;
+  try {
+    f = JSON.parse(r.stdout);
+  } catch {
+    throw new Error("isolation-probe-failed");
+  }
+  if (f.network !== "DENIED") throw new Error("isolation-network-open");
+  if (f.work_write !== "DENIED" || existsSync(path.join(cwd, PROBE_FILE))) throw new Error("isolation-work-writable");
+  if (f.tmp_write !== "ALLOWED") throw new Error("isolation-tmp-unwritable");
+  if (f.host_home_visible !== false) throw new Error("isolation-host-home-visible");
+  if (f.probe_sha256 !== shaFile(path.join(cwd, probeRel))) throw new Error("isolation-mount-mismatch");
 }
 
 /** Re-execute the whole pipeline from the pack alone; returns the reproduced outcome. */
 function reexecute(packDir, task) {
-  const work = mkdtempSync(path.join(tmpdir(), "ue4-replay-"));
+  const unavailable = isolationUnavailable();
+  if (unavailable) return { tier1_verdict: "UNREPRODUCIBLE", reason: "isolation-" + unavailable, refused: true };
+  privateDir(SANDBOX_HOME);
+  privateDir(SANDBOX_RUNS);
+  privateDir(SANDBOX_NPM_CACHE);
+  const work = mkdtempSync(path.join(SANDBOX_RUNS, "ue4-replay-"));
+  chmodSync(work, 0o700);
   try {
-    const clone = sh(`git clone --quiet --branch ue-base ${JSON.stringify(path.resolve(packDir, "base.bundle"))} ${JSON.stringify(work + "/repo")}`, tmpdir());
+    const clone = git(["clone", "--quiet", "--branch", "ue-base", path.resolve(packDir, "base.bundle"), path.join(work, "repo")], work);
     if (clone.code !== 0) return { tier1_verdict: "INVALID", reason: "bundle-unclonable" };
     const repo = path.join(work, "repo");
-    const head = sh("git rev-parse HEAD", repo);
+    const head = git(["rev-parse", "HEAD"], repo);
     if (head.code !== 0 || head.stdout.trim() !== task.base_commit_sha) return { tier1_verdict: "INVALID", reason: "bundle-base-mismatch" };
 
     const suitePath = path.join(repo, task.acceptance_suite);
@@ -315,34 +423,24 @@ function reexecute(packDir, task) {
     const manifests = parsed.touchedPaths.filter((p) => p === "package.json" || p.endsWith("/package.json"));
     const before = new Map(manifests.map((p) => [p, existsSync(path.join(repo, p)) ? readFileSync(path.join(repo, p), "utf8") : null]));
 
-    // UE2-R-INSTALL / CUT-2R1: dependency materialization with ZERO shell
-    // authority — direct argv, identical to the runner's contract (INSTALL-R4)
+    // UE2-R-INSTALL / CUT-2R1 + SECURITY-R1 S2: dependency materialization
+    // with ZERO shell authority — canonical argv in the install container,
+    // before any worker byte is applied (INSTALL-R4)
     const INSTALL_ARGV = ["npm", "ci", "--ignore-scripts"];
     rmSync(path.join(repo, "node_modules"), { recursive: true, force: true });
-    let installCode = 0;
-    try {
-      execFileSync(INSTALL_ARGV[0], INSTALL_ARGV.slice(1), {
-        cwd: repo,
-        encoding: "utf8",
-        timeout: 15 * 60_000,
-        maxBuffer: 256 * 1024 * 1024,
-        stdio: ["ignore", "pipe", "pipe"],
-        env: { ...process.env, npm_config_ignore_scripts: "true" },
-      });
-    } catch (e) {
-      installCode = e.status ?? 1;
-    }
-    if (installCode !== 0) return { tier1_verdict: "INVALID", reason: "install-failed" };
+    const install = docker("install", repo, INSTALL_ARGV, 15 * 60_000);
+    if (install.code !== 0) return { tier1_verdict: "INVALID", reason: "install-failed" };
     if (shaFile(suitePath) !== task.acceptance_suite_sha256) return { tier1_verdict: "INVALID", reason: "post-install-suite-drift" };
     if (shaFile(lockPath) !== task.lockfile_sha256) return { tier1_verdict: "INVALID", reason: "post-install-lockfile-drift" };
     try {
-      verifyNetSandbox(repo);
+      verifyNetSandbox(repo, task.lockfile_path);
     } catch (e) {
-      return { tier1_verdict: "INVALID", reason: "net-sandbox:" + e.message };
+      return { tier1_verdict: "UNREPRODUCIBLE", reason: e.message, refused: true };
     }
     if (inNetSandbox(task.commands.regression_command, repo).code === 0) return { tier1_verdict: "INVALID", reason: "base-not-red-at-run" };
-    if (inNetSandbox("git apply --check " + JSON.stringify(patchAbs), repo).code !== 0) return { tier1_verdict: "INVALID", reason: "patch-not-applicable" };
-    if (inNetSandbox("git apply " + JSON.stringify(patchAbs), repo).code !== 0) return { tier1_verdict: "INVALID", reason: "patch-apply-failed" };
+    // the patch is data: host git applies it, no project code executes
+    if (git(["apply", "--check", patchAbs], repo, 60_000).code !== 0) return { tier1_verdict: "INVALID", reason: "patch-not-applicable" };
+    if (git(["apply", patchAbs], repo, 60_000).code !== 0) return { tier1_verdict: "INVALID", reason: "patch-apply-failed" };
     if (shaFile(lockPath) !== task.lockfile_sha256) return { tier1_verdict: "INVALID", reason: "lockfile-drift" };
     if (shaFile(suitePath) !== task.acceptance_suite_sha256) return { tier1_verdict: "INVALID", reason: "suite-drift" };
     for (const p of manifests) {
@@ -535,6 +633,9 @@ export function replayPack(packDir, opts = {}) {
   // 4. reality: re-execute from the pack alone and require the SAME verdict
   const reproduced = reexecute(packDir, task);
   const recordedSide = { tier1_verdict: recordedVerdict, reason: record.invalid_reason ?? null, checks: record.checks ?? null };
+  if (reproduced.refused) {
+    return { ...baseReport("OK", "OK", "OK", reproduced, recordedSide, false), status: "FAIL", fail_reason: "replay-refused:" + reproduced.reason };
+  }
   const same = reproduced.tier1_verdict === recordedVerdict && (recordedVerdict === "VALID" || reproduced.reason === record.invalid_reason);
   if (recordedVerdict === "VALID" && reproduced.tier1_verdict === "VALID" && reproduced.determinism !== record.checks.determinism) {
     return {

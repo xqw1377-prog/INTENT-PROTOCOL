@@ -120,3 +120,109 @@ UNCHANGED
   = recruitment discipline (experiment first, no protocol/blockchain
     talk, one qualifying question, plain reply = agree, no signatures)
 ```
+
+## SECURITY-R1-AMENDMENT-2 — container isolation for untrusted code (S1/S2)
+
+Status: **IMPLEMENTED — PENDING COMMANDER AUDIT** (SECURITY-R1 opened P0 by
+Commander ruling 2026-10-25; S3 landed separately @ 4ad5ca3).
+
+```text
+BASIS
+  = re-audit finding S1: the native net-denied wrapper (macOS
+    sandbox-exec '(allow default)(deny network*)' / Linux unshare -n)
+    denied ONLY the network — worker code ran with full host filesystem
+    authority (host HOME, ~/.ssh, git credentials, adjacent runs)
+  = re-audit finding S2: `npm ci --ignore-scripts` ran on the host with
+    the host environment and npm config
+
+CHANGE
+  = old native sandbox            RETIRED (sandbox-exec / unshare removed
+                                  from runner AND anchored verifier)
+  = Docker isolation              REQUIRED (UE-1 freeze, UE-2 run,
+                                  portable replay)
+  = fallback                      NONE
+  = Docker unavailable / pinned image absent
+        UE-1 freeze  → INELIGIBLE (isolation-<reason>)
+        UE-2 run     → RUN-REFUSED, no record written
+        replay       → REPLAY REFUSED
+                       (fail_reason "replay-refused:isolation-<reason>")
+  = runtime image                 PINNED, never pulled at run time:
+        node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdda25ada09b46db68a3f4cc205abf1f5d6bf0913f3384
+        (OCI index digest: amd64 + arm64)  docker run --pull=never
+  = worker execution workdir      READ ONLY
+
+PHASES (single source: packages/user-evidence-r0/src/isolation.ts;
+        independently re-implemented in src/portable-replay.mjs)
+  A  install container — network allowed; /work RW; read-only root fs;
+     /tmp tmpfs; lifecycle scripts disabled; argv = CANONICAL_INSTALL_COMMAND
+     ("npm ci --ignore-scripts"); NO worker patch exists yet
+  B  patch — host `git apply --check` / `git apply` of the patch AS DATA
+     (argv, never a shell); lockfile / suite / dependency sections /
+     allowed-forbidden paths / diff bound re-checked afterwards
+  C  execution container — --network none; /work READ ONLY; read-only
+     root fs; /tmp tmpfs; --cap-drop ALL; no-new-privileges; own pid
+     namespace; --pids-limit 1024 --memory 4g --cpus 2; host uid:gid
+
+COMMON TO A AND C
+  = docker invoked ONLY as execFileSync("docker", argv); image, name,
+    mounts and limits are argv elements; a frozen user command exists
+    ONLY as the argument of `sh -lc <cmd>` INSIDE the container
+  = environment = explicit whitelist, never process.env:
+      HOME=/tmp CI=1 NPM_CONFIG_USERCONFIG=/dev/null
+      NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_UPDATE_NOTIFIER=false
+      NPM_CONFIG_FUND=false NPM_CONFIG_AUDIT=false
+  = NEVER mounted: host HOME, ~/.ssh, git credentials, docker.sock, the
+    host repo, testnet keys
+  = the only mount source is a per-run dir ~/.intent-sandbox/runs/<prefix>XXXX
+    (mode 0700); a mount outside that root throws (mount-outside-runs)
+  = every isolated run is preceded by a probe INSIDE the execution
+    container: /work write DENIED, /tmp write ALLOWED, host home not
+    visible, network DENIED, and the mounted lockfile hash == host hash
+    (catches silently-empty bind mounts, e.g. colima not sharing
+    /var/folders). Any probe failure → INELIGIBLE / REPLAY REFUSED
+
+ELIGIBILITY CONSEQUENCE
+  = a candidate project whose test command must write into the repo is
+    EXPERIMENT-001-INELIGIBLE (only /tmp is writable during execution)
+
+OPERATOR DECISION FOR COMMANDER RULING (disclosed, not pre-authorized)
+  = a shared npm cache ~/.intent-sandbox/npm-cache is mounted RW in
+    phase A ONLY (never in phase C). Rationale: install-time speed;
+    npm verifies every tarball against the lockfile integrity hash, so
+    a poisoned cache entry fails closed. Residual: one run's install
+    can write cache entries a later install reads. Removing it = delete
+    two argv elements in isolation.ts + portable-replay.mjs and re-anchor.
+
+GATES (packages/user-evidence-r0/test/sec-isolation.test.ts,
+       apps/experiment-ui/test/sec-ui.test.ts)
+  SEC-1  network DENIED            SEC-4B /tmp write ALLOWED
+  SEC-2  host-home write DENIED    SEC-4C normal commands PASS
+  SEC-3  host secret read DENIED   SEC-5  cross-origin mutation DENIED (S3)
+  SEC-4  /work write DENIED        SEC-6  legitimate UI flow PASS (S3)
+  + SEC-E2E: a hostile-but-correct worker fix attacking all of the above
+    through the real runner is VALID only because every attack was
+    denied, and its proof pack REPLAYS PASS through the anchored verifier
+  + SEC-NOFALLBACK: no docker on PATH → RUN-REFUSED + REPLAY REFUSED
+  + SEC-ARGV / SEC-MOUNT / SEC-PARITY: argv contract, mount root, and
+    runner ↔ verifier parity (same image, same flags, no native sandbox)
+
+RE-ANCHOR (closed in ONE commit — no intermediate state on main)
+  = portable-replay.mjs → verifier_sha256 → VERIFIER-RELEASE.json →
+    release sha256 → apps/experiment-ui/server/trust-anchor.ts →
+    docs/experiments/EXPERIMENT-001.md (REVISION 2; REVISION 1 RETIRED)
+    → UI footer
+  = content hashes are the authority; main_sha records the release BASE
+    (parent of the release commit — a commit cannot contain its own id);
+    implementation_audit_sha = PENDING until the Commander audits
+
+CI
+  = Main Health moves to ubuntu-latest (the native-sandbox reason for
+    macos-latest is retired): docker info, pinned image pulled BY
+    DIGEST, SEC gates, full suite, hygiene
+
+UNCHANGED
+  = Tier-1 semantics, UE-0..UE-5 contracts other than the sandbox
+    surface, install domain (AMENDMENT-1), economic authority
+  = EXPERIMENT-001 stays on SECURITY HOLD until: Commander SECURITY-R1
+    PASS + SEC PASS + anchor chain CLOSED + ubuntu Main Health SUCCESS
+```

@@ -89,11 +89,11 @@ cd /tmp/intent-t5-pack && node verify.mjs
 
 Copy the pack directory onto a machine that does not have the rest of the repository. `node verify.mjs` from inside that directory is the whole check. The devnet pack recomputes the signed transaction and the receipt hash offline. It labels chain inclusion as evidence that was observed when the pack was built. It does not phone home.
 
-The portable experiment verifier, for a future real-user pack, is pinned outside the pack:
+The portable experiment verifier, for a future real-user pack, is pinned outside the pack. It re-executes untrusted code only inside Docker containers from a pinned image, and refuses to replay when Docker is unavailable (SECURITY-R1-AMENDMENT-2 in [docs/AMENDMENTS.md](docs/AMENDMENTS.md)):
 
 ```bash
 shasum -a 256 packages/user-evidence-r0/src/portable-replay.mjs
-# sha256:292d580430dbe39c2978060340d2e4d27dd8debcfc807ba5f0a5e6157cbc8493
+# sha256:5345ed1e9d269c9b3e6270a030a78f6e74457f37287dffd6acdbcb12789ab217
 ```
 
 This repository does not contain a real-user experiment pack. Real payers, real tasks, and real external workers recorded here: 0.

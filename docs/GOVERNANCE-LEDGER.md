@@ -155,9 +155,19 @@ LEDGER ADDITIVE-EXPORT COMPATIBILITY = PASS (Commander 2026-10-03:
                      reverting the three disclosed exports restores
                      ledger.ts byte-identical to the fe18be0 baseline;
                      scope = those exports only).
-EXPERIMENT-001 TRUST ANCHOR = frozen (docs/experiments/EXPERIMENT-001.md:
-                     MAIN fe18be0 / audit ca0c646 / release
-                     sha256:25286e96… / verifier sha256:292d5804…).
+EXPERIMENT-001 TRUST ANCHOR = REVISION 2 (SECURITY-R1-AMENDMENT-2;
+                     docs/experiments/EXPERIMENT-001.md: release base
+                     be22031 / audit PENDING / release sha256:f24d83d0… /
+                     verifier sha256:5345ed1e… / pinned runtime image).
+                     REVISION 1 (fe18be0 / ca0c646 / 25286e96… /
+                     292d5804…) RETIRED with the native sandbox.
+SECURITY-R1         = OPEN / P0 — IMPLEMENTED, PENDING COMMANDER AUDIT.
+                     S3 (UI mutation authority) @ 4ad5ca3; S1/S2 Docker
+                     isolation, no fallback, worker /work READ ONLY
+                     (docs/AMENDMENTS.md SECURITY-R1-AMENDMENT-2).
+                     EXPERIMENT-001 real run = SECURITY HOLD until
+                     Commander PASS + SEC PASS + anchor CLOSED + ubuntu
+                     Main Health SUCCESS.
                      [The former "WAITING FOR FRONTEND-R1 MINIMUM FLOW"
                      gate is SUPERSEDED — FRONTEND-R1 = PASS / FROZEN-R0;
                      current experiment status is NEXT above:

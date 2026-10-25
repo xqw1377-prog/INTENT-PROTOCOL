@@ -884,11 +884,11 @@ $("#footer-details-toggle").addEventListener("click", () => {
   el.hidden = !el.hidden;
   if (!el.hidden && !el.textContent) {
     el.textContent =
-      "Experiment trust anchor (docs/experiments/EXPERIMENT-001.md):\n" +
-      "  MAIN                    fe18be0a5eb9536a7d2e0325352cb6ed0d7bbc90\n" +
-      "  implementation audit    ca0c64673a759a713c2cf18813cb22b7fc005741\n" +
-      "  VERIFIER-RELEASE sha256 25286e96bd346bd34fa093d40968f690ae357a4d9ece59f9af6c925747cb6027\n" +
-      "  portable-replay sha256  292d580430dbe39c2978060340d2e4d27dd8debcfc807ba5f0a5e6157cbc8493";
+      "Experiment trust anchor, revision 2 (docs/experiments/EXPERIMENT-001.md):\n" +
+      "  release base            be22031cdbd018e4aedc8fb2d25c4f244b00173f\n" +
+      "  VERIFIER-RELEASE sha256 f24d83d03c929c40086b04f768e494a5d68e1494b571968324404886cee143bd\n" +
+      "  portable-replay sha256  5345ed1e9d269c9b3e6270a030a78f6e74457f37287dffd6acdbcb12789ab217\n" +
+      "  runtime image           node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdda25ada09b46db68a3f4cc205abf1f5d6bf0913f3384";
   }
 });
 

@@ -122,9 +122,12 @@ describe("[CUT-2R1] install authority", () => {
     // its argv from it, the verifier re-declares the identical argv
     const schemaSrc = readFileSync(path.join(pkgDir, "src/schema.ts"), "utf8");
     const runSrc = readFileSync(path.join(pkgDir, "src/run.ts"), "utf8");
+    const isolationSrc = readFileSync(path.join(pkgDir, "src/isolation.ts"), "utf8");
     const mjsSrc = readFileSync(path.join(pkgDir, "src/portable-replay.mjs"), "utf8");
     expect(schemaSrc).toContain('export const CANONICAL_INSTALL_COMMAND = "npm ci --ignore-scripts"');
-    expect(runSrc).toContain('CANONICAL_INSTALL_COMMAND.split(" ")');
+    // SECURITY-R1: the runner installs through the isolation module, whose argv derives from the schema literal
+    expect(isolationSrc).toContain('CANONICAL_INSTALL_COMMAND.split(" ")');
+    expect(runSrc).toContain("installIsolated(stage)");
     expect(mjsSrc).toContain('["npm", "ci", "--ignore-scripts"]');
     // (b) behavioral level: the runner's VALID verdict is reproduced by the
     // replayer's INDEPENDENT direct-argv execution from the pack alone

@@ -11,22 +11,34 @@ product-market fit, payer demand, commercial viability.
 ## EXPERIMENT-001 TRUST ANCHOR (frozen — package-external by design)
 
 A proof pack can never establish verifier trust; this governance record
-does. Every EXPERIMENT-001 freeze/report cites exactly these values:
+does. Every EXPERIMENT-001 freeze/report cites exactly these values.
+
+**REVISION 2 — current (AMENDMENT-2 / SECURITY-R1, container isolation).**
+The content hashes are the authority. A commit cannot contain its own id,
+so the release BASE is the parent of the release commit; the release
+commit id and the Commander audit SHA are registered after sign-off.
 
 ```text
-MAIN (merged, post-sign-off)   = fe18be0a5eb9536a7d2e0325352cb6ed0d7bbc90
-IMPLEMENTATION AUDIT SHA       = ca0c64673a759a713c2cf18813cb22b7fc005741
-                                 (Commander-audited CUT-2R1 tip; frozen
-                                 audit branch audit/user-evidence-r0-cut2-cut4)
-VERIFIER-RELEASE.json SHA256   = sha256:25286e96bd346bd34fa093d40968f690ae357a4d9ece59f9af6c925747cb6027
-portable-replay.mjs SHA256     = sha256:292d580430dbe39c2978060340d2e4d27dd8debcfc807ba5f0a5e6157cbc8493
+RELEASE BASE (parent commit)   = be22031cdbd018e4aedc8fb2d25c4f244b00173f
+IMPLEMENTATION AUDIT SHA       = PENDING-COMMANDER-AUDIT-SECURITY-R1
+VERIFIER-RELEASE.json SHA256   = sha256:f24d83d03c929c40086b04f768e494a5d68e1494b571968324404886cee143bd
+portable-replay.mjs SHA256     = sha256:5345ed1e9d269c9b3e6270a030a78f6e74457f37287dffd6acdbcb12789ab217
+RUNTIME IMAGE (pinned)         = node:22.23.4-bookworm@sha256:63538dfe497cc29dfafdda25ada09b46db68a3f4cc205abf1f5d6bf0913f3384
+EXECUTION                      = Docker REQUIRED · no fallback · worker code
+                                 runs with /work READ-ONLY, network none
 ```
 
+**REVISION 1 — RETIRED (native sandbox: network-denied only, file writes
+unrestricted — SECURITY-R1 finding).** Historical record, never valid for
+a real run: MAIN fe18be0a5eb9536a7d2e0325352cb6ed0d7bbc90 · audit
+ca0c64673a759a713c2cf18813cb22b7fc005741 · VERIFIER-RELEASE
+sha256:25286e96… · portable-replay sha256:292d5804….
+
 Third-party verification order (frozen in the release file): obtain
-VERIFIER-RELEASE.json from this repository at the MAIN SHA above →
-compare the pack's verify.mjs hash and proof-manifest verifier_sha256
-against it → only then run `node verify.mjs`. The answer to "what
-version was the experiment run on?" is this block, and nothing else.
+VERIFIER-RELEASE.json from this repository → compare the pack's
+verify.mjs hash and proof-manifest verifier_sha256 against it → pull the
+pinned runtime image → only then run `node verify.mjs`. The answer to
+"what version was the experiment run on?" is this block, and nothing else.
 
 ## First-maintainer selection criteria (harsh on purpose)
 
