@@ -1,10 +1,8 @@
 # Demo video script
 
-Finals shot list. About 3 minutes. English narration for text-to-speech. The founder does not need to speak.
+The hosted finals cut is [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4). It is the Northwind Coffee bounty demo, about 104 seconds, H.264, 1280×720. The file in the repository is [hackathon-demo/public/INTENT-Encode-demo.mp4](../hackathon-demo/public/INTENT-Encode-demo.mp4). The live site serves that name after the production build includes it.
 
-The file already hosted at [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4) is the earlier arithmetic sample (17 + 25). Do not submit that cut for the finals. Record this script, then paste the new hosted URL into `docs/ENCODE-MID-SUBMISSION.md`.
-
-Track: Best Consumer App on Solana. Do not mention other tracks. Do not claim users, partners, mainnet, or a token. Say “practice SOL” when you mention the pay.
+The timings below are the shot list for that cut. Track: Best Consumer App on Solana. Do not claim users, partners, mainnet, or a token. Say “practice SOL” when you mention the pay.
 
 ## Shot list
 
