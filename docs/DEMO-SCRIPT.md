@@ -1,6 +1,6 @@
 # Demo video script
 
-Re-record shot list, about 3 minutes. Do not treat the hosted file as this cut. The file at [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4) is the current Northwind Coffee bounty video, about 104 seconds. This script is the 2–3 minute version to record next. This change does not re-encode that file.
+The hosted judge cut is [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4). It is 166 seconds, H.264, 1280×720, and follows the beats below. The file in the repository is [hackathon-demo/public/INTENT-Encode-demo.mp4](../hackathon-demo/public/INTENT-Encode-demo.mp4). A copy with the same bytes is [hackathon-demo/public/INTENT-Encode-demo-judge.mp4](../hackathon-demo/public/INTENT-Encode-demo-judge.mp4). The live site serves the first name after the production build includes it. Homepage, Devnet label, Install Phantom, and the bounty form are shots of the live site. The signed-wallet steps are not re-acted.
 
 Track: Best Consumer App on Solana. Do not claim users, partners, revenue, or mainnet. Say “practice SOL” and “Devnet · no real money”.
 

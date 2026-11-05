@@ -50,7 +50,7 @@ https://intent-protocol-wine.vercel.app
 
 https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
 
-Northwind Coffee bounty cut, about 104 seconds, H.264, 1280×720. Source file: `hackathon-demo/public/INTENT-Encode-demo.mp4`. Shot list: `docs/DEMO-SCRIPT.md`.
+Northwind Coffee bounty judge cut, 166 seconds, H.264, 1280×720. Source file: `hackathon-demo/public/INTENT-Encode-demo.mp4`. Shot list: `docs/DEMO-SCRIPT.md`.
 
 ## Slides
 
