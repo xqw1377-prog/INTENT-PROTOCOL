@@ -2,7 +2,7 @@
 
 Online, with the Solana Foundation. Window: 2026-10-12 through 2026-11-08, 23:59 UTC-12. Mid-submission: 2026-11-02, 19:59 Asia/Shanghai. This repository is the submission. The demo runs on devnet.
 
-Live demo: [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app) (HTTP 200 on 2026-10-25). Paste fields for the mid-submission are in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md). Slides: [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html). Demo video, 104 seconds, 1280×720: [hackathon-demo/public/INTENT-Encode-demo.mp4](hackathon-demo/public/INTENT-Encode-demo.mp4), served at `/INTENT-Encode-demo.mp4` after this file is in the production build.
+Live demo: [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app) (HTTP 200 on 2026-10-25). Paste fields for the mid-submission are in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md). Slides: [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html). Demo video, Northwind Coffee bounty, about 104 seconds, 1280×720: [hackathon-demo/public/INTENT-Encode-demo.mp4](hackathon-demo/public/INTENT-Encode-demo.mp4), served at `/INTENT-Encode-demo.mp4` after this file is in the production build.
 
 ## Problem, solution, Solana
 

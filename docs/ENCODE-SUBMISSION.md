@@ -17,7 +17,7 @@ A safer way to pay for work. Hire someone without moving the goalposts: freeze w
 On the public devnet demo, a cafe posts a paid writing bounty and locks 0.05 practice SOL with the job. A writer turns in a headline. The short line `Northwind Coffee: order ahead.` does not get paid. The agreed line `Northwind Coffee: order ahead, skip the line.` is paid once. A second pay is rejected. The cafe can cancel before the check and take the pay back.
 
 Demo: https://intent-protocol-wine.vercel.app
-Video: the recorded cut at https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4 still shows the old arithmetic sample. The finals shot list is docs/DEMO-SCRIPT.md. A new hosted video URL is not recorded yet.
+Video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4 (Northwind Coffee bounty cut, about 104 seconds).
 Slides: https://intent-protocol-wine.vercel.app/slides.html
 Escrow program on devnet: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F
 
@@ -51,9 +51,9 @@ https://intent-protocol-wine.vercel.app
 
 ## Video link
 
-Previous cut, arithmetic sample, do not submit this as the finals video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
 
-Finals video: not recorded in this change. Shot list and narration: `docs/DEMO-SCRIPT.md`. Paste the hosted URL here after Star records it.
+Northwind Coffee bounty cut, about 104 seconds, H.264, 1280×720. Source file: `hackathon-demo/public/INTENT-Encode-demo.mp4`. Shot list: `docs/DEMO-SCRIPT.md`.
 
 ## Slides
 
