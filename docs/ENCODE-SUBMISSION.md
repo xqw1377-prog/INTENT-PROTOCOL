@@ -8,22 +8,19 @@ Intent Protocol
 
 ## One-liner
 
-A safer way to pay for work: hire without moving the goalposts. Freeze the rules before the work. Prove the outcome after.
+Pay for freelance work without moving the goalposts.
 
 ## Description
 
-A safer way to pay for work. Hire someone without moving the goalposts: freeze what “done” means before the work starts, then prove the outcome after.
+Who it is for: a client paying a freelancer for one deliverable, and the freelancer doing that work. The live sample is Northwind Coffee hiring a writer for a homepage headline.
 
-On the public devnet demo, a cafe posts a paid writing bounty and locks 0.05 practice SOL with the job. A writer turns in a headline. The short line `Northwind Coffee: order ahead.` does not get paid. The agreed line `Northwind Coffee: order ahead, skip the line.` is paid once. A second pay is rejected. The cafe can cancel before the check and take the pay back.
+What pain: the client fears paying for work that only looks done. The freelancer fears the standard moving after delivery.
 
-Demo: https://intent-protocol-wine.vercel.app
-Video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4 (Northwind Coffee bounty cut, about 104 seconds).
-Slides: https://intent-protocol-wine.vercel.app/slides.html
-Escrow program on devnet: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F
+What Solana does: the pay is SOL in an account the program owns, not a balance in a database. The frozen “done” rule is a hash on the intent account, not copy the website can edit later. Settlement is the program paying that escrow once. A wrong headline leaves the SOL locked. A second settle is rejected on-chain.
 
-Use Phantom on Devnet. Devnet is Solana’s free practice network. The sample job is one homepage headline for Northwind Coffee.
+What works live today: https://intent-protocol-wine.vercel.app — submit “Northwind Coffee: order ahead.” and the pay stays locked; submit “Northwind Coffee: order ahead, skip the line.” and it is paid once. Video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4 Slides: https://intent-protocol-wine.vercel.app/slides.html Program: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F on devnet.
 
-No mainnet. No token. No claimed users, customers, or partners. Real external payer, task, and worker recorded in this repository: 0.
+No users, partners, revenue, or mainnet. Real external payer, task, and worker recorded in this repository: 0. Interview quote: TBD.
 
 ## Track
 

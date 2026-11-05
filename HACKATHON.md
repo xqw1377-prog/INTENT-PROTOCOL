@@ -6,9 +6,9 @@ Live demo: [https://intent-protocol-wine.vercel.app](https://intent-protocol-win
 
 ## Problem, solution, Solana
 
-A safer way to pay for work. Hire someone without moving the goalposts: freeze what “done” means before the work starts, then prove the outcome after.
+Pay for freelance work without moving the goalposts. A client hires a freelancer for one deliverable, freezes what “done” means before the work, and locks the pay. After delivery, that standard cannot be moved.
 
-On devnet, the pay is locked with that rule. A matching delivery is paid once. A wrong delivery leaves the SOL locked. The person who posted the job can take it back before the check. The program stores the rule and the result, and it holds the SOL.
+The live sample is Northwind Coffee hiring a writer. The pay is SOL held by the program, not a number in a database. A short headline stays unpaid. The agreed headline is paid once.
 
 ## What to run
 
@@ -65,7 +65,7 @@ Re-read on 2026-10-25 from `https://api.devnet.solana.com` with `solana program 
 
 Deploy transaction, finalized: [`3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx`](https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet).
 
-Sample settlement on that program, from the earlier arithmetic walkthrough, finalized: [`64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT`](https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet). That run rejected a wrong submission with custom error 207 and a second settle with custom error 208. The public walkthrough is now the Northwind Coffee writing bounty. The program did not change.
+One earlier settlement on that program, finalized: [`64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT`](https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet). That run rejected a wrong submission with custom error 207 and a second settle with custom error 208. The public walkthrough is the Northwind Coffee writing job. The program did not change.
 
 The program-id keypair and the upgrade-authority keypair are not in this repository. `packages/hackathon-escrow/program/target/` is gitignored. Do not treat `ASvnm4pi…` as upgradeable.
 

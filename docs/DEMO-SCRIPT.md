@@ -1,28 +1,55 @@
 # Demo video script
 
-The hosted finals cut is [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4). It is the Northwind Coffee bounty demo, about 104 seconds, H.264, 1280×720. The file in the repository is [hackathon-demo/public/INTENT-Encode-demo.mp4](../hackathon-demo/public/INTENT-Encode-demo.mp4). The live site serves that name after the production build includes it.
+Re-record shot list, about 3 minutes. Do not treat the hosted file as this cut. The file at [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4) is the current Northwind Coffee bounty video, about 104 seconds. This script is the 2–3 minute version to record next. This change does not re-encode that file.
 
-The timings below are the shot list for that cut. Track: Best Consumer App on Solana. Do not claim users, partners, mainnet, or a token. Say “practice SOL” when you mention the pay.
+Track: Best Consumer App on Solana. Do not claim users, partners, revenue, or mainnet. Say “practice SOL” and “Devnet · no real money”.
 
-## Shot list
+## 0:00–0:20 Conflict
 
-| Time | On screen | Say |
-|---|---|---|
-| 0:00–0:25 | Live demo headline, no scrolling | A cafe and a writer can still fight about the headline after the draft is in, because “done” was never frozen. |
-| 0:25–0:50 | Three cards | Intent locks the job and the pay before writing starts. A matching headline is paid once. A short one is not. |
-| 0:50–1:15 | Connect Phantom. Point at Devnet. | This wallet is Phantom. The network is Devnet, Solana’s free practice network. The site never asks for a secret phrase. Press Get practice SOL if the balance is empty. |
-| 1:15–1:45 | Post bounty form, already filled | Northwind Coffee is hiring a writer for one homepage headline. The job text and the agreed line are filled in. The pay is 0.05 practice SOL. Post the bounty. The page then shows Funded. |
-| 1:45–2:15 | Submit the short line, then Check and pay | The short line is “Northwind Coffee: order ahead.” The check fails. The pay stays locked. |
-| 2:15–2:45 | Submit the full line, then Check and pay. Open Explorer. | The agreed line is “Northwind Coffee: order ahead, skip the line.” The pay goes out once. The Explorer link is the public record. Paying again is rejected. |
-| 2:45–3:00 | Header program link, or README “Built during the hackathon” | There are no claimed customers. The pay is practice SOL. An older one-receipt program was not changed. |
+On screen: the homepage. Headline: “Pay for freelance work without moving the goalposts.” Do not scroll.
+
+Narration:
+
+“A client hires a freelancer and then fears paying for work that only looks done. The freelancer fears the standard moving after delivery. Both of those fights start because done was never frozen.”
+
+## 0:20–0:40 Product
+
+On screen: the three cards. Client, freelancer, after delivery.
+
+Narration:
+
+“Freeze what done means before the work. Lock the reward with it. Let Solana settle once. The sample is Northwind Coffee hiring a writer for one homepage headline. After posting, that headline cannot be swapped.”
+
+## 0:40–2:20 Live flow
+
+On screen, in order:
+
+1. Point at “Devnet · no real money”.
+2. If Phantom is missing, the only filled button is Install Phantom. If it is installed, press Connect Phantom. Show the wallet network set to Devnet.
+3. If the balance is low, press Airdrop 1 SOL. If the button is busy, open faucet.solana.com. Say that out loud.
+4. Press Post the bounty. The job and the agreed line are filled in. Pay is 0.05 practice SOL. Approve. Wait for Funded.
+5. Submit `Northwind Coffee: order ahead.` Press Check and pay. Leave the error up. The pay stays locked.
+6. Submit `Northwind Coffee: order ahead, skip the line.` Press Check and pay. Open the Explorer link. Show success on Devnet.
+7. Press Check and pay again, or say that a second pay of this same bounty is rejected. Do not edit the bounty mid-take.
+
+Narration:
+
+“The short headline is not the agreed one, so the pay stays locked. The full headline matches, so the program pays the locked SOL once. The Explorer page is the record. Paying this bounty again is rejected. One wallet can play the cafe and the writer.”
+
+## 2:20–3:00 Why Solana has to be here
+
+On screen: the program link in the header, `7a6K1m…`, then the Explorer success page if it is still open.
+
+Narration:
+
+“The pay is SOL in an account the program owns. It is not a balance in a database. The frozen rule is a hash on the intent account. The website cannot edit it after posting. Settlement is the program paying that escrow once. A message from a server is not the payment. There are no claimed customers, and this is not mainnet.”
 
 ## Before you hit record
 
-1. Production page: [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). The headline must say “A safer way to pay for work.” The sample job must name Northwind Coffee. If it still asks for 17 + 25, the new build is not deployed yet.
-2. Phantom is installed, unlocked, and set to **Devnet**.
-3. The wallet holds at least 0.2 practice SOL. If Get practice SOL fails, use [faucet.solana.com](https://faucet.solana.com) first.
-4. Zoom so the headline fits. Hide the bookmarks bar. Do not show a seed phrase.
-5. One wallet is enough. It can play the cafe and the writer.
+1. Production page: [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). The headline must be the freelance line above. The label “Devnet · no real money” must be visible.
+2. Phantom installed, unlocked, set to Devnet, with at least 0.2 practice SOL. Low balance uses Airdrop 1 SOL, then [faucet.solana.com](https://faucet.solana.com).
+3. Zoom so the headline fits. Hide the bookmarks bar. Do not show a secret phrase.
+4. Do not invent a customer count, a dollar price, or a mainnet address.
 
 Local fallback:
 
@@ -32,65 +59,3 @@ npm ci
 npm run dev
 # http://127.0.0.1:4173
 ```
-
-## 0:00–0:25 Problem
-
-On screen: the top of the page. Do not scroll yet.
-
-Narration:
-
-“A cafe can hire a writer, and still argue about the headline after the draft arrives. The person paying does not want to pay for a line that missed the brief. The writer does not want the brief to change after they deliver.”
-
-## 0:25–0:50 Solution
-
-On screen: the three cards.
-
-Narration:
-
-“This is a safer way to pay for work. The cafe freezes the job and locks the pay before the writing starts. If the headline matches what was agreed, it is paid once. If it is short, the pay stays locked.”
-
-## 0:50–1:15 Connect and fund
-
-On screen: Connect Phantom. Point at the wallet network so Devnet is visible. If the balance is low, click Get practice SOL. Do not show a seed phrase.
-
-Narration:
-
-“Phantom is the wallet. Devnet is Solana’s practice network, so this is not real money. The site asks the wallet to sign. It never asks for the secret phrase. Practice SOL comes from the button, or from the public faucet.”
-
-## 1:15–1:45 Post the bounty
-
-On screen: Post bounty. Point at the job text, then at the agreed headline `Northwind Coffee: order ahead, skip the line.`, then at 0.05. Click Post bounty and lock pay. Approve. Wait until the bounty page says Funded.
-
-Narration:
-
-“Northwind Coffee is hiring a writer for one homepage headline. The job and the agreed line are already filled in. Point zero five practice SOL is locked with the bounty. After this, the cafe cannot swap the headline.”
-
-## 1:45–2:15 A short headline
-
-On screen: type `Northwind Coffee: order ahead.` and click Submit headline. Approve. Then click Check and pay. Approve. Leave the error up.
-
-Narration:
-
-“The writer turns in a shorter line. The check fails. The pay stays locked. A draft that missed the brief does not get paid.”
-
-## 2:15–2:45 The agreed headline
-
-On screen: submit `Northwind Coffee: order ahead, skip the line.` Click Check and pay. Wait for the settled state. Open the Explorer link. Show Devnet and success.
-
-Narration:
-
-“The agreed headline passes. The locked pay goes to the writer, once. The Explorer page is the public record. Paying this same bounty again is rejected.”
-
-## 2:45–3:00 Limits
-
-On screen: the program link in the header, or the README section “Built during the hackathon”.
-
-Narration:
-
-“There are no claimed customers, and this is not mainnet. The older settlement program was not changed. What this demo adds is a bounty a new person can post, deliver, and see paid once.”
-
-## If a step fails on camera
-
-- Get practice SOL is rate-limited: use the faucet, then continue. Say that out loud.
-- Wallet on the wrong network: switch to Devnet and retry the same click. Do not edit the bounty mid-take.
-- Do not improvise a customer count, a dollar price, or a mainnet address.
