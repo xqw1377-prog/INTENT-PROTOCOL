@@ -1,19 +1,32 @@
 # Demo video script
 
-A recorded cut is in the repository: [hackathon-demo/public/INTENT-Encode-demo.mp4](../hackathon-demo/public/INTENT-Encode-demo.mp4) (104 seconds, 1280×720). After the production build includes that file, it is [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4). An unlisted YouTube URL is not available yet.
+Finals shot list. About 3 minutes. English narration for text-to-speech. The founder does not need to speak.
 
-The timings below are the narration of that recorded cut. They are not a second pitch. The submission track is Best Consumer App on Solana. Aurora Intents is not entered: there is no Aurora integration, so it is not qualified and the bounty is not claimed. An Aurora Intents workshop is on 2026-10-28. Decide after that workshop. Do not add a cosmetic Aurora API for the bounty.
+The file already hosted at [https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4](https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4) is the earlier arithmetic sample (17 + 25). Do not submit that cut for the finals. Record this script, then paste the new hosted URL into `docs/ENCODE-MID-SUBMISSION.md`.
 
-Three minutes was the script length. The recorded cut is 104 seconds. English narration is for text-to-speech. The founder does not need to speak. The closing view is one Explorer tab.
+Track: Best Consumer App on Solana. Do not mention other tracks. Do not claim users, partners, mainnet, or a token. Say “practice SOL” when you mention the pay.
 
-Do not claim users, partners, mainnet, or a token. Say “devnet SOL” when you mention the escrow.
+## Shot list
+
+| Time | On screen | Say |
+|---|---|---|
+| 0:00–0:25 | Live demo headline, no scrolling | A cafe and a writer can still fight about the headline after the draft is in, because “done” was never frozen. |
+| 0:25–0:50 | Three cards | Intent locks the job and the pay before writing starts. A matching headline is paid once. A short one is not. |
+| 0:50–1:15 | Connect Phantom. Point at Devnet. | This wallet is Phantom. The network is Devnet, Solana’s free practice network. The site never asks for a secret phrase. Press Get practice SOL if the balance is empty. |
+| 1:15–1:45 | Post bounty form, already filled | Northwind Coffee is hiring a writer for one homepage headline. The job text and the agreed line are filled in. The pay is 0.05 practice SOL. Post the bounty. The page then shows Funded. |
+| 1:45–2:15 | Submit the short line, then Check and pay | The short line is “Northwind Coffee: order ahead.” The check fails. The pay stays locked. |
+| 2:15–2:45 | Submit the full line, then Check and pay. Open Explorer. | The agreed line is “Northwind Coffee: order ahead, skip the line.” The pay goes out once. The Explorer link is the public record. Paying again is rejected. |
+| 2:45–3:00 | Header program link, or README “Built during the hackathon” | There are no claimed customers. The pay is practice SOL. An older one-receipt program was not changed. |
 
 ## Before you hit record
 
-1. Record against the live demo, [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). Solana Explorer (devnet) already shows program `7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F` as deployed. Deploy transaction: `3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx`.
-2. Phantom or Solflare is installed, unlocked, and set to **Devnet**.
-3. The wallet holds at least 0.2 SOL. If Airdrop fails, use [faucet.solana.com](https://faucet.solana.com) first.
-4. Browser at the live URL, zoomed so the headline fits. Bookmarks bar hidden. Local fallback, only if the live site is down:
+1. Production page: [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). The headline must say “A safer way to pay for work.” The sample job must name Northwind Coffee. If it still asks for 17 + 25, the new build is not deployed yet.
+2. Phantom is installed, unlocked, and set to **Devnet**.
+3. The wallet holds at least 0.2 practice SOL. If Get practice SOL fails, use [faucet.solana.com](https://faucet.solana.com) first.
+4. Zoom so the headline fits. Hide the bookmarks bar. Do not show a seed phrase.
+5. One wallet is enough. It can play the cafe and the writer.
+
+Local fallback:
 
 ```bash
 cd hackathon-demo
@@ -21,66 +34,65 @@ npm ci
 npm run dev
 # http://127.0.0.1:4173
 ```
-5. Have a second wallet only if you want the two-role shot. One wallet is enough: the program, not the signer, decides the result.
 
 ## 0:00–0:25 Problem
 
-On screen: the top of the page. Do not scroll yet. Cursor still.
+On screen: the top of the page. Do not scroll yet.
 
 Narration:
 
-“Two people can agree to work, and still fight about what done means after the work is finished. The person who pays does not want to pay for something that only looks finished. The person who does the work does not want the rules to change after they deliver.”
+“A cafe can hire a writer, and still argue about the headline after the draft arrives. The person paying does not want to pay for a line that missed the brief. The writer does not want the brief to change after they deliver.”
 
-## 0:25–0:45 Solution
+## 0:25–0:50 Solution
 
-On screen: scroll until the three cards are visible. Leave them up.
-
-Narration:
-
-“Intent freezes the done-criteria before any work starts, and locks the reward in the same step. After delivery, the Solana program recomputes the submission. If it matches the hash that was frozen, the escrow is earned. Earned is a protocol fact. Paying it is the settlement that follows.”
-
-## 0:45–1:05 Connect and fund
-
-On screen: click Connect Phantom, or Solflare. Approve the connection. Point at the wallet network so Devnet is visible. If the balance is low, click Airdrop 1 devnet SOL on the create page, or show the faucet already completed. Do not show a seed phrase.
+On screen: the three cards.
 
 Narration:
 
-“This is Solana devnet. The wallet signs. The site never sees a secret key. Test SOL comes from the devnet faucet. Nothing here is mainnet, and nothing here is a project token.”
+“This is a safer way to pay for work. The cafe freezes the job and locks the pay before the writing starts. If the headline matches what was agreed, it is paid once. If it is short, the pay stays locked.”
 
-## 1:05–1:35 Freeze and escrow
+## 0:50–1:15 Connect and fund
 
-On screen: Create. The sample text is already filled. Point at the criteria, then at the expected submission `42`, then at `0.05` SOL. Click Freeze and escrow. Approve in the wallet. Wait until the intent page shows the status Funded. Click the intent account link only long enough to show Explorer on devnet, then come back.
-
-Narration:
-
-“The sample rule says done means the decimal sum of seventeen and twenty-five. The answer is committed as a hash. The words of the rule are stored on the intent account. Point zero five SOL moves into a vault the program owns. That vault is the escrow. It is created in the same transaction as the rule.”
-
-## 1:35–2:05 A failed delivery
-
-On screen: on the intent page, type `41` and click Submit delivery. Approve. Then click Verify and settle. Approve. Leave the error banner up. It should say the submission does not match and the escrow stays locked.
+On screen: Connect Phantom. Point at the wallet network so Devnet is visible. If the balance is low, click Get practice SOL. Do not show a seed phrase.
 
 Narration:
 
-“A wrong submission is recorded, and then the check fails. The program does not trust the deliverer. The SOL stays in the vault. Failed work does not get paid.”
+“Phantom is the wallet. Devnet is Solana’s practice network, so this is not real money. The site asks the wallet to sign. It never asks for the secret phrase. Practice SOL comes from the button, or from the public faucet.”
 
-## 2:05–2:35 The earned settlement
+## 1:15–1:45 Post the bounty
 
-On screen: submit `42`. Then click Verify and settle. Approve. Wait for the green settled state. Scroll to the Explorer list and open the settlement transaction. Show the devnet cluster badge and the success state.
-
-Narration:
-
-“The matching submission passes. The program writes a verification hash, then pays the vault to the deliverer, once. The Explorer link is the public record. A second settle of this same intent is rejected on-chain.”
-
-## 2:35–3:00 What already existed
-
-On screen: switch to the repository README section “Built during the hackathon”, or the program line in the page header. If you have time, open the September transaction `3enZzg…` and show that it is a different, older program.
+On screen: Post bounty. Point at the job text, then at the agreed headline `Northwind Coffee: order ahead, skip the line.`, then at 0.05. Click Post bounty and lock pay. Approve. Wait until the bounty page says Funded.
 
 Narration:
 
-“The idea, the local proof packs, and an immutable one-receipt settlement program were built before this hackathon. What was added for the checkpoint is this open demo: any devnet wallet can freeze a rule, escrow SOL, and settle once. There are no claimed users and no partners. The older program was not upgraded.”
+“Northwind Coffee is hiring a writer for one homepage headline. The job and the agreed line are already filled in. Point zero five practice SOL is locked with the bounty. After this, the cafe cannot swap the headline.”
+
+## 1:45–2:15 A short headline
+
+On screen: type `Northwind Coffee: order ahead.` and click Submit headline. Approve. Then click Check and pay. Approve. Leave the error up.
+
+Narration:
+
+“The writer turns in a shorter line. The check fails. The pay stays locked. A draft that missed the brief does not get paid.”
+
+## 2:15–2:45 The agreed headline
+
+On screen: submit `Northwind Coffee: order ahead, skip the line.` Click Check and pay. Wait for the settled state. Open the Explorer link. Show Devnet and success.
+
+Narration:
+
+“The agreed headline passes. The locked pay goes to the writer, once. The Explorer page is the public record. Paying this same bounty again is rejected.”
+
+## 2:45–3:00 Limits
+
+On screen: the program link in the header, or the README section “Built during the hackathon”.
+
+Narration:
+
+“There are no claimed customers, and this is not mainnet. The older settlement program was not changed. What this demo adds is a bounty a new person can post, deliver, and see paid once.”
 
 ## If a step fails on camera
 
-- Airdrop rate limit: use the faucet, then continue. Say that out loud.
-- Wallet on the wrong network: switch to Devnet and retry the same click. Do not edit the rule mid-take.
-- Do not improvise a customer, a dollar amount, or a mainnet address.
+- Get practice SOL is rate-limited: use the faucet, then continue. Say that out loud.
+- Wallet on the wrong network: switch to Devnet and retry the same click. Do not edit the bounty mid-take.
+- Do not improvise a customer count, a dollar price, or a mainnet address.

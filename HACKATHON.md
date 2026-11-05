@@ -12,7 +12,7 @@ On devnet, the pay is locked with that rule. A matching delivery is paid once. A
 
 ## What to run
 
-Open [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). Install Phantom or Solflare, switch that wallet to Devnet, and use Airdrop or [faucet.solana.com](https://faucet.solana.com). The sample criteria ask for the sum of 17 and 25. Submit `42`. Then choose Verify and settle. The page links each transaction on Solana Explorer (devnet).
+Open [https://intent-protocol-wine.vercel.app](https://intent-protocol-wine.vercel.app). Install Phantom, switch that wallet to Devnet (practice money, not real SOL), and use Get practice SOL or [faucet.solana.com](https://faucet.solana.com). The sample is a cafe hiring a writer. First submit `Northwind Coffee: order ahead.` The pay stays locked. Then submit `Northwind Coffee: order ahead, skip the line.` and choose Check and pay. The page links each transaction on Solana Explorer (devnet).
 
 The same page locally:
 
@@ -65,7 +65,7 @@ Re-read on 2026-10-25 from `https://api.devnet.solana.com` with `solana program 
 
 Deploy transaction, finalized: [`3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx`](https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet).
 
-Sample settlement on that program, finalized (submit `42`, pay the deliverer once): [`64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT`](https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet). The same devnet run rejected `41` with custom error 207 and a second settle with custom error 208.
+Sample settlement on that program, from the earlier arithmetic walkthrough, finalized: [`64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT`](https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet). That run rejected a wrong submission with custom error 207 and a second settle with custom error 208. The public walkthrough is now the Northwind Coffee writing bounty. The program did not change.
 
 The program-id keypair and the upgrade-authority keypair are not in this repository. `packages/hackathon-escrow/program/target/` is gitignored. Do not treat `ASvnm4pi…` as upgradeable.
 
@@ -96,11 +96,9 @@ Do not set a Root Directory override and do not add environment variables. The o
 
 ## Track
 
-Enter **Best Consumer App on Solana**. That is the primary track.
+Enter **Best Consumer App on Solana** only.
 
-Do not enter **Aurora Intents**. The product name contains “intent”, and there is no Aurora Intents integration, so the track is not qualified. Do not claim the Aurora bounty. An Aurora Intents workshop is on 2026-10-28. Decide after that workshop. Do not add a cosmetic Aurora API to chase the bounty.
-
-Do not enter Best Use of x402 on Solana. The reasoning is in [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md). Mid-submission paste text is in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md).
+Do not enter Best Use of x402 on Solana. The reasoning is in [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md). Finals paste text is in [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md).
 
 ## What is not claimed
 

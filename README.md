@@ -21,7 +21,7 @@ npm run dev
 # http://127.0.0.1:4173
 ```
 
-Onboarding, in the page: install Phantom or Solflare, switch the wallet to Devnet, airdrop 1 SOL (or use [faucet.solana.com](https://faucet.solana.com)), then use the sample intent. The sample done-criteria is the decimal sum of 17 and 25. The answer that earns the escrow is `42`. The sample locks 0.05 SOL.
+Onboarding, in the page: install Phantom, switch the wallet to Devnet (Solana’s free practice network), get practice SOL, then post the sample bounty. Northwind Coffee is hiring a writer for one homepage headline. The agreed line is `Northwind Coffee: order ahead, skip the line.` A shorter line does not get paid. The pay locked with the bounty is 0.05 practice SOL.
 
 Production is already that Vercel URL. A later static rebuild, from a logged-in Vercel CLI at this repository root:
 
@@ -121,17 +121,17 @@ Encode Club Solana Hackathon 2026 runs 2026-10-12 through 2026-11-08. Work in th
 
 - A new program, `7a6K1m…`, for open intents: on-chain criteria hash, SOL escrow at creation, program-checked delivery, exactly-once settlement. Deployed to devnet on 2026-10-25. The immutable program was not modified.
 - The public wallet demo at `https://intent-protocol-wine.vercel.app`, the judge brief, the slide deck, the demo script, and the submission fields.
-- The Encode track is Best Consumer App on Solana. Aurora Intents is not entered: the name says “intent”, and there is no Aurora integration, so that track is not qualified. x402 is not entered. Reasoning: [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md).
+- The Encode track is Best Consumer App on Solana. x402 is not entered. Reasoning: [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md).
 
 ## Map
 
 | Doc | What it is |
 |---|---|
 | [HACKATHON.md](HACKATHON.md) | Judge brief and deploy notes |
-| [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) | Narration for the recorded demo |
-| [hackathon-demo/public/INTENT-Encode-demo.mp4](hackathon-demo/public/INTENT-Encode-demo.mp4) | Demo video, 104 seconds |
+| [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) | Finals shot list for the Northwind Coffee bounty |
+| [hackathon-demo/public/INTENT-Encode-demo.mp4](hackathon-demo/public/INTENT-Encode-demo.mp4) | Earlier video, arithmetic sample, 104 seconds |
 | [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md) | Paste-ready form fields and track recommendation |
-| [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md) | Mid-submission fields due 2026-11-02 19:59 Asia/Shanghai |
+| [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md) | Finals paste fields, deadline 2026-11-09 19:59 Asia/Shanghai |
 | [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html) | Judge slide deck |
 | [docs/product/OVERVIEW.md](docs/product/OVERVIEW.md) | Product narrative |
 | [docs/GOVERNANCE-LEDGER.md](docs/GOVERNANCE-LEDGER.md) | Internal approval ledger, moved out of this page |
