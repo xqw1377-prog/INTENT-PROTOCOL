@@ -1,10 +1,8 @@
 # INTENT PROTOCOL
 
-**A safer way to pay for work.**
+**Pay for freelance work without moving the goalposts.**
 
-Hire work without moving the goalposts. Freeze the rules before the work. Prove the outcome after.
-
-On the public devnet demo, the pay is locked together with the rule. A matching delivery is paid once. A wrong delivery is not paid. There is no mainnet deployment and no token. Real external payer, task, and worker recorded here: 0.
+A client hires a freelancer for one deliverable. What “done” means is frozen before the work starts, and the pay is locked with it. After delivery, that standard cannot be moved. The live sample is Northwind Coffee hiring a writer for a homepage headline. There is no mainnet deployment and no token. Real external payer, task, and worker recorded here: 0.
 
 The judge brief is [HACKATHON.md](HACKATHON.md). Internal gate history is [docs/GOVERNANCE-LEDGER.md](docs/GOVERNANCE-LEDGER.md).
 

@@ -68,35 +68,35 @@
   <body>
     <div class="deck">
       <section class="slide active">
-        <p class="kicker">INTENT PROTOCOL · ENCODE 2026</p>
-        <h1>A safer way to pay for work.</h1>
-        <p>Hire work without moving the goalposts. Freeze the rules before the work. Prove the outcome after.</p>
-        <p>On devnet, the pay is locked with the rule. A matching delivery is paid once. A wrong delivery is not paid. No token.</p>
+        <p class="kicker">DEVNET · NO REAL MONEY</p>
+        <h1>Pay for freelance work without moving the goalposts.</h1>
+        <p>A client hires a freelancer for one deliverable. The client fears paying for work that only looks done. The freelancer fears the standard moving after delivery.</p>
+        <p>The live sample is Northwind Coffee hiring a writer for a homepage headline.</p>
       </section>
 
       <section class="slide">
-        <p class="kicker">02 · FREEZE THE RULES</p>
-        <h1>The criteria are written before delivery.</h1>
-        <p>A cafe posts a writing bounty before the writer starts. The job text is saved with the bounty. The agreed headline is saved only as a check. After posting, neither side can edit what “done” means.</p>
+        <p class="kicker">02 · THE PRODUCT</p>
+        <h1>Freeze done before work. Lock the reward. Let Solana settle once.</h1>
+        <p>Northwind Coffee writes the job and locks 0.05 practice SOL before the writer starts. After that, the agreed headline cannot be edited.</p>
+        <p>A short line is not paid. The agreed line is paid once. Paying again is rejected.</p>
       </section>
 
       <section class="slide">
-        <p class="kicker">03 · ON-CHAIN ESCROW</p>
-        <h1>The pay is locked when the bounty is posted.</h1>
+        <p class="kicker">03 · WHY SOLANA</p>
+        <h1>The pay is not a row in a database.</h1>
         <ul>
-          <li>A cafe locks 0.05 practice SOL with a writing bounty.</li>
-          <li>The writer turns in a headline. The program compares it with the headline locked at posting.</li>
-          <li>The agreed headline is paid once. A shorter headline leaves the pay locked.</li>
-          <li>The cafe can cancel before the check and take the pay back. Paying twice is rejected.</li>
+          <li>Escrow is SOL in an account the program owns.</li>
+          <li>The frozen “done” rule is a hash on the intent account, not text the website can change later.</li>
+          <li>Settlement is the program paying that escrow once. A server message is not the payment.</li>
         </ul>
       </section>
 
       <section class="slide">
         <p class="kicker">04 · LIVE DEMO</p>
-        <h1>Three minutes, one devnet wallet.</h1>
+        <h1>Wrong work stays unpaid. The agreed line pays once.</h1>
         <ol>
-          <li>Open <a href="https://intent-protocol-wine.vercel.app">intent-protocol-wine.vercel.app</a>. Install Phantom. Switch to Devnet, the free practice network.</li>
-          <li>Press Get practice SOL, or use faucet.solana.com.</li>
+          <li>Open <a href="https://intent-protocol-wine.vercel.app">intent-protocol-wine.vercel.app</a>. If Phantom is missing, the button says Install Phantom.</li>
+          <li>The page says Devnet · no real money. Low balance: Airdrop 1 SOL, or <a href="https://faucet.solana.com">faucet.solana.com</a>.</li>
           <li>Post the Northwind Coffee bounty. Submit <span class="mono">Northwind Coffee: order ahead.</span> Check and pay. The pay stays locked.</li>
           <li>Submit <span class="mono">Northwind Coffee: order ahead, skip the line.</span> Check and pay. Open Explorer. Pay again. It is refused.</li>
         </ol>
@@ -106,15 +106,15 @@
         <p class="kicker">05 · ON DEVNET</p>
         <h1>The pay is held by a devnet program.</h1>
         <p>Program <a href="https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet"><span class="mono">7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F</span></a>. Upgrade authority <span class="mono">4ZJVcnWWJmAdmqz8Trt334HKbx3geXTf5FMBaX2yjpUT</span>. Checked executable on 2026-10-25.</p>
-        <p>Deploy: <a href="https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet">3aGkjKFg…bSjx</a>. An earlier settlement, from the arithmetic sample: <a href="https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet">64N3e5KB…w6jT</a>. The live walkthrough is now the Northwind Coffee bounty.</p>
+        <p>Deploy: <a href="https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet">3aGkjKFg…bSjx</a>. One earlier settlement on this program: <a href="https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet">64N3e5KB…w6jT</a>. The live job is the Northwind Coffee headline.</p>
         <p>Older program <span class="mono">ASvnm4pi…</span> is immutable and was not modified. One test-token receipt settled once. Later retries failed with custom error 108.</p>
       </section>
 
       <section class="slide">
         <p class="kicker">06 · TRACK</p>
         <h1>Best Consumer App on Solana.</h1>
-        <p>This is the only track we enter. A cafe can hire a writer without changing the headline after the draft arrives. Starting takes a browser wallet and free practice SOL. Solana holds the pay from the moment the bounty is posted.</p>
-        <p>x402 is not entered. That track unlocks something after a payment. This pay waits until the frozen job is met.</p>
+        <p>This is the only track. A client and a freelancer can see the job, the locked pay, and one settlement. Starting is a browser wallet on Devnet, which is not real money.</p>
+        <p>x402 is not this product. That pattern unlocks access after a payment. Here the payment waits until the frozen job is met.</p>
       </section>
 
       <section class="slide">
