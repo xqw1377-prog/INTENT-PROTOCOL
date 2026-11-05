@@ -77,18 +77,17 @@
       <section class="slide">
         <p class="kicker">02 · FREEZE THE RULES</p>
         <h1>The criteria are written before delivery.</h1>
-        <p>The creator stores the criteria text on the intent account. The program hashes that text in the same transaction. The expected submission is stored only as a hash. The answer itself is not on the account.</p>
-        <p>After that, the deliverer cannot edit the rule, and the creator cannot quietly change what “done” means.</p>
+        <p>A cafe posts a writing bounty before the writer starts. The job text is saved with the bounty. The agreed headline is saved only as a check. After posting, neither side can edit what “done” means.</p>
       </section>
 
       <section class="slide">
         <p class="kicker">03 · ON-CHAIN ESCROW</p>
-        <h1>The SOL is locked when the intent is created.</h1>
+        <h1>The pay is locked when the bounty is posted.</h1>
         <ul>
-          <li>A program-owned vault holds the reward. The sample intent locks 0.05 SOL.</li>
-          <li>Submit records the bytes and their hash. Verify recomputes sha256 and compares it to the frozen hash.</li>
-          <li>A match writes a verification-result hash and pays the deliverer once. A mismatch leaves the SOL locked.</li>
-          <li>Cancel before verification returns the escrow to the creator. A second settle is rejected.</li>
+          <li>A cafe locks 0.05 practice SOL with a writing bounty.</li>
+          <li>The writer turns in a headline. The program compares it with the headline locked at posting.</li>
+          <li>The agreed headline is paid once. A shorter headline leaves the pay locked.</li>
+          <li>The cafe can cancel before the check and take the pay back. Paying twice is rejected.</li>
         </ul>
       </section>
 
@@ -96,10 +95,10 @@
         <p class="kicker">04 · LIVE DEMO</p>
         <h1>Three minutes, one devnet wallet.</h1>
         <ol>
-          <li>Open <a href="https://intent-protocol-wine.vercel.app">intent-protocol-wine.vercel.app</a>.</li>
-          <li>Phantom or Solflare, switched to Devnet. Airdrop, or use faucet.solana.com.</li>
-          <li>Sample criteria: the decimal sum of 17 and 25. Submit <span class="mono">41</span>. Verify and settle. The program refuses. The SOL stays.</li>
-          <li>Submit <span class="mono">42</span>. Verify and settle. Open the Explorer link. Settle again. The program refuses.</li>
+          <li>Open <a href="https://intent-protocol-wine.vercel.app">intent-protocol-wine.vercel.app</a>. Install Phantom. Switch to Devnet, the free practice network.</li>
+          <li>Press Get practice SOL, or use faucet.solana.com.</li>
+          <li>Post the Northwind Coffee bounty. Submit <span class="mono">Northwind Coffee: order ahead.</span> Check and pay. The pay stays locked.</li>
+          <li>Submit <span class="mono">Northwind Coffee: order ahead, skip the line.</span> Check and pay. Open Explorer. Pay again. It is refused.</li>
         </ol>
       </section>
 
@@ -107,16 +106,15 @@
         <p class="kicker">05 · ON DEVNET</p>
         <h1>The pay is held by a devnet program.</h1>
         <p>Program <a href="https://explorer.solana.com/address/7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F?cluster=devnet"><span class="mono">7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F</span></a>. Upgrade authority <span class="mono">4ZJVcnWWJmAdmqz8Trt334HKbx3geXTf5FMBaX2yjpUT</span>. Checked executable on 2026-10-25.</p>
-        <p>Deploy: <a href="https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet">3aGkjKFg…bSjx</a>. Sample settle: <a href="https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet">64N3e5KB…w6jT</a>.</p>
+        <p>Deploy: <a href="https://explorer.solana.com/tx/3aGkjKFgswMQgZVvn6VoZZM2Reyhs7uDTSENp2eqQaqcZVgUp3Ub5J5bCbWruqkk585KjS5NHrubgVWN1pXqbSjx?cluster=devnet">3aGkjKFg…bSjx</a>. An earlier settlement, from the arithmetic sample: <a href="https://explorer.solana.com/tx/64N3e5KBXaK4Tm5vYmWWvCEWCPSLMwdq1aXSQQeDzzhFTchaaRNTUXh7a5nx4T9YnAcPaFWSkqBo1jXYoDCPw6jT?cluster=devnet">64N3e5KB…w6jT</a>. The live walkthrough is now the Northwind Coffee bounty.</p>
         <p>Older program <span class="mono">ASvnm4pi…</span> is immutable and was not modified. One test-token receipt settled once. Later retries failed with custom error 108.</p>
       </section>
 
       <section class="slide">
         <p class="kicker">06 · TRACK</p>
         <h1>Best Consumer App on Solana.</h1>
-        <p>This is the track we enter. The need is hiring work without the rule moving after delivery. Onboarding is a devnet wallet, a faucet, and a sample. Solana holds the pay from the moment the rule is frozen.</p>
-        <p><strong>Aurora Intents is not entered.</strong> The product name says “intent”, and there is no Aurora Intents integration, so the track is not qualified. Do not claim the bounty. A workshop is on 28 October 2026. Decide after that. Do not add a cosmetic Aurora API for it.</p>
-        <p>x402 is not entered. That track is pay-to-unlock. This pay is released only after the frozen rule is met.</p>
+        <p>This is the only track we enter. A cafe can hire a writer without changing the headline after the draft arrives. Starting takes a browser wallet and free practice SOL. Solana holds the pay from the moment the bounty is posted.</p>
+        <p>x402 is not entered. That track unlocks something after a payment. This pay waits until the frozen job is met.</p>
       </section>
 
       <section class="slide">

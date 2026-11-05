@@ -1,22 +1,22 @@
-# Encode mid-submission fields
+# Encode submission fields
 
-Due 2026-11-02, 19:59 Asia/Shanghai. Paste each fenced block as written. Do not add users, partners, revenue, or mainnet.
+Deadline 2026-11-09, 19:59 Asia/Shanghai. Paste each fenced block as written. Do not add users, partners, revenue, or mainnet.
 
-Track: Best Consumer App on Solana. Aurora Intents is not entered and is not qualified until a real Aurora Intents integration exists. Do not claim the Aurora bounty. An Aurora Intents workshop is on 2026-10-28; decide after it, and do not add a cosmetic Aurora API for the bounty. x402 is not entered. See [ENCODE-SUBMISSION.md](ENCODE-SUBMISSION.md).
+Track: Best Consumer App on Solana only. x402 is not entered. See [ENCODE-SUBMISSION.md](ENCODE-SUBMISSION.md).
 
 ## Description
 
 ```
 A safer way to pay for work. Hire someone without moving the goalposts: freeze what “done” means before the work starts, then prove the outcome after.
 
-On the public devnet demo, a wallet connects, writes the rule, and locks 0.05 SOL with it. A deliverer submits the work. A match pays that SOL once. Submit 41 on the sample and the pay stays locked. Submit 42 and it pays once. A second pay is rejected. The person who posted the job can cancel before the check and take the SOL back.
+On the public devnet demo, a cafe posts a paid writing bounty and locks 0.05 practice SOL with the job. A writer turns in a headline. The short line “Northwind Coffee: order ahead.” does not get paid. The agreed line “Northwind Coffee: order ahead, skip the line.” is paid once. A second pay is rejected. The cafe can cancel before the check and take the pay back.
 
 Demo: https://intent-protocol-wine.vercel.app
-Video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+Video: the file at https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4 is the earlier arithmetic sample. The finals shot list is docs/DEMO-SCRIPT.md. A new hosted video URL is not recorded yet.
 Slides: https://intent-protocol-wine.vercel.app/slides.html
 Escrow program on devnet: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F
 
-Use Phantom or Solflare on Devnet. The sample asks for the decimal sum of 17 and 25.
+Use Phantom on Devnet, Solana’s free practice network. The sample job is one homepage headline for Northwind Coffee.
 
 No mainnet. No token. No claimed users, customers, or partners. Real external payer, task, and worker recorded in this repository: 0.
 ```
@@ -43,20 +43,24 @@ The September program ASvnm4pic6a9UDud3CqY51xUfhys5t7mqYrcHbJkDW4F lives under p
 https://intent-protocol-wine.vercel.app
 
 How to try:
-1. Open the URL. Install Phantom or Solflare and switch the wallet to Devnet.
-2. If the balance is low, use Airdrop on the page, or https://faucet.solana.com.
-3. Create is prefilled. The sample criteria are the decimal sum of 17 and 25. Escrow is 0.05 SOL. The answer that earns it is 42.
-4. Submit 41, then Verify and settle. The program rejects it. The SOL stays in the vault.
-5. Submit 42, then Verify and settle. Open the Explorer link on the page. Settling again is rejected.
-6. One wallet is enough. The program, not the signer, decides the result.
+1. Open the URL. Install Phantom and switch the wallet to Devnet. Devnet is Solana’s free practice network, not real money.
+2. If the balance is low, press Get practice SOL, or use https://faucet.solana.com.
+3. Post bounty is prefilled. Northwind Coffee is hiring a writer for one homepage headline. The locked pay is 0.05 practice SOL. The agreed headline is “Northwind Coffee: order ahead, skip the line.”
+4. Submit “Northwind Coffee: order ahead.” Then Check and pay. The pay stays locked.
+5. Submit “Northwind Coffee: order ahead, skip the line.” Then Check and pay. Open the Explorer link. Paying again is rejected.
+6. One wallet can play the cafe and the writer. The check does not care who signed.
 ```
 
 ## Demo Video
 
 ```
-https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+Previous cut (arithmetic sample, 104 seconds): https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
 
-104 seconds, 1280×720. The file is hackathon-demo/public/INTENT-Encode-demo.mp4 in https://github.com/xqw1377-prog/INTENT-PROTOCOL. The live site serves that path after the production build includes this file. An unlisted YouTube URL is not available yet. Narration script: docs/DEMO-SCRIPT.md.
+Do not submit that file as the finals video. It shows 17 + 25.
+
+Finals video URL: (record from docs/DEMO-SCRIPT.md, then paste the hosted URL)
+
+Shot list and narration: docs/DEMO-SCRIPT.md in https://github.com/xqw1377-prog/INTENT-PROTOCOL
 ```
 
 ## Slides

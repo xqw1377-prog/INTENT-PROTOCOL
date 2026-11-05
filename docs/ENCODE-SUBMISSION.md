@@ -14,14 +14,14 @@ A safer way to pay for work: hire without moving the goalposts. Freeze the rules
 
 A safer way to pay for work. Hire someone without moving the goalposts: freeze what “done” means before the work starts, then prove the outcome after.
 
-On the public devnet demo, a wallet connects, writes the rule, and locks 0.05 SOL with it. A deliverer submits the work. A match pays that SOL once. Submit 41 on the sample and the pay stays locked. Submit 42 and it pays once. A second pay is rejected. The person who posted the job can cancel before the check and take the SOL back.
+On the public devnet demo, a cafe posts a paid writing bounty and locks 0.05 practice SOL with the job. A writer turns in a headline. The short line `Northwind Coffee: order ahead.` does not get paid. The agreed line `Northwind Coffee: order ahead, skip the line.` is paid once. A second pay is rejected. The cafe can cancel before the check and take the pay back.
 
 Demo: https://intent-protocol-wine.vercel.app
-Video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+Video: the recorded cut at https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4 still shows the old arithmetic sample. The finals shot list is docs/DEMO-SCRIPT.md. A new hosted video URL is not recorded yet.
 Slides: https://intent-protocol-wine.vercel.app/slides.html
 Escrow program on devnet: 7a6K1mJVu3vx2RugjYxtfipPGFvqygghD1wTox7bBa2F
 
-Use Phantom or Solflare on Devnet. The sample asks for the decimal sum of 17 and 25.
+Use Phantom on Devnet. Devnet is Solana’s free practice network. The sample job is one homepage headline for Northwind Coffee.
 
 No mainnet. No token. No claimed users, customers, or partners. Real external payer, task, and worker recorded in this repository: 0.
 
@@ -29,9 +29,7 @@ No mainnet. No token. No claimed users, customers, or partners. Real external pa
 
 Best Consumer App on Solana.
 
-Aurora Intents is not entered and is not qualified until there is a real Aurora Intents integration. The product name contains “intent”. That is not an integration. Do not claim the Aurora bounty.
-
-## Why this track, and not x402 or Aurora
+## Why this track, and not x402
 
 x402 is a payment-to-access protocol: a server answers HTTP 402, a client pays, and a successful payment unlocks a resource. Failed payment must not unlock it.
 
@@ -39,9 +37,9 @@ That is a real Solana pattern, and it is a poor fit for this product.
 
 The payment in Intent is conditional escrow. The SOL is locked at the start and released only after the frozen rule passes. It is not a toll to read an API. Charging x402 “to run verification” would put a second payment in front of a check the program already does, and it would need a facilitator, a paid endpoint, and a failure policy that is not the product. That is too much to do honestly before the 2026-11-01 checkpoint, on top of the wallet flow the submission actually requires.
 
-Best Consumer App matches what is built: a person can hire work without the rule moving after delivery, get onto devnet with a wallet and a faucet, and watch one sample job pay once. Solana holds the pay from the moment the rule is frozen.
+Best Consumer App matches what is built: a cafe can hire a writer without changing the headline after the draft arrives, a new person can start with a browser wallet and free practice SOL, and one sample bounty pays once.
 
-Aurora Intents is not entered. There is no Aurora Intents integration in this repository, so the track is not qualified and the bounty is not claimed. An Aurora Intents workshop is on 2026-10-28. Decide after that workshop. Do not bolt on a cosmetic Aurora API for the bounty.
+x402 is not entered. That pattern unlocks access after a payment. This payment waits until the frozen job is met.
 
 ## Repository
 
@@ -53,9 +51,9 @@ https://intent-protocol-wine.vercel.app
 
 ## Video link
 
-https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
+Previous cut, arithmetic sample, do not submit this as the finals video: https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
 
-104 seconds, 1280×720. Source file: `hackathon-demo/public/INTENT-Encode-demo.mp4`. That URL is on the live site after the production build includes this file. An unlisted YouTube URL is not available yet. Narration script: `docs/DEMO-SCRIPT.md`.
+Finals video: not recorded in this change. Shot list and narration: `docs/DEMO-SCRIPT.md`. Paste the hosted URL here after Star records it.
 
 ## Slides
 

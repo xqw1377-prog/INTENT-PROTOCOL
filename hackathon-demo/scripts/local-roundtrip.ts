@@ -17,6 +17,7 @@ import {
   PROGRAM_ID,
   SAMPLE_ANSWER,
   SAMPLE_CRITERIA,
+  SAMPLE_WRONG,
   SAMPLE_LAMPORTS,
   SEED_INTENT,
   SEED_REGISTRY,
@@ -117,7 +118,7 @@ async function main(): Promise<void> {
 
   await expectFail("wrong submission must not settle", [207], async () => {
     await send(deliverer, [
-      ix(encodeSubmit("41"), [
+      ix(encodeSubmit(SAMPLE_WRONG), [
         { pubkey: deliverer.publicKey, isSigner: true, isWritable: true },
         { pubkey: intent, isSigner: false, isWritable: true },
       ]),

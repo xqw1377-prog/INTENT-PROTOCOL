@@ -6,6 +6,7 @@ import {
   PROGRAM_ID,
   SAMPLE_ANSWER,
   SAMPLE_CRITERIA,
+  SAMPLE_WRONG,
   STATUS_CANCELLED,
   STATUS_DELIVERED,
   STATUS_FUNDED,
@@ -99,7 +100,7 @@ function shell(body: string): string {
       </div>
       <div class="wrap" style="padding-bottom:12px">
         <div class="wallet-meta">
-          Devnet · program <a href="${explorerAddress(PROGRAM_ID)}">${short(PROGRAM_ID)}</a>
+          Practice network (Devnet, not real money) · program <a href="${explorerAddress(PROGRAM_ID)}">${short(PROGRAM_ID)}</a>
           ${connected ? ` · ${esc(walletName)} ${short(connected.toBase58())}` : " · wallet not connected"}
           ${balance ? ` · ${esc(balance)} SOL` : ""}
           ${deployed === false ? " · program account not found" : ""}
@@ -111,13 +112,13 @@ function shell(body: string): string {
 
 function homeHtml(): string {
   return `
-    <p class="kicker">Solana devnet · test SOL only</p>
+    <p class="kicker">Practice money on Solana · not a bank transfer</p>
     <h1>A safer way to pay for work.</h1>
-    <p class="lede">Hire work without moving the goalposts. Freeze the rules before the work. Prove the outcome after. The sample locks 0.05 SOL. A wrong answer leaves it locked. The right answer pays once.</p>
+    <p class="lede">Hire work without moving the goalposts. Freeze the rules before the work. Prove the outcome after. The sample is a cafe hiring a writer. The pay is 0.05 practice SOL. A short headline does not get paid. The agreed headline pays once.</p>
     <div class="grid cards">
-      <article class="card"><h2>1. Freeze the rule and the pay</h2><p class="muted">Write what “done” means, and lock the SOL in the same step. The rule cannot be edited after delivery.</p></article>
-      <article class="card"><h2>2. Deliver against that rule</h2><p class="muted">Another wallet, or the same one, submits the work. The sample answer is 42. Try 41 first.</p></article>
-      <article class="card"><h2>3. Get paid once, or not at all</h2><p class="muted">A match pays the locked SOL. A mismatch leaves it locked. Paying twice is rejected.</p></article>
+      <article class="card"><h2>1. Post the bounty and lock the pay</h2><p class="muted">Northwind Coffee writes the job and locks the pay in the same step. The agreed headline cannot be edited later.</p></article>
+      <article class="card"><h2>2. The writer submits the line</h2><p class="muted">Try “${esc(SAMPLE_WRONG)}” first. Then submit “${esc(SAMPLE_ANSWER)}”.</p></article>
+      <article class="card"><h2>3. Matching work is paid once</h2><p class="muted">A match releases the locked pay. A mismatch leaves it locked. Paying twice is rejected.</p></article>
     </div>
     <div class="row">
       <a class="btn btn-primary" href="#/create">Create an intent</a>
@@ -126,10 +127,10 @@ function homeHtml(): string {
     <section class="panel" style="margin-top:28px">
       <p class="kicker">Onboarding</p>
       <ol class="steps">
-        <li>Install <a href="https://phantom.com/download" target="_blank" rel="noreferrer">Phantom</a> or <a href="https://solflare.com/download" target="_blank" rel="noreferrer">Solflare</a>.</li>
-        <li>In the wallet, switch the network to <strong>Devnet</strong>. Phantom: open the network menu at the top and choose Devnet. Solflare: use the network dropdown.</li>
-        <li>Get test SOL. Use Airdrop on the create page, or <a href="https://faucet.solana.com" target="_blank" rel="noreferrer">faucet.solana.com</a> if the airdrop is rate-limited.</li>
-        <li>Use the sample intent. The done-criteria ask for the sum of 17 and 25. The sample answer is 42. Escrow is 0.05 SOL.</li>
+        <li>Install <a href="https://phantom.com/download" target="_blank" rel="noreferrer">Phantom</a> (a browser wallet). <a href="https://solflare.com/download" target="_blank" rel="noreferrer">Solflare</a> also works. This site never asks for the wallet’s secret phrase.</li>
+        <li>In the wallet, switch the network to <strong>Devnet</strong>. That is Solana’s free practice network, not real money. Phantom: the network menu at the top. Solflare: the network dropdown.</li>
+        <li>Get practice SOL. On the next page, press “Get practice SOL”. If that button is busy, open <a href="https://faucet.solana.com" target="_blank" rel="noreferrer">faucet.solana.com</a> and paste your wallet address.</li>
+        <li>Leave the sample bounty filled in. A cafe is hiring a writer for one homepage headline. The pay is 0.05 practice SOL.</li>
       </ol>
       <p class="muted">This demo never asks for a secret key and never sends a mainnet transaction. The older immutable settlement program stays untouched.</p>
     </section>`;
@@ -137,20 +138,20 @@ function homeHtml(): string {
 
 function createHtml(): string {
   return `
-    <p class="kicker">Create</p>
-    <h1>Freeze a done-criteria.</h1>
-    <p class="muted">The criteria text is stored on-chain. The expected submission is stored only as SHA-256. Range: 0.01 to 0.5 SOL.</p>
+    <p class="kicker">Post a bounty</p>
+    <h1>Lock the pay before the writing starts.</h1>
+    <p class="muted">The job text is saved with the bounty. The agreed headline is saved only as a check, so it cannot be swapped after you post. Pay is 0.01 to 0.5 practice SOL.</p>
     <form id="create-form" class="panel">
-      <label for="criteria">What does done mean?</label>
+      <label for="criteria">What must the work include?</label>
       <textarea id="criteria" name="criteria" maxlength="280" required>${esc(SAMPLE_CRITERIA)}</textarea>
-      <label for="answer">Expected submission, hashed before it is sent</label>
+      <label for="answer">Agreed headline</label>
       <input id="answer" name="answer" type="text" maxlength="128" required value="${esc(SAMPLE_ANSWER)}" />
-      <label for="sol">Escrow (SOL)</label>
+      <label for="sol">Pay locked with the bounty (practice SOL)</label>
       <input id="sol" name="sol" type="number" min="0.01" max="0.5" step="0.01" value="0.05" required />
       <div class="row">
-        <button class="btn btn-primary" type="submit" ${busy ? "disabled" : ""}>Freeze and escrow</button>
-        <button class="btn" type="button" data-action="airdrop" ${busy ? "disabled" : ""}>Airdrop 1 devnet SOL</button>
-        <button class="btn" type="button" data-action="sample">Reset sample</button>
+        <button class="btn btn-primary" type="submit" ${busy ? "disabled" : ""}>Post bounty and lock pay</button>
+        <button class="btn" type="button" data-action="airdrop" ${busy ? "disabled" : ""}>Get practice SOL</button>
+        <button class="btn" type="button" data-action="sample">Reset sample bounty</button>
       </div>
     </form>`;
 }
@@ -214,15 +215,15 @@ async function intentHtml(id: string): Promise<string> {
     ${account.status === STATUS_SETTLED ? `<div class="banner ok">Settled once. The vault paid the deliverer. A second settle is rejected on-chain (${esc(ERROR_TEXT[208] ?? "")}).</div>` : ""}
     ${canSubmit ? `
       <form id="submit-form" class="panel">
-        <p class="kicker">Deliver</p>
-        <label for="submission">Submission</label>
-        <input id="submission" name="submission" type="text" maxlength="128" required placeholder="For the sample, submit 42" />
-        <div class="row"><button class="btn btn-primary" type="submit" ${busy ? "disabled" : ""}>Submit delivery</button></div>
-        <p class="muted">Use a second wallet if you want the two roles split. The same wallet is allowed: the program still does the check.</p>
+        <p class="kicker">Writer</p>
+        <label for="submission">Headline you are turning in</label>
+        <input id="submission" name="submission" type="text" maxlength="128" required placeholder="${esc(SAMPLE_WRONG)}" />
+        <div class="row"><button class="btn btn-primary" type="submit" ${busy ? "disabled" : ""}>Submit headline</button></div>
+        <p class="muted">Sample: first submit “${esc(SAMPLE_WRONG)}”. The pay stays locked. Then submit “${esc(SAMPLE_ANSWER)}”. One wallet can play both the cafe and the writer. The check does not care who signed.</p>
       </form>` : ""}
     <div class="row">
-      ${canSettle ? `<button class="btn btn-primary" data-action="settle" data-intent="${esc(id)}" data-deliverer="${esc(deliverer)}" ${busy ? "disabled" : ""}>Verify and settle</button>` : ""}
-      ${canCancel ? `<button class="btn" data-action="cancel" data-intent="${esc(id)}" ${busy ? "disabled" : ""}>Cancel and return escrow</button>` : ""}
+      ${canSettle ? `<button class="btn btn-primary" data-action="settle" data-intent="${esc(id)}" data-deliverer="${esc(deliverer)}" ${busy ? "disabled" : ""}>Check and pay</button>` : ""}
+      ${canCancel ? `<button class="btn" data-action="cancel" data-intent="${esc(id)}" ${busy ? "disabled" : ""}>Cancel and return the pay</button>` : ""}
     </div>
     <section class="panel" style="margin-top:18px">
       <p class="kicker">Explorer</p>
@@ -272,7 +273,7 @@ async function connect(id: WalletId): Promise<void> {
   });
   await assertDevnet();
   await refreshBalance();
-  setNotice("ok", "Wallet connected. Confirm the wallet network is Devnet before you sign.");
+  setNotice("ok", "Wallet connected. In the wallet, the network must say Devnet. That is practice money.");
   await render();
 }
 
@@ -362,7 +363,7 @@ document.body.addEventListener("click", (event) => {
       const signature = await connection.requestAirdrop(owner, 1_000_000_000);
       const latest = await connection.getLatestBlockhash("confirmed");
       await connection.confirmTransaction({ signature, ...latest }, "confirmed");
-      setNotice("ok", "Airdrop confirmed. If this fails next time, use faucet.solana.com.");
+      setNotice("ok", "Practice SOL arrived. If this button is busy next time, use faucet.solana.com.");
     });
   }
   if (action === "settle") {

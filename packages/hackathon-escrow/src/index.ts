@@ -53,8 +53,9 @@ export const ERROR_TEXT: Record<number, string> = {
 };
 
 export const SAMPLE_CRITERIA =
-  "Done means the submission is the decimal sum of 17 and 25, with no other characters.";
-export const SAMPLE_ANSWER = "42";
+  "Freelance bounty from Northwind Coffee: one homepage headline. Done means the submission is exactly the headline agreed before the work, and nothing else.";
+export const SAMPLE_ANSWER = "Northwind Coffee: order ahead, skip the line.";
+export const SAMPLE_WRONG = "Northwind Coffee: order ahead.";
 
 const textEncoder = new TextEncoder();
 
