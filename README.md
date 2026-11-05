@@ -127,7 +127,7 @@ Encode Club Solana Hackathon 2026 runs 2026-10-12 through 2026-11-08. Work in th
 |---|---|
 | [HACKATHON.md](HACKATHON.md) | Judge brief and deploy notes |
 | [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) | Finals shot list for the Northwind Coffee bounty |
-| [hackathon-demo/public/INTENT-Encode-demo.mp4](hackathon-demo/public/INTENT-Encode-demo.mp4) | Finals demo video, Northwind Coffee bounty, about 104 seconds |
+| [hackathon-demo/public/INTENT-Encode-demo.mp4](hackathon-demo/public/INTENT-Encode-demo.mp4) | Judge demo video, Northwind Coffee bounty, 166 seconds |
 | [docs/ENCODE-SUBMISSION.md](docs/ENCODE-SUBMISSION.md) | Paste-ready form fields and track recommendation |
 | [docs/ENCODE-MID-SUBMISSION.md](docs/ENCODE-MID-SUBMISSION.md) | Finals paste fields, deadline 2026-11-09 19:59 Asia/Shanghai |
 | [hackathon-demo/public/slides.html](hackathon-demo/public/slides.html) | Judge slide deck |

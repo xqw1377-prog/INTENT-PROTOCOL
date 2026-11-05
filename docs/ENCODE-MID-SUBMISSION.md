@@ -53,7 +53,7 @@ How to try:
 ```
 https://intent-protocol-wine.vercel.app/INTENT-Encode-demo.mp4
 
-Northwind Coffee freelance bounty. About 104 seconds, H.264, 1280×720. File: hackathon-demo/public/INTENT-Encode-demo.mp4. A 2–3 minute re-record shot list is docs/DEMO-SCRIPT.md. This change does not replace the mp4.
+Northwind Coffee freelance bounty, judge cut. 166 seconds, H.264, 1280×720. File: hackathon-demo/public/INTENT-Encode-demo.mp4. Same bytes: hackathon-demo/public/INTENT-Encode-demo-judge.mp4. The live site serves the first name after this file is in the production build. Shot list: docs/DEMO-SCRIPT.md. Homepage, Devnet label, Install Phantom, and the bounty form are shots of the live site. Wallet-signed settlement is not re-acted; those beats stay on the live page text. The closing card states why the pay is on Solana.
 ```
 
 ## Slides
